@@ -14,7 +14,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
@@ -22,8 +21,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.R
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 
 /**
  * Created by Xiaochang on 2022/9/17.
@@ -37,9 +34,10 @@ fun VideoCard(
     videoName: String,
     uploader: String,
     views: String,
-    coverUrl: String
+    coverUrl: String,
+    modifier: Modifier = Modifier
 ) {
-    Card {
+    Card(modifier = modifier) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -51,10 +49,8 @@ fun VideoCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(coverUrl.replace("http://", "https://"))
-                        .crossfade(true).build(),
+                BiliImage(
+                    url = coverUrl,
                     contentDescription = "$videoName 封面",
                     modifier = Modifier
                         .weight(6f)
