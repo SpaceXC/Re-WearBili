@@ -5,14 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cn.spacexc.wearbili.remake.app.login.domain.manager.UserManager
-import cn.spacexc.wearbili.remake.app.main.recommend.remote.rcmd.app.Item
 import cn.spacexc.wearbili.remake.app.main.recommend.remote.rcmd.app.RecommendVideo
 import cn.spacexc.wearbili.remake.app.main.recommend.remote.rcmd.web.WebRecommendVideo
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.domain.log.logd
+import cn.spacexc.wearbili.remake.common.domain.manager.UserManager
 import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
-import cn.spacexc.wearbili.remake.common.ui.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,7 +38,7 @@ class RecommendViewModel @Inject constructor(
             if (screenState.videoList.isEmpty()) {
                 screenState = screenState.copy(uiState = UIState.Loading)
             }
-            screenState = screenState.copy(isRefreshing = true)
+            if (isRefresh) screenState = screenState.copy(isRefreshing = true)
             when (SettingsManager.getInstance().recommendSource) {
                 "app" -> {
                     val url =

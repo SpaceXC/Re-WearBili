@@ -2,8 +2,10 @@ package cn.spacexc.wearbili.remake.common.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -15,9 +17,14 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 import coil.compose.AsyncImage
-import coil.compose.AsyncImagePainter.State
 import coil.compose.AsyncImagePainter.Companion.DefaultTransform
+import coil.compose.AsyncImagePainter.State
 import coil.request.ImageRequest
+import com.google.accompanist.placeholder.PlaceholderDefaults
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.color
+import com.google.accompanist.placeholder.material.shimmer
+import com.google.accompanist.placeholder.placeholder
 
 /**
  * 获取哔哩哔哩图片时带参请求，限制图片宽高达到节流节能的效果
@@ -39,11 +46,22 @@ fun BiliImage(
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     filterQuality: FilterQuality = DefaultFilterQuality,
+    placeholderEnabled: Boolean = true
 ) {
     val size = remember { mutableStateOf(IntSize(0, 0)) }
-    Box(modifier = modifier.onSizeChanged {
-        size.value = it
-    }) {
+    var isLoading by remember {
+        mutableStateOf(true)
+    }
+
+    Box(modifier = modifier
+        .onSizeChanged {
+            size.value = it
+        }
+        .placeholder(
+            visible = isLoading && placeholderEnabled,
+            highlight = PlaceholderHighlight.shimmer(),
+            color = PlaceholderDefaults.color()
+        )) {
         if (size.value.width != 0) {
             val realUrl = "${url.replace("http://", "https://")}${
                 if (url.contains(".hdslb.com/bfs")) "@${size.value.width}w_${size.value.height}h.webp" else ""
@@ -55,12 +73,19 @@ fun BiliImage(
                 contentDescription = contentDescription,
                 modifier = Modifier.matchParentSize(),
                 transform = transform,
-                onState = onState,
+                onState = {
+                    isLoading = when (it) {
+                        is State.Success -> false
+                        is State.Loading -> true
+                        else -> true
+                    }
+                    onState?.invoke(it)
+                },
                 alignment = alignment,
                 contentScale = contentScale,
                 alpha = alpha,
                 colorFilter = colorFilter,
-                filterQuality = filterQuality
+                filterQuality = filterQuality,
             )
         }
     }

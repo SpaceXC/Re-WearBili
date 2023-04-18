@@ -7,16 +7,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.login.domain.manager.UserManager
 import cn.spacexc.wearbili.remake.app.login.ui.LoginActivity
 import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
 import cn.spacexc.wearbili.remake.common.domain.data.DataManager
-import cn.spacexc.wearbili.remake.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.remake.common.domain.log.logd
+import cn.spacexc.wearbili.remake.common.domain.manager.UserManager
 import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.internal.aggregatedroot.codegen._cn_spacexc_wearbili_remake_app_Application
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

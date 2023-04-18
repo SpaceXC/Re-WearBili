@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.sp
  * 给！爷！写！注！释！
  * 给！爷！写！注！释！
  */
- 
+
 private const val fontSizeMultiple = 1f
 
 val Int.spx: TextUnit
@@ -18,3 +18,8 @@ val Int.spx: TextUnit
 
 val Float.spx: TextUnit
     get() = (this * fontSizeMultiple).sp
+
+val Double.spx: TextUnit
+    get() = (this * fontSizeMultiple).sp
+
+fun TextUnit.toSpx(): TextUnit = (this / fontSizeMultiple)

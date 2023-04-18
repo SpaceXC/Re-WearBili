@@ -8,13 +8,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.input.pointer.pointerInput
+import cn.spacexc.wearbili.remake.app.Application
+import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.common.copyToClipboard
 
 /**
  * Created by Xiaochang on 2022/9/17.
@@ -29,14 +29,20 @@ fun Modifier.clickVfx(
     onClick: () -> Unit,
 ): Modifier = composed {
     if (isEnabled) {
-        val isPressed by interactionSource.collectIsPressedAsState()
-        val sizePercent by animateFloatAsState(
-            targetValue = if (isPressed) 0.9f else 1f,
-            animationSpec = tween(durationMillis = 150)
-        )
-        scale(sizePercent).clickable(
-            indication = null, interactionSource = interactionSource, onClick = onClick
-        )
+        if (SettingsManager.getInstance().isLowPerformance) {
+            clickable(
+                indication = null, interactionSource = interactionSource, onClick = onClick
+            )
+        } else {
+            val isPressed by interactionSource.collectIsPressedAsState()
+            val sizePercent by animateFloatAsState(
+                targetValue = if (isPressed) 0.9f else 1f,
+                animationSpec = tween(durationMillis = 150)
+            )
+            scale(sizePercent).clickable(
+                indication = null, interactionSource = interactionSource, onClick = onClick
+            )
+        }
     } else {
         Modifier
     }
@@ -45,29 +51,46 @@ fun Modifier.clickVfx(
 fun Modifier.clickVfx(
     interactionSource: MutableInteractionSource = MutableInteractionSource(),
     enabled: Boolean = true,
-    onClick: () -> Unit,
-    onLongClick: () -> Unit
+    onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {}
 ): Modifier = composed {
     if (enabled) {
-        val isPressed by interactionSource.collectIsPressedAsState()
-        val sizePercent by animateFloatAsState(
-            targetValue = if (isPressed) 0.9f else 1f,
-            animationSpec = tween(durationMillis = 150)
-        )
-        scale(sizePercent).pointerInput(Unit) {
-            detectTapGestures(
-                onTap = { onClick() },
-                onLongPress = {
-                    onLongClick()
-                },
-                onPress = {
-                    val press = PressInteraction.Press(it)
-                    interactionSource.emit(press)
-                    tryAwaitRelease()
-                    interactionSource.emit(PressInteraction.Release(press))
-                })
+        if (SettingsManager.getInstance().isLowPerformance) {
+            pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { onClick() },
+                    onLongPress = {
+                        onLongClick()
+                    }
+                )
+            }
+        } else {
+            val isPressed by interactionSource.collectIsPressedAsState()
+            val sizePercent by animateFloatAsState(
+                targetValue = if (isPressed) 0.9f else 1f,
+                animationSpec = tween(durationMillis = 150)
+            )
+            scale(sizePercent).pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { onClick() },
+                    onLongPress = {
+                        onLongClick()
+                    },
+                    onPress = {
+                        val press = PressInteraction.Press(it)
+                        interactionSource.emit(press)
+                        tryAwaitRelease()
+                        interactionSource.emit(PressInteraction.Release(press))
+                    })
+            }
         }
     } else {
         Modifier
     }
+}
+
+fun Modifier.copyable(content: String, label: String = ""): Modifier {
+    return clickVfx(onLongClick = {
+        content.copyToClipboard(Application.getApplication(), "")
+    })
 }

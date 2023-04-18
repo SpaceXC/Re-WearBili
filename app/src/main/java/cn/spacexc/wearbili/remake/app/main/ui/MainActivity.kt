@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
+import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileViewModel
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,16 +22,20 @@ class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<MainViewModel>()
 
     private val recommendViewModel by viewModels<RecommendViewModel>()
+    private val profileViewModel by viewModels<ProfileViewModel>()
 
     @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         recommendViewModel.getRecommendVideos(true)
+        profileViewModel.getProfile()
         setContent {
             MainActivityScreen(
+                context = this,
                 pagerState = viewModel.pagerState,
                 recommendScreenState = recommendViewModel.screenState,
-                onRecommendRefresh = { recommendViewModel.getRecommendVideos(it) }
+                onRecommendRefresh = { isRefresh -> recommendViewModel.getRecommendVideos(isRefresh) },
+                profileScreenState = profileViewModel.screenState
             )
         }
     }

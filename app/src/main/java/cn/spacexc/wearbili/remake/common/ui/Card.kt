@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 /**
@@ -22,14 +23,20 @@ import androidx.compose.ui.unit.dp
  */
 
 @Composable
-fun Card(modifier: Modifier = Modifier, isClickEnabled: Boolean = true, onClick: () -> Unit = {}, content: @Composable BoxScope.() -> Unit) {
+fun Card(
+    modifier: Modifier = Modifier,
+    isClickEnabled: Boolean = true,
+    shape: Shape = RoundedCornerShape(10.dp),
+    onClick: (() -> Unit)? = null,
+    content: @Composable BoxScope.() -> Unit
+) {
     Box(
         modifier = modifier
             .padding(/*horizontal = 8.dp, */vertical = 4.dp)
-            .clickVfx(isEnabled = isClickEnabled) {
-                onClick()
+            .clickVfx(isEnabled = isClickEnabled && onClick != null) {
+                onClick?.invoke()
             }
-            .clip(RoundedCornerShape(10.dp))
+            .clip(shape)
             .border(
                 width = 0.1f.dp,
                 color = Color(112, 112, 112, 70),

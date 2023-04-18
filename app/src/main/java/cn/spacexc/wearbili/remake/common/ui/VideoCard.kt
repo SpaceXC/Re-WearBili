@@ -1,6 +1,14 @@
 package cn.spacexc.wearbili.remake.common.ui
 
-import androidx.compose.foundation.layout.*
+import android.content.Context
+import android.content.Intent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
@@ -21,6 +29,10 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.Application
+import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
+import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
+import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
 
 /**
  * Created by Xiaochang on 2022/9/17.
@@ -35,9 +47,21 @@ fun VideoCard(
     uploader: String,
     views: String,
     coverUrl: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    videoId: String? = null,
+    videoIdType: String? = null,
+    context: Context = Application.getApplication()
 ) {
-    Card(modifier = modifier) {
+    Card(modifier = modifier, onClick = {
+        if (!videoId.isNullOrEmpty() && !videoIdType.isNullOrEmpty()) {
+            Intent(context, VideoInformationActivity::class.java).apply {
+                putExtra(PARAM_VIDEO_ID, videoId)
+                putExtra(PARAM_VIDEO_ID_TYPE, videoIdType)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(this)
+            }
+        }
+    }) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -80,7 +104,9 @@ fun VideoCard(
                             painter = painterResource(id = R.drawable.icon_view_count),
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.fillMaxSize().padding(end = 2.dp)
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = 2.dp)
                         )
                     },
                     "uploaderIcon" to InlineTextContent(
@@ -94,7 +120,9 @@ fun VideoCard(
                             painter = painterResource(id = R.drawable.icon_uploader),
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.fillMaxSize().padding(end = 2.dp)
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = 2.dp)
                         )
                     }
                 )

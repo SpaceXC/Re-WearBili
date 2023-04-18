@@ -1,7 +1,6 @@
 package cn.spacexc.wearbili.remake.app.main.recommend.ui
 
-import android.app.Application
-import androidx.compose.foundation.layout.Box
+import android.content.Context
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,11 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.app.main.recommend.remote.rcmd.app.Item
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
-import cn.spacexc.wearbili.remake.common.domain.video.VideoUtils
+import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
+import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
+import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.domain.video.toShortChinese
-import cn.spacexc.wearbili.remake.common.ui.UIState
-import cn.spacexc.wearbili.remake.common.ui.VideoCard
-import javax.inject.Inject
+import cn.spacexc.wearbili.remake.common.ui.*
 
 /**
  * Created by XC-Qan on 2023/4/6.
@@ -40,18 +39,22 @@ data class RecommendScreenState(
 @Composable
 fun RecommendScreen(
     state: RecommendScreenState,
+    context: Context,
     onFetch: (isRefresh: Boolean) -> Unit
 ) {
     val pullRefreshState =
         rememberPullRefreshState(refreshing = state.isRefreshing, onRefresh = {
             onFetch(true)
         }, refreshThreshold = 40.dp)
-    Box(
-        modifier = Modifier
+    LoadableBox(
+        uiState = state.uiState, modifier = Modifier
             .fillMaxSize()
             .pullRefresh(pullRefreshState)
     ) {
-        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(6.dp)) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 6.dp, end = 6.dp, bottom = 6.dp)
+        ) {
             when (SettingsManager.getInstance().recommendSource) {
                 "app" -> {
                     (state.videoList as List<Item>/* 这里真的没事的（确信 */).forEach {
@@ -62,6 +65,9 @@ fun RecommendScreen(
                                     uploader = it.args.up_name ?: "",
                                     views = it.cover_left_text_2 ?: "",
                                     coverUrl = it.cover ?: "",
+                                    context = context,
+                                    videoIdType = if (it.bvid.isNullOrEmpty()) VIDEO_TYPE_AID else VIDEO_TYPE_BVID,
+                                    videoId = it.bvid ?: it.param
                                 )
                             }
                         }
@@ -76,7 +82,10 @@ fun RecommendScreen(
                                     uploader = it.owner?.name ?: "",
                                     views = it.stat?.view?.toShortChinese()
                                         ?: "",
-                                    coverUrl = it.pic
+                                    coverUrl = it.pic,
+                                    context = context,
+                                    videoId = it.bvid,
+                                    videoIdType = VIDEO_TYPE_BVID
                                 )
                             }
                         }
@@ -84,6 +93,7 @@ fun RecommendScreen(
                 }
             }
             item {
+                LoadingTip()
                 LaunchedEffect(key1 = Unit, block = {
                     onFetch(false)
                 })

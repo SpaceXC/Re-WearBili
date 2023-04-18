@@ -1,4 +1,4 @@
-package cn.spacexc.wearbili.remake.app.login.domain.manager
+package cn.spacexc.wearbili.remake.common.domain.manager
 
 import cn.spacexc.wearbili.remake.common.domain.data.DataManager
 import cn.spacexc.wearbili.remake.common.domain.log.logd

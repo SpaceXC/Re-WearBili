@@ -1,21 +1,26 @@
 package cn.spacexc.wearbili.remake.common.domain.network
 
-import android.util.Log
 import cn.spacexc.wearbili.remake.common.domain.log.logd
 import cn.spacexc.wearbili.remake.common.domain.network.cookie.KtorCookiesManager
 import cn.spacexc.wearbili.remake.common.domain.network.dto.BasicResponseDto
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.android.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.cookies.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.client.request.*
-import io.ktor.client.request.forms.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.gson.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.cookies.HttpCookies
+import io.ktor.client.plugins.cookies.cookies
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.logging.SIMPLE
+import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.statement.request
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.Parameters
+import io.ktor.http.userAgent
+import io.ktor.serialization.gson.gson
 import javax.inject.Inject
 
 /**
@@ -34,7 +39,8 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             gson {
-
+                serializeNulls()
+                enableComplexMapKeySerialization()
             }
         }
         install(Logging) {
@@ -44,20 +50,34 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
         install(HttpCookies) {
             storage = cookiesManager
         }
+        expectSuccess = true
     }
 
 
     suspend inline fun <reified T> get(url: String): NetworkResponse<T> {
-        val response = client.get(url) {
-            userAgent(USER_AGENT)
-            header("Referer", BASE_URL)
-        }
-        response.request.headers.logd("request headers for $url")
-        return if (response.status == HttpStatusCode.OK) {
-            NetworkResponse.Success(response.body())
-        } else {
-            val body = response.body<BasicResponseDto>()
-            NetworkResponse.Failed(code = body.code, message = body.message, null)
+        return try {
+            val response = client.get(url) {
+                userAgent(USER_AGENT)
+                header("Referer", BASE_URL)
+            }
+            response.request.headers.logd("request headers for $url")
+            return if (response.status == HttpStatusCode.OK) {
+                NetworkResponse.Success(response.body())
+            } else {
+                val body = response.body<BasicResponseDto>()
+                NetworkResponse.Failed(code = body.code, message = body.message, null)
+            }
+        } /*catch (e: SocketException) {
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        } catch (e: JsonSyntaxException) {
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        } catch (e: JsonConvertException) {
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        } catch (e: UnresolvedAddressException) {
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        } */ catch (e: Exception) {
+            e.printStackTrace()
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
         }
     }
 
@@ -70,16 +90,28 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
                 append(it.key, it.value)
             }
         }
-
-        val response = client.submitForm(formParameters = params, url = url) {
-            userAgent(USER_AGENT)
-            header("Referer", BASE_URL)
-        }
-        return if (response.status == HttpStatusCode.OK) {
-            NetworkResponse.Success(response.body())
-        } else {
-            val body = response.body<BasicResponseDto>()
-            NetworkResponse.Failed(code = body.code, message = body.message, null)
+        return try {
+            val response = client.submitForm(formParameters = params, url = url) {
+                userAgent(USER_AGENT)
+                header("Referer", BASE_URL)
+            }
+            return if (response.status == HttpStatusCode.OK) {
+                NetworkResponse.Success(response.body())
+            } else {
+                val body = response.body<BasicResponseDto>()
+                NetworkResponse.Failed(code = body.code, message = body.message, null)
+            }
+        } /*catch (e: SocketException) {
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        } catch (e: JsonSyntaxException) {
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        } catch (e: JsonConvertException) {
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        } catch (e: UnresolvedAddressException) {
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        }*/ catch (e: Exception) {
+            e.printStackTrace()
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
         }
     }
 

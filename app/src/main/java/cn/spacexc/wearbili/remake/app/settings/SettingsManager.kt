@@ -16,11 +16,13 @@ class SettingsManager {
     lateinit var dataManager: DataManager
     val isDarkTheme = false
     val recommendSource = "web"
+    val isDebug = false
+    val isLowPerformance = false
 
     companion object {
         private var mInstance: SettingsManager? = null
         fun getInstance(): SettingsManager {
-            if(mInstance == null) mInstance = SettingsManager()
+            if (mInstance == null) mInstance = SettingsManager()
             return mInstance!!
         }
     }
