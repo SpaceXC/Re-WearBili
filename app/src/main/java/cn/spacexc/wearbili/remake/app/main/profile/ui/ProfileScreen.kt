@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -53,6 +52,7 @@ import cn.spacexc.wearbili.remake.common.ui.OfficialVerify
 import cn.spacexc.wearbili.remake.common.ui.UserAvatar
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
 import cn.spacexc.wearbili.remake.common.ui.spx
+import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 
 /**
  * Created by XC-Qan on 2023/4/9.
@@ -107,7 +107,7 @@ fun ProfileScreen(
                     modifier = Modifier
                         .size(screenWidth)
                         .scale(2f)
-                        .offset(y = (avatarHeight + screenWidth).times(-.45f))
+                        .offset(y = (avatarHeight + screenWidth).times(-.42f))
                         .background(color = BilibiliPink, shape = CircleShape)
                 )
             }
@@ -128,7 +128,7 @@ fun ProfileScreen(
                         pendant = state.pendant,
                         size = DpSize.Unspecified,
                         modifier = Modifier
-                            .fillMaxWidth(0.4f)
+                            .fillMaxWidth(0.5f)
                             .onSizeChanged {
                                 avatarHeight = with(localDensity) {
                                     it.height.toDp()
@@ -157,8 +157,8 @@ fun ProfileScreen(
                         val inlineTextContent = mapOf(
                             "levelCard" to InlineTextContent(
                                 Placeholder(
-                                    width = MaterialTheme.typography.h2.fontSize * 2,
-                                    height = MaterialTheme.typography.h2.fontSize,
+                                    width = AppTheme.typography.h2.fontSize * 2,
+                                    height = AppTheme.typography.h2.fontSize,
                                     placeholderVerticalAlign = PlaceholderVerticalAlign.Center
                                 )
                             ) {
@@ -182,7 +182,7 @@ fun ProfileScreen(
                                     appendInlineContent("levelCard")
                                 }
                             },
-                            style = MaterialTheme.typography.h2,
+                            style = AppTheme.typography.h2,
                             color = parseColor(state.nicknameColor.ifEmpty { "#FFFFFF" }),
                             inlineContent = inlineTextContent
                         )

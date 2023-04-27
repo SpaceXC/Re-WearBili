@@ -54,7 +54,6 @@ kapt {
 }
 
 dependencies {
-
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
     implementation 'androidx.activity:activity-compose:1.7.0'
@@ -88,13 +87,11 @@ dependencies {
     def kotlinx_atomifu_version = "0.20.1"
     implementation "org.jetbrains.kotlinx:atomicfu:$kotlinx_atomifu_version"
 
-    def hilt_version = "2.44"
+    def hilt_version = "2.45"
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
-    /*implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
-    kapt "androidx.hilt:hilt-compiler:1.0.0"*/  //This viewmodel extension causes build time error
 
     def zxing_version = "3.5.0"     //QR Code Generation
     implementation "com.google.zxing:core:$zxing_version"
@@ -105,4 +102,7 @@ dependencies {
     def accompanist_version = "0.31.0-alpha"
     implementation "com.google.accompanist:accompanist-placeholder-material:$accompanist_version"
 
+    def paging_version = "3.1.1"
+    implementation "androidx.paging:paging-runtime:$paging_version"
+    implementation "androidx.paging:paging-compose:1.0.0-alpha18"
 }

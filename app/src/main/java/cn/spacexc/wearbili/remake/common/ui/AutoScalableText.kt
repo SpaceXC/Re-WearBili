@@ -1,7 +1,6 @@
 package cn.spacexc.wearbili.remake.common.ui
 
 import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,6 +12,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.isUnspecified
+import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 
 /**
  * Created by XC-Qan on 2023/4/14.
@@ -36,7 +36,7 @@ fun AutoResizedText(
         mutableStateOf(false)
     }
 
-    val defaultFontSize = MaterialTheme.typography.body1.fontSize
+    val defaultFontSize = AppTheme.typography.body1.fontSize
 
     Text(
         text = text,

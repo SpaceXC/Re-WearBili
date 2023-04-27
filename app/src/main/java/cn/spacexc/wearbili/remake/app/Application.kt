@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app
 
-import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
 
 /**
@@ -12,6 +11,7 @@ import dagger.hilt.android.HiltAndroidApp
  */
 
 const val TAG = "Re:WearBili"
+const val APP_VERSION = "Ver-AL 0.0.5"
 
 @HiltAndroidApp
 class Application : android.app.Application() {

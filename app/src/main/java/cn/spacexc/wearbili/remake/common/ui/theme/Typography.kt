@@ -28,4 +28,5 @@ val wearbiliTypography = androidx.compose.material.Typography(
     h2 = TextStyle(color = Color.White, fontSize = 13.spx, fontWeight = FontWeight.Medium),
     h3 = TextStyle(color = Color.White, fontSize = 11.spx, fontWeight = FontWeight.Medium),
     body1 = TextStyle(color = Color.White, fontSize = 11.spx),
+    body2 = TextStyle(color = Color.White, fontSize = 12.spx, fontWeight = FontWeight.Medium),
 )

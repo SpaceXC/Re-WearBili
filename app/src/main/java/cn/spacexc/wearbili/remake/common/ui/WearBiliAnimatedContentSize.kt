@@ -19,11 +19,9 @@ fun Modifier.wearBiliAnimatedContentSize(
     animationSpec: FiniteAnimationSpec<IntSize> = spring(),
     finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null
 ): Modifier {
-    return apply {
-        if (!SettingsManager.getInstance().isLowPerformance) {
-            animateContentSize(
-                animationSpec, finishedListener
-            )
-        }
-    }
+    return if (!SettingsManager.getInstance().isLowPerformance) {
+        animateContentSize(
+            animationSpec, finishedListener
+        )
+    } else Modifier
 }

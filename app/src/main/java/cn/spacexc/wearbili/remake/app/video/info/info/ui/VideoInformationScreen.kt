@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Movie
@@ -42,6 +41,7 @@ import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.copyable
 import cn.spacexc.wearbili.remake.common.ui.spx
+import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 
 /**
  * Created by XC-Qan on 2023/4/12.
@@ -92,12 +92,12 @@ fun VideoInformationScreen(
                         fontWeight = FontWeight.Medium
                     )
                 }
-                Text(text = video.title, style = MaterialTheme.typography.h1)
+                Text(text = video.title, style = AppTheme.typography.h1)
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     IconText(
                         text = "${video.stat.view.toShortChinese()}观看",
                         modifier = Modifier.alpha(0.7f),
-                        fontSize = 10.5.spx
+                        fontSize = 11.spx
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.icon_view_count),
@@ -110,7 +110,7 @@ fun VideoInformationScreen(
                     IconText(
                         text = "${video.stat.danmaku.toShortChinese()}弹幕",
                         modifier = Modifier.alpha(0.7f),
-                        fontSize = 10.5.spx
+                        fontSize = 11.spx
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.icon_danmaku),
@@ -123,7 +123,7 @@ fun VideoInformationScreen(
                     IconText(
                         text = video.pubdate.times(1000).toDateStr("yyyy-MM-dd HH:mm"),
                         modifier = Modifier.alpha(0.7f),
-                        fontSize = 10.5.spx
+                        fontSize = 11.spx
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.icon_time),
@@ -141,7 +141,7 @@ fun VideoInformationScreen(
                                 video.bvid.copyToClipboard(context = context)
                                 ToastUtils.showText(content = "已复制BV号", context = context)
                             }),
-                        fontSize = 10.5.spx,
+                        fontSize = 11.spx,
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Movie,
@@ -155,7 +155,7 @@ fun VideoInformationScreen(
                     ExpandableText(
                         text = video.desc,
                         modifier = Modifier.copyable(video.desc),
-                        style = MaterialTheme.typography.body1
+                        style = AppTheme.typography.body1
                     )
                 }
                 LargeUserCard(

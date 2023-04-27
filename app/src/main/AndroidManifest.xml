@@ -36,6 +36,9 @@
         <activity
             android:name=".app.video.info.ui.VideoInformationActivity"
             android:exported="true" />
+        <activity
+            android:name=".app.about.ui.AboutActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

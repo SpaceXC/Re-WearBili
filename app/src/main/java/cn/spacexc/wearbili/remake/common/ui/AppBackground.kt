@@ -1,6 +1,10 @@
 package cn.spacexc.wearbili.remake.common.ui
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,11 +23,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.UIState
+import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.WearBiliTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.time.DefaultTimeSource
 
@@ -64,6 +69,8 @@ import cn.spacexc.wearbili.remake.common.ui.theme.time.DefaultTimeSource
 fun CirclesBackground(
     modifier: Modifier = Modifier,
     uiState: UIState = UIState.Success,
+    isShowing: Boolean = true,
+    backgroundColor: Color = Color.Black,
     content: @Composable BoxScope.() -> Unit
 ) {
     val localDensity = LocalDensity.current
@@ -74,32 +81,47 @@ fun CirclesBackground(
 
     WearBiliTheme {
         if (SettingsManager.getInstance().isDarkTheme) {
-            LoadableBox(uiState = uiState, content = content)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(backgroundColor)
+            ) {
+                LoadableBox(uiState = uiState, content = content)
+            }
         } else {
             Box(modifier = modifier
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(backgroundColor)
                 .onGloballyPositioned {
                     boxWidth = with(localDensity) { it.size.width.toDp() }
                 }) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_circle_top_right),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(
-                            Alignment.TopEnd
+                WearBiliAnimatedVisibility(
+                    visible = isShowing,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Image(
+                            painter = painterResource(id = R.drawable.img_circle_top_right),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .align(
+                                    Alignment.TopEnd
+                                )
+                                .size(boxWidth * 0.75f)
                         )
-                        .size(boxWidth * 0.75f)
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.img_circle_bottom_left),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(
-                            Alignment.BottomStart
+                        Image(
+                            painter = painterResource(id = R.drawable.img_circle_bottom_left),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .align(
+                                    Alignment.BottomStart
+                                )
+                                .size(boxWidth * 0.75f)
                         )
-                        .size(boxWidth * 0.75f)
-                )
+                    }
+
+                }
                 LoadableBox(uiState = uiState, content = content)
             }
         }
@@ -179,6 +201,10 @@ fun TitleBackground(
     onBack: () -> Unit = {},
     onDropdown: () -> Unit = {},
     isDropdownTitle: Boolean = false,
+    isBackgroundShowing: Boolean = true,
+    hasSpaceForTitleBar: Boolean = true,
+    backgroundColor: Color = Color.Black,
+    isDropdown: Boolean = true,
     uiState: UIState = UIState.Success,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -188,10 +214,21 @@ fun TitleBackground(
     var titleBarHeight by remember {
         mutableStateOf(0.dp)
     }
-    CirclesBackground(modifier = modifier, uiState = uiState) {
+    CirclesBackground(
+        modifier = modifier,
+        uiState = uiState,
+        isShowing = isBackgroundShowing,
+        backgroundColor = backgroundColor
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column {
-                Spacer(modifier = Modifier.height(titleBarHeight.plus(12.dp /*标题栏的vertical padding*/)))
+                WearBiliAnimatedVisibility(
+                    visible = hasSpaceForTitleBar,
+                    enter = slideInVertically(),
+                    exit = slideOutVertically()
+                ) {
+                    Spacer(modifier = Modifier.height(titleBarHeight.plus(12.dp /*标题栏的vertical padding*/)))
+                }
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
@@ -220,17 +257,17 @@ fun TitleBackground(
                             append(title)
                             appendInlineContent(id = "dropdownIcon")
                         },
-                        style = MaterialTheme.typography.h2,
+                        style = AppTheme.typography.h2,
                         inlineContent = mapOf(
                             "dropdownIcon" to InlineTextContent(
                                 placeholder = Placeholder(
-                                    width = MaterialTheme.typography.h2.fontSize,
-                                    height = MaterialTheme.typography.h2.fontSize,
+                                    width = AppTheme.typography.h2.fontSize,
+                                    height = AppTheme.typography.h2.fontSize,
                                     placeholderVerticalAlign = PlaceholderVerticalAlign.Center
                                 )
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    imageVector = if (isDropdown) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
                                     contentDescription = null,
                                     tint = Color.White,
                                     modifier = Modifier.fillMaxSize()
@@ -243,12 +280,12 @@ fun TitleBackground(
                             appendInlineContent(id = "backIcon")
                             append(title)
                         },
-                        style = MaterialTheme.typography.h2,
+                        style = AppTheme.typography.h2,
                         inlineContent = mapOf(
                             "backIcon" to InlineTextContent(
                                 placeholder = Placeholder(
-                                    width = MaterialTheme.typography.h2.fontSize,
-                                    height = MaterialTheme.typography.h2.fontSize,
+                                    width = AppTheme.typography.h2.fontSize,
+                                    height = AppTheme.typography.h2.fontSize,
                                     placeholderVerticalAlign = PlaceholderVerticalAlign.Center
                                 )
                             ) {
@@ -262,8 +299,9 @@ fun TitleBackground(
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                Text(text = timeText, style = MaterialTheme.typography.h2)
+                Text(text = timeText, style = AppTheme.typography.h2)
             }
+
         }
     }
 }

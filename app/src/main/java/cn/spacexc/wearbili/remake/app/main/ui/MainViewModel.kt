@@ -2,7 +2,6 @@ package cn.spacexc.wearbili.remake.app.main.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.lifecycle.ViewModel
 
 /**
@@ -15,5 +14,5 @@ import androidx.lifecycle.ViewModel
 
 class MainViewModel : ViewModel() {
     @OptIn(ExperimentalFoundationApi::class)
-    val pagerState = PagerState(0)
+    val pagerState = PagerState(1)
 }

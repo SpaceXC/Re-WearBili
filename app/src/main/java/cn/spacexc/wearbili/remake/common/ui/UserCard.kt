@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +27,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.common.domain.color.parseColor
+import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 
 /**
  * Created by XC-Qan on 2023/4/12.
@@ -157,7 +157,7 @@ fun LargeUserCard(
                     .onSizeChanged {
                         avatarHeight = with(localDensity) { it.height.toDp() }
                     },
-                style = MaterialTheme.typography.h2
+                style = AppTheme.typography.h2
             )
         }
     }

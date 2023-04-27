@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cn.spacexc.wearbili.remake.app.main.recommend.remote.rcmd.app.RecommendVideo
-import cn.spacexc.wearbili.remake.app.main.recommend.remote.rcmd.web.WebRecommendVideo
+import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.RecommendVideo
+import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.WebRecommendVideo
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.domain.log.logd

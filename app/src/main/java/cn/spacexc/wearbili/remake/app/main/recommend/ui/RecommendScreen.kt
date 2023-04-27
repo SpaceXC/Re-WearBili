@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -13,7 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import cn.spacexc.wearbili.remake.app.main.recommend.remote.rcmd.app.Item
+import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.Item
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
@@ -32,7 +33,8 @@ import cn.spacexc.wearbili.remake.common.ui.*
 data class RecommendScreenState(
     val isRefreshing: Boolean = false,
     val videoList: List<Any> = emptyList(),
-    val uiState: UIState = UIState.Loading
+    val uiState: UIState = UIState.Loading,
+    val scrollState: LazyListState = LazyListState()
 )
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -63,7 +65,7 @@ fun RecommendScreen(
                                 VideoCard(
                                     videoName = it.title,
                                     uploader = it.args.up_name ?: "",
-                                    views = it.cover_left_text_2 ?: "",
+                                    views = it.cover_left_text_2,
                                     coverUrl = it.cover ?: "",
                                     context = context,
                                     videoIdType = if (it.bvid.isNullOrEmpty()) VIDEO_TYPE_AID else VIDEO_TYPE_BVID,
@@ -73,8 +75,9 @@ fun RecommendScreen(
                         }
                     }
                 }
+
                 "web" -> {
-                    (state.videoList as List<cn.spacexc.wearbili.remake.app.main.recommend.remote.rcmd.web.Item>/* 这里真的没事的（确信 */).forEach {
+                    (state.videoList as List<cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.Item>/* 这里真的没事的（确信 */).forEach {
                         if (it.goto == "av") {
                             item(key = it.bvid) {
                                 VideoCard(

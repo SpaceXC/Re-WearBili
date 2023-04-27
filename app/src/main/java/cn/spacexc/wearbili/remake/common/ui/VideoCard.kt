@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,6 +32,7 @@ import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
+import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 
 /**
  * Created by Xiaochang on 2022/9/17.
@@ -85,7 +85,7 @@ fun VideoCard(
                 )
                 Text(
                     text = videoName,
-                    style = MaterialTheme.typography.h3,
+                    style = AppTheme.typography.h3,
                     maxLines = 3,
                     modifier = Modifier.weight(7f),
                     overflow = TextOverflow.Ellipsis

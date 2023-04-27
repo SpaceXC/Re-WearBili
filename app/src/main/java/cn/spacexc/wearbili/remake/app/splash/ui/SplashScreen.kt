@@ -1,16 +1,11 @@
 package cn.spacexc.wearbili.remake.app.splash.ui
 
-import android.window.SplashScreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.common.ui.CirclesBackground
 
@@ -26,7 +21,7 @@ import cn.spacexc.wearbili.remake.common.ui.CirclesBackground
 fun SplashScreen() {
     CirclesBackground(modifier = Modifier) {
         Image(
-            painter = painterResource(id = R.drawable.img_wearbili_logo_transparent),
+            painter = painterResource(id = R.drawable.icon_app_main_reverse),
             contentDescription = null,
             modifier = Modifier
                 .align(

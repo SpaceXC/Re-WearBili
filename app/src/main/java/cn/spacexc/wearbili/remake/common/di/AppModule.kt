@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.common.di
 
+import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.domain.data.DataManager
 import cn.spacexc.wearbili.remake.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
@@ -29,13 +30,19 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesCookiesManager(dataManager: DataManager): KtorCookiesManager = KtorCookiesManager(dataManager)
+    fun providesCookiesManager(dataManager: DataManager): KtorCookiesManager =
+        KtorCookiesManager(dataManager)
 
     @Provides
     @Singleton
-    fun providesNetworkUtils(cookiesManager: KtorCookiesManager): KtorNetworkUtils = KtorNetworkUtils(cookiesManager)
+    fun providesNetworkUtils(cookiesManager: KtorCookiesManager): KtorNetworkUtils =
+        KtorNetworkUtils(cookiesManager)
 
     @Provides
     @Singleton
     fun providesQrcodeUtils(): QRCodeUtil = QRCodeUtil()
+
+    @Provides
+    @Singleton
+    fun providesSettingsManager(): SettingsManager = SettingsManager.getInstance()
 }

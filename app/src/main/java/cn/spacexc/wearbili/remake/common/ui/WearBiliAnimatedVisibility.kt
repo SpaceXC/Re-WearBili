@@ -1,7 +1,10 @@
 package cn.spacexc.wearbili.remake.common.ui
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -34,5 +37,19 @@ fun WearBiliAnimatedVisibility(
             content()
         }
     }
+}
 
+@Composable
+fun <T> WearBiliCrossfade(
+    targetState: T,
+    modifier: Modifier = Modifier,
+    animationSpec: FiniteAnimationSpec<Float> = tween(),
+    label: String = "Crossfade",
+    content: @Composable (T) -> Unit
+) {
+    if (SettingsManager.getInstance().isLowPerformance) {
+        content(targetState)
+    } else {
+        Crossfade(targetState, modifier, animationSpec, label, content)
+    }
 }
