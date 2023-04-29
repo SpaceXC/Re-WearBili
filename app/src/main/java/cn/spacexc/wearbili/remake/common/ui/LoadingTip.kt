@@ -25,20 +25,38 @@ import androidx.compose.ui.unit.dp
  * 给！爷！写！注！释！
  */
 
+enum class LoadingState {
+    Loading,
+    NoMore,
+    Failed
+}
+
 @Composable
 fun LoadingTip(
-    hasMore: Boolean = true
+    loadingState: LoadingState = LoadingState.Loading,
+    onRetry: () -> Unit = {}
 ) = Text(
     text = buildAnnotatedString {
-        if (hasMore) appendInlineContent("loadingIndicator")
-        append(if (hasMore) " 努力加载中" else "没有更多噜")
+        if (loadingState == LoadingState.Loading) {
+            appendInlineContent("loadingIndicator")
+        }
+        append(
+            when (loadingState) {
+                LoadingState.Loading -> "玩命加载中"
+                LoadingState.NoMore -> "没有更多噜"
+                LoadingState.Failed -> "加载失败啦！戳我重试！"
+            }
+        )
     },
-    fontSize = 9.spx,
+    fontSize = 9.5.spx,
     color = Color.White,
     modifier = Modifier
         .alpha(0.6f)
         .fillMaxWidth()
-        .padding(4.dp),
+        .padding(4.dp)
+        .clickVfx {
+            onRetry()
+        },
     textAlign = TextAlign.Center,
     inlineContent = mapOf(
         "loadingIndicator" to InlineTextContent(

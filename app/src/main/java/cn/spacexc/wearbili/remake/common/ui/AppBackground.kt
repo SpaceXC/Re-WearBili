@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -44,13 +45,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.APP_VERSION
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.WearBiliTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.time.DefaultTimeSource
+import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 
 /**
  * Created by XC-Qan on 2023/3/21.
@@ -87,6 +91,16 @@ fun CirclesBackground(
                     .background(backgroundColor)
             ) {
                 LoadableBox(uiState = uiState, content = content)
+                Text(
+                    text = "$APP_VERSION\n此软件正处在测试阶段\n请勿传播安装包\nThis app is still in test phase\nDO NOT DISTRIBUTE",
+                    fontFamily = wearbiliFontFamily,
+                    fontSize = 10.spx,
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .alpha(0.2f)
+                        .align(Alignment.Center),
+                    textAlign = TextAlign.Center
+                )
             }
         } else {
             Box(modifier = modifier
@@ -123,6 +137,16 @@ fun CirclesBackground(
 
                 }
                 LoadableBox(uiState = uiState, content = content)
+                Text(
+                    text = "$APP_VERSION\n此软件正处在测试阶段\n请勿传播安装包\nThis app is still in test phase\nDO NOT DISTRIBUTE",
+                    fontFamily = wearbiliFontFamily,
+                    fontSize = 10.spx,
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .alpha(0.2f)
+                        .align(Alignment.Center),
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
@@ -200,6 +224,7 @@ fun TitleBackground(
     isTitleClipToBounds: Boolean = true,
     onBack: () -> Unit = {},
     onDropdown: () -> Unit = {},
+    isTitleClickable: Boolean = true,
     isDropdownTitle: Boolean = false,
     isBackgroundShowing: Boolean = true,
     hasSpaceForTitleBar: Boolean = true,
@@ -245,7 +270,9 @@ fun TitleBackground(
                     .padding(horizontal = TitleBackgroundHorizontalPadding, vertical = 6.dp)
                     .fillMaxWidth()
                     .clickable(interactionSource = MutableInteractionSource(), indication = null) {
-                        if (isDropdownTitle) onDropdown() else onBack()
+                        if (isTitleClickable) {
+                            if (isDropdownTitle) onDropdown() else onBack()
+                        }
                     }
                     .onSizeChanged {
                         titleBarHeight = with(localDensity) { it.height.toDp() }

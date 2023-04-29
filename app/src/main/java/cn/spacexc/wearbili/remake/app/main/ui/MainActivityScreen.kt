@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
@@ -42,6 +41,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.app.about.ui.AboutActivity
+import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicScreen
+import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicViewModel
 import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreen
 import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreenState
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendScreen
@@ -51,6 +52,7 @@ import cn.spacexc.wearbili.remake.common.domain.log.logd
 import cn.spacexc.wearbili.remake.common.ui.LargeRoundButton
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -74,6 +76,7 @@ val menuItems = listOf(
         icon = Icons.Outlined.Home,
         onClick = { scope, _ ->
             scope.launch {
+                delay(400)
                 animateScrollToPage(0)
             }
         }
@@ -83,6 +86,7 @@ val menuItems = listOf(
         icon = Icons.Outlined.ModeFanOff,
         onClick = { scope, _ ->
             scope.launch {
+                delay(400)
                 animateScrollToPage(1)
             }
         }
@@ -92,6 +96,7 @@ val menuItems = listOf(
         icon = Icons.Outlined.Person,
         onClick = { scope, _ ->
             scope.launch {
+                delay(400)
                 animateScrollToPage(2)
             }
         }
@@ -99,7 +104,7 @@ val menuItems = listOf(
     MenuItem(
         "设置",
         icon = Icons.Outlined.Settings,
-        onClick = { _, context ->
+        onClick = { _, _ ->
 
         }
     ),
@@ -120,6 +125,7 @@ fun MainActivityScreen(
     pagerState: PagerState,
     recommendScreenState: RecommendScreenState,
     onRecommendRefresh: (isRefresh: Boolean) -> Unit,
+    dynamicViewModel: DynamicViewModel,
     profileScreenState: ProfileScreenState
 ) {
     val isBackgroundTitleClipToBounds = pagerState.currentPage != 2
@@ -212,7 +218,7 @@ fun MainActivityScreen(
                                 onFetch = onRecommendRefresh
                             )
 
-                            1 -> Text(text = "动态", modifier = Modifier.fillMaxSize())
+                            1 -> DynamicScreen(viewModel = dynamicViewModel, context = context)
                             2 -> ProfileScreen(
                                 state = profileScreenState,
                                 isAvatarBackgroundVisible = !isBackgroundTitleClipToBounds

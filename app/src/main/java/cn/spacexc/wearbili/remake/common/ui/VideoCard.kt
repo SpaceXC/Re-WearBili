@@ -78,7 +78,6 @@ fun VideoCard(
                     contentDescription = "$videoName 封面",
                     modifier = Modifier
                         .weight(6f)
-
                         .aspectRatio(16f / 10f)
                         .clip(RoundedCornerShape(6.dp)),
                     contentScale = ContentScale.FillBounds

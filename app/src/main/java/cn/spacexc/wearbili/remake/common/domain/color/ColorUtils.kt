@@ -11,5 +11,10 @@ import androidx.compose.ui.graphics.Color
  */
 
 fun parseColor(colorHex: String): Color {
-    return Color(android.graphics.Color.parseColor(colorHex))
+    return try {
+        Color(android.graphics.Color.parseColor(colorHex))
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Color.White
+    }
 }

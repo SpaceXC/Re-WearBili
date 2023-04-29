@@ -13,6 +13,7 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
+import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -59,6 +60,37 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
             val response = client.get(url) {
                 userAgent(USER_AGENT)
                 header("Referer", BASE_URL)
+            }
+            response.request.headers.logd("request headers for $url")
+            return if (response.status == HttpStatusCode.OK) {
+                NetworkResponse.Success(response.body())
+            } else {
+                val body = response.body<BasicResponseDto>()
+                NetworkResponse.Failed(code = body.code, message = body.message, null)
+            }
+        } /*catch (e: SocketException) {
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        } catch (e: JsonSyntaxException) {
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        } catch (e: JsonConvertException) {
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        } catch (e: UnresolvedAddressException) {
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        } */ catch (e: Exception) {
+            e.printStackTrace()
+            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        }
+    }
+
+    suspend inline fun <reified T> get(
+        url: String,
+        builder: HttpRequestBuilder.() -> Unit
+    ): NetworkResponse<T> {
+        return try {
+            val response = client.get(url) {
+                userAgent(USER_AGENT)
+                header("Referer", BASE_URL)
+                builder()
             }
             response.request.headers.logd("request headers for $url")
             return if (response.status == HttpStatusCode.OK) {

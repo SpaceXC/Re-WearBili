@@ -1,5 +1,9 @@
 package cn.spacexc.wearbili.remake.app
 
+import cn.spacexc.wearbili.remake.APP_CENTER_SECRET
+import com.microsoft.appcenter.AppCenter
+import com.microsoft.appcenter.analytics.Analytics
+import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.android.HiltAndroidApp
 
 /**
@@ -11,13 +15,17 @@ import dagger.hilt.android.HiltAndroidApp
  */
 
 const val TAG = "Re:WearBili"
-const val APP_VERSION = "Ver-AL 0.0.5"
+const val APP_VERSION = "Ver-AL 0.1.0"
 
 @HiltAndroidApp
 class Application : android.app.Application() {
     override fun onCreate() {
         super.onCreate()
         mApplication = this
+        AppCenter.start(
+            this, APP_CENTER_SECRET,
+            Analytics::class.java, Crashes::class.java
+        )
     }
 
     companion object {

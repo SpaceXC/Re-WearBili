@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'kotlin-parcelize'
 }
 
 android {
@@ -14,7 +15,7 @@ android {
         minSdk 21
         targetSdk 33
         versionCode 1
-        versionName "1.0"
+        versionName "Ver-AL 0.0.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -45,6 +46,12 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
+    }
+    android.applicationVariants.all {
+        variant ->
+            variant.outputs.all {
+                outputFileName = "Re-WearBili - ${variant.versionName} Rel.${variant.versionCode}.apk"
+            }
     }
 }
 
@@ -105,4 +112,8 @@ dependencies {
     def paging_version = "3.1.1"
     implementation "androidx.paging:paging-runtime:$paging_version"
     implementation "androidx.paging:paging-compose:1.0.0-alpha18"
+
+    def appCenterSdkVersion = '4.4.5'
+    implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
+    implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
 }

@@ -2,6 +2,7 @@ package cn.spacexc.wearbili.remake.common.domain.manager
 
 import cn.spacexc.wearbili.remake.common.domain.data.DataManager
 import cn.spacexc.wearbili.remake.common.domain.log.logd
+import cn.spacexc.wearbili.remake.common.domain.manager.remote.UserExitResult
 import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
 import javax.inject.Inject
 
@@ -17,7 +18,21 @@ class UserManager @Inject constructor(
     private val networkUtils: KtorNetworkUtils,
     private val dataManager: DataManager
 ) {
-    suspend fun isUserLoggedIn(): Boolean = !networkUtils.getCookie("SESSDATA").logd("SESSDATA").isNullOrEmpty()
+    suspend fun isUserLoggedIn(): Boolean =
+        !networkUtils.getCookie("SESSDATA").logd("SESSDATA").isNullOrEmpty()
+
     suspend fun userMid(): Long? = networkUtils.getCookie("DedeUserID")?.toLong()
+    suspend fun csrf(): String? = networkUtils.getCookie("bili_jct")
     suspend fun getAccessKey(): String? = dataManager.getString("accessKey", null)
+
+    suspend fun logout(): Boolean {
+        val form = mapOf(
+            "biliCSRF" to (csrf() ?: "")
+        )
+        val response = networkUtils.post<UserExitResult>(
+            url = "https://passport.bilibili.com/login/exit/v2",
+            form = form
+        )
+        return response.code == 0
+    }
 }
