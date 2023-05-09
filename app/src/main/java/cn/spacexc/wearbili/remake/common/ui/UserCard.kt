@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +33,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -146,8 +149,10 @@ fun LargeUserCard(
     avatar: String,
     pendant: String? = null,
     username: String,
+    textSizeScale: Float = 1.0f,
     usernameColor: String? = null,
     officialVerify: OfficialVerify = OfficialVerify.NONE,
+    userInfo: String? = null,
     mid: Long
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -169,16 +174,33 @@ fun LargeUserCard(
                 modifier = Modifier.size(avatarHeight * 2f)
             )
             Spacer(modifier = Modifier.width(2.dp))
-            AutoResizedText(
-                text = username,
-                color = parseColor((usernameColor ?: "#FFFFFF").ifEmpty { "#FFFFFF" }),
-                modifier = Modifier
-                    .padding(vertical = 8.dp)
-                    .onSizeChanged {
-                        avatarHeight = with(localDensity) { it.height.toDp() }
-                    },
-                style = AppTheme.typography.h2
-            )
+            Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                AutoResizedText(
+                    text = username,
+                    fontWeight = Bold,
+                    color = parseColor((usernameColor ?: "#FFFFFF").ifEmpty { "#FFFFFF" }),
+                    modifier = Modifier
+                        .onSizeChanged {
+                            avatarHeight = with(localDensity) { it.height.toDp() }
+                        },
+                    style = AppTheme.typography.h2.copy(fontWeight = Bold)
+                )
+                if (!userInfo.isNullOrEmpty()) {
+                    Text(
+                        text = userInfo,
+                        style = TextStyle(
+                            fontSize = 10.5.spx * textSizeScale,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = wearbiliFontFamily
+                        ),
+                        color = Color.White,
+                        modifier = Modifier.alpha(0.7f),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
         }
     }
 }

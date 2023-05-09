@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app
 
+import android.os.Build
 import cn.spacexc.wearbili.remake.APP_CENTER_SECRET
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
@@ -15,7 +16,8 @@ import dagger.hilt.android.HiltAndroidApp
  */
 
 const val TAG = "Re:WearBili"
-const val APP_VERSION = "Ver-AL 0.1.0"
+val APP_VERSION_NAME = Application.getVersionName()
+val APP_VERSION_CODE = Application.getVersionCode()
 
 @HiltAndroidApp
 class Application : android.app.Application() {
@@ -31,5 +33,17 @@ class Application : android.app.Application() {
     companion object {
         lateinit var mApplication: android.app.Application
         fun getApplication(): android.app.Application = mApplication
+
+        fun getVersionName(): String {
+            val packageInfo =
+                getApplication().packageManager.getPackageInfo(getApplication().packageName, 0)
+            return packageInfo.versionName
+        }
+
+        fun getVersionCode(): Long {
+            val packageInfo =
+                getApplication().packageManager.getPackageInfo(getApplication().packageName, 0)
+            return if (Build.VERSION.SDK_INT >= 28) packageInfo.longVersionCode else packageInfo.versionCode.toLong()
+        }
     }
 }

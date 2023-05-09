@@ -39,6 +39,15 @@
         <activity
             android:name=".app.about.ui.AboutActivity"
             android:exported="false" />
+        <activity
+            android:name=".app.update.ui.UpdateActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.search.ui.SearchActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.search.ui.SearchResultActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

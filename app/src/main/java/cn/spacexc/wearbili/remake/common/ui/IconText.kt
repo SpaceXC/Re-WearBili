@@ -54,8 +54,8 @@ fun IconText(
     val inlineTextContent = mapOf(
         "icon" to InlineTextContent(
             placeholder = Placeholder(
-                width = fontSize.toSpx().value.plus(2).spx,
-                height = fontSize.toSpx().value.plus(2).spx,
+                width = fontSize.toSpx().value.plus(4).spx,
+                height = fontSize.toSpx().value.plus(4).spx,
                 placeholderVerticalAlign = PlaceholderVerticalAlign.Center
             )
         ) {

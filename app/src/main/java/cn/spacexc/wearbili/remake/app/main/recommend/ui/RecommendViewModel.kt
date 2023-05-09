@@ -10,8 +10,8 @@ import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.WebR
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.domain.log.logd
-import cn.spacexc.wearbili.remake.common.domain.manager.UserManager
 import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.domain.user.UserManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -42,9 +42,9 @@ class RecommendViewModel @Inject constructor(
             when (SettingsManager.getInstance().recommendSource) {
                 "app" -> {
                     val url =
-                        if (!userManager.getAccessKey().logd("accessKey")
+                        if (!userManager.accessKey().logd("accessKey")
                                 .isNullOrEmpty()
-                        ) "http://app.bilibili.com/x/v2/feed/index?access_key=${userManager.getAccessKey()}&actionKey=appkey&appkey=27eb53fc9058f8c3&build=70000100&c_locale=zh-Hans_CN&column=1&disable_rcmd=0&flush=0&fnval=976&fnver=0&force_host=0&fourk=1&guidance=1&https_url_req=0&login_event=2&pull=1&qn=32&recsys_mode=0&s_locale=zh-Hans_CH&screen_window_type=0"
+                        ) "http://app.bilibili.com/x/v2/feed/index?access_key=${userManager.accessKey()}&actionKey=appkey&appkey=27eb53fc9058f8c3&build=70000100&c_locale=zh-Hans_CN&column=1&disable_rcmd=0&flush=0&fnval=976&fnver=0&force_host=0&fourk=1&guidance=1&https_url_req=0&login_event=2&pull=1&qn=32&recsys_mode=0&s_locale=zh-Hans_CH&screen_window_type=0"
                         else "http://app.bilibili.com/x/v2/feed/index?column=1"
                     val response = networkUtils.get<RecommendVideo>(url)
                     screenState = if (response.code != 0) {

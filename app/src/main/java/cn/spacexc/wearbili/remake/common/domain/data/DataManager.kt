@@ -1,5 +1,7 @@
 package cn.spacexc.wearbili.remake.common.domain.data
 
+import kotlinx.coroutines.flow.Flow
+
 /**
  * Created by XC-Qan on 2023/3/23.
  * I'm very cute so please be nice to my code!
@@ -16,4 +18,7 @@ interface DataManager {
     suspend fun getString(name: String, defVal: String? = null): String?
     suspend fun getInt(name: String, defVal: Int? = null): Int?
     suspend fun getBool(name: String, defVal: Boolean? = null): Boolean?
+
+    fun getBoolFlow(name: String, defVal: Boolean? = null): Flow<Boolean>
+    fun getStringFlow(name: String, defVal: String? = null): Flow<String>
 }

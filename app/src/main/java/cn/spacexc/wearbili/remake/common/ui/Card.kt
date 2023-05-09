@@ -76,7 +76,7 @@ fun Card(
             .border(
                 width = 0.1f.dp,
                 color = Color(112, 112, 112, 70),
-                shape = RoundedCornerShape(10.dp)
+                shape = shape
             )
             .background(color = Color(36, 36, 36, 100))
             .padding(innerPaddingValues)

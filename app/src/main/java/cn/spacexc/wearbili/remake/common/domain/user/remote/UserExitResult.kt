@@ -1,4 +1,4 @@
-package cn.spacexc.wearbili.remake.common.domain.manager.remote
+package cn.spacexc.wearbili.remake.common.domain.user.remote
 
 data class UserExitResult(
     val code: Int,

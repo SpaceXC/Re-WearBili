@@ -35,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -45,16 +44,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.APP_VERSION
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.WearBiliTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.time.DefaultTimeSource
-import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 
 /**
  * Created by XC-Qan on 2023/3/21.
@@ -82,7 +78,6 @@ fun CirclesBackground(
         mutableStateOf(0.dp)
     }   //需要获取父容器宽度来计算两个圆圈的宽度, 不直接设置fraction参数是因为大小不太对
     //TODO 研究一下换成fraction参数
-
     WearBiliTheme {
         if (SettingsManager.getInstance().isDarkTheme) {
             Box(
@@ -91,16 +86,6 @@ fun CirclesBackground(
                     .background(backgroundColor)
             ) {
                 LoadableBox(uiState = uiState, content = content)
-                Text(
-                    text = "$APP_VERSION\n此软件正处在测试阶段\n请勿传播安装包\nThis app is still in test phase\nDO NOT DISTRIBUTE",
-                    fontFamily = wearbiliFontFamily,
-                    fontSize = 10.spx,
-                    modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .alpha(0.2f)
-                        .align(Alignment.Center),
-                    textAlign = TextAlign.Center
-                )
             }
         } else {
             Box(modifier = modifier
@@ -137,16 +122,6 @@ fun CirclesBackground(
 
                 }
                 LoadableBox(uiState = uiState, content = content)
-                Text(
-                    text = "$APP_VERSION\n此软件正处在测试阶段\n请勿传播安装包\nThis app is still in test phase\nDO NOT DISTRIBUTE",
-                    fontFamily = wearbiliFontFamily,
-                    fontSize = 10.spx,
-                    modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .alpha(0.2f)
-                        .align(Alignment.Center),
-                    textAlign = TextAlign.Center
-                )
             }
         }
     }

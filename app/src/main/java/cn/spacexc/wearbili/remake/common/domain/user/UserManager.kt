@@ -1,9 +1,9 @@
-package cn.spacexc.wearbili.remake.common.domain.manager
+package cn.spacexc.wearbili.remake.common.domain.user
 
 import cn.spacexc.wearbili.remake.common.domain.data.DataManager
 import cn.spacexc.wearbili.remake.common.domain.log.logd
-import cn.spacexc.wearbili.remake.common.domain.manager.remote.UserExitResult
 import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.domain.user.remote.UserExitResult
 import javax.inject.Inject
 
 /**
@@ -21,9 +21,9 @@ class UserManager @Inject constructor(
     suspend fun isUserLoggedIn(): Boolean =
         !networkUtils.getCookie("SESSDATA").logd("SESSDATA").isNullOrEmpty()
 
-    suspend fun userMid(): Long? = networkUtils.getCookie("DedeUserID")?.toLong()
+    suspend fun mid(): Long? = networkUtils.getCookie("DedeUserID")?.toLong()
     suspend fun csrf(): String? = networkUtils.getCookie("bili_jct")
-    suspend fun getAccessKey(): String? = dataManager.getString("accessKey", null)
+    suspend fun accessKey(): String? = dataManager.getString("accessKey", null)
 
     suspend fun logout(): Boolean {
         val form = mapOf(

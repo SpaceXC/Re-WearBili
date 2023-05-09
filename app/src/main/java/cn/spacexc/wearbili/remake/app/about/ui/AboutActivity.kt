@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.lazy.LazyListState
+import cn.spacexc.wearbili.remake.common.domain.data.DataManager
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Created by XC-Qan on 2023/4/21.
@@ -13,10 +16,13 @@ import androidx.compose.foundation.lazy.LazyListState
  * 给！爷！写！注！释！
  */
 
+@AndroidEntryPoint
 class AboutActivity : ComponentActivity() {
+    @Inject
+    lateinit var dataManager: DataManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val state = LazyListState()
-        setContent { AboutScreen(onBack = ::finish, state = state) }
+        setContent { AboutScreen(onBack = ::finish, state = state, dataManager = dataManager) }
     }
 }

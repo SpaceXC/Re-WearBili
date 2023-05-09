@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.ModeFanOff
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +48,7 @@ import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreen
 import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreenState
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendScreen
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendScreenState
+import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
 import cn.spacexc.wearbili.remake.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.common.domain.log.logd
 import cn.spacexc.wearbili.remake.common.ui.LargeRoundButton
@@ -99,6 +101,13 @@ val menuItems = listOf(
                 delay(400)
                 animateScrollToPage(2)
             }
+        }
+    ),
+    MenuItem(
+        "搜索",
+        icon = Icons.Outlined.Search,
+        onClick = { _, context ->
+            context.startActivity(Intent(context, SearchActivity::class.java))
         }
     ),
     MenuItem(
