@@ -1,7 +1,9 @@
 package cn.spacexc.wearbili.remake.app
 
 import android.os.Build
-import cn.spacexc.wearbili.remake.APP_CENTER_SECRET
+import cn.spacexc.bilibilisdk.BilibiliSdkManager
+import cn.spacexc.wearbili.common.APP_CENTER_SECRET
+import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
@@ -28,11 +30,14 @@ class Application : android.app.Application() {
             this, APP_CENTER_SECRET,
             Analytics::class.java, Crashes::class.java
         )
+        BilibiliSdkManager.initSdk(
+            dataManager = DataStoreManager(this)
+        )
     }
 
     companion object {
-        lateinit var mApplication: android.app.Application
-        fun getApplication(): android.app.Application = mApplication
+        lateinit var mApplication: Application
+        fun getApplication(): Application = mApplication
 
         fun getVersionName(): String {
             val packageInfo =

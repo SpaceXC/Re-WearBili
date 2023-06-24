@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentViewModel
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
-import cn.spacexc.wearbili.remake.common.domain.video.VideoUtils
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -19,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 const val PARAM_VIDEO_ID_TYPE = "videoIdType"
 const val PARAM_VIDEO_ID = "videoId"
+const val PARAM_VIDEO_CID = "videoCid"
 const val VIDEO_TYPE_AID = "aid"
 const val VIDEO_TYPE_BVID = "bvid"
 
@@ -33,8 +33,12 @@ class VideoInformationActivity : ComponentActivity() {
         val videoIdType = intent.getStringExtra(PARAM_VIDEO_ID_TYPE) ?: VIDEO_TYPE_BVID
         val videoId = intent.getStringExtra(PARAM_VIDEO_ID)
         videoInfoViewModel.getVideoInfo(videoIdType = videoIdType, videoId = videoId)
+        videoInfoViewModel.getVideoSanLianState(videoIdType = videoIdType, videoId = videoId)
         val aid = (if (!videoId.isNullOrEmpty()) {
-            if (videoIdType == VIDEO_TYPE_AID) videoId.replace("av", "") else VideoUtils.bv2av(
+            if (videoIdType == VIDEO_TYPE_AID) videoId.replace(
+                "av",
+                ""
+            ) else cn.spacexc.wearbili.common.domain.video.VideoUtils.bv2av(
                 videoId
             ).replace("av", "")
         } else "0")
@@ -48,7 +52,8 @@ class VideoInformationActivity : ComponentActivity() {
                 uploaderMid = videoInfoViewModel.state.videoData?.owner?.mid ?: 0,
                 oid = videoInfoViewModel.state.videoData?.aid ?: 0,
                 onBack = ::finish,
-                commentDataFlow = commentDataFlow
+                commentDataFlow = commentDataFlow,
+                videoInformationViewModel = videoInfoViewModel
             )
         }
     }

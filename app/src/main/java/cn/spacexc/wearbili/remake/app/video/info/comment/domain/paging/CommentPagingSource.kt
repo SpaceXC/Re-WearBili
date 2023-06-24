@@ -4,8 +4,6 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.VideoComment
-import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
-import cn.spacexc.wearbili.remake.common.exception.DataLoadFailedException
 
 /**
  * Created by XC-Qan on 2023/4/28.
@@ -16,7 +14,7 @@ import cn.spacexc.wearbili.remake.common.exception.DataLoadFailedException
  */
 
 class CommentPagingSource(
-    private val networkUtils: KtorNetworkUtils,
+    private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils,
     private val oid: String
 ) : PagingSource<Int, CommentContentData>() {
     override fun getRefreshKey(state: PagingState<Int, CommentContentData>): Int? {
@@ -28,7 +26,7 @@ class CommentPagingSource(
             val currentPage = params.key ?: 1
             val response =
                 networkUtils.get<VideoComment>("https://api.bilibili.com/x/v2/reply/main?type=1&sort=1&next=$currentPage&oid=$oid")
-            if (response.code != 0) return LoadResult.Error(DataLoadFailedException())
+            if (response.code != 0) return LoadResult.Error(cn.spacexc.wearbili.common.exception.DataLoadFailedException())
             val commentList = response.data?.data?.replies ?: emptyList()
             val topComment = response.data?.data?.top?.upper?.apply { is_top = true }
             val topCommentList = buildList {

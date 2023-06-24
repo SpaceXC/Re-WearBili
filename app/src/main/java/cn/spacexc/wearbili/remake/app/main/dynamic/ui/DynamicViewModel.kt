@@ -7,7 +7,6 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.paging.DynamicPagingSource
-import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -21,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DynamicViewModel @Inject constructor(
-    private val networkUtils: KtorNetworkUtils
+    private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 ) : ViewModel() {
     val scrollState = LazyListState(0)
     val dynamicFlow = Pager(

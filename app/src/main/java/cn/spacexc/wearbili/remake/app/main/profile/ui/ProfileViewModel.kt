@@ -6,12 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cn.spacexc.wearbili.remake.app.main.profile.remote.CurrentUserInfo
+import cn.spacexc.bilibilisdk.sdk.user.profile.UserProfile
 import cn.spacexc.wearbili.remake.common.UIState
-import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Created by XC-Qan on 2023/4/11.
@@ -21,10 +18,7 @@ import javax.inject.Inject
  * 给！爷！写！注！释！
  */
 
-@HiltViewModel
-class ProfileViewModel @Inject constructor(
-    private val networkUtils: KtorNetworkUtils
-) : ViewModel() {
+class ProfileViewModel : ViewModel() {
     private val scrollState = ScrollState(0)
     var screenState by mutableStateOf(
         ProfileScreenState(
@@ -35,9 +29,8 @@ class ProfileViewModel @Inject constructor(
     fun getProfile() {
         screenState = screenState.copy(uiState = UIState.Loading)
         viewModelScope.launch {
-            val response =
-                networkUtils.get<CurrentUserInfo>("https://api.bilibili.com/x/space/myinfo")
-            if (response.code != 0) {
+            val response = UserProfile.getCurrentUserInfo()
+            if (response.code != 0 && response.data?.code != 0) {
                 screenState = screenState.copy(uiState = UIState.Failed)
                 return@launch
             }

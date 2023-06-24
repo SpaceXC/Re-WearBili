@@ -31,10 +31,10 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import cn.spacexc.wearbili.common.ifNullOrEmpty
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
 import cn.spacexc.wearbili.remake.common.UIState
-import cn.spacexc.wearbili.remake.common.ifNullOrEmpty
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.LoadingState
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip

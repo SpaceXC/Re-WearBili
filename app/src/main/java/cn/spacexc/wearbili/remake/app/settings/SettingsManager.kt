@@ -1,6 +1,6 @@
 package cn.spacexc.wearbili.remake.app.settings
 
-import cn.spacexc.wearbili.remake.common.domain.data.DataManager
+import cn.spacexc.bilibilisdk.data.DataManager
 import javax.inject.Inject
 
 /**

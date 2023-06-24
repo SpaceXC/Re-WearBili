@@ -14,12 +14,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.Item
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.UIState
-import cn.spacexc.wearbili.remake.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.common.ui.*
 
 /**
@@ -55,7 +55,8 @@ fun RecommendScreen(
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 6.dp, end = 6.dp, bottom = 6.dp)
+            contentPadding = PaddingValues(start = 6.dp, end = 6.dp, bottom = 6.dp),
+            state = state.scrollState
         ) {
             when (SettingsManager.getInstance().recommendSource) {
                 "app" -> {

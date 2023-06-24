@@ -1,16 +1,16 @@
 package cn.spacexc.wearbili.remake.common.di
 
+import cn.spacexc.bilibilisdk.data.DataManager
+import cn.spacexc.wearbili.common.domain.data.DataStoreManager
+import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.common.domain.network.cookie.KtorCookiesManager
+import cn.spacexc.wearbili.common.domain.qrcode.QRCodeUtil
+import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
-import cn.spacexc.wearbili.remake.common.domain.data.DataManager
-import cn.spacexc.wearbili.remake.common.domain.data.DataStoreManager
-import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
-import cn.spacexc.wearbili.remake.common.domain.network.cookie.KtorCookiesManager
-import cn.spacexc.wearbili.remake.common.domain.qrcode.QRCodeUtil
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import io.ktor.client.*
 import javax.inject.Singleton
 
 /**
@@ -26,7 +26,12 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideDataStoreManager(): DataStoreManager = DataStoreManager()
+    fun provideApplication(): Application = Application.getApplication()
+
+    @Provides
+    @Singleton
+    fun provideDataStoreManager(application: Application): DataStoreManager =
+        DataStoreManager(application)
 
     @Provides
     @Singleton

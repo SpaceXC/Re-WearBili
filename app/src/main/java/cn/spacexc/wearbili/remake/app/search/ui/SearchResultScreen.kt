@@ -16,12 +16,12 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.app.search.domain.paging.SearchObject
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.user.SearchedUser
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.video.SearchedVideo
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.UIState
-import cn.spacexc.wearbili.remake.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.common.ui.LargeUserCard
 import cn.spacexc.wearbili.remake.common.ui.LoadingState
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip

@@ -48,6 +48,15 @@
         <activity
             android:name=".app.search.ui.SearchResultActivity"
             android:exported="false" />
+        <activity
+            android:name=".app.main.profile.detail.following.ui.FollowingUsersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.main.profile.detail.history.ui.HistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.main.profile.detail.watchlater.ui.WatchLaterActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

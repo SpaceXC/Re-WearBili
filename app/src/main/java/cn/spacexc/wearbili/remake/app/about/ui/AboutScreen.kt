@@ -27,7 +27,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.common.domain.data.DataManager
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.isRound
@@ -45,7 +44,6 @@ import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 @Composable
 fun AboutScreen(
     onBack: () -> Unit,
-    dataManager: DataManager,
     state: LazyListState
 ) {
     val firstVisibleElement by remember { derivedStateOf { state.firstVisibleItemIndex } }

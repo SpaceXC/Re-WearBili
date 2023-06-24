@@ -11,6 +11,7 @@ import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentScreen
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentViewModel
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationScreen
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationScreenState
+import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import kotlinx.coroutines.flow.Flow
 
@@ -32,6 +33,7 @@ fun VideoInformationActivityScreen(
     context: Context,
     state: VideoInformationActivityScreenState,
     videoInformationScreenState: VideoInformationScreenState,
+    videoInformationViewModel: VideoInformationViewModel,
     commentViewModel: CommentViewModel,
     commentDataFlow: Flow<PagingData<CommentContentData>>,
     uploaderMid: Long,
@@ -48,7 +50,12 @@ fun VideoInformationActivityScreen(
     ) {
         HorizontalPager(pageCount = 2) {
             when (it) {
-                0 -> VideoInformationScreen(state = videoInformationScreenState, context)
+                0 -> VideoInformationScreen(
+                    state = videoInformationScreenState,
+                    context,
+                    videoInformationViewModel
+                )
+
                 1 -> {
                     if (uploaderMid != 0L && oid != 0L) {
                         CommentScreen(

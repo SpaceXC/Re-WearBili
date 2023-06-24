@@ -9,7 +9,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.paging.CommentPagingSource
-import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -24,7 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CommentViewModel @Inject constructor(
-    private val networkUtils: KtorNetworkUtils,
+    private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils,
 ) : ViewModel() {
     val scrollState = LazyListState(0)
     private val commentPagingSources = HashMap<String, Pager<Int, CommentContentData>>()

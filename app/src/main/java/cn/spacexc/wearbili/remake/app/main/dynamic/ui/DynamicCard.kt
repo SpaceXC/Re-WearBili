@@ -53,7 +53,6 @@ import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicIte
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.ItemRichTextNode
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
-import cn.spacexc.wearbili.remake.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
@@ -92,7 +91,7 @@ fun DynamicRichText(
             Icon(
                 imageVector = Icons.Outlined.Link,
                 contentDescription = null,
-                tint = parseColor("#178bcf"),
+                tint = cn.spacexc.wearbili.common.domain.color.parseColor("#178bcf"),
                 modifier = Modifier.fillMaxSize()
             )
         },
@@ -106,7 +105,7 @@ fun DynamicRichText(
             Icon(
                 imageVector = Icons.Outlined.Redeem,
                 contentDescription = null,
-                tint = parseColor("#178bcf"),
+                tint = cn.spacexc.wearbili.common.domain.color.parseColor("#178bcf"),
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -120,7 +119,13 @@ fun DynamicRichText(
 
                 "RICH_TEXT_NODE_TYPE_WEB" -> {
                     pushStringAnnotation(tag = "tagUrl", annotation = it.jumpUrl ?: "")
-                    withStyle(style = SpanStyle(color = parseColor("#178bcf"))) {
+                    withStyle(
+                        style = SpanStyle(
+                            color = cn.spacexc.wearbili.common.domain.color.parseColor(
+                                "#178bcf"
+                            )
+                        )
+                    ) {
                         appendInlineContent("webLinkIcon")
                         append("网页链接")
                     }
@@ -129,7 +134,13 @@ fun DynamicRichText(
 
                 "RICH_TEXT_NODE_TYPE_TOPIC" -> {
                     pushStringAnnotation(tag = "tagSearch", annotation = it.text)
-                    withStyle(style = SpanStyle(color = parseColor("#178bcf"))) {
+                    withStyle(
+                        style = SpanStyle(
+                            color = cn.spacexc.wearbili.common.domain.color.parseColor(
+                                "#178bcf"
+                            )
+                        )
+                    ) {
                         append(it.text)
                     }
                     pop()
@@ -137,14 +148,26 @@ fun DynamicRichText(
 
                 "RICH_TEXT_NODE_TYPE_AT" -> {
                     pushStringAnnotation(tag = "tagUser", annotation = it.rid ?: "")
-                    withStyle(style = SpanStyle(color = parseColor("#178bcf"))) {
+                    withStyle(
+                        style = SpanStyle(
+                            color = cn.spacexc.wearbili.common.domain.color.parseColor(
+                                "#178bcf"
+                            )
+                        )
+                    ) {
                         append(it.text)
                     }
                     pop()
                 }
 
                 "RICH_TEXT_NODE_TYPE_LOTTERY" -> {
-                    withStyle(style = SpanStyle(color = parseColor("#178bcf"))) {
+                    withStyle(
+                        style = SpanStyle(
+                            color = cn.spacexc.wearbili.common.domain.color.parseColor(
+                                "#178bcf"
+                            )
+                        )
+                    ) {
                         appendInlineContent("lotteryIcon")
                         append(it.text)
                     }

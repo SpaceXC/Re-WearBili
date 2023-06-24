@@ -22,16 +22,24 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.text.format.DateFormat
 import androidx.annotation.VisibleForTesting
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import java.lang.System.currentTimeMillis
-import java.util.*
+import java.util.Calendar
 
 
 /**
  *  An interface which is responsible for retrieving a formatted time.
  */
-public interface TimeSource {
+interface TimeSource {
 
     /**
      * A method responsible for returning updated time string.

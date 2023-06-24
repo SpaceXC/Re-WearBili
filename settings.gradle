@@ -3,14 +3,20 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        jcenter()
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
         mavenCentral()
+        jcenter()
     }
 }
 rootProject.name = "WearBili"
 include ':app'
+include ':app:videoplayer'
+include ':app:common'
+include ':Bilibili-Kotlin-SDK'
+project(':Bilibili-Kotlin-SDK').projectDir = new File('/Users/Xiaochang/Documents/Bilibili-Kotlin-SDK')

@@ -52,6 +52,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import cn.spacexc.wearbili.common.domain.time.toDateStr
+import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.TAG
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
@@ -60,10 +62,6 @@ import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
-import cn.spacexc.wearbili.remake.common.domain.color.parseColor
-import cn.spacexc.wearbili.remake.common.domain.time.toDateStr
-import cn.spacexc.wearbili.remake.common.domain.video.VideoUtils
-import cn.spacexc.wearbili.remake.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.ClickableText
 import cn.spacexc.wearbili.remake.common.ui.SmallUserCard
@@ -187,7 +185,13 @@ fun RichText(
                     pushStringAnnotation(tag = "tagUrl", annotation = it)
                 }
                 if (jumpUrlMap[it]?.extra?.is_word_search == true) {
-                    withStyle(style = SpanStyle(color = parseColor("#008ac5"))) {
+                    withStyle(
+                        style = SpanStyle(
+                            color = cn.spacexc.wearbili.common.domain.color.parseColor(
+                                "#008ac5"
+                            )
+                        )
+                    ) {
                         append(jumpUrlMap[it]?.title ?: "")
                     }
                 }
@@ -211,7 +215,13 @@ fun RichText(
                     }
                 }
                 if (jumpUrlMap[it]?.extra?.is_word_search != true) {
-                    withStyle(style = SpanStyle(color = parseColor("#008ac5"))) {
+                    withStyle(
+                        style = SpanStyle(
+                            color = cn.spacexc.wearbili.common.domain.color.parseColor(
+                                "#008ac5"
+                            )
+                        )
+                    ) {
                         append(jumpUrlMap[it]?.title ?: "")
                     }
                 }
@@ -221,7 +231,13 @@ fun RichText(
                     tag = "tagUser",
                     annotation = attentionUserMap[it]?.toString() ?: ""
                 )
-                withStyle(style = SpanStyle(color = parseColor("#008ac5"))) {
+                withStyle(
+                    style = SpanStyle(
+                        color = cn.spacexc.wearbili.common.domain.color.parseColor(
+                            "#008ac5"
+                        )
+                    )
+                ) {
                     append("@$it")
                 }
                 pop()
@@ -246,13 +262,13 @@ fun RichText(
         onClick = { index ->
             annotatedString.getStringAnnotations(tag = "tagUrl", start = index, end = index)
                 .firstOrNull()?.let { annotation ->
-                    if (VideoUtils.isBV(annotation.item)) {
+                    if (cn.spacexc.wearbili.common.domain.video.VideoUtils.isBV(annotation.item)) {
                         Intent(context, VideoInformationActivity::class.java).apply {
                             putExtra(PARAM_VIDEO_ID, annotation.item)
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             context.startActivity(this)
                         }
-                    } else if (VideoUtils.isAV(annotation.item)) {
+                    } else if (cn.spacexc.wearbili.common.domain.video.VideoUtils.isAV(annotation.item)) {
                         Intent(context, VideoInformationActivity::class.java).apply {
                             putExtra(PARAM_VIDEO_ID, annotation.item)
                             putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_AID)
@@ -500,7 +516,7 @@ fun CommentCard(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))
                         .background(
-                            parseColor("#262626")
+                            cn.spacexc.wearbili.common.domain.color.parseColor("#262626")
                         )
                         .padding(8.dp)
                 ) {

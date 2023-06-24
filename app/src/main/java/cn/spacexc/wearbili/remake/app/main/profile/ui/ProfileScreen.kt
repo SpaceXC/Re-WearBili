@@ -1,5 +1,7 @@
 package cn.spacexc.wearbili.remake.app.main.profile.ui
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -23,7 +25,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.MailOutline
+import androidx.compose.material.icons.outlined.PersonAdd
+import androidx.compose.material.icons.outlined.PlayCircle
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,13 +55,19 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import cn.spacexc.wearbili.common.domain.color.parseColor
+import cn.spacexc.wearbili.remake.app.main.profile.detail.following.ui.FollowingUsersActivity
+import cn.spacexc.wearbili.remake.app.main.profile.detail.history.ui.HistoryActivity
+import cn.spacexc.wearbili.remake.app.main.profile.detail.watchlater.ui.WatchLaterActivity
 import cn.spacexc.wearbili.remake.common.UIState
-import cn.spacexc.wearbili.remake.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
+import cn.spacexc.wearbili.remake.common.ui.IconText
+import cn.spacexc.wearbili.remake.common.ui.LargeRoundButton
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.OfficialVerify
 import cn.spacexc.wearbili.remake.common.ui.UserAvatar
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
+import cn.spacexc.wearbili.remake.common.ui.clickAlpha
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 
@@ -78,6 +95,7 @@ data class ProfileScreenState(
 @Composable
 fun ProfileScreen(
     state: ProfileScreenState,
+    context: Context,
     isAvatarBackgroundVisible: Boolean = false
 ) {
     val localDensity = LocalDensity.current
@@ -92,6 +110,8 @@ fun ProfileScreen(
     }
     val avatarBackgroundVisibility =
         state.scrollState.value < avatarHeightPx.times(0.6f) && isAvatarBackgroundVisible
+    val buttonBackgroundColor = Color(63, 63, 63, 153)
+
     LoadableBox(
         uiState = state.uiState,
         modifier = Modifier.onSizeChanged {
@@ -114,8 +134,7 @@ fun ProfileScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(state.scrollState)
-                    .padding(8.dp),
+                    .verticalScroll(state.scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -191,7 +210,8 @@ fun ProfileScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(IntrinsicSize.Min),
+                        .height(IntrinsicSize.Min)
+                        .padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(
@@ -240,8 +260,99 @@ fun ProfileScreen(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(200.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 18.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(24.dp)
+                    ) {
+                        LargeRoundButton(
+                            icon = Icons.Outlined.PersonAdd,
+                            text = "我的关注",
+                            background = buttonBackgroundColor,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    FollowingUsersActivity::class.java
+                                )
+                            )
+                        }
+                        LargeRoundButton(
+                            icon = Icons.Outlined.History,
+                            text = "历史记录",
+                            background = buttonBackgroundColor,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            context.startActivity(Intent(context, HistoryActivity::class.java))
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(24.dp)
+                    ) {
+                        LargeRoundButton(
+                            icon = Icons.Outlined.PlayCircle,
+                            text = "稍后再看",
+                            background = buttonBackgroundColor,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            context.startActivity(Intent(context, WatchLaterActivity::class.java))
+                        }
+                        LargeRoundButton(
+                            icon = Icons.Outlined.StarOutline,
+                            text = "个人收藏",
+                            background = buttonBackgroundColor,
+                            modifier = Modifier.weight(1f)
+                        ) {
 
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(24.dp)
+                    ) {
+                        LargeRoundButton(
+                            icon = Icons.Outlined.MailOutline,
+                            text = "我的消息",
+                            background = buttonBackgroundColor,
+                            modifier = Modifier.weight(1f)
+                        ) {
+
+                        }
+                        LargeRoundButton(
+                            icon = Icons.Outlined.FileDownload,
+                            text = "离线缓存",
+                            background = buttonBackgroundColor,
+                            modifier = Modifier.weight(1f)
+                        ) {
+
+                        }
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .clickAlpha {
+
+                        }
+                        .fillMaxWidth()
+                        .background(buttonBackgroundColor)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    IconText(text = "设置", fontSize = 14.spx, fontWeight = FontWeight.Medium) {
+                        Icon(
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    }
+                }
             }
         }
     }

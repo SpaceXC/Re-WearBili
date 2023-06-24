@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.common.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,7 +39,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 
@@ -75,7 +74,7 @@ fun UserAvatar(
     size: DpSize,
 ) {
     val localDensity = LocalDensity.current
-    var officialVerifyIconSize by remember {
+    var avatarBoxSize by remember {
         mutableStateOf(0.dp)
     }
     Box(
@@ -87,10 +86,9 @@ fun UserAvatar(
             }
             .aspectRatio(1f)
             .onSizeChanged {
-                officialVerifyIconSize = with(localDensity) {
+                avatarBoxSize = with(localDensity) {
                     it.height
                         .toDp()
-                        .times(0.2f)
                 }
             }
     ) {
@@ -125,20 +123,25 @@ fun UserAvatar(
             )
         }
         if (officialVerify != OfficialVerify.NONE) {
-            Icon(
-                painter = painterResource(
-                    id = when (officialVerify) {
-                        OfficialVerify.ORG -> R.drawable.icon_official_verify_org
-                        OfficialVerify.PERSONAL -> R.drawable.icon_official_verify_personal
-                        else -> 0
-                    }
-                ),
-                contentDescription = null,
+            Box(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .size(officialVerifyIconSize)
-                    .padding(end = 16.dp, bottom = 16.dp)
-            )
+                    .fillMaxSize()
+                    .padding(
+                        end = avatarBoxSize * (if (pendant.isNullOrEmpty()) .1f else .2f),
+                        bottom = avatarBoxSize * (if (pendant.isNullOrEmpty()) .1f else .2f)
+                    )
+            ) {
+                Image(
+                    painter = painterResource(
+                        id = R.drawable.icon_official_verify_org
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(avatarBoxSize * (if (pendant.isNullOrEmpty()) .3f else .2f))
+                    //.padding(start = 16.dp, bottom = 16.dp)
+                )
+            }
         }
     }
 }
@@ -178,7 +181,8 @@ fun LargeUserCard(
                 AutoResizedText(
                     text = username,
                     fontWeight = Bold,
-                    color = parseColor((usernameColor ?: "#FFFFFF").ifEmpty { "#FFFFFF" }),
+                    color = cn.spacexc.wearbili.common.domain.color.parseColor(
+                        (usernameColor ?: "#FFFFFF").ifEmpty { "#FFFFFF" }),
                     modifier = Modifier
                         .onSizeChanged {
                             avatarHeight = with(localDensity) { it.height.toDp() }
@@ -239,7 +243,9 @@ fun SmallUserCard(
                     append(userLabel)
                     withStyle(
                         style = SpanStyle(
-                            color = parseColor(usernameColor ?: "#FFFFFF"),
+                            color = cn.spacexc.wearbili.common.domain.color.parseColor(
+                                usernameColor ?: "#FFFFFF"
+                            ),
                             fontWeight = FontWeight.Medium
                         )
                     ) {

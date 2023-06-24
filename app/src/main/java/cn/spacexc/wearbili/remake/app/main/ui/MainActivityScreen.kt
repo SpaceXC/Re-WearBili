@@ -3,6 +3,7 @@ package cn.spacexc.wearbili.remake.app.main.ui
 import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
@@ -41,6 +42,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import cn.spacexc.wearbili.common.domain.color.parseColor
+import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.about.ui.AboutActivity
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicScreen
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicViewModel
@@ -49,8 +52,6 @@ import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreenState
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendScreen
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendScreenState
 import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
-import cn.spacexc.wearbili.remake.common.domain.color.parseColor
-import cn.spacexc.wearbili.remake.common.domain.log.logd
 import cn.spacexc.wearbili.remake.common.ui.LargeRoundButton
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import kotlinx.coroutines.CoroutineScope
@@ -127,7 +128,7 @@ val menuItems = listOf(
 )
 
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun MainActivityScreen(
     context: Context,
@@ -142,7 +143,11 @@ fun MainActivityScreen(
         mutableStateOf(false)
     }
     val coroutineScope = rememberCoroutineScope()
-    val backgroundColor by animateColorAsState(targetValue = if (isDropdownMenuShowing) parseColor("#141414") else Color.Black)
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isDropdownMenuShowing) parseColor(
+            "#141414"
+        ) else Color.Black
+    )
     LaunchedEffect(key1 = pagerState.targetPage, block = {
         pagerState.targetPage.logd("targetPage")
         pagerState.logd("pagerState")
@@ -230,7 +235,8 @@ fun MainActivityScreen(
                             1 -> DynamicScreen(viewModel = dynamicViewModel, context = context)
                             2 -> ProfileScreen(
                                 state = profileScreenState,
-                                isAvatarBackgroundVisible = !isBackgroundTitleClipToBounds
+                                isAvatarBackgroundVisible = !isBackgroundTitleClipToBounds,
+                                context = context
                             )
                         }
                     }

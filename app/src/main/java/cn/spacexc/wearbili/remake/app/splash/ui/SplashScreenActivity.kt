@@ -7,18 +7,13 @@ import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
-import cn.spacexc.wearbili.remake.LEANCLOUD_APP_ID
-import cn.spacexc.wearbili.remake.LEANCLOUD_APP_KEY
+import cn.spacexc.bilibilisdk.sdk.user.webi.WebiSignature
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.login.ui.LoginActivity
 import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
 import cn.spacexc.wearbili.remake.app.update.ui.UpdateActivity
-import cn.spacexc.wearbili.remake.common.EncryptUtils
 import cn.spacexc.wearbili.remake.common.ToastUtils
-import cn.spacexc.wearbili.remake.common.domain.data.DataManager
-import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
-import cn.spacexc.wearbili.remake.common.domain.user.UserManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.ktor.client.request.header
 import kotlinx.coroutines.launch
@@ -38,13 +33,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SplashScreenActivity : ComponentActivity() {
     @Inject
-    lateinit var networkUtils: KtorNetworkUtils
+    lateinit var networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 
     @Inject
-    lateinit var dataManager: DataManager
-
-    @Inject
-    lateinit var userManager: UserManager
+    lateinit var userManager: cn.spacexc.wearbili.common.domain.user.UserManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val currentTime = System.currentTimeMillis()
@@ -53,12 +45,13 @@ class SplashScreenActivity : ComponentActivity() {
         }
         lifecycleScope.launch {
             networkUtils.get<String>("https://bilibili.com")    // 每次启动获取最新的cookie
+            WebiSignature.getWebiSignature()    //保存新的webi签名
             val appUpdatesResponse =
                 networkUtils.get<LeanCloudAppUpdatesSearch>("https://mae7lops.lc-cn-n1-shared.com/1.1/classes/AppUpdates") {
-                    header("X-LC-Id", LEANCLOUD_APP_ID)
+                    header("X-LC-Id", cn.spacexc.wearbili.common.LEANCLOUD_APP_ID)
                     header(
                         "X-LC-Sign",
-                        "${EncryptUtils.md5("$currentTime$LEANCLOUD_APP_KEY")},$currentTime"
+                        "${cn.spacexc.wearbili.common.EncryptUtils.md5("$currentTime${cn.spacexc.wearbili.common.LEANCLOUD_APP_KEY}")},$currentTime"
                     )
                 }
             appUpdatesResponse.data?.results?.let { updateLists ->
@@ -79,10 +72,10 @@ class SplashScreenActivity : ComponentActivity() {
             if (userManager.isUserLoggedIn()) {
                 val response = userManager.mid()?.let { uid ->
                     networkUtils.get<LeanCloudUserSearch>("https://mae7lops.lc-cn-n1-shared.com/1.1/classes/ActivatedUIDs?where={\"uid\":\"$uid\"}") {
-                        header("X-LC-Id", LEANCLOUD_APP_ID)
+                        header("X-LC-Id", cn.spacexc.wearbili.common.LEANCLOUD_APP_ID)
                         header(
                             "X-LC-Sign",
-                            "${EncryptUtils.md5("$currentTime$LEANCLOUD_APP_KEY")},$currentTime"
+                            "${cn.spacexc.wearbili.common.EncryptUtils.md5("$currentTime${cn.spacexc.wearbili.common.LEANCLOUD_APP_KEY}")},$currentTime"
                         )
                     }
                 }

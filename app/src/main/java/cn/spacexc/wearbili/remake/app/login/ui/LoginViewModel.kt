@@ -6,21 +6,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
+import cn.spacexc.bilibilisdk.data.DataManager
+import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.login.domain.remote.accesskey.AccessKeyGetter
 import cn.spacexc.wearbili.remake.app.login.domain.remote.authstate.ScanAuthState
 import cn.spacexc.wearbili.remake.app.login.domain.remote.qrcode.QrCode
-import cn.spacexc.wearbili.remake.common.domain.data.DataManager
-import cn.spacexc.wearbili.remake.common.domain.log.logd
-import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
-import cn.spacexc.wearbili.remake.common.domain.network.cookie.KtorCookiesManager
-import cn.spacexc.wearbili.remake.common.domain.qrcode.ERROR_CORRECTION_M
-import cn.spacexc.wearbili.remake.common.domain.qrcode.QRCodeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.cookies.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.cookies.HttpCookies
+import io.ktor.client.request.get
+import io.ktor.client.statement.request
 import kotlinx.coroutines.delay
 import javax.inject.Inject
 
@@ -34,9 +30,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val networkUtils: KtorNetworkUtils,
-    private val qrCodeUtil: QRCodeUtil,
-    private val cookiesManager: KtorCookiesManager,
+    private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils,
+    private val qrCodeUtil: cn.spacexc.wearbili.common.domain.qrcode.QRCodeUtil,
+    private val cookiesManager: cn.spacexc.wearbili.common.domain.network.cookie.KtorCookiesManager,
     private val dataManager: DataManager
 ) : ViewModel() {
     var screenState by mutableStateOf(
@@ -55,7 +51,10 @@ class LoginViewModel @Inject constructor(
         }
         val oauthCode = qrCode.data?.data?.oauthKey.logd()
         val url = qrCode.data?.data?.url
-        val bitmap = qrCodeUtil.createQRCodeBitmap(url, 128, 128, ERROR_CORRECTION_M)
+        val bitmap = qrCodeUtil.createQRCodeBitmap(
+            url, 128, 128,
+            cn.spacexc.wearbili.common.domain.qrcode.ERROR_CORRECTION_M
+        )
         screenState = screenState.copy(
             qrCodeBitmap = bitmap?.asImageBitmap(),
             currentLoginStatus = LoginStatus.Pending

@@ -1,7 +1,7 @@
 package cn.spacexc.wearbili.remake.common.di
 
-import cn.spacexc.wearbili.remake.common.domain.data.DataManager
-import cn.spacexc.wearbili.remake.common.domain.data.DataStoreManager
+import cn.spacexc.bilibilisdk.data.DataManager
+import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

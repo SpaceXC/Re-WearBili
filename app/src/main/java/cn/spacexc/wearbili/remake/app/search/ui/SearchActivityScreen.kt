@@ -144,7 +144,18 @@ fun SearchActivityScreen(
                                     ),
                                 cursorBrush = SolidColor(value = BilibiliPink),
                                 keyboardActions = KeyboardActions(onSearch = {
-
+                                    if (searchInputValue.isNotEmpty()) {
+                                        searchViewModel.addSearchHistory(searchInputValue)
+                                        context.startActivity(
+                                            Intent(
+                                                context,
+                                                SearchResultActivity::class.java
+                                            ).apply {
+                                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                                putExtra(PARAM_KEYWORD, searchInputValue)
+                                            }
+                                        )
+                                    }
                                 }),
                                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                             )

@@ -2,14 +2,16 @@ package cn.spacexc.wearbili.remake.app.search.domain.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import cn.spacexc.wearbili.common.exception.DataLoadFailedException
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.Search
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.mediaft.SearchedMediaFt
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.user.SearchedUser
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.video.SearchedVideo
-import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
-import cn.spacexc.wearbili.remake.common.exception.DataLoadFailedException
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.net.URLEncoder
 
 /**
  * Created by XC-Qan on 2023/5/9.
@@ -20,7 +22,7 @@ import com.google.gson.reflect.TypeToken
  */
 
 class SearchPagingSource(
-    private val networkUtils: KtorNetworkUtils,
+    private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils,
     private val keyword: String,
 ) : PagingSource<Int, SearchObject>() {
     override fun getRefreshKey(state: PagingState<Int, SearchObject>): Int? {
@@ -30,7 +32,11 @@ class SearchPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, SearchObject> {
         val page = params.key ?: 1
         val url =
-            "https://api.bilibili.com/x/web-interface/search/all/v2?__refresh__=true&_extra=&context=&page_size=20&order=&duration=&platform=pc&highlight=1&single_column=0&source_tag=3&page=$page&keyword=$keyword "
+            "https://api.bilibili.com/x/web-interface/search/all/v2?__refresh__=true&_extra=&context=&page_size=20&order=&duration=&platform=pc&highlight=1&single_column=0&source_tag=3&page=$page&keyword=${
+                withContext(Dispatchers.IO) {
+                    URLEncoder.encode(keyword, "utf-8")
+                }
+            } "
         val response = networkUtils.get<Search>(url)
         if (response.code != 0) return LoadResult.Error(DataLoadFailedException())
         val result = response.data?.data?.result ?: emptyList()
@@ -80,11 +86,12 @@ class SearchPagingSource(
             //val videos = result.find { it.resultType == "video" }?.data?.map { it as SearchedVideo }?.map { SearchObject(type = "video", item = it) } ?: emptyList()
             val videoTreeList = result.find { it.resultType == "video" }
             val videoTree = Gson().toJsonTree(videoTreeList?.data)
-            val videoItems: List<SearchedVideo> = Gson().fromJson(
+            val videoItems: List<SearchedVideo>? = Gson().fromJson(
                 videoTree,
                 object : TypeToken<List<SearchedVideo>>() {}.type
             )
-            val videoSearchObjectList = videoItems.map { SearchObject("video", it) }
+            val videoSearchObjectList =
+                (videoItems ?: emptyList()).map { SearchObject("video", it) }
             return LoadResult.Page(
                 data = videoSearchObjectList,
                 prevKey = page - 1,

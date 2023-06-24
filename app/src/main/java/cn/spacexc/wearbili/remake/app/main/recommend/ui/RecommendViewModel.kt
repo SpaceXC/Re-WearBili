@@ -5,13 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.RecommendVideo
 import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.WebRecommendVideo
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.UIState
-import cn.spacexc.wearbili.remake.common.domain.log.logd
-import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
-import cn.spacexc.wearbili.remake.common.domain.user.UserManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,8 +24,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RecommendViewModel @Inject constructor(
-    private val networkUtils: KtorNetworkUtils,
-    private val userManager: UserManager
+    private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils,
+    private val userManager: cn.spacexc.wearbili.common.domain.user.UserManager
 ) : ViewModel() {
     var screenState by mutableStateOf(
         RecommendScreenState()

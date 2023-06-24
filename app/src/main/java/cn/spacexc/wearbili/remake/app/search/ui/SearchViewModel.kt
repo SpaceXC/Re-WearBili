@@ -3,11 +3,11 @@ package cn.spacexc.wearbili.remake.app.search.ui
 import androidx.compose.foundation.ScrollState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cn.spacexc.bilibilisdk.data.DataManager
+import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.search.domain.SearchHistory
 import cn.spacexc.wearbili.remake.app.search.domain.remote.hot.HotSearch
 import cn.spacexc.wearbili.remake.app.search.domain.remote.hot.HotSearchList
-import cn.spacexc.wearbili.remake.common.domain.data.DataManager
-import cn.spacexc.wearbili.remake.common.domain.network.KtorNetworkUtils
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
