@@ -1,7 +1,6 @@
 package cn.spacexc.wearbili.remake.app.video.info.info.ui
 
 import android.content.ActivityNotFoundException
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.animateColorAsState
@@ -30,6 +29,7 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -39,7 +39,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.util.UnstableApi
+import cn.spacexc.bilibilisdk.sdk.video.info.remote.info.Data
+import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.copyToClipboard
+import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
@@ -47,7 +51,9 @@ import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
+import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_WEBI_SIGNATURE_KEY
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
+import cn.spacexc.wearbili.remake.app.videoplayer.defaultplayer.Media3PlayerActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
@@ -62,6 +68,7 @@ import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.copyable
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
+import kotlinx.coroutines.launch
 
 /**
  * Created by XC-Qan on 2023/4/12.
@@ -74,13 +81,14 @@ import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 data class VideoInformationScreenState(
     val uiState: UIState = UIState.Loading,
     val scrollState: ScrollState = ScrollState(0),
-    val videoData: cn.spacexc.wearbili.remake.app.video.info.info.remote.Data? = null,
+    val videoData: Data? = null,
     val isLiked: Boolean = false,
     val isCoined: Boolean = false,
     val isFav: Boolean = false
 )
 
 @Composable
+@UnstableApi
 fun VideoInformationScreen(
     state: VideoInformationScreenState,
     context: Context,
@@ -89,6 +97,8 @@ fun VideoInformationScreen(
     val likeColor by animateColorAsState(targetValue = if (state.isLiked) BilibiliPink else Color.White)
     val coinColor by animateColorAsState(targetValue = if (state.isCoined) BilibiliPink else Color.White)
     val favColor by animateColorAsState(targetValue = if (state.isFav) BilibiliPink else Color.White)
+
+    val scope = rememberCoroutineScope()
 
     LoadableBox(uiState = state.uiState) {
         Column(
@@ -100,15 +110,17 @@ fun VideoInformationScreen(
             state.videoData?.let { video ->
                 Box(modifier = Modifier.clickVfx {
                     try {
-                        Intent(Intent.ACTION_MAIN).apply {
-                            component = ComponentName(
-                                "cn.spacexc.wearbili.videoplayer",
-                                "cn.spacexc.wearbili.videoplayer.defaultplayer.VideoPlayerActivity"
-                            )
-                            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-                            putExtra(PARAM_VIDEO_ID, video.bvid)
-                            putExtra(PARAM_VIDEO_CID, video.cid.toString())
-                            context.startActivity(this)
+                        scope.launch {
+                            Intent(context, Media3PlayerActivity::class.java).apply {
+                                putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
+                                putExtra(PARAM_VIDEO_ID, video.bvid)
+                                putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
+                                putExtra(
+                                    PARAM_WEBI_SIGNATURE_KEY,
+                                    UserUtils.webiSign()
+                                )    //这个方法是suspend
+                                context.startActivity(this)
+                            }
                         }
                     } catch (e: ActivityNotFoundException) {
                         ToastUtils.showText(content = "你还没有安装播放插件哦")
@@ -272,7 +284,10 @@ fun VideoInformationScreen(
                             text = "稍后再看",
                             modifier = Modifier.weight(1f)
                         ) {
-
+                            videoInformationViewModel.addToWatchLater(
+                                VIDEO_TYPE_BVID,
+                                video.bvid
+                            )
                         }
                         OutlinedRoundButton(
                             icon = Icons.Outlined.Report,

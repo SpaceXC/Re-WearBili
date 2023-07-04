@@ -58,6 +58,7 @@ dependencies {
     implementation 'androidx.compose.runtime:runtime-livedata:1.4.0'
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation project(path: ':app:common')
+    implementation project(path: ':Bilibili-Kotlin-SDK')
     //implementation 'androidx.core:core-ktx:+'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -66,22 +67,28 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 
-    def ktor_version = "2.2.4"
-    implementation "io.ktor:ktor-client-core:$ktor_version"
-    implementation "io.ktor:ktor-client-cio:$ktor_version"
-    implementation "io.ktor:ktor-client-android:$ktor_version"
-    implementation "io.ktor:ktor-client-logging:$ktor_version"
-    implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
-    implementation "io.ktor:ktor-serialization-gson:$ktor_version"
+    def media3_version = "1.0.0-rc01"
 
-    def gson_version = "2.10.1"
-    implementation "com.google.code.gson:gson:$gson_version"
-
-    implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.8'
-    implementation 'tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.8'
-
-    implementation 'tv.danmaku.ijk.media:ijkplayer-armv5:0.8.8'
-    implementation 'tv.danmaku.ijk.media:ijkplayer-arm64:0.8.8'
-    implementation 'tv.danmaku.ijk.media:ijkplayer-x86:0.8.8'
-    implementation 'tv.danmaku.ijk.media:ijkplayer-x86_64:0.8.8'
+    // For media playback using ExoPlayer
+    implementation "androidx.media3:media3-exoplayer:$media3_version"
+    // For DASH playback support with ExoPlayer
+    implementation "androidx.media3:media3-exoplayer-dash:$media3_version"
+    // For RTSP playback support with ExoPlayer
+    implementation "androidx.media3:media3-exoplayer-rtsp:$media3_version"
+    // For building media playback UIs
+    implementation "androidx.media3:media3-ui:$media3_version"
+    // For exposing and controlling media sessions
+    implementation "androidx.media3:media3-session:$media3_version"
+    // For extracting data from media containers
+    implementation "androidx.media3:media3-extractor:$media3_version"
+    // For scheduling background operations using Jetpack Work's WorkManager with ExoPlayer
+    implementation "androidx.media3:media3-exoplayer-workmanager:$media3_version"
+    // Common functionality for media database components
+    implementation "androidx.media3:media3-database:$media3_version"
+    // Common functionality for media decoders
+    implementation "androidx.media3:media3-decoder:$media3_version"
+    // Common functionality for loading data
+    implementation "androidx.media3:media3-datasource:$media3_version"
+    // Common functionality used across multiple media libraries
+    implementation "androidx.media3:media3-common:$media3_version"
 }

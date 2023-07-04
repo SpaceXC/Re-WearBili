@@ -56,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.domain.color.parseColor
+import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.ui.FavoriteFolderActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.following.ui.FollowingUsersActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.history.ui.HistoryActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.watchlater.ui.WatchLaterActivity
@@ -310,7 +311,12 @@ fun ProfileScreen(
                             background = buttonBackgroundColor,
                             modifier = Modifier.weight(1f)
                         ) {
-
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    FavoriteFolderActivity::class.java
+                                )
+                            )
                         }
                     }
                     Row(

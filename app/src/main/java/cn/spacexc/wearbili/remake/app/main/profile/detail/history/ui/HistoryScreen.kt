@@ -16,6 +16,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import cn.spacexc.wearbili.common.domain.time.secondToTime
+import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
@@ -79,8 +80,9 @@ fun HistoryScreen(
                                 }
                             },
                             coverUrl = item.cover,
-
-                            )
+                            videoId = it.history.bvid,
+                            videoIdType = VIDEO_TYPE_BVID,
+                        )
                     }
                 }
             }

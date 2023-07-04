@@ -5,10 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cn.spacexc.bilibilisdk.sdk.video.action.VideoActions
+import cn.spacexc.bilibilisdk.sdk.video.action.VideoAction
+import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
 import cn.spacexc.wearbili.common.domain.log.logd
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
-import cn.spacexc.wearbili.remake.app.video.info.info.remote.VideoInformation
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VideoInformationViewModel @Inject constructor(
-    private val networkUtils: KtorNetworkUtils
+
 ) : ViewModel() {
     var state by mutableStateOf(
         VideoInformationScreenState()
@@ -41,7 +40,7 @@ class VideoInformationViewModel @Inject constructor(
                 return@launch
             }
             val response =
-                networkUtils.get<VideoInformation>("http://api.bilibili.com/x/web-interface/view?$videoIdType=$videoId")
+                VideoInfo.getVideoInfoById(videoIdType, videoId)
             if (response.code != 0 || response.data?.data == null || response.data?.code != 0) {
                 state = state.copy(uiState = UIState.Failed)
                 return@launch
@@ -71,7 +70,7 @@ class VideoInformationViewModel @Inject constructor(
         videoId: String?
     ) {
         state = state.copy(
-            isLiked = cn.spacexc.bilibilisdk.sdk.video.info.VideoInformation.isLiked(
+            isLiked = VideoInfo.isLiked(
                 videoIdType,
                 videoId
             )
@@ -83,7 +82,7 @@ class VideoInformationViewModel @Inject constructor(
         videoId: String?
     ) {
         state = state.copy(
-            isCoined = cn.spacexc.bilibilisdk.sdk.video.info.VideoInformation.isCoined(
+            isCoined = VideoInfo.isCoined(
                 videoIdType,
                 videoId
             )
@@ -94,7 +93,7 @@ class VideoInformationViewModel @Inject constructor(
         videoId: String?
     ) {
         state = state.copy(
-            isFav = cn.spacexc.bilibilisdk.sdk.video.info.VideoInformation.isFav(videoId)
+            isFav = VideoInfo.isFav(videoId)
         )
     }
 
@@ -106,7 +105,7 @@ class VideoInformationViewModel @Inject constructor(
             isLiked = !state.isLiked
         )
         viewModelScope.launch {
-            val response = VideoActions.likeVideo(videoIdType, videoId, !state.isLiked)
+            val response = VideoAction.likeVideo(videoIdType, videoId, !state.isLiked)
             if (response.code != 0) {
                 state = state.copy(
                     isLiked = !state.isLiked
@@ -115,6 +114,20 @@ class VideoInformationViewModel @Inject constructor(
             }
             isLiked(videoIdType, videoId)
             logd(response)
+        }
+    }
+
+    fun addToWatchLater(
+        videoIdType: String,
+        videoId: String
+    ) {
+        viewModelScope.launch {
+            val response = VideoAction.addToWatchLater(videoIdType, videoId)
+            if (response.code != 0) {
+                ToastUtils.showText("添加失败！${response.code}: ${response.message}")
+            } else {
+                ToastUtils.showText("添加成功！记得来看我哦～")
+            }
         }
     }
 }

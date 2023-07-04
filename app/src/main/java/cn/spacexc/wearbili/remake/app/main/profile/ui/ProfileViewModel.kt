@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cn.spacexc.bilibilisdk.sdk.user.profile.UserProfile
+import cn.spacexc.bilibilisdk.sdk.user.profile.UserProfileInfo
 import cn.spacexc.wearbili.remake.common.UIState
 import kotlinx.coroutines.launch
 
@@ -29,7 +29,7 @@ class ProfileViewModel : ViewModel() {
     fun getProfile() {
         screenState = screenState.copy(uiState = UIState.Loading)
         viewModelScope.launch {
-            val response = UserProfile.getCurrentUserInfo()
+            val response = UserProfileInfo.getCurrentUserInfo()
             if (response.code != 0 && response.data?.code != 0) {
                 screenState = screenState.copy(uiState = UIState.Failed)
                 return@launch
