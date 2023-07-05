@@ -5,10 +5,8 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.util.UnstableApi
 import cn.spacexc.wearbili.common.domain.log.logd
-import kotlinx.coroutines.launch
 
 /**
  * Created by XC-Qan on 2023/5/20.
@@ -35,12 +33,12 @@ class Media3PlayerActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
         )
-        val videoIdType = intent.getStringExtra(PARAM_VIDEO_ID_TYPE)
+        val videoIdType = intent.getStringExtra(PARAM_VIDEO_ID_TYPE) ?: VIDEO_TYPE_BVID
         val videoId = intent.getStringExtra(PARAM_VIDEO_ID)
         val videoCid = intent.getLongExtra(PARAM_VIDEO_CID, 0L)
-        lifecycleScope.launch {
-            viewModel.playVideoFromId(videoIdType!!, videoId!!, videoCid)
-        }
+
+        viewModel.playVideoFromId(videoIdType, videoId!!, videoCid)
+
         setContent {
             Media3PlayerScreen(
                 viewModel = viewModel,

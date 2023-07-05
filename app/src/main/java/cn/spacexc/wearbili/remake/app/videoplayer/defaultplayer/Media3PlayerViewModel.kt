@@ -40,14 +40,15 @@ import kotlinx.coroutines.launch
  */
 
 class Media3PlayerViewModel(application: Application) : AndroidViewModel(application) {
-    var loaded by mutableStateOf(false)
-    var loadingMessage by mutableStateOf("")
-
     private val userAgent =
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
     private var httpDataSourceFactory = DefaultHttpDataSource.Factory()
     private var cacheDataSourceFactory: DataSource.Factory
     lateinit var player: Player
+
+    var currentStat by mutableStateOf(PlayerStats.Loading)
+    var loadingMessage by mutableStateOf("")
+    var isVideoControllerVisible by mutableStateOf(false)
 
     var videoInfo: cn.spacexc.bilibilisdk.sdk.video.info.remote.info.VideoInfo? by mutableStateOf(
         null
@@ -58,6 +59,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
     val currentPlayProgress = flow {
         while (true) {
             emit(player.currentPosition)
+            delay(10)
         }
     }
     var videoDuration by mutableStateOf(0L)
@@ -110,15 +112,17 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                         videoDuration = player.duration
                         startContinuouslyUpdatingSubtitle()
                         Log.d(TAG, "onPlaybackStateChanged: startUpdatingSubtitles")
-                        loaded = true
+                        currentStat = PlayerStats.Playing
+                        isVideoControllerVisible = true
                     }
 
                     Player.STATE_BUFFERING -> {
                         appendLoadMessage("缓冲中...")
+                        currentStat = PlayerStats.Buffering
                     }
 
                     Player.STATE_ENDED -> {
-
+                        currentStat = PlayerStats.Finished
                     }
 
                     Player.STATE_IDLE -> {
@@ -126,71 +130,82 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                     }
                 }
             }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                super.onIsPlayingChanged(isPlaying)
+                currentStat = if (isPlaying) PlayerStats.Playing else PlayerStats.Paused
+            }
         })
     }
 
-    suspend fun playVideoFromId(
+    fun playVideoFromId(
         videoIdType: String,
         videoId: String,
         videoCid: Long,
         isLowResolution: Boolean = true
     ) {
+        //delay(1)
         appendLoadMessage("初始化播放器...")
         val headers = mapOf(
             "User-Agent" to userAgent,
             "Referer" to "https://www.bilibili.com/video/$videoId"
         )
         httpDataSourceFactory.setDefaultRequestProperties(headers)
+        viewModelScope.launch {
+            //delay(1)
+            getVideoInfo(videoIdType, videoId)
+            loadSubtitle()
+            appendLoadMessage("加载视频url...")
+            if (isLowResolution) {
+                val urlResponse =
+                    VideoInfo.getLowResolutionVideoPlaybackUrl(videoIdType, videoId, videoCid)
+                val urlData = urlResponse.data?.data
+                if (urlData == null) {
+                    appendLoadMessage(
+                        "出错！${urlResponse.code}: ${urlResponse.message}",
+                        needLineWrapping = false
+                    )
+                    return@launch
+                }
+                val videoUrl = urlData.durl.first { it.url.isNotEmpty() }.url
+                appendLoadMessage("成功!", needLineWrapping = false)
 
-        //CoroutineScope(Dispatchers.IO).launch {
-        getVideoInfo(videoIdType, videoId)
-        loadSubtitle()
-        appendLoadMessage("加载视频url...")
-        if (isLowResolution) {
-            val urlResponse =
-                VideoInfo.getLowResolutionVideoPlaybackUrl(videoIdType, videoId, videoCid)
-            val urlData = urlResponse.data?.data
-            if (urlData == null) {
-                appendLoadMessage(
-                    "出错！${urlResponse.code}: ${urlResponse.message}",
-                    needLineWrapping = false
-                )
-                return//@launch
+                player.setMediaItem(fromUri(videoUrl))
+                player.playWhenReady = true
+                player.prepare()
+
+            } else {
+                val urlResponse =
+                    VideoInfo.getVideoPlaybackUrls(videoIdType, videoId, videoCid)
+                val urlData = urlResponse.data?.data
+                if (urlData == null) {
+                    //TODO 处理错误
+                    appendLoadMessage(
+                        "出错！${urlResponse.code}: ${urlResponse.message}",
+                        needLineWrapping = false
+                    )
+                    return@launch
+                }
+                val videoUrl =
+                    urlData.dash.video.last { it.baseUrl.isNotEmpty() }.baseUrl.logd("videoUrl")!!
+                val audioUrl =
+                    urlData.dash.audio.last { it.baseUrl.isNotEmpty() }.baseUrl.logd("audioUrl")!!
+
+                val videoSource: MediaSource = ProgressiveMediaSource.Factory(httpDataSourceFactory)
+                    .createMediaSource(fromUri(videoUrl))
+                val audioSource: MediaSource = ProgressiveMediaSource.Factory(httpDataSourceFactory)
+                    .createMediaSource(fromUri(audioUrl))
+
+                val mergeSource: MediaSource = MergingMediaSource(videoSource, audioSource)
+                appendLoadMessage("成功!", needLineWrapping = false)
+
+
+                player.setMediaItem(mergeSource.mediaItem)
+                player.playWhenReady = true
+                player.prepare()
+
             }
-            val videoUrl = urlData.durl.first { it.url.isNotEmpty() }.url
-            appendLoadMessage("成功!", needLineWrapping = false)
-            player.setMediaItem(fromUri(videoUrl))
-            player.playWhenReady = true
-            player.prepare()
-        } else {
-            val urlResponse =
-                VideoInfo.getVideoPlaybackUrls(videoIdType, videoId, videoCid)
-            val urlData = urlResponse.data?.data
-            if (urlData == null) {
-                //TODO 处理错误
-                appendLoadMessage(
-                    "出错！${urlResponse.code}: ${urlResponse.message}",
-                    needLineWrapping = false
-                )
-                return//@launch
-            }
-            val videoUrl =
-                urlData.dash.video.last { it.baseUrl.isNotEmpty() }.baseUrl.logd("videoUrl")!!
-            val audioUrl =
-                urlData.dash.audio.last { it.baseUrl.isNotEmpty() }.baseUrl.logd("audioUrl")!!
-
-            val videoSource: MediaSource = ProgressiveMediaSource.Factory(httpDataSourceFactory)
-                .createMediaSource(fromUri(videoUrl))
-            val audioSource: MediaSource = ProgressiveMediaSource.Factory(httpDataSourceFactory)
-                .createMediaSource(fromUri(audioUrl))
-
-            val mergeSource: MediaSource = MergingMediaSource(videoSource, audioSource)
-            appendLoadMessage("成功!", needLineWrapping = false)
-            player.setMediaItem(mergeSource.mediaItem)
-            player.playWhenReady = true
-            player.prepare()
         }
-        //}
     }
 
     private suspend fun loadSubtitle() {
@@ -234,6 +249,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
         print("Obtained Video Info")
         if (response.code != 0 || response.data == null || response.data?.data == null) return
         videoInfo = response.data
+        //delay(1000L)
         appendLoadMessage("获取成功", needLineWrapping = false)
     }
 
@@ -313,3 +329,11 @@ data class SubtitleConfig(
     val subtitleLanguageCode: String,
     val subtitleLanguage: String
 )
+
+enum class PlayerStats {
+    Loading,
+    Playing,
+    Buffering,
+    Paused,
+    Finished
+}

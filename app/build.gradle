@@ -14,8 +14,8 @@ android {
         applicationId "cn.spacexc.wearbili.remake"
         minSdk 21
         targetSdk 33
-        versionCode 4
-        versionName "Bookshelf 0.1.2"
+        versionCode 5
+        versionName "Giant 0.2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

@@ -69,7 +69,7 @@ fun OutlinedRoundButton(
     onClick: () -> Unit,
 ) {
     Column(
-        modifier = modifier.clickVfx { onClick() },
+        modifier = modifier.clickVfx(onClick = onClick, onLongClick = onLongClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
