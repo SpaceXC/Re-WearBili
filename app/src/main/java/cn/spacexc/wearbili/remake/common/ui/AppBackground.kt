@@ -1,8 +1,14 @@
 package cn.spacexc.wearbili.remake.common.ui
 
+import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -20,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.Icon
@@ -29,6 +36,7 @@ import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,13 +52,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.common.ToastUtils.toastContent
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.WearBiliTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.time.DefaultTimeSource
+import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import kotlinx.coroutines.delay
 
 /**
  * Created by XC-Qan on 2023/3/21.
@@ -66,7 +80,8 @@ import cn.spacexc.wearbili.remake.common.ui.theme.time.DefaultTimeSource
  * 已包含全局主题
  */
 @Composable
-fun CirclesBackground(
+@OptIn(ExperimentalAnimationApi::class) //DON'T DELETE THIS!!!!!!!!!!!!!!!!(CAUSES BUILD TIME EXCEPTION "This is an experimental animation API."
+fun Context.CirclesBackground(
     modifier: Modifier = Modifier,
     uiState: UIState = UIState.Success,
     isShowing: Boolean = true,
@@ -78,6 +93,12 @@ fun CirclesBackground(
         mutableStateOf(0.dp)
     }   //需要获取父容器宽度来计算两个圆圈的宽度, 不直接设置fraction参数是因为大小不太对
     //TODO 研究一下换成fraction参数
+    LaunchedEffect(key1 = toastContent, block = {
+        if (toastContent.isNotEmpty()) {
+            delay(2000)
+            toastContent = ""
+        }
+    })
     WearBiliTheme {
         if (SettingsManager.getInstance().isDarkTheme) {
             Box(
@@ -124,6 +145,37 @@ fun CirclesBackground(
                 LoadableBox(uiState = uiState, content = content)
             }
         }
+        Box(modifier = Modifier.fillMaxSize()) {
+            AnimatedVisibility(
+                visible = toastContent.isNotEmpty(),
+                enter = scaleIn() + fadeIn() + slideInVertically { it / 2 },
+                exit = scaleOut() + fadeOut() + slideOutVertically { it / 2 },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+            ) {
+                Text(
+                    text = toastContent, modifier = Modifier
+                        .padding(
+                            bottom = 24.dp,
+                            start = 8.dp,
+                            end = 8.dp
+                        )
+                        .background(
+                            color = Color(0, 0, 0, 153),
+                            shape = CircleShape
+                        )
+                        .padding(8.dp)
+                        .align(Alignment.BottomCenter)
+                        .animateContentSize(),
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontFamily = wearbiliFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
     }
 }
 
@@ -193,7 +245,7 @@ fun LoadableBox(
 val TitleBackgroundHorizontalPadding = 11.dp
 
 @Composable
-fun TitleBackground(
+fun Context.TitleBackground(
     modifier: Modifier = Modifier,
     title: String,
     isTitleClipToBounds: Boolean = true,

@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app.main.profile.detail.watchlater.ui
 
+import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,7 +33,7 @@ import cn.spacexc.wearbili.remake.common.ui.VideoCard
  */
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun WatchLaterScreen(
+fun Context.WatchLaterScreen(
     viewModel: WatchLaterViewModel,
     onBack: () -> Unit
 ) {

@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app.about.ui
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -42,7 +43,7 @@ import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
  */
 
 @Composable
-fun AboutScreen(
+fun Context.AboutScreen(
     onBack: () -> Unit,
     state: LazyListState
 ) {

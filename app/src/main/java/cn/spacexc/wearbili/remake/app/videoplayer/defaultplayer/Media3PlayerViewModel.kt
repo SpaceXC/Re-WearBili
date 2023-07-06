@@ -20,15 +20,19 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import cn.spacexc.bilibilisdk.sdk.video.action.VideoAction
 import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
 import cn.spacexc.bilibilisdk.sdk.video.info.remote.subtitle.Subtitle
+import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.log.logd
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import java.io.InputStream
 
 @UnstableApi
 /**
@@ -66,7 +70,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
 
     var subtitleList = mutableStateMapOf<String, SubtitleConfig>()
 
-    var currentSubtitleLanguage: String? = subtitleList.keys.lastOrNull()
+    var currentSubtitleLanguage: String? by mutableStateOf(subtitleList.keys.lastOrNull())
     var currentSubtitleText = flow {
         //emit("字幕测试")
         var index = 0
@@ -83,6 +87,10 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
             delay(5)
         }
     }
+
+    var danmakuInputStream = MutableStateFlow<InputStream?>(null)
+
+    var onlineCount by mutableStateOf("-")
 
     init {
         httpDataSourceFactory = DefaultHttpDataSource.Factory()
@@ -110,7 +118,6 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                         videoPlayerAspectRatio = player.videoSize.width.toFloat()
                             .logd("width")!! / player.videoSize.height.toFloat().logd("height")!!
                         videoDuration = player.duration
-                        startContinuouslyUpdatingSubtitle()
                         Log.d(TAG, "onPlaybackStateChanged: startUpdatingSubtitles")
                         currentStat = PlayerStats.Playing
                         isVideoControllerVisible = true
@@ -136,6 +143,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                 currentStat = if (isPlaying) PlayerStats.Playing else PlayerStats.Paused
             }
         })
+
     }
 
     fun playVideoFromId(
@@ -155,6 +163,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
             //delay(1)
             getVideoInfo(videoIdType, videoId)
             loadSubtitle()
+            loadDanmaku(cid = videoCid)
             appendLoadMessage("加载视频url...")
             if (isLowResolution) {
                 val urlResponse =
@@ -173,7 +182,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                 player.setMediaItem(fromUri(videoUrl))
                 player.playWhenReady = true
                 player.prepare()
-
+                startContinuouslyUpdatingSubtitle()
             } else {
                 val urlResponse =
                     VideoInfo.getVideoPlaybackUrls(videoIdType, videoId, videoCid)
@@ -203,8 +212,9 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                 player.setMediaItem(mergeSource.mediaItem)
                 player.playWhenReady = true
                 player.prepare()
-
+                startContinuouslyUpdatingSubtitle()
             }
+            startContinuouslyUpdatingSubtitle()
         }
     }
 
@@ -251,6 +261,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
         videoInfo = response.data
         //delay(1000L)
         appendLoadMessage("获取成功", needLineWrapping = false)
+        getOnlineCount()
     }
 
     private suspend fun updateSubtitle() {
@@ -303,6 +314,12 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
         //println("subtitleUpdated: ${subtitleList.map { "${it.key}: ${it.value.currentSubtitle}" }}")
     }
 
+    private suspend fun loadDanmaku(cid: Long) {
+        appendLoadMessage("加载弹幕内容...")
+        danmakuInputStream.value = VideoInfo.getVideoDanmaku(cid)
+        appendLoadMessage("成功", needLineWrapping = false)
+    }
+
     private fun startContinuouslyUpdatingSubtitle() {
         Log.d(TAG, "startContinuouslyUpdatingSubtitle")
         currentSubtitleLanguage = subtitleList.keys.firstOrNull()
@@ -312,10 +329,39 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                 delay(5)
             }
         }
+    }
+
+    private fun startContinuouslyUploadingPlayingProgress() {
+        viewModelScope.launch {
+            if (UserUtils.isUserLoggedIn() && UserUtils.csrf() != null) {
+                videoInfo?.let {
+                    while (true) {
+                        VideoAction.updateHistory(
+                            aid = it.data.aid,
+                            cid = it.data.cid,
+                            progress = player.currentPosition.div(1000).toInt()
+                        )
+                        delay(2000)
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun getOnlineCount() {
+        videoInfo?.let {
+            appendLoadMessage("获取在线观看人数...")
+            val response = VideoInfo.getOnlineCount(VIDEO_TYPE_BVID, it.data.bvid, it.data.cid)
+            onlineCount = response.data?.data?.total ?: "-"
+            appendLoadMessage(
+                if (onlineCount != "-") "成功!" else "失败!",
+                needLineWrapping = false
+            )
+        }
 
     }
 
-    private fun appendLoadMessage(message: String, needLineWrapping: Boolean = true) {
+    fun appendLoadMessage(message: String, needLineWrapping: Boolean = true) {
         loadingMessage += if (needLineWrapping) "\n$message" else message
         Log.d(TAG, "appendLoadMessage: $message")
     }

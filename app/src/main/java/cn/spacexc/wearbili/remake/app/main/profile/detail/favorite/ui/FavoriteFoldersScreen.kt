@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.ui
 
+import android.content.Context
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,7 +23,7 @@ import cn.spacexc.wearbili.remake.common.ui.TitleBackground
  */
 
 @Composable
-fun FavoriteFoldersScreen(
+fun Context.FavoriteFoldersScreen(
     viewModel: FavoriteFolderViewModel,
     onBack: () -> Unit
 ) {

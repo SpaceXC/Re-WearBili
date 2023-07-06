@@ -62,7 +62,8 @@
             android:exported="false" />
         <activity
             android:name=".app.videoplayer.defaultplayer.Media3PlayerActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.WearBili.Player" />
     </application>
 
 </manifest>

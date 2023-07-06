@@ -1,7 +1,9 @@
 package cn.spacexc.wearbili.remake.common
 
 import android.content.Context
-import android.widget.Toast
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 
@@ -14,19 +16,11 @@ import cn.spacexc.wearbili.remake.app.settings.SettingsManager
  */
 
 object ToastUtils {
-    private fun makeText(content: String, context: Context = Application.getApplication()): Toast {
-        /*val toast = Toast(context)
-        val view: View = ComposeView(context).apply {
-            setContent { Text(content) }
-        }
-        toast.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL, 0, 0)
-        toast.duration = Toast.LENGTH_SHORT
-        toast.view = view*/
-        return Toast.makeText(context, content, Toast.LENGTH_SHORT)
-    }
+    var Context.toastContent by mutableStateOf("")
 
     fun showText(content: String, context: Context = Application.getApplication()) {
-        makeText(content, context).show()
+        context.toastContent = content
+        //makeText(content, context).show()
     }
 
     fun debugShowText(content: String, context: Context = Application.getApplication()) {
@@ -37,25 +31,25 @@ object ToastUtils {
 
     fun Any.debugToast(description: String?) {
         if (SettingsManager.getInstance().isDebug) {
-            makeText("$description: $this").show()
+            showText("$description: $this")
         }
     }
 
     fun <T> T.debugToast(): T {
         if (SettingsManager.getInstance().isDebug) {
-            makeText("$this").show()
+            showText("$this")
         }
         return this
     }
 
     fun debugToast(content: String?) {
         if (SettingsManager.getInstance().isDebug) {
-            makeText("$content").show()
+            showText("$content")
         }
     }
 
     fun <T> T.debugToastWithGeneric(): T {
-        if (SettingsManager.getInstance().isDebug) makeText("$this")
+        if (SettingsManager.getInstance().isDebug) showText("$this")
         return this
     }
 }

@@ -43,7 +43,8 @@ class Media3PlayerActivity : ComponentActivity() {
             Media3PlayerScreen(
                 viewModel = viewModel,
                 displaySurface = VideoDisplaySurface.TEXTURE_VIEW,
-                onBack = ::finish
+                onBack = ::finish,
+                context = this
             )
         }
     }

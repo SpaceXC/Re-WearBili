@@ -40,7 +40,7 @@ fun VideoInformationActivityScreen(
     oid: Long,
     onBack: () -> Unit
 ) {
-    TitleBackground(
+    context.TitleBackground(
         title = when (state.pagerState.currentPage) {
             0 -> "详情"
             1 -> "评论"

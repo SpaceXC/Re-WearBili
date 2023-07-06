@@ -30,6 +30,7 @@ fun AutoResizedText(
     text: String,
     fontWeight: FontWeight = FontWeight.Normal,
     style: TextStyle = AppTheme.typography.body1,
+    isHeightOverflow: Boolean = false,
     color: Color = style.color
 ) {
     var resizedTextStyle by remember {
@@ -53,18 +54,34 @@ fun AutoResizedText(
         fontWeight = fontWeight,
         style = resizedTextStyle,
         onTextLayout = { result ->
-            if (result.didOverflowWidth) {
-                if (style.fontSize.isUnspecified) {
+            if (isHeightOverflow) {
+                if (result.didOverflowHeight) {
+                    if (style.fontSize.isUnspecified) {
+                        resizedTextStyle = resizedTextStyle.copy(
+                            fontSize = defaultFontSize
+                        )
+                    }
                     resizedTextStyle = resizedTextStyle.copy(
-                        fontSize = defaultFontSize
+                        fontSize = resizedTextStyle.fontSize * 0.95
                     )
+                } else {
+                    shouldDraw = true
                 }
-                resizedTextStyle = resizedTextStyle.copy(
-                    fontSize = resizedTextStyle.fontSize * 0.95
-                )
             } else {
-                shouldDraw = true
+                if (result.didOverflowWidth) {
+                    if (style.fontSize.isUnspecified) {
+                        resizedTextStyle = resizedTextStyle.copy(
+                            fontSize = defaultFontSize
+                        )
+                    }
+                    resizedTextStyle = resizedTextStyle.copy(
+                        fontSize = resizedTextStyle.fontSize * 0.95
+                    )
+                } else {
+                    shouldDraw = true
+                }
             }
+
         }
     )
 }

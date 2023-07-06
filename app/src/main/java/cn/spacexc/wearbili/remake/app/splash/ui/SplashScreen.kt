@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app.splash.ui
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,7 +28,7 @@ import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
  */
 
 @Composable
-fun SplashScreen() {
+fun Context.SplashScreen() {
     CirclesBackground(modifier = Modifier) {
         Image(
             painter = painterResource(id = R.drawable.icon_app_main_reverse),

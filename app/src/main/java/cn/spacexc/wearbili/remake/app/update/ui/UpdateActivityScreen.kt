@@ -1,6 +1,7 @@
 package cn.spacexc.wearbili.remake.app.update.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,7 +32,7 @@ import java.util.Date
 
 @SuppressLint("SimpleDateFormat")
 @Composable
-fun UpdateActivityScreen(
+fun Context.UpdateActivityScreen(
     versionInfo: SplashScreenActivity.AppUpdatesResult?
 ) {
     TitleBackground(title = "更新") {
