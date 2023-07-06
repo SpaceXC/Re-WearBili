@@ -57,6 +57,13 @@
         <activity
             android:name=".app.main.profile.detail.watchlater.ui.WatchLaterActivity"
             android:exported="false" />
+        <activity
+            android:name=".app.main.profile.detail.favorite.ui.FavoriteFolderActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.videoplayer.defaultplayer.Media3PlayerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WearBili.Player" />
     </application>
 
 </manifest>

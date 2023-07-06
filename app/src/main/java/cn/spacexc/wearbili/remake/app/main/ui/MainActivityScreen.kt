@@ -153,7 +153,7 @@ fun MainActivityScreen(
         pagerState.logd("pagerState")
     })
     Box(modifier = Modifier.fillMaxSize()) {
-        TitleBackground(
+        context.TitleBackground(
             title = if (isDropdownMenuShowing) "菜单" else when (pagerState.currentPage) {
                 0 -> "推荐"
                 1 -> "动态"

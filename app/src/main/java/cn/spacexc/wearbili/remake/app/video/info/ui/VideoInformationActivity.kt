@@ -21,6 +21,7 @@ const val PARAM_VIDEO_ID = "videoId"
 const val PARAM_VIDEO_CID = "videoCid"
 const val VIDEO_TYPE_AID = "aid"
 const val VIDEO_TYPE_BVID = "bvid"
+const val PARAM_WEBI_SIGNATURE_KEY = "webi_signature_key"
 
 @AndroidEntryPoint
 class VideoInformationActivity : ComponentActivity() {
@@ -33,7 +34,7 @@ class VideoInformationActivity : ComponentActivity() {
         val videoIdType = intent.getStringExtra(PARAM_VIDEO_ID_TYPE) ?: VIDEO_TYPE_BVID
         val videoId = intent.getStringExtra(PARAM_VIDEO_ID)
         videoInfoViewModel.getVideoInfo(videoIdType = videoIdType, videoId = videoId)
-        videoInfoViewModel.getVideoSanLianState(videoIdType = videoIdType, videoId = videoId)
+        // videoInfoViewModel.getVideoSanLianState(videoIdType = videoIdType, videoId = videoId)
         val aid = (if (!videoId.isNullOrEmpty()) {
             if (videoIdType == VIDEO_TYPE_AID) videoId.replace(
                 "av",

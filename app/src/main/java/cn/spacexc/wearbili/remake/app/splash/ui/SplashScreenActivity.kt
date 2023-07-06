@@ -46,6 +46,8 @@ class SplashScreenActivity : ComponentActivity() {
         lifecycleScope.launch {
             networkUtils.get<String>("https://bilibili.com")    // 每次启动获取最新的cookie
             WebiSignature.getWebiSignature()    //保存新的webi签名
+            //print(VideoInfo.getVideoPlaybackUrls(videoId = "BV1ng4y1877V", videoCid = 175354448))
+
             val appUpdatesResponse =
                 networkUtils.get<LeanCloudAppUpdatesSearch>("https://mae7lops.lc-cn-n1-shared.com/1.1/classes/AppUpdates") {
                     header("X-LC-Id", cn.spacexc.wearbili.common.LEANCLOUD_APP_ID)
