@@ -14,7 +14,7 @@ android {
         applicationId "cn.spacexc.wearbili.remake"
         minSdk 21
         targetSdk 33
-        versionCode 6
+        versionCode 7
         versionName "Giant 0.2.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
