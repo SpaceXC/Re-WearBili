@@ -84,6 +84,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.util.UnstableApi
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R.drawable
+import cn.spacexc.wearbili.remake.app.videoplayer.danmaku.BiliDanmukuParser
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import master.flame.danmaku.controller.DrawHandler
@@ -94,9 +95,7 @@ import master.flame.danmaku.danmaku.model.BaseDanmaku
 import master.flame.danmaku.danmaku.model.DanmakuTimer
 import master.flame.danmaku.danmaku.model.IDisplayer
 import master.flame.danmaku.danmaku.model.android.DanmakuContext
-import master.flame.danmaku.danmaku.model.android.SpannedCacheStuffer
 import master.flame.danmaku.danmaku.parser.IDataSource
-import master.flame.danmaku.danmaku.parser.android.BiliDanmukuParser
 import master.flame.danmaku.ui.widget.DanmakuView
 import kotlin.math.roundToInt
 
@@ -211,7 +210,7 @@ fun Activity.Media3PlayerScreen(
                 .setDuplicateMergingEnabled(true)      //合并重复弹幕
                 .setScrollSpeedFactor(1.2f)     //弹幕速度
                 .setScaleTextSize(0.8f)     //文字大小
-                .setCacheStuffer(SpannedCacheStuffer()) // 图文混排使用SpannedCacheStuffer  设置缓存绘制填充器，默认使用{@link SimpleTextCacheStuffer}只支持纯文字显示, 如果需要图文混排请设置{@link SpannedCacheStuffer}如果需要定制其他样式请扩展{@link SimpleTextCacheStuffer}|{@link SpannedCacheStuffer}
+                //.setCacheStuffer(SpannedCacheStuffer()) // 图文混排使用SpannedCacheStuffer  设置缓存绘制填充器，默认使用{@link SimpleTextCacheStuffer}只支持纯文字显示, 如果需要图文混排请设置{@link SpannedCacheStuffer}如果需要定制其他样式请扩展{@link SimpleTextCacheStuffer}|{@link SpannedCacheStuffer}
                 .setMaximumLines(maxLinesPair) //设置最大显示行数
                 .preventOverlapping(overlappingEnablePair) //设置防弹幕重叠，null为允许重叠
 
@@ -239,6 +238,10 @@ fun Activity.Media3PlayerScreen(
                     }
                 }
 
+                override fun danmakuShown(danmaku: BaseDanmaku?) {
+
+                }
+
                 override fun drawingFinished() {
 
                 }
@@ -258,6 +261,7 @@ fun Activity.Media3PlayerScreen(
             }
 
             PlayerStats.Playing -> {
+                danmakuView?.seekTo(currentPlayerPosition)
                 danmakuView?.resume()
             }
 

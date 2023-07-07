@@ -24,10 +24,10 @@ import cn.spacexc.wearbili.remake.app.search.domain.remote.result.video.Searched
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.LargeUserCard
-import cn.spacexc.wearbili.remake.common.ui.LoadingState
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
+import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
 import kotlinx.coroutines.flow.Flow
 
@@ -98,11 +98,7 @@ fun Context.SearchResultScreen(
                 }
                 item {
                     LoadingTip(
-                        loadingState = when (searchResult.loadState.refresh) {
-                            is LoadState.Loading -> LoadingState.Loading
-                            is LoadState.Error -> LoadingState.Failed
-                            else -> LoadingState.NoMore
-                        },
+                        loadingState = searchResult.loadState.append.toLoadingState(),
                         onRetry = searchResult::retry
                     )
                 }

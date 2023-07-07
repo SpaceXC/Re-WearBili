@@ -303,7 +303,8 @@ fun Context.TitleBackground(
                     }
                     .onSizeChanged {
                         titleBarHeight = with(localDensity) { it.height.toDp() }
-                    }
+                    },
+                verticalAlignment = if (isRound()) Alignment.CenterVertically else Alignment.Top
             ) {
                 if (isDropdownTitle) {
                     Text(
@@ -326,7 +327,8 @@ fun Context.TitleBackground(
                                     tint = Color.White,
                                     modifier = Modifier.fillMaxSize()
                                 )
-                            })
+                            }),
+                        textAlign = if (isRound()) TextAlign.Center else null
                     )
                 } else {
                     Text(
@@ -349,11 +351,15 @@ fun Context.TitleBackground(
                                     tint = Color.White,
                                     modifier = Modifier.fillMaxSize()
                                 )
-                            })
+                            }),
+                        textAlign = if (isRound()) TextAlign.Center else null
                     )
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                Text(text = timeText, style = AppTheme.typography.h2)
+                if (!isRound()) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(text = timeText, style = AppTheme.typography.h2)
+                }
+
             }
 
         }

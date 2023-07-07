@@ -63,6 +63,7 @@
         <activity
             android:name=".app.videoplayer.defaultplayer.Media3PlayerActivity"
             android:exported="false"
+            android:configChanges="orientation|screenSize"
             android:theme="@style/Theme.WearBili.Player" />
     </application>
 

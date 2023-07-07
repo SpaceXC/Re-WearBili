@@ -214,7 +214,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                 player.prepare()
                 startContinuouslyUpdatingSubtitle()
             }
-            startContinuouslyUpdatingSubtitle()
+            startContinuouslyUploadingPlayingProgress()
         }
     }
 

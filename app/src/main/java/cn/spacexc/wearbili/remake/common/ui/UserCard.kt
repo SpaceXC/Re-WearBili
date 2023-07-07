@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -133,7 +134,12 @@ fun UserAvatar(
             ) {
                 Image(
                     painter = painterResource(
-                        id = R.drawable.icon_official_verify_org
+                        id = when (officialVerify) {
+                            //OfficialVerify.NONE -> 0
+                            OfficialVerify.PERSONAL -> R.drawable.icon_official_verify_personal
+                            OfficialVerify.ORG -> R.drawable.icon_official_verify_org
+                            else -> 0
+                        }
                     ),
                     contentDescription = null,
                     modifier = Modifier
@@ -274,5 +280,41 @@ fun SmallUserCard(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun TinyUserCard(
+    avatar: String,
+    username: String
+) {
+    val localDensity = LocalDensity.current
+    var textHeight by remember {
+        mutableStateOf(0.dp)
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        BiliImage(
+            url = avatar,
+            contentDescription = null,
+            modifier = Modifier
+                .size(textHeight * 1.8f)
+                .clip(
+                    CircleShape
+                )
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = username,
+            style = MaterialTheme.typography.h2,
+            modifier = Modifier.onSizeChanged {
+                textHeight = with(localDensity) { it.height.toDp() }
+            },
+            fontSize = 12.5.spx
+        )
     }
 }

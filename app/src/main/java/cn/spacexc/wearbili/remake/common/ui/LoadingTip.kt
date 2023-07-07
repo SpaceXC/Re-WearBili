@@ -16,6 +16,7 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 
 /**
  * Created by XC-Qan on 2023/4/9.
@@ -74,3 +75,12 @@ fun LoadingTip(
         }
     )
 )
+
+fun LoadState.toLoadingState(): LoadingState {
+    return when (this) {
+        is LoadState.Loading -> LoadingState.Loading
+        is LoadState.Error -> LoadingState.Failed
+        else -> LoadingState.NoMore
+        //is LoadState.NotLoading -> LoadingState.Loading
+    }
+}

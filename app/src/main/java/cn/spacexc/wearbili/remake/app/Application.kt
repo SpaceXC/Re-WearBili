@@ -1,6 +1,7 @@
 package cn.spacexc.wearbili.remake.app
 
 import android.os.Build
+import android.util.Log
 import cn.spacexc.bilibilisdk.BilibiliSdkManager
 import cn.spacexc.wearbili.common.APP_CENTER_SECRET
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
@@ -38,6 +39,10 @@ class Application : android.app.Application() {
         )
         //VideoPlayerManager.dataManager = dataStore
         logd("mainApplicationContext")
+        Log.e(
+            TAG,
+            "20230708: 记住，在这里每一处不合理的地方，都有他的合理之处和存在于此的理由 ————XC于00:17有感而发"
+        )
     }
 
     companion object {

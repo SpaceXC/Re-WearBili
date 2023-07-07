@@ -98,9 +98,9 @@ fun RecommendScreen(
             }
             item {
                 LoadingTip()
-                LaunchedEffect(key1 = Unit, block = {
+                LaunchedEffect(key1 = Unit) {
                     onFetch(false)
-                })
+                }
             }
         }
         PullRefreshIndicator(

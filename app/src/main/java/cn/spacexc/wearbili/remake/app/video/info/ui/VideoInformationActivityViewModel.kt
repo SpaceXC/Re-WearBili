@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app.video.info.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,6 +15,7 @@ import androidx.lifecycle.ViewModel
  */
 
 class VideoInformationActivityViewModel : ViewModel() {
+    @OptIn(ExperimentalFoundationApi::class)
     var state by mutableStateOf(
         VideoInformationActivityScreenState()
     )

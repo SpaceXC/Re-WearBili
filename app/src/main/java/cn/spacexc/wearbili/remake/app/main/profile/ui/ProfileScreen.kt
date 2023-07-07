@@ -56,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.domain.color.parseColor
+import cn.spacexc.wearbili.remake.app.main.profile.detail.following.ui.FollowingUsersActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.history.ui.HistoryActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.watchlater.ui.WatchLaterActivity
 import cn.spacexc.wearbili.remake.common.UIState
@@ -63,7 +64,6 @@ import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.LargeRoundButton
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
-import cn.spacexc.wearbili.remake.common.ui.OfficialVerify
 import cn.spacexc.wearbili.remake.common.ui.UserAvatar
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
 import cn.spacexc.wearbili.remake.common.ui.clickAlpha
@@ -153,7 +153,7 @@ fun ProfileScreen(
                                 }
                                 avatarHeightPx = it.height
                             },
-                        officialVerify = OfficialVerify.PERSONAL
+                        //officialVerify = OfficialVerify.PERSONAL
                     )
 
                     Row(
@@ -275,12 +275,12 @@ fun ProfileScreen(
                             background = buttonBackgroundColor,
                             modifier = Modifier.weight(1f)
                         ) {
-                            /*context.startActivity(
+                            context.startActivity(
                                 Intent(
                                     context,
                                     FollowingUsersActivity::class.java
                                 )
-                            )*/
+                            )
                         }
                         LargeRoundButton(
                             icon = Icons.Outlined.History,

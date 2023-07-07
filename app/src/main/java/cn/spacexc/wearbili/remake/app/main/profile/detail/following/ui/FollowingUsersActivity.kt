@@ -5,18 +5,28 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.Text
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
+import cn.spacexc.wearbili.remake.common.toUIState
+import cn.spacexc.wearbili.remake.common.ui.LoadableBox
+import cn.spacexc.wearbili.remake.common.ui.LoadingTip
+import cn.spacexc.wearbili.remake.common.ui.TinyUserCard
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
+import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 
 /**
  * Created by XC-Qan on 2023/6/23.
@@ -29,30 +39,58 @@ import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 class FollowingUsersActivity : ComponentActivity() {
     private val viewModel by viewModels<FollowingUsersViewModel>()
 
-    @OptIn(ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.getFollowedUserTags()
         setContent {
             val pagerState = rememberPagerState()
-            var currentTagName by remember {
-                mutableStateOf("")
-            }
+            val followingTags by viewModel.followedUserTags.collectAsState()
+            val followingUsersByTags by viewModel.followedUsers.collectAsState(initial = emptyList())
 
-            TitleBackground(title = currentTagName, uiState = viewModel.uiState) {
-                HorizontalPager(pageCount = viewModel.followedUserTags.size) { page ->
-                    Text(text = "$page ${viewModel.followedUserTags[page].name}")
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-
-                    }
-                    LaunchedEffect(key1 = page, block = {
-                        if (viewModel.followedUserTags.isNotEmpty()) {
-                            currentTagName = viewModel.followedUserTags[page].name
+            TitleBackground(
+                title = if (followingTags.isEmpty()) "" else followingTags[pagerState.currentPage].name,
+                uiState = viewModel.uiState,
+                onBack = ::finish
+            ) {
+                HorizontalPager(
+                    pageCount = followingTags.size,
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            color = Color(
+                                36,
+                                36,
+                                36,
+                                199
+                            ),
+                            shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
+                        )
+                        .border(
+                            width = 0.05.dp,
+                            color = Color(112, 112, 112, 179),
+                            shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
+                        )
+                ) { page ->
+                    val items = followingUsersByTags[page].collectAsLazyPagingItems()
+                    LoadableBox(uiState = items.loadState.refresh.toUIState()) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 8.dp)
+                        ) {
+                            items(items) { user ->
+                                user?.let {
+                                    TinyUserCard(avatar = user.face, username = user.uname)
+                                }
+                            }
+                            item {
+                                LoadingTip(loadingState = items.loadState.append.toLoadingState())
+                            }
                         }
-                    })
+                    }
                 }
             }
-
         }
     }
 }

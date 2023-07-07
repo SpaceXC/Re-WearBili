@@ -26,6 +26,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -139,5 +140,5 @@ dependencies {
     // Common functionality used across multiple media libraries
     implementation "androidx.media3:media3-common:$media3_version"
 
-    implementation 'com.github.ctiao:DanmakuFlameMaster:0.3.8'
+    implementation 'com.github.ctiao:DanmakuFlameMaster:0.9.25'
 }

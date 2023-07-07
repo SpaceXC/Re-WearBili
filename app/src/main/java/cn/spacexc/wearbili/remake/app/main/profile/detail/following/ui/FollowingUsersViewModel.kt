@@ -5,9 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import cn.spacexc.bilibilisdk.sdk.user.follow.following.FollowedUserInfo
 import cn.spacexc.bilibilisdk.sdk.user.follow.following.remote.tags.FollowedUserTag
+import cn.spacexc.wearbili.remake.app.main.profile.detail.following.domain.FollowingPagingSource
 import cn.spacexc.wearbili.remake.common.UIState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -20,7 +26,19 @@ import kotlinx.coroutines.launch
 
 class FollowingUsersViewModel : ViewModel() {
     var uiState by mutableStateOf(UIState.Loading)
-    var followedUserTags by mutableStateOf(emptyList<FollowedUserTag>())
+    var followedUserTags = MutableStateFlow<List<FollowedUserTag>>(emptyList())
+
+    var followedUsers = followedUserTags.map { list ->
+        list.map { tag ->
+            FollowingPagingSource(tag.tagid)
+        }.map {
+            Pager(config = PagingConfig(pageSize = 1)) {
+                it
+            }
+        }.map {
+            it.flow.cachedIn(viewModelScope)
+        }
+    }
 
     fun getFollowedUserTags() {
         viewModelScope.launch {
@@ -29,7 +47,7 @@ class FollowingUsersViewModel : ViewModel() {
                 uiState = UIState.Failed
                 return@launch
             }
-            followedUserTags = response.data?.data ?: emptyList()
+            followedUserTags.value = response.data?.data ?: emptyList()
             uiState = UIState.Success
         }
     }

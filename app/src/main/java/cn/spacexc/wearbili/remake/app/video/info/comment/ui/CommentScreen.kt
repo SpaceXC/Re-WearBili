@@ -36,8 +36,8 @@ import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
-import cn.spacexc.wearbili.remake.common.ui.LoadingState
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
+import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -63,7 +63,8 @@ fun CommentScreen(
             is LoadState.Error -> UIState.Failed
             is LoadState.Loading -> UIState.Loading
             else -> UIState.Success
-        }
+        },
+        modifier = Modifier.fillMaxSize()
     ) {
         if (commentsData.itemCount == 0) {
             Box(
@@ -157,11 +158,7 @@ fun CommentScreen(
                     }
                     item {
                         LoadingTip(
-                            loadingState = when (commentsData.loadState.refresh) {
-                                is LoadState.Loading -> LoadingState.Loading
-                                is LoadState.Error -> LoadingState.Failed
-                                else -> LoadingState.NoMore
-                            },
+                            loadingState = commentsData.loadState.append.toLoadingState(),
                             onRetry = commentsData::retry
                         )
                     }

@@ -39,6 +39,9 @@ class SplashScreenActivity : ComponentActivity() {
     lateinit var userManager: cn.spacexc.wearbili.common.domain.user.UserManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        /*startActivity(Intent(this@SplashScreenActivity, MainActivity::class.java))
+        finish()
+        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)*/
         val currentTime = System.currentTimeMillis()
         setContent {
             SplashScreen()
