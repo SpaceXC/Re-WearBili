@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.video.info.info.ui
 
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.animateColorAsState
@@ -8,7 +7,10 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,9 +25,8 @@ import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.MonetizationOn
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.PlayCircle
-import androidx.compose.material.icons.outlined.Report
 import androidx.compose.material.icons.outlined.SendToMobile
-import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,7 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
-import cn.spacexc.bilibilisdk.sdk.video.info.remote.info.Data
+import cn.spacexc.bilibilisdk.sdk.video.info.remote.info.app.Data
 import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.copyToClipboard
 import cn.spacexc.wearbili.common.domain.log.logd
@@ -87,6 +88,7 @@ data class VideoInformationScreenState(
     val isFav: Boolean = false
 )
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 @UnstableApi
 fun VideoInformationScreen(
@@ -104,11 +106,12 @@ fun VideoInformationScreen(
         Column(
             modifier = Modifier
                 .verticalScroll(state.scrollState)
-                .padding(horizontal = TitleBackgroundHorizontalPadding, vertical = 8.dp),
+                .padding(horizontal = TitleBackgroundHorizontalPadding - 2.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             state.videoData?.let { video ->
-                Box(modifier = Modifier.clickVfx {
+                Box(
+                    modifier = Modifier/*.clickVfx {
                     try {
                         scope.launch {
                             Intent(context, Media3PlayerActivity::class.java).apply {
@@ -116,8 +119,7 @@ fun VideoInformationScreen(
                                 putExtra(PARAM_VIDEO_ID, video.bvid)
                                 putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
                                 putExtra(
-                                    PARAM_WEBI_SIGNATURE_KEY,
-                                    UserUtils.webiSign()
+                                    PARAM_WEBI_SIGNATURE_KEY, UserUtils.webiSign()
                                 )    //这个方法是suspend
                                 context.startActivity(this)
                             }
@@ -125,7 +127,8 @@ fun VideoInformationScreen(
                     } catch (e: ActivityNotFoundException) {
                         ToastUtils.showText(content = "你还没有安装播放插件哦")
                     }
-                }) {
+                }*/
+                ) {
                     BiliImage(
                         url = video.pic,
                         contentDescription = null,
@@ -148,7 +151,7 @@ fun VideoInformationScreen(
                     )
                 }
                 Text(text = video.title, style = AppTheme.typography.h1)
-                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                     IconText(
                         text = "${video.stat.view.toShortChinese()}观看",
                         modifier = Modifier.alpha(0.7f),
@@ -216,7 +219,8 @@ fun VideoInformationScreen(
                 LargeUserCard(
                     avatar = video.owner.face,
                     username = video.owner.name,
-                    mid = video.owner.mid
+                    mid = video.owner.mid,
+                    userInfo = "粉丝 ${video.owner_ext.fans.toShortChinese()}  IP属地 ${video.pub_location}"
                 )
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -226,83 +230,138 @@ fun VideoInformationScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
+                        OutlinedRoundButton(icon = {
+                            Row(
+                                modifier = Modifier.align(Alignment.Center),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.PlayCircle,
+                                    tint = Color.White,
+                                    contentDescription = null
+                                )
+                                Text(
+                                    text = "播放 ",    //这个空格是为了让图标和文字视觉剧中，万万不能删
+                                    style = AppTheme.typography.h3
+                                )
+                            }
+                        },
+                            text = "用内置播放器播放",
+                            modifier = Modifier.weight(2f),
+                            buttonModifier = Modifier.aspectRatio(2f / 1f),
+                            onClick = {
+                                scope.launch {
+                                    Intent(context, Media3PlayerActivity::class.java).apply {
+                                        putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
+                                        putExtra(PARAM_VIDEO_ID, video.bvid)
+                                        putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
+                                        putExtra(
+                                            PARAM_WEBI_SIGNATURE_KEY, UserUtils.webiSign()
+                                        )    //这个方法是suspend
+                                        context.startActivity(this)
+                                    }
+                                }
+                            })
                         OutlinedRoundButton(
-                            icon = Icons.Outlined.PlayCircle,
-                            text = "播放",
-                            modifier = Modifier
-                                .weight(2f)
-                                .aspectRatio(2f / 1f),
-                        ) {
-
-                        }
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.SendToMobile,
+                                    tint = Color.White,
+                                    contentDescription = null,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            },
+                            text = "手机播放",
+                            modifier = Modifier.weight(1f),
+                            buttonModifier = Modifier.aspectRatio(1f)
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
                         OutlinedRoundButton(
-                            icon = Icons.Outlined.ThumbUp,
+                            icon = {
+                                Row(
+                                    modifier = Modifier.align(Alignment.Center),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.ThumbUp,
+                                        tint = Color.White,
+                                        contentDescription = null
+                                    )
+                                }
+                            },
                             text = "点赞",
                             modifier = Modifier.weight(1f),
-                            tint = likeColor
-                        ) {
-                            videoInformationViewModel.likeVideo(
-                                VIDEO_TYPE_BVID,
-                                state.videoData.bvid
-                            )
-                        }
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
+                            buttonModifier = Modifier.aspectRatio(1f)
+                        )
                         OutlinedRoundButton(
-                            icon = Icons.Outlined.MonetizationOn,
-                            text = "投币",
-                            modifier = Modifier.weight(1f),
-                            tint = coinColor
-                        ) {
-
-                        }
-                        OutlinedRoundButton(
-                            icon = Icons.Outlined.Star,
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.StarOutline,
+                                    tint = Color.White,
+                                    contentDescription = null,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            },
                             text = "收藏",
                             modifier = Modifier.weight(1f),
-                            tint = favColor
-                        ) {
+                            buttonModifier = Modifier.aspectRatio(1f)
 
-                        }
+                        )
                         OutlinedRoundButton(
-                            icon = Icons.Outlined.SendToMobile,
-                            text = "手机播放",
-                            modifier = Modifier.weight(1f)
-                        ) {
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.MonetizationOn,
+                                    tint = Color.White,
+                                    contentDescription = null,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            },
+                            text = "投币",
+                            modifier = Modifier.weight(1f),
+                            buttonModifier = Modifier.aspectRatio(1f)
 
-                        }
+                        )
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         OutlinedRoundButton(
-                            icon = Icons.Outlined.History,
+                            icon = {
+                                Row(
+                                    modifier = Modifier.align(Alignment.Center),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.History,
+                                        tint = Color.White,
+                                        contentDescription = null
+                                    )
+                                }
+                            },
                             text = "稍后再看",
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            videoInformationViewModel.addToWatchLater(
-                                VIDEO_TYPE_BVID,
-                                video.bvid
-                            )
-                        }
+                            modifier = Modifier.weight(1f),
+                            buttonModifier = Modifier.aspectRatio(1f)
+                        )
                         OutlinedRoundButton(
-                            icon = Icons.Outlined.Report,
-                            text = "举报",
-                            modifier = Modifier.weight(1f)
-                        ) {
-
-                        }
-                        OutlinedRoundButton(
-                            icon = Icons.Outlined.FileDownload,
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.FileDownload,
+                                    tint = Color.White,
+                                    contentDescription = null,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            },
                             text = "缓存",
-                            modifier = Modifier.weight(1f)
-                        ) {
+                            modifier = Modifier.weight(1f),
+                            buttonModifier = Modifier.aspectRatio(1f)
 
-                        }
+                        )
+                        Spacer(modifier = Modifier.weight(1f))  //placeholder
                     }
                 }
             }

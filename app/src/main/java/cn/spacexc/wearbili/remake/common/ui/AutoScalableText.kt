@@ -30,6 +30,7 @@ fun AutoResizedText(
     text: String,
     fontWeight: FontWeight = FontWeight.Normal,
     style: TextStyle = AppTheme.typography.body1,
+    maxLines: Int = 1,
     isHeightOverflow: Boolean = false,
     color: Color = style.color
 ) {
@@ -52,6 +53,7 @@ fun AutoResizedText(
         },
         softWrap = false,
         fontWeight = fontWeight,
+        maxLines = maxLines,
         style = resizedTextStyle,
         onTextLayout = { result ->
             if (isHeightOverflow) {
@@ -81,7 +83,6 @@ fun AutoResizedText(
                     shouldDraw = true
                 }
             }
-
         }
     )
 }

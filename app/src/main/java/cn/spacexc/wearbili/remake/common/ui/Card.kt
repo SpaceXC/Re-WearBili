@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
@@ -39,11 +40,16 @@ fun Card(
             }
             .clip(shape)
             .border(
-                width = 0.1f.dp,
-                color = Color(112, 112, 112, 70),
-                shape = RoundedCornerShape(10.dp)
+                width = 0.3f.dp,
+                shape = shape,
+                brush = Brush.linearGradient(
+                    listOf(
+                        Color(54, 54, 54, 255),
+                        Color.Transparent
+                    )
+                )
             )
-            .background(color = Color(36, 36, 36, 100))
+            .background(color = Color(38, 38, 38, 77))
             .padding(start = 8.dp, end = 8.dp, top = 10.dp, bottom = 10.dp)
             .fillMaxWidth(),
     ) {
@@ -74,11 +80,16 @@ fun Card(
             }
             .clip(shape)
             .border(
-                width = 0.1f.dp,
-                color = Color(112, 112, 112, 70),
-                shape = shape
+                width = 0.3f.dp,
+                shape = shape,
+                brush = Brush.linearGradient(
+                    listOf(
+                        Color(54, 54, 54, 255),
+                        Color.Transparent
+                    )
+                )
             )
-            .background(color = Color(36, 36, 36, 100))
+            .background(color = Color(38, 38, 38, 77))
             .padding(innerPaddingValues)
             .fillMaxWidth(),
     ) {

@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
@@ -43,8 +42,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -80,12 +81,14 @@ import kotlinx.coroutines.delay
  * 已包含全局主题
  */
 @Composable
-@OptIn(ExperimentalAnimationApi::class) //DON'T DELETE THIS!!!!!!!!!!!!!!!!(CAUSES BUILD TIME EXCEPTION "This is an experimental animation API."
+@OptIn(ExperimentalAnimationApi::class) //DON'T DELETE THIS!!!!!!!!!!!!!!!!(DELETING CAUSES BUILD TIME EXCEPTION "This is an experimental animation API.")
 fun Context.CirclesBackground(
     modifier: Modifier = Modifier,
     uiState: UIState = UIState.Success,
     isShowing: Boolean = true,
     backgroundColor: Color = Color.Black,
+    themeColor: Color = BilibiliPink,
+    ambientAlpha: Float = 0.6f,
     content: @Composable BoxScope.() -> Unit
 ) {
     val localDensity = LocalDensity.current
@@ -122,6 +125,16 @@ fun Context.CirclesBackground(
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         Image(
+                            painter = painterResource(id = R.drawable.img_half_circle_white),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .alpha(ambientAlpha),
+                            colorFilter = ColorFilter.tint(themeColor),
+                            //contentScale = ContentScale.FillWidth
+
+                        )
+                        /*Image(
                             painter = painterResource(id = R.drawable.img_circle_top_right),
                             contentDescription = null,
                             modifier = Modifier
@@ -138,7 +151,7 @@ fun Context.CirclesBackground(
                                     Alignment.BottomStart
                                 )
                                 .size(boxWidth * 0.75f)
-                        )
+                        )*/
                     }
 
                 }
@@ -242,7 +255,7 @@ fun LoadableBox(
     }
 }
 
-val TitleBackgroundHorizontalPadding = 11.dp
+val TitleBackgroundHorizontalPadding = 12.dp
 
 @Composable
 fun Context.TitleBackground(
@@ -258,6 +271,8 @@ fun Context.TitleBackground(
     backgroundColor: Color = Color.Black,
     isDropdown: Boolean = true,
     uiState: UIState = UIState.Success,
+    themeColor: Color = BilibiliPink,
+    ambientAlpha: Float = 0.6f,
     content: @Composable BoxScope.() -> Unit
 ) {
     val localDensity = LocalDensity.current
@@ -270,7 +285,9 @@ fun Context.TitleBackground(
         modifier = modifier,
         uiState = uiState,
         isShowing = isBackgroundShowing,
-        backgroundColor = backgroundColor
+        backgroundColor = backgroundColor,
+        themeColor = themeColor,
+        ambientAlpha = ambientAlpha
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column {
@@ -294,7 +311,7 @@ fun Context.TitleBackground(
             }
             Row(
                 modifier = Modifier
-                    .padding(horizontal = TitleBackgroundHorizontalPadding, vertical = 6.dp)
+                    .padding(horizontal = TitleBackgroundHorizontalPadding, vertical = 8.dp)
                     .fillMaxWidth()
                     .clickable(interactionSource = MutableInteractionSource(), indication = null) {
                         if (isTitleClickable) {
@@ -361,7 +378,6 @@ fun Context.TitleBackground(
                 }
 
             }
-
         }
     }
 }

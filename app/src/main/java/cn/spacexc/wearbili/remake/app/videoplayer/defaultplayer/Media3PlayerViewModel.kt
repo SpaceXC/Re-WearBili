@@ -54,7 +54,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
     var loadingMessage by mutableStateOf("")
     var isVideoControllerVisible by mutableStateOf(false)
 
-    var videoInfo: cn.spacexc.bilibilisdk.sdk.video.info.remote.info.VideoInfo? by mutableStateOf(
+    var videoInfo: cn.spacexc.bilibilisdk.sdk.video.info.remote.info.web.WebVideoInfo? by mutableStateOf(
         null
     )
 
@@ -226,7 +226,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    private suspend fun initSubtitle(urls: List<cn.spacexc.bilibilisdk.sdk.video.info.remote.info.Subtitle>) {
+    private suspend fun initSubtitle(urls: List<cn.spacexc.bilibilisdk.sdk.video.info.remote.info.web.Subtitle>) {
         appendLoadMessage("加载字幕...")
         val tasks = urls.map { subtitle ->
             viewModelScope.async {
@@ -255,7 +255,8 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
         videoId: String
     ) {
         appendLoadMessage("获取视频信息...")
-        val response = VideoInfo.getVideoInfoById(videoIdType, videoId)//.logd("subtitleResponse")!!
+        val response =
+            VideoInfo.getVideoInfoByIdWeb(videoIdType, videoId)//.logd("subtitleResponse")!!
         print("Obtained Video Info")
         if (response.code != 0 || response.data == null || response.data?.data == null) return
         videoInfo = response.data

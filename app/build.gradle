@@ -8,14 +8,14 @@ plugins {
 
 android {
     namespace 'cn.spacexc.wearbili.remake'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "cn.spacexc.wearbili.remake"
         minSdk 21
-        targetSdk 33
+        targetSdk 34
         versionCode 7
-        versionName "Giant 0.2.3"
+        versionName "UI Refactor 0.3.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -62,16 +62,18 @@ kapt {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
-    implementation 'androidx.activity:activity-compose:1.7.0'
+    implementation 'androidx.activity:activity-compose:1.7.2'
+    //noinspection GradleDependency
     implementation "androidx.compose.ui:ui:$compose_ui_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
-    implementation 'androidx.compose.material:material:1.4.1'
-    implementation "androidx.compose.material:material-icons-extended:1.4.1"
+    implementation 'androidx.compose.material:material:1.4.3'
+    implementation "androidx.compose.material:material-icons-extended:1.4.3"
     implementation "androidx.compose.material3:material3:1.1.1"
     implementation "androidx.compose.material3:material3-window-size-class:1.1.1"
-    implementation 'androidx.compose.runtime:runtime-livedata:1.4.1'
+    implementation 'androidx.compose.runtime:runtime-livedata:1.4.3'
+    implementation 'androidx.palette:palette:1.0.0'
     implementation project(path: ':app:common')
     implementation project(path: ':Bilibili-Kotlin-SDK')
     //implementation project(path: ':app:videoplayer')
@@ -110,13 +112,14 @@ dependencies {
 
     def paging_version = "3.1.1"
     implementation "androidx.paging:paging-runtime:$paging_version"
+    //noinspection GradleDependency
     implementation "androidx.paging:paging-compose:1.0.0-alpha18"
 
     def appCenterSdkVersion = '4.4.5'
     implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
     implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
 
-    def media3_version = "1.0.0-rc01"
+    def media3_version = "1.1.0"
     // For media playback using ExoPlayer
     implementation "androidx.media3:media3-exoplayer:$media3_version"
     // For DASH playback support with ExoPlayer

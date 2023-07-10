@@ -26,8 +26,8 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.ModeFanOff
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.RssFeed
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
@@ -86,7 +86,7 @@ val menuItems = listOf(
     ),
     MenuItem(
         text = "动态",
-        icon = Icons.Outlined.ModeFanOff,
+        icon = Icons.Outlined.RssFeed,
         onClick = { scope, _ ->
             scope.launch {
                 delay(400)

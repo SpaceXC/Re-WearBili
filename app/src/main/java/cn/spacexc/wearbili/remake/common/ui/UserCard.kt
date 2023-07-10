@@ -3,6 +3,7 @@ package cn.spacexc.wearbili.remake.common.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -162,9 +163,14 @@ fun LargeUserCard(
     usernameColor: String? = null,
     officialVerify: OfficialVerify = OfficialVerify.NONE,
     userInfo: String? = null,
+    isInfoAdaptive: Boolean = false,
     mid: Long
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = CircleShape,
+        innerPaddingValues = PaddingValues(8.dp)
+    ) {
         val localDensity = LocalDensity.current
         var avatarHeight by remember {
             mutableStateOf(0.dp)
@@ -183,7 +189,7 @@ fun LargeUserCard(
                 modifier = Modifier.size(avatarHeight * 2f)
             )
             Spacer(modifier = Modifier.width(2.dp))
-            Column(modifier = Modifier.padding(vertical = 4.dp)) {
+            Column(modifier = Modifier/*.padding(vertical = 6.dp)*/) {
                 AutoResizedText(
                     text = username,
                     fontWeight = Bold,
@@ -196,18 +202,34 @@ fun LargeUserCard(
                     style = AppTheme.typography.h2.copy(fontWeight = Bold)
                 )
                 if (!userInfo.isNullOrEmpty()) {
-                    Text(
-                        text = userInfo,
-                        style = TextStyle(
-                            fontSize = 10.5.spx * textSizeScale,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = wearbiliFontFamily
-                        ),
-                        color = Color.White,
-                        modifier = Modifier.alpha(0.7f),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    if (isInfoAdaptive) {
+                        AutoResizedText(
+                            text = userInfo,
+                            style = TextStyle(
+                                fontSize = 9.spx * textSizeScale,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = wearbiliFontFamily
+                            ),
+                            color = Color.White,
+                            modifier = Modifier.alpha(0.7f),
+                            maxLines = 1,
+                            //overflow = TextOverflow.Ellipsis
+                        )
+                    } else {
+                        Text(
+                            text = userInfo,
+                            style = TextStyle(
+                                fontSize = 9.spx * textSizeScale,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = wearbiliFontFamily
+                            ),
+                            color = Color.White,
+                            modifier = Modifier.alpha(0.7f),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
                 }
             }
 

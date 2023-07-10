@@ -7,7 +7,7 @@
         <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/../Bilibili-Kotlin-SDK" />
-        <option name="gradleJvm" value="jbr-17" />
+        <option name="gradleJvm" value="17" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/../Bilibili-Kotlin-SDK" />
@@ -16,8 +16,8 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="testRunner" value="GRADLE" />
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleJvm" value="jbr-17" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/../Bilibili-Kotlin-SDK" />

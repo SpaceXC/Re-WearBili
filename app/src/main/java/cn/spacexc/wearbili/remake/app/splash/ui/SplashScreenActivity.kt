@@ -47,6 +47,8 @@ class SplashScreenActivity : ComponentActivity() {
             SplashScreen()
         }
         lifecycleScope.launch {
+            //VideoInfo.getVideoInfoApp(VIDEO_TYPE_AID, "954781099").logd()
+
             networkUtils.get<String>("https://bilibili.com")    // 每次启动获取最新的cookie
             WebiSignature.getWebiSignature()    //保存新的webi签名
             //print(VideoInfo.getVideoPlaybackUrls(videoId = "BV1ng4y1877V", videoCid = 175354448))
