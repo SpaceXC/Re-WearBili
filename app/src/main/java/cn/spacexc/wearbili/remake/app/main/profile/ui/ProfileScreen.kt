@@ -160,7 +160,9 @@ fun ProfileScreen(
                             5 -> R.drawable.icon_lv5_card
                             6 -> R.drawable.icon_lv6_card
                             7 -> R.drawable.icon_lv6_plus_card
-                            else -> 0
+                            else -> {
+                                0
+                            }
                         }
                         val inlineTextContent = mapOf(
                             "vip" to InlineTextContent(
@@ -202,7 +204,7 @@ fun ProfileScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         if (levelCardResourceId != 0) {
                             Image(
-                                painter = painterResource(id = levelCardResourceId),
+                                painter = painterResource(id = if (user.is_senior_member == 1) R.drawable.icon_lv6_plus_card else levelCardResourceId),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .fillMaxSize()
