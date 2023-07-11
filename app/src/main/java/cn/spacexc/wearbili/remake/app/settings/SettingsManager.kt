@@ -1,7 +1,7 @@
 package cn.spacexc.wearbili.remake.app.settings
 
 import cn.spacexc.bilibilisdk.data.DataManager
-import javax.inject.Inject
+import cn.spacexc.wearbili.remake.app.Application
 
 /**
  * Created by XC-Qan on 2023/4/6.
@@ -11,19 +11,11 @@ import javax.inject.Inject
  * 给！爷！写！注！释！
  */
 
-class SettingsManager {
-    @Inject
-    lateinit var dataManager: DataManager
-    val isDarkTheme = false
-    val recommendSource = "web"
-    val isDebug = false
-    val isLowPerformance = false
+object SettingsManager {
+    val dataManager: DataManager = Application.getApplication().dataManager
 
-    companion object {
-        private var mInstance: SettingsManager? = null
-        fun getInstance(): SettingsManager {
-            if (mInstance == null) mInstance = SettingsManager()
-            return mInstance!!
-        }
-    }
+    val isDarkTheme = dataManager.getBoolFlow("isDarkTheme", false)
+    val recommendSource = dataManager.getStringFlow("recommendationSource", "app")
+    const val isDebug = false
+    val isLowPerformance = dataManager.getBoolFlow("isLowPerformance", false)
 }

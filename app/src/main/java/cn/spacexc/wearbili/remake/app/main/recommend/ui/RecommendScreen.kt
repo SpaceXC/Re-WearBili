@@ -44,7 +44,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.Item
-import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.UIState
@@ -77,6 +76,7 @@ data class RecommendScreenState(
 fun RecommendScreen(
     state: RecommendScreenState,
     context: Context,
+    recommendSource: String,
     onFetch: (isRefresh: Boolean) -> Unit
 ) {
     val pullRefreshState =
@@ -173,7 +173,7 @@ fun RecommendScreen(
                 }
             }
 
-            when (SettingsManager.getInstance().recommendSource) {
+            when (recommendSource) {
                 "app" -> {
                     (state.videoList as List<Item>/* 这里真的没事的（确信 */).forEach {
                         if (it.goto == "av") {

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -16,13 +15,14 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
@@ -37,12 +37,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.about.ui.AboutActivity
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicScreen
@@ -52,7 +52,7 @@ import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreenState
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendScreen
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendScreenState
 import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
-import cn.spacexc.wearbili.remake.common.ui.LargeRoundButton
+import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -134,20 +134,18 @@ fun MainActivityScreen(
     context: Context,
     pagerState: PagerState,
     recommendScreenState: RecommendScreenState,
+    recommendSource: String,
     onRecommendRefresh: (isRefresh: Boolean) -> Unit,
     dynamicViewModel: DynamicViewModel,
-    profileScreenState: ProfileScreenState
-) {
+    profileScreenState: ProfileScreenState,
+
+    ) {
     val isBackgroundTitleClipToBounds = pagerState.currentPage != 2
     var isDropdownMenuShowing by remember {
         mutableStateOf(false)
     }
     val coroutineScope = rememberCoroutineScope()
-    val backgroundColor by animateColorAsState(
-        targetValue = if (isDropdownMenuShowing) parseColor(
-            "#141414"
-        ) else Color.Black
-    )
+
     LaunchedEffect(key1 = pagerState.targetPage, block = {
         pagerState.targetPage.logd("targetPage")
         pagerState.logd("pagerState")
@@ -162,7 +160,6 @@ fun MainActivityScreen(
             },
             isDropdownTitle = true,
             isTitleClipToBounds = isBackgroundTitleClipToBounds && !isDropdownMenuShowing,
-            backgroundColor = backgroundColor,
             isDropdown = !isDropdownMenuShowing,
             hasSpaceForTitleBar = true,
             isBackgroundShowing = !isDropdownMenuShowing,
@@ -209,14 +206,22 @@ fun MainActivityScreen(
                         contentPadding = PaddingValues(16.dp)
                     ) {
                         items(menuItems) { item ->
-                            LargeRoundButton(
-                                icon = item.icon,
+                            OutlinedRoundButton(
+                                icon = {
+                                    Icon(
+                                        imageVector = item.icon,
+                                        tint = Color.White,
+                                        contentDescription = null,
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
+                                },
                                 text = item.text,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                isDropdownMenuShowing = false
-                                item.onClick(pagerState, coroutineScope, context)
-                            }
+                                modifier = Modifier/*.weight(1f)*/,
+                                buttonModifier = Modifier.aspectRatio(1f),
+                                onClick = {
+                                    item.onClick(pagerState, coroutineScope, context)
+                                }
+                            )
                         }
                     }
                 } else {
@@ -229,6 +234,7 @@ fun MainActivityScreen(
                             0 -> RecommendScreen(
                                 state = recommendScreenState,
                                 context = context,
+                                recommendSource = recommendSource,
                                 onFetch = onRecommendRefresh
                             )
 

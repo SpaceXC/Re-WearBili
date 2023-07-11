@@ -7,6 +7,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 
@@ -27,7 +29,8 @@ fun WearBiliAnimatedVisibility(
     label: String = "AnimatedVisibility",
     content: @Composable /*AnimatedVisibilityScope.*/() -> Unit
 ) {
-    if (SettingsManager.getInstance().isLowPerformance) {
+    val isLowPerformance by SettingsManager.isLowPerformance.collectAsState(initial = false)
+    if (isLowPerformance) {
         if (visible) content()
     } else {
         androidx.compose.animation.AnimatedVisibility(visible, modifier, enter, exit, label) {

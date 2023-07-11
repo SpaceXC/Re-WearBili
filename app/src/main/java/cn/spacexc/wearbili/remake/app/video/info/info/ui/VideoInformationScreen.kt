@@ -110,25 +110,7 @@ fun VideoInformationScreen(
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             state.videoData?.let { video ->
-                Box(
-                    modifier = Modifier/*.clickVfx {
-                    try {
-                        scope.launch {
-                            Intent(context, Media3PlayerActivity::class.java).apply {
-                                putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-                                putExtra(PARAM_VIDEO_ID, video.bvid)
-                                putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
-                                putExtra(
-                                    PARAM_WEBI_SIGNATURE_KEY, UserUtils.webiSign()
-                                )    //这个方法是suspend
-                                context.startActivity(this)
-                            }
-                        }
-                    } catch (e: ActivityNotFoundException) {
-                        ToastUtils.showText(content = "你还没有安装播放插件哦")
-                    }
-                }*/
-                ) {
+                Box {
                     BiliImage(
                         url = video.pic,
                         contentDescription = null,
@@ -288,34 +270,41 @@ fun VideoInformationScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Outlined.ThumbUp,
-                                        tint = Color.White,
+                                        tint = likeColor,
                                         contentDescription = null
                                     )
                                 }
                             },
                             text = "点赞",
                             modifier = Modifier.weight(1f),
-                            buttonModifier = Modifier.aspectRatio(1f)
+                            buttonModifier = Modifier.aspectRatio(1f),
+                            onClick = {
+                                videoInformationViewModel.likeVideo(
+                                    cn.spacexc.wearbili.remake.app.videoplayer.defaultplayer.VIDEO_TYPE_BVID,
+                                    video.bvid
+                                )
+                            }
                         )
                         OutlinedRoundButton(
                             icon = {
                                 Icon(
                                     imageVector = Icons.Outlined.StarOutline,
-                                    tint = Color.White,
+                                    tint = favColor,
                                     contentDescription = null,
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             },
                             text = "收藏",
                             modifier = Modifier.weight(1f),
-                            buttonModifier = Modifier.aspectRatio(1f)
+                            buttonModifier = Modifier.aspectRatio(1f),
 
-                        )
+
+                            )
                         OutlinedRoundButton(
                             icon = {
                                 Icon(
                                     imageVector = Icons.Outlined.MonetizationOn,
-                                    tint = Color.White,
+                                    tint = coinColor,
                                     contentDescription = null,
                                     modifier = Modifier.align(Alignment.Center)
                                 )

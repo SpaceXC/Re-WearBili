@@ -72,7 +72,7 @@ fun VideoInformationActivityScreen(
             val palette = Palette.from(bitmap).generate()
             val newColor = palette.getDarkVibrantColor(BilibiliPink.value.toInt())
             //if(newColor < Color(0x10000000).value.toInt())
-            currentColor = Color(palette.getDarkVibrantColor(BilibiliPink.value.toInt()))
+            currentColor = Color(palette.getLightMutedColor(BilibiliPink.value.toInt()))
         }
     })
     context.TitleBackground(

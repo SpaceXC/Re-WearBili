@@ -3,6 +3,7 @@ package cn.spacexc.wearbili.remake.app
 import android.os.Build
 import android.util.Log
 import cn.spacexc.bilibilisdk.BilibiliSdkManager
+import cn.spacexc.bilibilisdk.data.DataManager
 import cn.spacexc.wearbili.common.APP_CENTER_SECRET
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.common.domain.log.logd
@@ -11,6 +12,7 @@ import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 /**
  * Created by XC-Qan on 2023/3/23.
@@ -26,9 +28,11 @@ val APP_VERSION_CODE = Application.getVersionCode()
 
 @HiltAndroidApp
 class Application : android.app.Application() {
+    @Inject
+    lateinit var dataManager: DataManager   //TODO 别在application下放这种对象啊喂！（虽然是迫不得已的啦，不过还是找个时间研究一下拿走罢（20230711
+
     override fun onCreate() {
         super.onCreate()
-        mApplication = this
         AppCenter.start(
             this, APP_CENTER_SECRET,
             Analytics::class.java, Crashes::class.java
@@ -45,8 +49,12 @@ class Application : android.app.Application() {
         )
     }
 
+    init {
+        mApplication = this
+    }
+
     companion object {
-        lateinit var mApplication: Application
+        private lateinit var mApplication: Application
         fun getApplication(): Application = mApplication
 
         fun getVersionName(): String {

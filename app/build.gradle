@@ -15,7 +15,7 @@ android {
         minSdk 21
         targetSdk 34
         versionCode 7
-        versionName "UI Refactor 0.3.0"
+        versionName "UI Refactor 0.3.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -25,8 +25,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

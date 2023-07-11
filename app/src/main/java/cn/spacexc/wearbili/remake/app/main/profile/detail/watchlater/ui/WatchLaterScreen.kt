@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
+import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
 
 /**
@@ -50,7 +51,13 @@ fun Context.WatchLaterScreen(
                 .fillMaxSize()
                 .pullRefresh(state = pullRefreshState)
         ) {
-            LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(4.dp)) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    horizontal = TitleBackgroundHorizontalPadding - 4.dp,
+                    vertical = 4.dp
+                )
+            ) {
                 viewModel.watchLaterList.forEach { item ->
                     item(key = item.aid) {
                         val dismissState = rememberDismissState()

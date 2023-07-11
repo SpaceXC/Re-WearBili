@@ -20,6 +20,7 @@ import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
+import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
 
 /**
@@ -54,7 +55,10 @@ fun Context.HistoryScreen(
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = 4.dp, horizontal = 4.dp)
+                contentPadding = PaddingValues(
+                    vertical = 4.dp,
+                    horizontal = TitleBackgroundHorizontalPadding - 4.dp
+                )
             ) {
                 items(lazyListItems) {
                     it?.let { item ->

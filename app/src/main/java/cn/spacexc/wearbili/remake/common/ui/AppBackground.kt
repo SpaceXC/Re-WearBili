@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -36,6 +35,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -95,6 +95,7 @@ fun Context.CirclesBackground(
     var boxWidth by remember {
         mutableStateOf(0.dp)
     }   //需要获取父容器宽度来计算两个圆圈的宽度, 不直接设置fraction参数是因为大小不太对
+    val isDarkTheme by SettingsManager.isDarkTheme.collectAsState(initial = false)
     //TODO 研究一下换成fraction参数
     LaunchedEffect(key1 = toastContent, block = {
         if (toastContent.isNotEmpty()) {
@@ -103,7 +104,7 @@ fun Context.CirclesBackground(
         }
     })
     WearBiliTheme {
-        if (SettingsManager.getInstance().isDarkTheme) {
+        if (isDarkTheme) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -112,12 +113,13 @@ fun Context.CirclesBackground(
                 LoadableBox(uiState = uiState, content = content)
             }
         } else {
-            Box(modifier = modifier
-                .fillMaxSize()
-                .background(backgroundColor)
-                .onGloballyPositioned {
-                    boxWidth = with(localDensity) { it.size.width.toDp() }
-                }) {
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(backgroundColor)
+                    .onGloballyPositioned {
+                        boxWidth = with(localDensity) { it.size.width.toDp() }
+                    }) {
                 WearBiliAnimatedVisibility(
                     visible = isShowing,
                     enter = fadeIn(),
@@ -179,7 +181,7 @@ fun Context.CirclesBackground(
                         )
                         .padding(8.dp)
                         .align(Alignment.BottomCenter)
-                        .animateContentSize(),
+                        .wearBiliAnimatedContentSize(),
                     color = Color.White,
                     fontSize = 12.sp,
                     fontFamily = wearbiliFontFamily,

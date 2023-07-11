@@ -24,32 +24,32 @@ object ToastUtils {
     }
 
     fun debugShowText(content: String, context: Context = Application.getApplication()) {
-        if (SettingsManager.getInstance().isDebug) {
+        if (SettingsManager.isDebug) {
             showText(content, context)
         }
     }
 
     fun Any.debugToast(description: String?) {
-        if (SettingsManager.getInstance().isDebug) {
+        if (SettingsManager.isDebug) {
             showText("$description: $this")
         }
     }
 
     fun <T> T.debugToast(): T {
-        if (SettingsManager.getInstance().isDebug) {
+        if (SettingsManager.isDebug) {
             showText("$this")
         }
         return this
     }
 
     fun debugToast(content: String?) {
-        if (SettingsManager.getInstance().isDebug) {
+        if (SettingsManager.isDebug) {
             showText("$content")
         }
     }
 
     fun <T> T.debugToastWithGeneric(): T {
-        if (SettingsManager.getInstance().isDebug) showText("$this")
+        if (SettingsManager.isDebug) showText("$this")
         return this
     }
 }

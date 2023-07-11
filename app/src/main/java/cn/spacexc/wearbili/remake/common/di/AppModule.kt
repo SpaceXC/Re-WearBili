@@ -49,5 +49,5 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesSettingsManager(): SettingsManager = SettingsManager.getInstance()
+    fun providesSettingsManager(): SettingsManager = SettingsManager
 }

@@ -3,7 +3,10 @@ package cn.spacexc.wearbili.remake.common.ui
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.spring
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.unit.IntSize
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 
@@ -18,8 +21,9 @@ import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 fun Modifier.wearBiliAnimatedContentSize(
     animationSpec: FiniteAnimationSpec<IntSize> = spring(),
     finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null
-): Modifier {
-    return if (!SettingsManager.getInstance().isLowPerformance) {
+): Modifier = composed {
+    val isLowPerformance by SettingsManager.isLowPerformance.collectAsState(initial = false)
+    if (!isLowPerformance) {
         animateContentSize(
             animationSpec, finishedListener
         )

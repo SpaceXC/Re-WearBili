@@ -19,6 +19,8 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.readBytes
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -58,24 +60,34 @@ class VideoInformationViewModel @Inject constructor(
                 return@launch
             }
             state = state.copy(uiState = UIState.Success, videoData = response.data?.data)
-            getImageBitmap(response.data?.data?.pic?.replace("http://", "https://") ?: "")
+            listOf(
+                viewModelScope.async {
+                    getVideoSanLianState(videoIdType, videoId)
+                },
+                viewModelScope.async {
+                    getImageBitmap(response.data?.data?.pic?.replace("http://", "https://") ?: "")
+                }
+            ).awaitAll()
         }
     }
 
-    fun getVideoSanLianState(
+    suspend fun getVideoSanLianState(
         videoIdType: String,
         videoId: String?
     ) {    //三连有英文吗？
-        viewModelScope.launch {
-            isLiked(videoIdType, videoId)
-        }
-        viewModelScope.launch {
-            isCoined(videoIdType, videoId)
-        }
-        viewModelScope.launch {
-            isFav(videoId)
-        }
-        //开协程就可以一起判断三种状态
+        val tasks = listOf(
+            viewModelScope.async {
+                isLiked(videoIdType, videoId)
+            },
+            viewModelScope.async {
+                isCoined(videoIdType, videoId)
+            },
+            viewModelScope.async {
+                isFav(videoId)
+
+            }
+        )
+        tasks.awaitAll()
     }
 
     private suspend fun isLiked(

@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.RecommendVideo
 import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.WebRecommendVideo
-import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -31,13 +30,13 @@ class RecommendViewModel @Inject constructor(
         RecommendScreenState()
     )
 
-    fun getRecommendVideos(isRefresh: Boolean) {
+    fun getRecommendVideos(isRefresh: Boolean, recommendSource: String) {
         viewModelScope.launch {
             if (screenState.videoList.isEmpty()) {
                 screenState = screenState.copy(uiState = UIState.Loading)
             }
             if (isRefresh) screenState = screenState.copy(isRefreshing = true)
-            when (SettingsManager.getInstance().recommendSource) {
+            when (recommendSource) {
                 "app" -> {
                     val url =
                         if (!userManager.accessKey().logd("accessKey")

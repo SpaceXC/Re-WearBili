@@ -6,9 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicViewModel
 import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileViewModel
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendViewModel
+import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -28,17 +32,26 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        recommendViewModel.getRecommendVideos(true)
         profileViewModel.getProfile()
         setContent {
             val pagerState = rememberPagerState()
+            val recommendSource by SettingsManager.recommendSource.collectAsState(initial = "app")
+            LaunchedEffect(key1 = recommendSource, block = {
+                recommendViewModel.getRecommendVideos(true, recommendSource)
+            })
             MainActivityScreen(
                 context = this,
                 pagerState = pagerState,
                 recommendScreenState = recommendViewModel.screenState,
-                onRecommendRefresh = { isRefresh -> recommendViewModel.getRecommendVideos(isRefresh) },
+                recommendSource = recommendSource,
+                onRecommendRefresh = { isRefresh ->
+                    recommendViewModel.getRecommendVideos(
+                        isRefresh,
+                        recommendSource
+                    )
+                },
                 dynamicViewModel = dynamicViewModel,
-                profileScreenState = profileViewModel.screenState
+                profileScreenState = profileViewModel.screenState,
             )
         }
     }

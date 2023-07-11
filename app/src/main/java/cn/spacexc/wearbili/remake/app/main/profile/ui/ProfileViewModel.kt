@@ -22,7 +22,7 @@ class ProfileViewModel : ViewModel() {
     private val scrollState = ScrollState(0)
     var screenState by mutableStateOf(
         ProfileScreenState(
-            "", "", "", -1, -1, -1.0, -1, UIState.Loading, scrollState, "#FFFFFF"
+            null, UIState.Loading, scrollState
         )
     )
 
@@ -35,14 +35,9 @@ class ProfileViewModel : ViewModel() {
                 return@launch
             }
             response.data?.data?.let { user ->
+
                 screenState = screenState.copy(
-                    username = user.name,
-                    avatar = user.face,
-                    pendant = user.pendant?.image,
-                    level = if (user.is_senior_member == 1) 7 else user.level,   //7 —> 因为硬核会员也只会返回等级为6且user.is_senior_member=1，所以硬核会员姑且可以看成level=7（我说的（（（
-                    nicknameColor = user.vip?.nickname_color ?: "#FFFFFF",
-                    fans = user.follower,
-                    coins = user.coins,
+                    user = user,
                     uiState = UIState.Success
                 )
             }

@@ -10,7 +10,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -87,6 +86,7 @@ import cn.spacexc.wearbili.remake.R.drawable
 import cn.spacexc.wearbili.remake.app.videoplayer.danmaku.BiliDanmukuParser
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimatedContentSize
 import master.flame.danmaku.controller.DrawHandler
 import master.flame.danmaku.danmaku.loader.ILoader
 import master.flame.danmaku.danmaku.loader.IllegalDataException
@@ -649,7 +649,7 @@ fun Activity.Media3PlayerScreen(
                                             )
                                             .padding(6.dp)
                                             .align(Alignment.BottomCenter)
-                                            .animateContentSize(),
+                                            .wearBiliAnimatedContentSize(),
                                         color = Color.White,
                                         fontSize = 12.sp,
                                         fontFamily = wearbiliFontFamily,

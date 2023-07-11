@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -29,8 +30,9 @@ fun Modifier.clickVfx(
     isEnabled: Boolean = true,
     onClick: () -> Unit,
 ): Modifier = composed {
+    val isLowPerformance by SettingsManager.isLowPerformance.collectAsState(initial = false)
     if (isEnabled) {
-        if (SettingsManager.getInstance().isLowPerformance) {
+        if (isLowPerformance) {
             clickable(
                 indication = null, interactionSource = interactionSource, onClick = onClick
             )
@@ -56,7 +58,8 @@ fun Modifier.clickVfx(
     onLongClick: () -> Unit = {}
 ): Modifier = composed {
     if (enabled) {
-        if (SettingsManager.getInstance().isLowPerformance) {
+        val isLowPerformance by SettingsManager.isLowPerformance.collectAsState(initial = false)
+        if (isLowPerformance) {
             pointerInput(Unit) {
                 detectTapGestures(
                     onTap = { onClick() },
@@ -96,7 +99,8 @@ fun Modifier.clickAlpha(
     onClick: () -> Unit,
 ): Modifier = composed {
     if (isEnabled) {
-        if (SettingsManager.getInstance().isLowPerformance) {
+        val isLowPerformance by SettingsManager.isLowPerformance.collectAsState(initial = false)
+        if (isLowPerformance) {
             clickable(
                 indication = null, interactionSource = interactionSource, onClick = onClick
             )
@@ -122,7 +126,8 @@ fun Modifier.clickAlpha(
     onLongClick: () -> Unit = {}
 ): Modifier = composed {
     if (enabled) {
-        if (SettingsManager.getInstance().isLowPerformance) {
+        val isLowPerformance by SettingsManager.isLowPerformance.collectAsState(initial = false)
+        if (isLowPerformance) {
             pointerInput(Unit) {
                 detectTapGestures(
                     onTap = { onClick() },
