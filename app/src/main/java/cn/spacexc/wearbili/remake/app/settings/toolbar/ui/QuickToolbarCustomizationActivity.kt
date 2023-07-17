@@ -2,6 +2,7 @@ package cn.spacexc.wearbili.remake.app.settings.toolbar.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 
 /**
  * Created by XC-Qan on 2023/7/11.
@@ -14,6 +15,6 @@ import androidx.activity.ComponentActivity
 class QuickToolbarCustomizationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        setContent { QuickToolbarCustomizationScreen() }
     }
 }

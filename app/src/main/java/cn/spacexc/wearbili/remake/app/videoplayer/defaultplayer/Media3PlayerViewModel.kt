@@ -92,6 +92,8 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
 
     var onlineCount by mutableStateOf("-")
 
+    var videoCastUrl = ""
+
     init {
         httpDataSourceFactory = DefaultHttpDataSource.Factory()
         httpDataSourceFactory.setUserAgent(userAgent)
@@ -177,6 +179,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                     return@launch
                 }
                 val videoUrl = urlData.durl.first { it.url.isNotEmpty() }.url
+                videoCastUrl = videoUrl
                 appendLoadMessage("成功!", needLineWrapping = false)
 
                 player.setMediaItem(fromUri(videoUrl))
@@ -219,20 +222,25 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private suspend fun loadSubtitle() {
-        val urls = videoInfo?.data?.subtitle?.list
+        val urls = VideoInfo.getVideoPlayerInfo(
+            cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID,
+            videoInfo?.data?.aid?.toString() ?: "",
+            videoInfo?.data?.cid ?: 0
+        ).data?.data?.subtitle?.subtitles
+        urls.logd("subtitles0")
         urls?.let {
             initSubtitle(urls)
             subtitleList.logd("subtitles")
         }
     }
 
-    private suspend fun initSubtitle(urls: List<cn.spacexc.bilibilisdk.sdk.video.info.remote.info.web.Subtitle>) {
+    private suspend fun initSubtitle(urls: List<cn.spacexc.bilibilisdk.sdk.video.info.remote.playerinfo.Subtitle>) {
         appendLoadMessage("加载字幕...")
         val tasks = urls.map { subtitle ->
             viewModelScope.async {
                 appendLoadMessage("加载\"${subtitle.lan}\"字幕...")
                 Log.d(TAG, "initSubtitle1: $subtitle")
-                val response = VideoInfo.getSubtitle(subtitle.subtitle_url)
+                val response = VideoInfo.getSubtitle("https:${subtitle.subtitle_url}")
                 response.data?.body?.let { subtitles ->
                     Log.d(TAG, "initSubtitle2: result for $subtitles")
                     val temp = subtitleList

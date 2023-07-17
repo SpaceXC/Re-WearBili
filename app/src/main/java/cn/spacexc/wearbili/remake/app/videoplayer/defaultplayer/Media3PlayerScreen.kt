@@ -2,6 +2,7 @@ package cn.spacexc.wearbili.remake.app.videoplayer.defaultplayer
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.media.AudioManager
 import android.view.SurfaceView
@@ -52,6 +53,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -84,6 +86,7 @@ import androidx.media3.common.util.UnstableApi
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R.drawable
 import cn.spacexc.wearbili.remake.app.videoplayer.danmaku.BiliDanmukuParser
+import cn.spacexc.wearbili.remake.app.videoplayer.mirroring.dlna.DlnaDeviceDiscoverActivity
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimatedContentSize
@@ -125,6 +128,7 @@ sealed class VideoPlayerPages(val weight: Int) {
     ExperimentalAnimationApi::class,
     ExperimentalMaterial3Api::class
 )    //不要删掉这个OptIn!!!!!!!!!!!!!!!!!!灰色的也别删掉!!!!!!!!!!!!
+//如果不小心删掉：ExperimentalAnimationApi::class
 fun Activity.Media3PlayerScreen(
     viewModel: Media3PlayerViewModel,
     displaySurface: VideoDisplaySurface,
@@ -615,6 +619,42 @@ fun Activity.Media3PlayerScreen(
                                                 ) {
                                                     Icon(
                                                         imageVector = Icons.Outlined.Settings,
+                                                        contentDescription = null,
+                                                        tint = Color.White,
+                                                        modifier = Modifier
+                                                            .size(14.dp)
+                                                    )
+                                                }
+
+                                                Box(
+                                                    modifier = Modifier
+                                                        .background(
+                                                            color = Color(
+                                                                38,
+                                                                38,
+                                                                38,
+                                                                255
+                                                            ),
+                                                            shape = CircleShape
+                                                        )
+                                                        .size(22.dp)
+                                                        .clickable {
+                                                            startActivity(
+                                                                Intent(
+                                                                    this@Media3PlayerScreen,
+                                                                    DlnaDeviceDiscoverActivity::class.java
+                                                                ).apply {
+                                                                    putExtra(
+                                                                        "url",
+                                                                        viewModel.videoCastUrl
+                                                                    )
+                                                                })
+                                                            finish()
+                                                        },
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Outlined.Cast,
                                                         contentDescription = null,
                                                         tint = Color.White,
                                                         modifier = Modifier

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
@@ -86,7 +87,6 @@ data class ProfileScreenState(
 fun ProfileScreen(
     state: ProfileScreenState,
     context: Context,
-    isAvatarBackgroundVisible: Boolean = false
 ) {
     val localDensity = LocalDensity.current
     var avatarHeight by remember {
@@ -98,9 +98,6 @@ fun ProfileScreen(
     var avatarHeightPx by remember {
         mutableStateOf(0)
     }
-    val avatarBackgroundVisibility =
-        state.scrollState.value < avatarHeightPx.times(0.6f) && isAvatarBackgroundVisible
-    val buttonBackgroundColor = Color(63, 63, 63, 153)
 
     LoadableBox(
         uiState = state.uiState,
@@ -337,7 +334,7 @@ fun ProfileScreen(
                                         modifier = Modifier.align(Alignment.Center)
                                     )
                                 },
-                                text = "历史记录",
+                                text = "稍后再看",
                                 modifier = Modifier.weight(1f),
                                 buttonModifier = Modifier.aspectRatio(1f),
                                 onClick = {
@@ -399,7 +396,8 @@ fun ProfileScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         outerPaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        innerPaddingValues = PaddingValues(12.dp)
+                        innerPaddingValues = PaddingValues(12.dp),
+                        shape = RoundedCornerShape(40)
                     ) {
                         IconText(
                             text = "设置",

@@ -1,5 +1,7 @@
 package cn.spacexc.wearbili.remake.app
 
+//import cn.spacexc.wearbili.videoplayer.VideoPlayerManager
+
 import android.os.Build
 import android.util.Log
 import cn.spacexc.bilibilisdk.BilibiliSdkManager
@@ -7,12 +9,14 @@ import cn.spacexc.bilibilisdk.data.DataManager
 import cn.spacexc.wearbili.common.APP_CENTER_SECRET
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.common.domain.log.logd
-//import cn.spacexc.wearbili.videoplayer.VideoPlayerManager
+import cn.spacexc.wearbili.remake.app.crash.ui.CrashActivity
+import com.developer.crashx.config.CrashConfig
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
+
 
 /**
  * Created by XC-Qan on 2023/3/23.
@@ -41,6 +45,9 @@ class Application : android.app.Application() {
         BilibiliSdkManager.initSdk(
             dataManager = dataStore
         )
+        CrashConfig.Builder.create()
+            .errorActivity(CrashActivity::class.java)
+            .apply()
         //VideoPlayerManager.dataManager = dataStore
         logd("mainApplicationContext")
         Log.e(

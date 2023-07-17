@@ -30,6 +30,7 @@ fun Card(
     isClickEnabled: Boolean = true,
     shape: Shape = RoundedCornerShape(10.dp),
     onClick: (() -> Unit)? = null,
+    borderColor: Color = Color(54, 54, 54, 255),
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(
@@ -44,7 +45,7 @@ fun Card(
                 shape = shape,
                 brush = Brush.linearGradient(
                     listOf(
-                        Color(54, 54, 54, 255),
+                        borderColor,
                         Color.Transparent
                     )
                 )
@@ -63,6 +64,7 @@ fun Card(
     isClickEnabled: Boolean = true,
     shape: Shape = RoundedCornerShape(10.dp),
     onClick: (() -> Unit)? = null,
+    borderColor: Color = Color(54, 54, 54, 255),
     innerPaddingValues: PaddingValues = PaddingValues(
         start = 8.dp,
         end = 8.dp,
@@ -80,11 +82,11 @@ fun Card(
             }
             .clip(shape)
             .border(
-                width = 0.3f.dp,
+                width = 0.4f.dp,
                 shape = shape,
                 brush = Brush.linearGradient(
                     listOf(
-                        Color(54, 54, 54, 255),
+                        borderColor,
                         Color.Transparent
                     )
                 )

@@ -14,8 +14,8 @@ android {
         applicationId "cn.spacexc.wearbili.remake"
         minSdk 21
         targetSdk 34
-        versionCode 8
-        versionName "UI Refactor 0.3.1"
+        versionCode 9
+        versionName "UI Refactor 0.3.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -25,8 +25,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -47,6 +47,7 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
+        excludes += 'META-INF/beans.xml'
     }
     android.applicationVariants.all {
         variant ->
@@ -76,6 +77,7 @@ dependencies {
     implementation 'androidx.palette:palette:1.0.0'
     implementation project(path: ':app:common')
     implementation project(path: ':Bilibili-Kotlin-SDK')
+    implementation 'androidx.core:core-ktx:+'
     //implementation project(path: ':app:videoplayer')
     //implementation project(path: ':')
     //implementation 'androidx.core:core-ktx:+'
@@ -144,4 +146,23 @@ dependencies {
     implementation "androidx.media3:media3-common:$media3_version"
 
     implementation 'com.github.ctiao:DanmakuFlameMaster:0.9.25'
+
+    implementation 'com.github.TutorialsAndroid:crashx:v6.0.19'
+
+    /*def cling_version = "2.1.2"
+    api "org.fourthline.cling:cling-core:$cling_version"
+    api "org.fourthline.cling:cling-support:$cling_version"
+    def jetty_version = "8.1.21.v20160908"
+    //noinspection GradleDependency
+    api "org.eclipse.jetty:jetty-server:$jetty_version"
+    //noinspection GradleDependency
+    api "org.eclipse.jetty:jetty-servlet:$jetty_version"
+    //noinspection GradleDependency
+    api "org.eclipse.jetty:jetty-client:$jetty_version"
+    api 'javax.servlet:javax.servlet-api:3.1.0'
+    api 'org.nanohttpd:nanohttpd:2.3.1'*/
+    api 'javax.servlet:javax.servlet-api:3.1.0'
+    api 'org.nanohttpd:nanohttpd:2.3.1'
+    api 'com.github.devin1014.DLNA-Cast:dlna-dmc:V1.0.0'
+
 }

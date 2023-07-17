@@ -4,7 +4,11 @@
 
     <uses-feature android:name="android.hardware.type.watch" />
 
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".app.Application"
@@ -27,6 +31,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name="com.android.cast.dlna.dmc.DLNACastService" />
         <activity
             android:name=".app.login.ui.LoginActivity"
             android:exported="false" />
@@ -67,6 +72,20 @@
             android:theme="@style/Theme.WearBili.Player" />
         <activity
             android:name=".app.settings.toolbar.ui.QuickToolbarCustomizationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.crash.ui.CrashActivity"
+            android:exported="false"
+            android:process=":error_activity">
+            <intent-filter>
+                <action android:name="com.developer.crashx.ERROR" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".app.videoplayer.mirroring.dlna.DlnaDeviceDiscoverActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.videoplayer.mirroring.ScreenMirrorActivity"
             android:exported="false" />
     </application>
 

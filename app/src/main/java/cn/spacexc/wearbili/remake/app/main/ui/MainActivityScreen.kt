@@ -140,7 +140,6 @@ fun MainActivityScreen(
     profileScreenState: ProfileScreenState,
 
     ) {
-    val isBackgroundTitleClipToBounds = pagerState.currentPage != 2
     var isDropdownMenuShowing by remember {
         mutableStateOf(false)
     }
@@ -159,7 +158,7 @@ fun MainActivityScreen(
                 else -> ""
             },
             isDropdownTitle = true,
-            isTitleClipToBounds = isBackgroundTitleClipToBounds && !isDropdownMenuShowing,
+            //isTitleClipToBounds = isBackgroundTitleClipToBounds && !isDropdownMenuShowing,
             isDropdown = !isDropdownMenuShowing,
             hasSpaceForTitleBar = true,
             isBackgroundShowing = !isDropdownMenuShowing,
@@ -241,7 +240,6 @@ fun MainActivityScreen(
                             1 -> DynamicScreen(viewModel = dynamicViewModel, context = context)
                             2 -> ProfileScreen(
                                 state = profileScreenState,
-                                isAvatarBackgroundVisible = !isBackgroundTitleClipToBounds,
                                 context = context
                             )
                         }

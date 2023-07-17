@@ -12,11 +12,15 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         jcenter()
+        maven { url 'https://jitpack.io' }
+        maven {
+            url 'http://4thline.org/m2'
+            allowInsecureProtocol = true
+        }
     }
 }
 rootProject.name = "WearBili"
 include ':app'
-include ':app:videoplayer'
 include ':app:common'
 include ':Bilibili-Kotlin-SDK'
 project(':Bilibili-Kotlin-SDK').projectDir = new File('/Users/Xiaochang/Documents/Bilibili-Kotlin-SDK')

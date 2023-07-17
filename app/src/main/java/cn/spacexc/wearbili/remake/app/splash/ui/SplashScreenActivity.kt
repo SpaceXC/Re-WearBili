@@ -7,6 +7,7 @@ import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
+import androidx.media3.common.util.UnstableApi
 import cn.spacexc.bilibilisdk.sdk.user.webi.WebiSignature
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.Application
@@ -31,18 +32,27 @@ import javax.inject.Inject
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
+@UnstableApi
 class SplashScreenActivity : ComponentActivity() {
     @Inject
     lateinit var networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
-
     @Inject
     lateinit var userManager: cn.spacexc.wearbili.common.domain.user.UserManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /*startActivity(Intent(this@SplashScreenActivity, MainActivity::class.java))
         finish()
         overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)*/
-        val currentTime = System.currentTimeMillis()
+        /*Intent(this, DlnaDeviceDiscoverActivity::class.java).apply {
+            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
+            putExtra(PARAM_VIDEO_ID, "BV1tQ4y1R7MR")
+            putExtra(PARAM_VIDEO_CID, 341732612L)
+            startActivity(this)
+        }
+        finish()
+        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)*/
+        val currentTime = System.currentTimeMillis()    //后面leancloud签名用到，别删
         setContent {
             SplashScreen()
         }
