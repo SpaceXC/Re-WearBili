@@ -56,6 +56,8 @@ import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.TAG
+import cn.spacexc.wearbili.remake.app.search.ui.PARAM_DEFAULT_SEARCH_KEYWORD
+import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.EmoteObject
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
@@ -323,15 +325,15 @@ fun RichText(
                             })
                     }
                     return@ClickableText
-                }
+                }*/
             annotatedString.getStringAnnotations(tag = "tagSearch", start = index, end = index)
                 .firstOrNull()?.let { annotation ->
-                    val intent = Intent(context, SearchResultActivityNew::class.java)
+                    val intent = Intent(context, SearchActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    intent.putExtra("keyword", annotation.item.log("keyword"))
+                    intent.putExtra(PARAM_DEFAULT_SEARCH_KEYWORD, annotation.item)
                     context.startActivity(intent)
                     return@ClickableText
-                }*/
+                }
             Log.d(TAG, "RichText: Global Click Event")
             onGloballyClicked()
         },

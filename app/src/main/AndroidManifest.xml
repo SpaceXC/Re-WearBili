@@ -87,6 +87,9 @@
         <activity
             android:name=".app.videoplayer.mirroring.ScreenMirrorActivity"
             android:exported="false" />
+        <activity
+            android:name=".app.bangumi.ui.BangumiActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

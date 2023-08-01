@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.media.AudioManager
+import android.os.Build
 import android.view.SurfaceView
 import android.view.TextureView
 import androidx.compose.animation.AnimatedContent
@@ -68,11 +69,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -84,12 +87,18 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.util.UnstableApi
 import cn.spacexc.wearbili.common.domain.time.secondToTime
+import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.R.drawable
 import cn.spacexc.wearbili.remake.app.videoplayer.danmaku.BiliDanmukuParser
 import cn.spacexc.wearbili.remake.app.videoplayer.mirroring.dlna.DlnaDeviceDiscoverActivity
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimatedContentSize
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import coil.request.ImageRequest
 import master.flame.danmaku.controller.DrawHandler
 import master.flame.danmaku.danmaku.loader.ILoader
 import master.flame.danmaku.danmaku.loader.IllegalDataException
@@ -122,6 +131,7 @@ sealed class VideoPlayerPages(val weight: Int) {
     object Settings : VideoPlayerPages(1)
 }
 
+
 @UnstableApi
 @Composable
 @OptIn(
@@ -140,6 +150,9 @@ fun Activity.Media3PlayerScreen(
     val currentPlayerPosition by viewModel.currentPlayProgress.collectAsState(initial = 0)
     val localDensity = LocalDensity.current
     var controllerProgressColumnHeight by remember {
+        mutableStateOf(0.dp)
+    }
+    var controllerTitleColumnHeight by remember {
         mutableStateOf(0.dp)
     }
     var draggedProgress by remember {
@@ -168,6 +181,7 @@ fun Activity.Media3PlayerScreen(
     })
     val progressBarThumbScale by animateFloatAsState(targetValue = if (isDraggingProgress) 1.5f else 1f)
     val subtitleOffset by animateDpAsState(targetValue = if (viewModel.isVideoControllerVisible) controllerProgressColumnHeight - 14.dp else 0.dp)
+    val dragIndicatorOffset by animateDpAsState(targetValue = if (viewModel.isVideoControllerVisible) controllerTitleColumnHeight else 8.dp)
     val subtitlePadding by animateDpAsState(targetValue = if (viewModel.isVideoControllerVisible) 0.dp else 6.dp)
     var currentPage: VideoPlayerPages by remember {
         mutableStateOf(VideoPlayerPages.Main)
@@ -362,7 +376,7 @@ fun Activity.Media3PlayerScreen(
                                             startDragImmediately = false,
                                             onDragStarted = {
                                                 draggedProgress = currentPlayerPosition
-                                                viewModel.isVideoControllerVisible = true
+                                                //viewModel.isVideoControllerVisible = true
                                                 isDraggingProgress = true
                                             },
                                             onDragStopped = {
@@ -387,7 +401,11 @@ fun Activity.Media3PlayerScreen(
                                     AnimatedVisibility(
                                         visible = viewModel.isVideoControllerVisible,
                                         enter = slideInVertically() + fadeIn(),
-                                        exit = slideOutVertically() + fadeOut()
+                                        exit = slideOutVertically() + fadeOut(),
+                                        modifier = Modifier.onSizeChanged {
+                                            controllerTitleColumnHeight =
+                                                with(localDensity) { it.height.toDp() }
+                                        }
                                     ) {
                                         Row(
                                             modifier = Modifier
@@ -502,29 +520,41 @@ fun Activity.Media3PlayerScreen(
                                                     activeTrackColor = BilibiliPink
                                                 ),
                                                 thumb = {
-                                                    SliderDefaults.Thumb(
+                                                    /*SliderDefaults.Thumb(
                                                         interactionSource = MutableInteractionSource(),
                                                         thumbSize = DpSize(12.dp, 12.dp),
                                                         modifier = Modifier
                                                             .offset(
                                                                 y = 4.dp,
-                                                                x = /*-(4.dp / viewModel.player.duration.toFloat()) * currentPlayerPosition.toFloat() + 2.dp*/ 2.dp
+                                                                x = *//*-(4.dp / viewModel.player.duration.toFloat()) * currentPlayerPosition.toFloat() + 2.dp*//* 2.dp
                                                             )
                                                             .scale(progressBarThumbScale),   //别问这串公式怎么得出来的，问就是数学的力量
-                                                        /**
-                                                         * 上面公式的作用：视频开始时offset = 2.dp
-                                                         *              播放到中间时offset = 0.dp
-                                                         *              播放结束时offset = -2.dp
-                                                         * 可以防止thumb过于靠近屏幕边缘
-                                                         * 原始函数解析式：y=-(2n/m)x+n，其中y为offset的值，n是基准offset，m为视频总长，x为当前播放进度
-                                                         * 感谢群U帮助我不太聪明的大脑
-                                                         * *基准offset=2.dp，为视频开始时的offset
-                                                         *
-                                                         * (两分钟之后发现根本不需要这个公式，直接2dp的效果就很好...
-                                                         */
+                                                        */
+                                                    /**
+                                                     * 上面公式的作用：视频开始时offset = 2.dp
+                                                     *              播放到中间时offset = 0.dp
+                                                     *              播放结束时offset = -2.dp
+                                                     * 可以防止thumb过于靠近屏幕边缘
+                                                     * 原始函数解析式：y=-(2n/m)x+n，其中y为offset的值，n是基准offset，m为视频总长，x为当前播放进度
+                                                     * 感谢群U帮助我不太聪明的大脑
+                                                     * *基准offset=2.dp，为视频开始时的offset
+                                                     *
+                                                     * (两分钟之后发现根本不需要这个公式，直接2dp的效果就很好...
+                                                     *//*
                                                         colors = SliderDefaults.colors(
                                                             thumbColor = Color.White
                                                         )
+                                                    )*/
+                                                    Image(
+                                                        painter = painterResource(id = R.drawable.img_progress_bar_thumb_little_tv),
+                                                        contentDescription = null,
+                                                        modifier = Modifier
+                                                            .offset(
+                                                                y = 4.dp,
+                                                                x = 3.dp
+                                                            )
+                                                            .size(10.dp)
+                                                            .scale(progressBarThumbScale)
                                                     )
                                                 },
                                                 modifier = Modifier
@@ -667,6 +697,42 @@ fun Activity.Media3PlayerScreen(
 
                                 }
                             }
+
+                            AnimatedVisibility(
+                                visible = isDraggingProgress,
+                                enter = scaleIn() + fadeIn() + slideInVertically(),
+                                exit = scaleOut() + fadeOut() + slideOutVertically(),
+                                modifier = Modifier
+                                    .align(Alignment.TopCenter)
+                                    .offset(y = dragIndicatorOffset)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(360.dp))
+                                        .background(
+                                            Color(18, 18, 18)
+                                        )
+                                        .padding(vertical = 6.dp, horizontal = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "${
+                                            (if (isDraggingProgress) draggedProgress else currentPlayerPosition).div(
+                                                1000
+                                            ).secondToTime()
+                                        }/${
+                                            viewModel.videoDuration.div(1000).secondToTime()
+                                        }", modifier = Modifier
+                                            .wearBiliAnimatedContentSize(),
+                                        color = Color.White,
+                                        fontSize = 12.sp,
+                                        fontFamily = wearbiliFontFamily,
+                                        fontWeight = FontWeight.Medium,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+
+                            }
                             if (withSubtitleAnimation) {
                                 AnimatedVisibility(
                                     visible = currentSubtitleText != null,
@@ -721,10 +787,30 @@ fun Activity.Media3PlayerScreen(
                                     )
                                 }
                             }
+
                             if (viewModel.currentStat == PlayerStats.Buffering) {
                                 CircularProgressIndicator(
                                     modifier = Modifier.align(Alignment.Center),
                                     color = BilibiliPink
+                                )
+                            }
+                            if (viewModel.currentStat == PlayerStats.Loading) {
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(R.drawable.img_loading_little_tv)
+                                        .crossfade(true).build(),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .fillMaxWidth(0.5f),
+                                    imageLoader = ImageLoader(LocalContext.current).newBuilder()
+                                        .components {
+                                            if (Build.VERSION.SDK_INT >= 28) {
+                                                add(ImageDecoderDecoder.Factory())
+                                            } else {
+                                                add(GifDecoder.Factory())
+                                            }
+                                        }.build()
                                 )
                             }
                         }
@@ -900,7 +986,8 @@ fun Activity.Media3PlayerScreen(
                                     ),
                                     modifier = Modifier.offset(y = (-6).dp),
                                     thumb = {
-                                        SliderDefaults.Thumb(
+
+                                    SliderDefaults.Thumb(
                                             interactionSource = MutableInteractionSource(),
                                             thumbSize = DpSize(12.dp, 12.dp),
                                             modifier = Modifier

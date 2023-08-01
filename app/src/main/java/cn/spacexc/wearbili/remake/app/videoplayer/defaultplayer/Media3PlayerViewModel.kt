@@ -17,9 +17,11 @@ import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.MergingMediaSource
-import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import cn.spacexc.bilibilisdk.sdk.bangumi.info.BANGUMI_ID_TYPE_CID
+import cn.spacexc.bilibilisdk.sdk.bangumi.info.BangumiInfo
 import cn.spacexc.bilibilisdk.sdk.video.action.VideoAction
 import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
 import cn.spacexc.bilibilisdk.sdk.video.info.remote.subtitle.Subtitle
@@ -44,10 +46,9 @@ import java.io.InputStream
  */
 
 class Media3PlayerViewModel(application: Application) : AndroidViewModel(application) {
-    private val userAgent =
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
     private var httpDataSourceFactory = DefaultHttpDataSource.Factory()
     private var cacheDataSourceFactory: DataSource.Factory
+    private var httpMediaSourceFactory: MediaSource.Factory
     lateinit var player: Player
 
     var currentStat by mutableStateOf(PlayerStats.Loading)
@@ -95,21 +96,28 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
     var videoCastUrl = ""
 
     init {
+        val headers = HashMap<String, String>()
+        headers["User-Agent"] = "Mozilla/5.0 BiliDroid/*.*.* (bbcallen@gmail.com)"
+        headers["Referer"] = "https://bilibili.com/"
         httpDataSourceFactory = DefaultHttpDataSource.Factory()
-        httpDataSourceFactory.setUserAgent(userAgent)
-
+        httpDataSourceFactory.setUserAgent("Mozilla/5.0 BiliDroid/*.*.* (bbcallen@gmail.com)")
+        httpDataSourceFactory.setDefaultRequestProperties(headers)
+            .setAllowCrossProtocolRedirects(true)
 
         cacheDataSourceFactory = CacheDataSource.Factory()
-            .setCache(ExoPlayerUtils.getInstance(application).getCache())
+            .setCache(ExoPlayerUtils.getInstance(getApplication()).getCache())
             .setUpstreamDataSourceFactory(httpDataSourceFactory)
             .setCacheWriteDataSinkFactory(null) // Disable writing.
 
+        httpMediaSourceFactory =
+            DefaultMediaSourceFactory(application).setDataSourceFactory(httpDataSourceFactory)
         player = ExoPlayer.Builder(application)
             .setRenderersFactory(
                 DefaultRenderersFactory(application).setExtensionRendererMode(
                     DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
                 )
             )
+            .setMediaSourceFactory(httpMediaSourceFactory)
             .build()
 
         player.addListener(object : Listener {
@@ -145,32 +153,23 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                 currentStat = if (isPlaying) PlayerStats.Playing else PlayerStats.Paused
             }
         })
-
     }
 
     fun playVideoFromId(
         videoIdType: String,
         videoId: String,
         videoCid: Long,
+        isBangumi: Boolean = false,
         isLowResolution: Boolean = true
     ) {
-        //delay(1)
         appendLoadMessage("初始化播放器...")
-        val headers = mapOf(
-            "User-Agent" to userAgent,
-            "Referer" to "https://www.bilibili.com/video/$videoId"
-        )
-        httpDataSourceFactory.setDefaultRequestProperties(headers)
         viewModelScope.launch {
-            //delay(1)
-            getVideoInfo(videoIdType, videoId)
-            loadSubtitle()
-            loadDanmaku(cid = videoCid)
-            appendLoadMessage("加载视频url...")
-            if (isLowResolution) {
-                val urlResponse =
-                    VideoInfo.getLowResolutionVideoPlaybackUrl(videoIdType, videoId, videoCid)
-                val urlData = urlResponse.data?.data
+            if (isBangumi) {
+                getVideoInfo(videoIdType, videoId)
+                loadDanmaku(cid = videoCid)
+                appendLoadMessage("加载视频url...")
+                val urlResponse = BangumiInfo.getBangumiPlaybackUrl(BANGUMI_ID_TYPE_CID, videoCid)
+                val urlData = urlResponse.data?.result
                 if (urlData == null) {
                     appendLoadMessage(
                         "出错！${urlResponse.code}: ${urlResponse.message}",
@@ -178,44 +177,75 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                     )
                     return@launch
                 }
-                val videoUrl = urlData.durl.first { it.url.isNotEmpty() }.url
+                val videoUrl = urlData.durl.last { it.url.isNotEmpty() }.url
                 videoCastUrl = videoUrl
                 appendLoadMessage("成功!", needLineWrapping = false)
 
-                player.setMediaItem(fromUri(videoUrl))
-                player.playWhenReady = true
-                player.prepare()
-                startContinuouslyUpdatingSubtitle()
-            } else {
-                val urlResponse =
-                    VideoInfo.getVideoPlaybackUrls(videoIdType, videoId, videoCid)
-                val urlData = urlResponse.data?.data
-                if (urlData == null) {
-                    //TODO 处理错误
-                    appendLoadMessage(
-                        "出错！${urlResponse.code}: ${urlResponse.message}",
-                        needLineWrapping = false
-                    )
-                    return@launch
-                }
-                val videoUrl =
-                    urlData.dash.video.last { it.baseUrl.isNotEmpty() }.baseUrl.logd("videoUrl")!!
-                val audioUrl =
-                    urlData.dash.audio.last { it.baseUrl.isNotEmpty() }.baseUrl.logd("audioUrl")!!
-
-                val videoSource: MediaSource = ProgressiveMediaSource.Factory(httpDataSourceFactory)
+                val mediaSource: MediaSource = httpMediaSourceFactory
                     .createMediaSource(fromUri(videoUrl))
-                val audioSource: MediaSource = ProgressiveMediaSource.Factory(httpDataSourceFactory)
-                    .createMediaSource(fromUri(audioUrl))
 
-                val mergeSource: MediaSource = MergingMediaSource(videoSource, audioSource)
-                appendLoadMessage("成功!", needLineWrapping = false)
-
-
-                player.setMediaItem(mergeSource.mediaItem)
+                player.setMediaItem(mediaSource.mediaItem)
+                player
                 player.playWhenReady = true
                 player.prepare()
-                startContinuouslyUpdatingSubtitle()
+            } else {
+                getVideoInfo(videoIdType, videoId)
+                loadSubtitle()
+                loadDanmaku(cid = videoCid)
+                appendLoadMessage("加载视频url...")
+                if (isLowResolution) {
+                    val urlResponse =
+                        VideoInfo.getLowResolutionVideoPlaybackUrl(videoIdType, videoId, videoCid)
+                    val urlData = urlResponse.data?.data
+                    if (urlData == null) {
+                        appendLoadMessage(
+                            "出错！${urlResponse.code}: ${urlResponse.message}",
+                            needLineWrapping = false
+                        )
+                        return@launch
+                    }
+                    val videoUrl = urlData.durl.first { it.url.isNotEmpty() }.url
+                    videoCastUrl = videoUrl
+                    appendLoadMessage("成功!", needLineWrapping = false)
+
+                    val mediaSource: MediaSource = httpMediaSourceFactory
+                        .createMediaSource(fromUri(videoUrl))
+
+                    player.setMediaItem(mediaSource.mediaItem)
+                    player.playWhenReady = true
+                    player.prepare()
+                    startContinuouslyUpdatingSubtitle()
+                } else {
+                    val urlResponse =
+                        VideoInfo.getVideoPlaybackUrls(videoIdType, videoId, videoCid)
+                    val urlData = urlResponse.data?.data
+                    if (urlData == null) {
+                        //TODO 处理错误
+                        appendLoadMessage(
+                            "出错！${urlResponse.code}: ${urlResponse.message}",
+                            needLineWrapping = false
+                        )
+                        return@launch
+                    }
+                    val videoUrl =
+                        urlData.dash.video.last { it.baseUrl.isNotEmpty() }.baseUrl.logd("videoUrl")!!
+                    val audioUrl =
+                        urlData.dash.audio.last { it.baseUrl.isNotEmpty() }.baseUrl.logd("audioUrl")!!
+
+                    val videoSource: MediaSource = httpMediaSourceFactory
+                        .createMediaSource(fromUri(videoUrl))
+                    val audioSource: MediaSource = httpMediaSourceFactory
+                        .createMediaSource(fromUri(audioUrl))
+
+                    val mergeSource: MediaSource = MergingMediaSource(videoSource, audioSource)
+                    appendLoadMessage("成功!", needLineWrapping = false)
+
+
+                    player.setMediaItem(mergeSource.mediaItem)
+                    player.playWhenReady = true
+                    player.prepare()
+                    startContinuouslyUpdatingSubtitle()
+                }
             }
             startContinuouslyUploadingPlayingProgress()
         }

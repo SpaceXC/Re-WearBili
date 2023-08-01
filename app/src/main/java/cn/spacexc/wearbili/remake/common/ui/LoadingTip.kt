@@ -44,7 +44,7 @@ fun LoadingTip(
         append(
             when (loadingState) {
                 LoadingState.Loading -> "玩命加载中"
-                LoadingState.NoMore -> "没有更多噜"
+                LoadingState.NoMore -> "别翻啦，到底啦（￣︶￣）↗"
                 LoadingState.Failed -> "加载失败啦！戳我重试！"
             }
         )

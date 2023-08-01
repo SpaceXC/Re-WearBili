@@ -145,7 +145,7 @@ fun UserAvatar(
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .size(avatarBoxSize * (if (pendant.isNullOrEmpty()) .3f else .2f))
+                        .size(avatarBoxSize * (if (pendant.isNullOrEmpty()) .35f else .25f))
                     //.padding(start = 16.dp, bottom = 16.dp)
                 )
             }
@@ -156,6 +156,7 @@ fun UserAvatar(
 
 @Composable
 fun LargeUserCard(
+    modifier: Modifier = Modifier,
     avatar: String,
     pendant: String? = null,
     username: String,
@@ -164,12 +165,18 @@ fun LargeUserCard(
     officialVerify: OfficialVerify = OfficialVerify.NONE,
     userInfo: String? = null,
     isInfoAdaptive: Boolean = false,
-    mid: Long
+    mid: Long,
+    isFillMaxWidth: Boolean = true
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.apply { if (isFillMaxWidth) fillMaxWidth() },
         shape = CircleShape,
-        innerPaddingValues = PaddingValues(8.dp)
+        innerPaddingValues = if (isFillMaxWidth) PaddingValues(8.dp) else PaddingValues(
+            top = 8.dp,
+            bottom = 8.dp,
+            start = 8.dp,
+            end = 12.dp
+        )
     ) {
         val localDensity = LocalDensity.current
         var avatarHeight by remember {
@@ -177,7 +184,7 @@ fun LargeUserCard(
         }
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
+                .apply { if (isFillMaxWidth) fillMaxWidth() },
             //.height(IntrinsicSize.Min)
             verticalAlignment = Alignment.CenterVertically
         ) {

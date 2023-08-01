@@ -14,6 +14,8 @@ import dagger.hilt.android.AndroidEntryPoint
  * 给！爷！写！注！释！
  */
 
+const val PARAM_DEFAULT_SEARCH_KEYWORD = "defaultSearchKeyword"
+
 @AndroidEntryPoint
 class SearchActivity : ComponentActivity() {
     private val viewModel by viewModels<SearchViewModel>()
@@ -21,8 +23,14 @@ class SearchActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.getHotSearch()
+        val defaultSearchKeyword = intent.getStringExtra(PARAM_DEFAULT_SEARCH_KEYWORD) ?: ""
         setContent {
-            SearchActivityScreen(searchViewModel = viewModel, onBack = ::finish, context = this)
+            SearchActivityScreen(
+                searchViewModel = viewModel,
+                onBack = ::finish,
+                defaultSearchKeyword = defaultSearchKeyword,
+                context = this
+            )
         }
     }
 }

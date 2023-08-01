@@ -156,7 +156,7 @@ class VideoInformationViewModel @Inject constructor(
         }
     }
 
-    fun getImageBitmap(url: String) {
+    private fun getImageBitmap(url: String) {
         viewModelScope.launch {
             try {
                 val response: HttpResponse = ktorNetworkUtils.client.get(url) {

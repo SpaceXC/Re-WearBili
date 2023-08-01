@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.util.UnstableApi
 import cn.spacexc.bilibilisdk.sdk.user.webi.WebiSignature
+import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.login.ui.LoginActivity
@@ -36,6 +37,7 @@ import javax.inject.Inject
 class SplashScreenActivity : ComponentActivity() {
     @Inject
     lateinit var networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+
     @Inject
     lateinit var userManager: cn.spacexc.wearbili.common.domain.user.UserManager
 
@@ -52,12 +54,23 @@ class SplashScreenActivity : ComponentActivity() {
         }
         finish()
         overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)*/
+        /*startActivity(Intent(this@SplashScreenActivity, BangumiActivity::class.java).apply {
+            putExtra(
+                PARAM_BANGUMI_ID, 35220L
+            )
+            putExtra(
+                PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_SSID
+            )
+        })
+        finish()
+        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)*/
         val currentTime = System.currentTimeMillis()    //后面leancloud签名用到，别删
         setContent {
             SplashScreen()
         }
         lifecycleScope.launch {
             //VideoInfo.getVideoInfoApp(VIDEO_TYPE_AID, "954781099").logd()
+            println(VideoInfo.getVideoPlayUrlForTv(1158277626))
 
             networkUtils.get<String>("https://bilibili.com")    // 每次启动获取最新的cookie
             WebiSignature.getWebiSignature()    //保存新的webi签名

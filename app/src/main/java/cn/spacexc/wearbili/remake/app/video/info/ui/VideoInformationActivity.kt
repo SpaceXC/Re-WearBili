@@ -39,7 +39,7 @@ class VideoInformationActivity : ComponentActivity() {
         val videoId = intent.getStringExtra(PARAM_VIDEO_ID)
         if (videoId != null) {
             videoInfoViewModel.getVideoInfo(videoIdType = videoIdType, videoId = videoId)
-            //videoInfoViewModel.getVideoSanLianState(videoIdType = videoIdType, videoId = videoId)//FIXME: 这个方法有时候会导致uiState因不明原因改变，过两天修（20230708）
+            //videoInfoViewModel.getVideoSanLianState(videoIdType = videoIdType, videoId = videoId) //FIXME: 这个方法有时候会导致uiState因不明原因改变，过两天修（20230708）
             relatedVideoViewModel.getRelatedVideos(videoIdType = videoIdType, videoId = videoId)
         }
         val aid = (if (!videoId.isNullOrEmpty()) {

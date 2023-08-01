@@ -149,7 +149,7 @@ fun RecommendScreen(
                                             style = MaterialTheme.typography.h1.copy(fontSize = 12.spx)
                                         )
                                         AutoResizedText(
-                                            text = "在推荐页顶部添加两个常用页面，\n轻点卡片以开始设置，\n向左滑动隐藏此卡片。",
+                                            text = "点击设置快捷入口\n左划以隐藏此卡片\n可在“设置”中重新设置",
                                             //fontFamily = wearbiliFontFamily,
                                             style = MaterialTheme.typography.body1.copy(fontSize = 11.spx),
                                             maxLines = 3,

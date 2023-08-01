@@ -5,9 +5,9 @@ import com.google.gson.annotations.SerializedName
 
 data class ModuleStat(
     @SerializedName("comment")
-    val comment: Comment,
+    val comment: Comment?,
     @SerializedName("forward")
-    val forward: Forward,
+    val forward: Forward?,
     @SerializedName("like")
-    val like: Like
+    val like: Like?
 )

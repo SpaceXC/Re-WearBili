@@ -83,7 +83,7 @@ class DlnaDeviceDiscoverActivity : ComponentActivity() {
             )
         )
         setContent {
-            TitleBackground(title = "选择设备") {
+            TitleBackground(title = "选择设备", onBack = ::finish) {
 
                 LazyColumn {
                     item {

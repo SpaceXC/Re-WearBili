@@ -77,6 +77,7 @@ import coil.request.ImageRequest
 fun SearchActivityScreen(
     searchViewModel: SearchViewModel,
     onBack: () -> Unit,
+    defaultSearchKeyword: String = "",
     context: Context
 ) {
     val localDensity = LocalDensity.current
@@ -90,10 +91,11 @@ fun SearchActivityScreen(
         style = AppTheme.typography.body1,
         modifier = Modifier.onSizeChanged {
             hotWordItemHeight = with(localDensity) { it.height.toDp() }
-        })  //这个Text是用来获取高度以设置下面LazyStaggeredGrid的高度以及热搜类型图片的高度的，不可或缺，要和下面热搜词的大小同步
+        }
+    )  //这个Text是用来获取高度以设置下面LazyStaggeredGrid的高度以及热搜类型图片的高度的，不可或缺，要和下面热搜词的大小同步
     context.TitleBackground(title = "搜索", onBack = onBack) {
         var searchInputValue by remember {
-            mutableStateOf("")
+            mutableStateOf(defaultSearchKeyword)
         }
         Column(
             modifier = Modifier
@@ -281,6 +283,7 @@ fun SearchActivityScreen(
                         outerPaddingValues = PaddingValues(),
                         innerPaddingValues = PaddingValues(8.dp),
                         onClick = {
+                            searchViewModel.addSearchHistory(item.keyword)
                             context.startActivity(
                                 Intent(context, SearchResultActivity::class.java).apply {
                                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -314,6 +317,7 @@ fun SearchActivityScreen(
                             )
                         }
                     }
+
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))

@@ -3,8 +3,10 @@ package cn.spacexc.wearbili.remake.app.main.dynamic.ui
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Redeem
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
@@ -49,18 +54,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import cn.spacexc.wearbili.common.domain.video.toShortChinese
+import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicItem
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.ItemRichTextNode
+import cn.spacexc.wearbili.remake.app.search.ui.PARAM_DEFAULT_SEARCH_KEYWORD
+import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.ClickableText
+import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.SmallUserCard
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
+import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
 
 /**
  * Created by XC-Qan on 2023/4/27.
@@ -75,12 +87,23 @@ val supportedDynamicTypes =
 
 @Composable
 fun DynamicRichText(
+    modifier: Modifier = Modifier,
     textNodes: List<ItemRichTextNode>,
     textStyle: TextStyle,
     context: Context,
+    leadingIcon: (@Composable () -> Unit)? = null,
     onGloballyClicked: () -> Unit
 ) {
     val inlineContentMap = hashMapOf(
+        "leadingIcon" to InlineTextContent(
+            Placeholder(
+                width = textStyle.fontSize,
+                height = textStyle.fontSize,
+                placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+            )
+        ) {
+            leadingIcon?.invoke()
+        },
         "webLinkIcon" to InlineTextContent(
             Placeholder(
                 width = textStyle.fontSize,
@@ -111,6 +134,10 @@ fun DynamicRichText(
         }
     )
     val annotatedString = buildAnnotatedString {
+        leadingIcon?.let {
+            appendInlineContent("leadingIcon")
+            append(" ")
+        }
         textNodes.forEach {
             when (it.type) {
                 "RICH_TEXT_NODE_TYPE_TEXT" -> {
@@ -200,8 +227,9 @@ fun DynamicRichText(
     ClickableText(
         text = annotatedString,
         inlineTextContent = inlineContentMap,
-        style = textStyle
-    ) { _ ->
+        style = textStyle,
+        modifier = modifier
+    ) { index ->
         /*annotatedString.getStringAnnotations(tag = "tagUser", start = index, end = index)
             .firstOrNull()?.let { annotation ->
                 context.startActivity(Intent(context, SpaceProfileActivity::class.java).apply {
@@ -209,33 +237,33 @@ fun DynamicRichText(
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 })
                 return@ClickableText
-            }
+            }*/
         annotatedString.getStringAnnotations(tag = "tagSearch", start = index, end = index)
             .firstOrNull()?.let { annotation ->
-                val intent = Intent(context, SearchResultActivityNew::class.java)
+                val intent = Intent(context, SearchActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                intent.putExtra("keyword", annotation.item.log("keyword"))
+                intent.putExtra(PARAM_DEFAULT_SEARCH_KEYWORD, annotation.item)
                 context.startActivity(intent)
                 return@ClickableText
             }
-        annotatedString.getStringAnnotations(tag = "tagUrl", start = index, end = index)
+        /*annotatedString.getStringAnnotations(tag = "tagUrl", start = index, end = index)
             .firstOrNull()?.let { annotation ->
                 context.startActivity(Intent(context, LinkProcessActivity::class.java).apply {
                     putExtra("url", annotation.item)
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 })
                 return@ClickableText
-            }
-        Log.d(Application.TAG, "RichText: Global Click Event")*/
+            }*/
         onGloballyClicked()
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DynamicContent(
     item: DynamicItem,
     textSizeScale: Float = 1.0f,
-    context: Context
+    context: Context/*?*/   //for preview   //f*** **u compose preview!
 ) {
     val localDensity = LocalDensity.current
     Column(modifier = Modifier.padding(4.dp)) {
@@ -246,6 +274,7 @@ fun DynamicContent(
                 textStyle = AppTheme.typography.body1.copy(fontSize = AppTheme.typography.body1.fontSize * textSizeScale),
                 context = context
             ) {
+                //TODO 动态详情&评论
                 /*if (supportedDynamicTypes.contains(item.type)) {
                     val intent = Intent(context, NewDynamicDetailActivity::class.java)
                     intent.putExtra("dyId", item.idStr)
@@ -278,11 +307,7 @@ fun DynamicContent(
                     LazyVerticalGrid(
                         modifier = Modifier.requiredSizeIn(maxHeight = 4000.dp),
                         columns = GridCells.Fixed(
-                            when (imageList.size) {
-                                1 -> 1
-                                2 -> 2
-                                else -> 3
-                            }
+                            if (imageList.size == 1 || imageList.size % 2 == 0) 2 else 3
                         )
                     ) {
                         imageList.forEachIndexed { _, image ->
@@ -403,27 +428,35 @@ fun DynamicContent(
                             modifier = Modifier,
                             fontSize = 10.spx * textSizeScale
                         )
-                        Row {
-                            var textHeight by remember {
-                                mutableStateOf(0.dp)
-                            }
-                            Icon(
-                                imageVector = Icons.Outlined.PlayCircle,
-                                contentDescription = null,
-                                modifier = Modifier.size(textHeight),
-                                tint = Color.White
-                            )
-                            Text(
+                        Row(modifier = Modifier.alpha(0.6f)) {
+                            IconText(
                                 text = item.modules.moduleDynamic.major?.archive?.stat?.play ?: "",
                                 color = Color.White,
                                 fontSize = 9.spx * textSizeScale,
                                 fontWeight = FontWeight.Medium,
-                                modifier = Modifier.onGloballyPositioned {
-                                    with(localDensity) {
-                                        textHeight =
-                                            it.size.height.toDp()
-                                    }
-                                })
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.icon_view_count),
+                                    contentDescription = null,
+                                    modifier = Modifier,
+                                    tint = Color.White
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(6.dp))
+                            IconText(
+                                text = item.modules.moduleDynamic.major?.archive?.stat?.danmaku
+                                    ?: "",
+                                color = Color.White,
+                                fontSize = 9.spx * textSizeScale,
+                                fontWeight = FontWeight.Medium,
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.icon_danmaku),
+                                    contentDescription = null,
+                                    modifier = Modifier,
+                                    tint = Color.White
+                                )
+                            }
                         }
                     }
                 }
@@ -534,6 +567,92 @@ fun DynamicContent(
                 )
             }
         }
+
+        item.modules.moduleInteraction?.items?.forEach { item ->
+            Spacer(modifier = Modifier.height(6.dp))
+            DynamicRichText(
+                textNodes = item.desc.richTextNodes,
+                textStyle = TextStyle(
+                    fontSize = 9.spx,
+                    color = Color.White,
+                    fontFamily = wearbiliFontFamily
+                ),
+                context = context,
+                modifier = Modifier
+                    .alpha(0.7f)
+                    .padding(horizontal = 4.dp),
+                leadingIcon = {
+                    when (item.type) {
+                        1 -> {
+                            Icon(
+                                painter = painterResource(id = R.drawable.icon_comment),
+                                contentDescription = null,
+                                modifier = Modifier,
+                                tint = Color.White
+                            )
+                        }
+
+                        2 -> {
+                            Icon(
+                                imageVector = Icons.Outlined.ThumbUp,
+                                contentDescription = null,
+                                modifier = Modifier,
+                                tint = Color.White
+                            )
+                        }
+                    }
+                },
+                onGloballyClicked = {}
+            )
+            /*IconText(text = item.desc.text, fontSize = 9.spx, modifier = Modifier.alpha(0.5f)) {
+
+            }*/
+        }
+        item.modules.moduleStat?.let {
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp)
+            ) {
+                IconText(
+                    text = it.like?.count?.toShortChinese() ?: "null",
+                    fontSize = 9.spx,
+                    fontFamily = wearbiliFontFamily
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_thumb_up),
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                IconText(
+                    text = it.forward?.count?.toShortChinese() ?: "null",
+                    fontSize = 9.spx,
+                    fontFamily = wearbiliFontFamily
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_comment),
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                IconText(
+                    text = it.comment?.count?.toShortChinese() ?: "null",
+                    fontSize = 9.spx,
+                    fontFamily = wearbiliFontFamily
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_dynamic_forward),
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                }
+            }
+
+        }
     }
 }
 
@@ -556,14 +675,15 @@ fun DynamicCard(
                 SmallUserCard(
                     avatar = author.face,
                     username = author.name,
-                    //pendant = author.pendant?.image,
+                    pendant = author.pendant?.image,
                     userInfo = buildString {
                         append(author.pubTime)
                         if (author.pubTime.isNotEmpty()) append(" ")
                         append(author.pubAction)
                     },
                     usernameColor = author.vip?.nicknameColor,
-                    textSizeScale = textSizeScale
+                    textSizeScale = textSizeScale,
+                    officialVerify = (author.officialVerify?.type ?: -1).toOfficialVerify()
                 )
             }
             DynamicContent(item = item, context = context, textSizeScale = textSizeScale)

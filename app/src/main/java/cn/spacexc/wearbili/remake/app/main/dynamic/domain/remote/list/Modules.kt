@@ -13,5 +13,5 @@ data class Modules(
     @SerializedName("module_more")
     val moduleMore: ModuleMore,
     @SerializedName("module_stat")
-    val moduleStat: ModuleStat
+    val moduleStat: ModuleStat?
 )

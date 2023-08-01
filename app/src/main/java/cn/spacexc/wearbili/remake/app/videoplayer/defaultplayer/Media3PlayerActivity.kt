@@ -22,6 +22,7 @@ const val PARAM_VIDEO_CID = "videoCid"
 const val PARAM_WEBI_SIGNATURE_KEY = "webi_signature_key"
 const val VIDEO_TYPE_AID = "aid"
 const val VIDEO_TYPE_BVID = "bvid"
+const val PARAM_IS_BANGUMI = "isBangumi"
 
 @UnstableApi
 class Media3PlayerActivity : ComponentActivity() {
@@ -36,8 +37,9 @@ class Media3PlayerActivity : ComponentActivity() {
         val videoIdType = intent.getStringExtra(PARAM_VIDEO_ID_TYPE) ?: VIDEO_TYPE_BVID
         val videoId = intent.getStringExtra(PARAM_VIDEO_ID)
         val videoCid = intent.getLongExtra(PARAM_VIDEO_CID, 0L)
+        val isBangumi = intent.getBooleanExtra(PARAM_IS_BANGUMI, false)
 
-        viewModel.playVideoFromId(videoIdType, videoId!!, videoCid)
+        viewModel.playVideoFromId(videoIdType, videoId!!, videoCid, isBangumi)
 
         setContent {
             Media3PlayerScreen(

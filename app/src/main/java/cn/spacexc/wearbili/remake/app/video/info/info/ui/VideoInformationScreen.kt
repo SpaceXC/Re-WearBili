@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
@@ -69,6 +71,7 @@ import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.copyable
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
+import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
 import kotlinx.coroutines.launch
 
 /**
@@ -106,113 +109,144 @@ fun VideoInformationScreen(
         Column(
             modifier = Modifier
                 .verticalScroll(state.scrollState)
-                .padding(horizontal = TitleBackgroundHorizontalPadding - 2.dp, vertical = 8.dp),
+                .padding(vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             state.videoData?.let { video ->
-                Box {
-                    BiliImage(
-                        url = video.pic,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(16f / 10f)
-                            .clip(
-                                RoundedCornerShape(8.dp)
-                            ),
-                        contentScale = ContentScale.Crop
-                    )
-                    Text(
-                        text = video.duration.secondToTime(),
-                        color = Color.White,
-                        fontSize = 11.spx,
-                        modifier = Modifier
-                            .padding(end = 8.dp, bottom = 6.dp)
-                            .align(Alignment.BottomEnd),
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-                Text(text = video.title, style = AppTheme.typography.h1)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                    IconText(
-                        text = "${video.stat.view.toShortChinese()}观看",
-                        modifier = Modifier.alpha(0.7f),
-                        fontSize = 11.spx
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.icon_view_count),
+                Column(modifier = Modifier.padding(horizontal = TitleBackgroundHorizontalPadding - 2.dp)) {
+                    Box {
+                        BiliImage(
+                            url = video.pic,
                             contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            tint = Color.White
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(16f / 10f)
+                                .clip(
+                                    RoundedCornerShape(8.dp)
+                                ),
+                            contentScale = ContentScale.Crop
+                        )
+                        Text(
+                            text = video.duration.secondToTime(),
+                            color = Color.White,
+                            fontSize = 11.spx,
+                            modifier = Modifier
+                                .padding(end = 8.dp, bottom = 6.dp)
+                                .align(Alignment.BottomEnd),
+                            fontWeight = FontWeight.Medium
                         )
                     }
+                    Text(text = video.title, style = AppTheme.typography.h1)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                        IconText(
+                            text = "${video.stat.view.toShortChinese()}观看",
+                            modifier = Modifier.alpha(0.7f),
+                            fontSize = 11.spx
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.icon_view_count),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                tint = Color.White
+                            )
+                        }
 
-                    IconText(
-                        text = "${video.stat.danmaku.toShortChinese()}弹幕",
-                        modifier = Modifier.alpha(0.7f),
-                        fontSize = 11.spx
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.icon_danmaku),
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            tint = Color.White
-                        )
-                    }
+                        IconText(
+                            text = "${video.stat.danmaku.toShortChinese()}弹幕",
+                            modifier = Modifier.alpha(0.7f),
+                            fontSize = 11.spx
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.icon_danmaku),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                tint = Color.White
+                            )
+                        }
 
-                    IconText(
-                        text = video.pubdate.times(1000).toDateStr("yyyy-MM-dd HH:mm"),
-                        modifier = Modifier.alpha(0.7f),
-                        fontSize = 11.spx
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.icon_time),
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            tint = Color.White
-                        )
-                    }
+                        IconText(
+                            text = video.pubdate.times(1000).toDateStr("yyyy-MM-dd HH:mm"),
+                            modifier = Modifier.alpha(0.7f),
+                            fontSize = 11.spx
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.icon_time),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                tint = Color.White
+                            )
+                        }
 
-                    IconText(
-                        text = video.bvid,
-                        modifier = Modifier
-                            .alpha(0.7f)
-                            .clickVfx(onLongClick = {
-                                video.bvid.copyToClipboard(context = context)
-                                ToastUtils.showText(content = "已复制BV号", context = context)
-                            }),
-                        fontSize = 11.spx,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Movie,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            tint = Color.White
+                        IconText(
+                            text = video.bvid,
+                            modifier = Modifier
+                                .alpha(0.7f)
+                                .clickVfx(onLongClick = {
+                                    video.bvid.copyToClipboard(context = context)
+                                    ToastUtils.showText(content = "已复制BV号", context = context)
+                                }),
+                            fontSize = 11.spx,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Movie,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                tint = Color.White
+                            )
+                        }
+                    }
+                    if (video.desc.isNotEmpty()) {
+                        ExpandableText(
+                            text = video.desc,
+                            modifier = Modifier.copyable(video.desc),
+                            style = AppTheme.typography.body1
                         )
                     }
                 }
-                if (video.desc.isNotEmpty()) {
-                    ExpandableText(
-                        text = video.desc,
-                        modifier = Modifier.copyable(video.desc),
-                        style = AppTheme.typography.body1
+
+                if (video.staff.isNullOrEmpty()) {
+                    LargeUserCard(
+                        modifier = Modifier.padding(horizontal = TitleBackgroundHorizontalPadding - 2.dp),
+                        avatar = video.owner.face,
+                        username = video.owner.name,
+                        mid = video.owner.mid,
+                        officialVerify = video.owner_ext.official_verify.type.toOfficialVerify(),
+                        usernameColor = video.owner_ext.vip?.label?.bg_color ?: "#FFFFFF",
+                        userInfo = "粉丝 ${video.owner_ext.fans.toShortChinese()}  IP属地 ${video.pub_location ?: "未知"}"
                     )
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .padding(horizontal = TitleBackgroundHorizontalPadding - 2.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        video.staff?.forEach {
+                            LargeUserCard(
+                                avatar = it.face,
+                                username = it.name,
+                                mid = it.mid,
+                                officialVerify = it.official_verify.type.toOfficialVerify(),
+                                usernameColor = it.vip?.label?.bg_color ?: "#FFFFFF",
+                                userInfo = it.title,
+                                isFillMaxWidth = false
+                            )
+                        }
+                    }
                 }
-                LargeUserCard(
-                    avatar = video.owner.face,
-                    username = video.owner.name,
-                    mid = video.owner.mid,
-                    userInfo = "粉丝 ${video.owner_ext.fans.toShortChinese()}  IP属地 ${video.pub_location}"
-                )
+
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = TitleBackgroundHorizontalPadding - 2.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        OutlinedRoundButton(icon = {
+                        OutlinedRoundButton(
+                            icon = {
                             Row(
                                 modifier = Modifier.align(Alignment.Center),
                                 verticalAlignment = Alignment.CenterVertically
@@ -262,19 +296,18 @@ fun VideoInformationScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        OutlinedRoundButton(
-                            icon = {
-                                Row(
-                                    modifier = Modifier.align(Alignment.Center),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.ThumbUp,
-                                        tint = likeColor,
-                                        contentDescription = null
-                                    )
-                                }
-                            },
+                        OutlinedRoundButton(icon = {
+                            Row(
+                                modifier = Modifier.align(Alignment.Center),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.ThumbUp,
+                                    tint = likeColor,
+                                    contentDescription = null
+                                )
+                            }
+                        },
                             text = "点赞",
                             modifier = Modifier.weight(1f),
                             buttonModifier = Modifier.aspectRatio(1f),
@@ -283,8 +316,7 @@ fun VideoInformationScreen(
                                     cn.spacexc.wearbili.remake.app.videoplayer.defaultplayer.VIDEO_TYPE_BVID,
                                     video.bvid
                                 )
-                            }
-                        )
+                            })
                         OutlinedRoundButton(
                             icon = {
                                 Icon(

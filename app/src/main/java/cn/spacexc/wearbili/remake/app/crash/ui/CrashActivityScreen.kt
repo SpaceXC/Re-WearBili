@@ -1,6 +1,7 @@
 package cn.spacexc.wearbili.remake.app.crash.ui
 
 import android.app.Activity
+import android.content.Intent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import cn.spacexc.wearbili.common.copyToClipboard
+import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.ClickableText
@@ -48,6 +51,8 @@ import kotlinx.coroutines.delay
  * 给！爷！写！注！释！
  */
 
+
+//TODO implement crash screen buttons
 @Composable
 fun Activity.CrashActivityScreen(
     crashLog: String
@@ -143,7 +148,10 @@ fun Activity.CrashActivityScreen(
                         .weight(1f)
                         .aspectRatio(1f),
                     innerPaddingValues = PaddingValues(14.dp),
-                    borderColor = copyButtonColor
+                    borderColor = copyButtonColor,
+                    onClick = {
+                        crashLog.copyToClipboard(this@CrashActivityScreen)
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ContentCopy,
@@ -173,7 +181,16 @@ fun Activity.CrashActivityScreen(
                         .weight(1f)
                         .aspectRatio(1f),
                     innerPaddingValues = PaddingValues(14.dp),
-                    borderColor = restartButtonColor
+                    borderColor = restartButtonColor,
+                    onClick = {
+                        startActivity(
+                            Intent(
+                                this@CrashActivityScreen,
+                                SplashScreenActivity::class.java
+                            )
+                        )
+                        finish()
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.RestartAlt,
