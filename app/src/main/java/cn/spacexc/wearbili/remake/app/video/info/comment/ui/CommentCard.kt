@@ -8,13 +8,18 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
@@ -37,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -64,6 +70,7 @@ import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
+import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.ClickableText
 import cn.spacexc.wearbili.remake.common.ui.SmallUserCard
@@ -363,6 +370,7 @@ fun CommentCard(
     commentEmoteMap: Map<String, EmoteObject>,
     commentAttentionedUsersMap: Map<String, Long>,
     commentJumpUrlMap: Map<String, CommentContentData.JumpUrlObject>,
+    commentImagesList: List<CommentContentData.Picture>? = null,
     isUpLiked: Boolean,
     isTopComment: Boolean,
     uploaderMid: Long,
@@ -456,6 +464,62 @@ fun CommentCard(
                         context.startActivity(this)
                     }
                 }*/
+            }
+            commentImagesList?.let {
+                Spacer(modifier = Modifier.height(4.dp))
+                LazyVerticalGrid(
+                    modifier = Modifier.requiredSizeIn(maxHeight = 4000.dp),
+                    columns = GridCells.Fixed(
+                        if (commentImagesList.size == 1 || commentImagesList.size % 2 == 0) 2 else 3
+                    )
+                ) {
+                    items(commentImagesList) { image ->
+                        BiliImage(
+                            url = image.img_src,
+                            contentDescription = null,
+                            modifier = when (commentImagesList.size) {
+                                1 -> Modifier
+                                    .fillMaxWidth()
+                                    .clickVfx {
+                                        /*val intent =
+                                            Intent(context, ImageViewerActivity::class.java)
+                                        val arrayList = arrayListOf<DrawItem>()
+                                        arrayList.addAll(imageList)
+                                        intent.putParcelableArrayListExtra(
+                                            "imageList",
+                                            arrayList
+                                        )
+                                        intent.putExtra("currentPhotoItem", index)
+                                        context.startActivity(intent)*/
+                                    }
+                                    .aspectRatio(1f)
+                                    .clip(
+                                        RoundedCornerShape(6.dp)
+                                    )
+
+                                else -> Modifier
+                                    .padding(2.dp)
+                                    .aspectRatio(1f)
+                                    .clickVfx {
+                                        /*val intent =
+                                            Intent(context, ImageViewerActivity::class.java)
+                                        val arrayList = arrayListOf<DrawItem>()
+                                        arrayList.addAll(imageList)
+                                        intent.putParcelableArrayListExtra(
+                                            "imageList",
+                                            arrayList
+                                        )
+                                        intent.putExtra("currentPhotoItem", index)
+                                        context.startActivity(intent)*/
+                                    }
+                                    .clip(
+                                        RoundedCornerShape(6.dp)
+                                    )
+                            },
+                            contentScale = if (commentImagesList.size == 1) ContentScale.FillBounds else ContentScale.Crop
+                        )
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row {

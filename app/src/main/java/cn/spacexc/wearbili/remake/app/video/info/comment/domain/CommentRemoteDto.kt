@@ -76,6 +76,10 @@ data class CommentContentData(
     var card_label: List<CardLabel>,
     var is_top: Boolean = false
 ) {
+    data class Picture(
+        val img_src: String
+    )
+
     data class CardLabel(
         var rpid: Long,
         var text_content: String,
@@ -174,7 +178,8 @@ data class CommentContentData(
         var emote: Map<String, EmoteObject>?,
         var jump_url: Map<String, JumpUrlObject>?,
         //var members: List<ReplyAttentionMember>?,
-        var at_name_to_mid: Map<String, Long>?
+        var at_name_to_mid: Map<String, Long>?,
+        var pictures: List<Picture>?
     )
 
     data class ReplyAttentionMember(

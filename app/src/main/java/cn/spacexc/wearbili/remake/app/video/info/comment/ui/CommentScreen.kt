@@ -141,6 +141,7 @@ fun CommentScreen(
                                     ?: emptyMap(),
                                 commentReplyControl = comment.reply_control?.sub_reply_entry_text
                                     ?: "",
+                                commentImagesList = comment.content?.pictures,
                                 commentRpid = comment.rpid,
                                 uploaderMid = uploaderMid,
                                 isTopComment = comment.is_top,

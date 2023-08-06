@@ -462,7 +462,7 @@ fun DynamicContent(
                 }
             }
 
-            "DYNAMIC_TYPE_PGC" -> {
+            "DYNAMIC_TYPE_PGC", "DYNAMIC_TYPE_PGC_UNION" -> {
                 /*Text(
                     text = "${item.modules.moduleDynamic.major?.pgc?.title} 更新了",
                     fontFamily = puhuiFamily,

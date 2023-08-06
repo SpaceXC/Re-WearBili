@@ -70,7 +70,6 @@ class BangumiViewModel @Inject constructor(
                     val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                     if (bitmap != null) {
                         imageBitmap = bitmap
-                        //Log.d("TAG", "getImageBitmap: $url success")
                     }
                 } else {
                     MainScope().launch {
@@ -78,7 +77,6 @@ class BangumiViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                //getImageBitmap(url, onSuccess)
                 e.printStackTrace()
             }
         }
