@@ -2,6 +2,7 @@ package cn.spacexc.wearbili.remake.app.main.ui
 
 import android.content.Context
 import android.content.Intent
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.CubicBezierEasing
@@ -24,8 +25,10 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.RssFeed
 import androidx.compose.material.icons.outlined.Search
@@ -41,10 +44,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.domain.log.logd
+import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.about.ui.AboutActivity
+import cn.spacexc.wearbili.remake.app.bangumi.index.ui.BangumiIndexActivity
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicScreen
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicViewModel
 import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreen
@@ -68,7 +74,9 @@ import kotlinx.coroutines.launch
 
 data class MenuItem @OptIn(ExperimentalFoundationApi::class) constructor(
     val text: String,
-    val icon: ImageVector,
+    val icon: ImageVector? = null,
+    @DrawableRes val iconResId: Int = 0,
+    val customIcon: Boolean = false,
     val onClick: PagerState.(CoroutineScope, Context) -> Unit,
 )
 
@@ -86,7 +94,8 @@ val menuItems = listOf(
     ),
     MenuItem(
         text = "动态",
-        icon = Icons.Outlined.RssFeed,
+        customIcon = true,
+        iconResId = R.drawable.icon_dynamic,
         onClick = { scope, _ ->
             scope.launch {
                 delay(400)
@@ -109,6 +118,19 @@ val menuItems = listOf(
         icon = Icons.Outlined.Search,
         onClick = { _, context ->
             context.startActivity(Intent(context, SearchActivity::class.java))
+        }
+    ),
+    MenuItem(
+        "番剧",
+        icon = Icons.Outlined.Movie,
+        onClick = { _, context ->
+            context.startActivity(Intent(context, BangumiIndexActivity::class.java))
+        }
+    ),
+    MenuItem(
+        "缓存",
+        icon = Icons.Outlined.FileDownload,
+        onClick = { _, _ ->
         }
     ),
     MenuItem(
@@ -160,7 +182,6 @@ fun MainActivityScreen(
             isDropdownTitle = true,
             //isTitleClipToBounds = isBackgroundTitleClipToBounds && !isDropdownMenuShowing,
             isDropdown = !isDropdownMenuShowing,
-            hasSpaceForTitleBar = true,
             isBackgroundShowing = !isDropdownMenuShowing,
             onDropdown = {
                 isDropdownMenuShowing = !isDropdownMenuShowing
@@ -205,22 +226,41 @@ fun MainActivityScreen(
                         contentPadding = PaddingValues(16.dp)
                     ) {
                         items(menuItems) { item ->
-                            OutlinedRoundButton(
-                                icon = {
-                                    Icon(
-                                        imageVector = item.icon,
-                                        tint = Color.White,
-                                        contentDescription = null,
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
-                                },
-                                text = item.text,
-                                modifier = Modifier/*.weight(1f)*/,
-                                buttonModifier = Modifier.aspectRatio(1f),
-                                onClick = {
-                                    item.onClick(pagerState, coroutineScope, context)
-                                }
-                            )
+                            if (item.icon != null) {
+                                OutlinedRoundButton(
+                                    icon = {
+                                        Icon(
+                                            imageVector = item.icon,
+                                            tint = Color.White,
+                                            contentDescription = null,
+                                            modifier = Modifier.align(Alignment.Center)
+                                        )
+                                    },
+                                    text = item.text,
+                                    modifier = Modifier/*.weight(1f)*/,
+                                    buttonModifier = Modifier.aspectRatio(1f),
+                                    onClick = {
+                                        item.onClick(pagerState, coroutineScope, context)
+                                    }
+                                )
+                            } else if (item.customIcon) {
+                                OutlinedRoundButton(
+                                    icon = {
+                                        Icon(
+                                            painter = painterResource(id = item.iconResId),
+                                            tint = Color.White,
+                                            contentDescription = null,
+                                            modifier = Modifier.align(Alignment.Center)
+                                        )
+                                    },
+                                    text = item.text,
+                                    modifier = Modifier/*.weight(1f)*/,
+                                    buttonModifier = Modifier.aspectRatio(1f),
+                                    onClick = {
+                                        item.onClick(pagerState, coroutineScope, context)
+                                    }
+                                )
+                            }
                         }
                     }
                 } else {

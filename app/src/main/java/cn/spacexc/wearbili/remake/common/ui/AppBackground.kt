@@ -4,6 +4,11 @@ import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -24,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
@@ -55,6 +61,7 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.R
@@ -96,6 +103,18 @@ fun Context.CirclesBackground(
         mutableStateOf(0.dp)
     }   //需要获取父容器宽度来计算两个圆圈的宽度, 不直接设置fraction参数是因为大小不太对
     val isDarkTheme by SettingsManager.isDarkTheme.collectAsState(initial = false)
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.3f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = 1000
+                0.7f at 500
+            },
+            repeatMode = RepeatMode.Reverse
+        ), label = ""
+    )
     //TODO 研究一下换成fraction参数
     LaunchedEffect(key1 = toastContent, block = {
         if (toastContent.isNotEmpty()) {
@@ -131,29 +150,11 @@ fun Context.CirclesBackground(
                             contentDescription = null,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .alpha(ambientAlpha),
+                                .alpha(if (uiState == UIState.Loading) ambientAlpha * alpha else ambientAlpha),
                             colorFilter = ColorFilter.tint(themeColor),
                             //contentScale = ContentScale.FillWidth
 
                         )
-                        /*Image(
-                            painter = painterResource(id = R.drawable.img_circle_top_right),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .align(
-                                    Alignment.TopEnd
-                                )
-                                .size(boxWidth * 0.75f)
-                        )
-                        Image(
-                            painter = painterResource(id = R.drawable.img_circle_bottom_left),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .align(
-                                    Alignment.BottomStart
-                                )
-                                .size(boxWidth * 0.75f)
-                        )*/
                     }
 
                 }
@@ -201,7 +202,7 @@ fun LoadableBox(
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        Crossfade(targetState = uiState) {
+        Crossfade(targetState = uiState, label = "AppBackgroundLoadableBox") {
             when (it) {
                 UIState.Loading -> {
                     Box(
@@ -269,7 +270,6 @@ fun Context.TitleBackground(
     isTitleClickable: Boolean = true,
     isDropdownTitle: Boolean = false,
     isBackgroundShowing: Boolean = true,
-    hasSpaceForTitleBar: Boolean = true,
     backgroundColor: Color = Color.Black,
     isDropdown: Boolean = true,
     uiState: UIState = UIState.Success,
@@ -277,12 +277,8 @@ fun Context.TitleBackground(
     ambientAlpha: Float = 0.6f,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val localDensity = LocalDensity.current
     val timeSource = DefaultTimeSource("HH:mm")
     val timeText = timeSource.currentTime
-    var titleBarHeight by remember {
-        mutableStateOf(0.dp)
-    }
     CirclesBackground(
         modifier = modifier,
         uiState = uiState,
@@ -291,26 +287,7 @@ fun Context.TitleBackground(
         themeColor = themeColor,
         ambientAlpha = ambientAlpha
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column {
-                WearBiliAnimatedVisibility(
-                    visible = hasSpaceForTitleBar,
-                    enter = slideInVertically(),
-                    exit = slideOutVertically()
-                ) {
-                    Spacer(modifier = Modifier.height(titleBarHeight.plus(12.dp /*标题栏的vertical padding*/)))
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        //.weight(1f)
-                        .apply {
-                            if (isTitleClipToBounds) clipToBounds()
-                        }
-                ) {
-                    content()
-                }
-            }
+        Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
                     .padding(horizontal = TitleBackgroundHorizontalPadding, vertical = 8.dp)
@@ -319,9 +296,6 @@ fun Context.TitleBackground(
                         if (isTitleClickable) {
                             if (isDropdownTitle) onDropdown() else onBack()
                         }
-                    }
-                    .onSizeChanged {
-                        titleBarHeight = with(localDensity) { it.height.toDp() }
                     },
                 verticalAlignment = if (isRound()) Alignment.CenterVertically else Alignment.Top
             ) {
@@ -347,9 +321,13 @@ fun Context.TitleBackground(
                                     modifier = Modifier.fillMaxSize()
                                 )
                             }),
-                        textAlign = if (isRound()) TextAlign.Center else null
+                        textAlign = if (isRound()) TextAlign.Center else null,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
                     )
-                } else {
+                }
+                else {
                     Text(
                         text = buildAnnotatedString {
                             appendInlineContent(id = "backIcon")
@@ -371,14 +349,26 @@ fun Context.TitleBackground(
                                     modifier = Modifier.fillMaxSize()
                                 )
                             }),
-                        textAlign = if (isRound()) TextAlign.Center else null
+                        textAlign = if (isRound()) TextAlign.Center else null,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f).wrapContentHeight()
                     )
                 }
                 if (!isRound()) {
-                    Spacer(modifier = Modifier.weight(1f))
+                    //Spacer(modifier = Modifier.weight(1f))
                     Text(text = timeText, style = AppTheme.typography.h2)
                 }
-
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    //.weight(1f)
+                    .apply {
+                        if (isTitleClipToBounds) clipToBounds()
+                    }
+            ) {
+                content()
             }
         }
     }

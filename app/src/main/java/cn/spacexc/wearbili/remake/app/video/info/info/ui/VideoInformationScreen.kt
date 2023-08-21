@@ -2,6 +2,8 @@ package cn.spacexc.wearbili.remake.app.video.info.info.ui
 
 import android.content.Context
 import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
@@ -42,6 +44,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import cn.spacexc.bilibilisdk.sdk.video.info.remote.info.app.Data
 import cn.spacexc.bilibilisdk.utils.UserUtils
@@ -51,6 +54,8 @@ import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.PARAM_VIDEO_AID
+import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.VideoFavouriteFoldersActivity
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
@@ -85,25 +90,33 @@ import kotlinx.coroutines.launch
 data class VideoInformationScreenState(
     val uiState: UIState = UIState.Loading,
     val scrollState: ScrollState = ScrollState(0),
-    val videoData: Data? = null,
-    val isLiked: Boolean = false,
-    val isCoined: Boolean = false,
-    val isFav: Boolean = false
+    val videoData: Data? = null
 )
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-@UnstableApi
 fun VideoInformationScreen(
     state: VideoInformationScreenState,
     context: Context,
     videoInformationViewModel: VideoInformationViewModel
 ) {
-    val likeColor by animateColorAsState(targetValue = if (state.isLiked) BilibiliPink else Color.White)
-    val coinColor by animateColorAsState(targetValue = if (state.isCoined) BilibiliPink else Color.White)
-    val favColor by animateColorAsState(targetValue = if (state.isFav) BilibiliPink else Color.White)
+    val likeColor by animateColorAsState(targetValue = if (videoInformationViewModel.isLiked) BilibiliPink else Color.White)
+    val coinColor by animateColorAsState(targetValue = if (videoInformationViewModel.isCoined) BilibiliPink else Color.White)
+    val favColor by animateColorAsState(targetValue = if (videoInformationViewModel.isFav) BilibiliPink else Color.White)
 
     val scope = rememberCoroutineScope()
+
+
+    val favouriteRequestActivityLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = { result ->
+            logd("back from favourite activity!")
+            val isStillFavourite = result.data?.getBooleanExtra("isStillFavourite", true)
+            if(isStillFavourite != null) {
+                videoInformationViewModel.isFav = isStillFavourite
+            }
+        }
+    )
 
     LoadableBox(uiState = state.uiState) {
         Column(
@@ -247,21 +260,21 @@ fun VideoInformationScreen(
                     ) {
                         OutlinedRoundButton(
                             icon = {
-                            Row(
-                                modifier = Modifier.align(Alignment.Center),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.PlayCircle,
-                                    tint = Color.White,
-                                    contentDescription = null
-                                )
-                                Text(
-                                    text = "播放 ",    //这个空格是为了让图标和文字视觉剧中，万万不能删
-                                    style = AppTheme.typography.h3
-                                )
-                            }
-                        },
+                                Row(
+                                    modifier = Modifier.align(Alignment.Center),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.PlayCircle,
+                                        tint = Color.White,
+                                        contentDescription = null
+                                    )
+                                    Text(
+                                        text = "播放 ",    //这个空格是为了让图标和文字视觉剧中，万万不能删
+                                        style = AppTheme.typography.h3
+                                    )
+                                }
+                            },
                             text = "用内置播放器播放",
                             modifier = Modifier.weight(2f),
                             buttonModifier = Modifier.aspectRatio(2f / 1f),
@@ -329,9 +342,15 @@ fun VideoInformationScreen(
                             text = "收藏",
                             modifier = Modifier.weight(1f),
                             buttonModifier = Modifier.aspectRatio(1f),
-
-
-                            )
+                            onClick = {
+                                favouriteRequestActivityLauncher.launch(Intent(
+                                    context,
+                                    VideoFavouriteFoldersActivity::class.java
+                                ).apply {
+                                    putExtra(PARAM_VIDEO_AID, video.aid)
+                                })
+                            }
+                        )
                         OutlinedRoundButton(
                             icon = {
                                 Icon(
@@ -366,9 +385,15 @@ fun VideoInformationScreen(
                             },
                             text = "稍后再看",
                             modifier = Modifier.weight(1f),
-                            buttonModifier = Modifier.aspectRatio(1f)
+                            buttonModifier = Modifier.aspectRatio(1f),
+                            onClick = {
+                                videoInformationViewModel.addToWatchLater(
+                                    videoIdType = VIDEO_TYPE_BVID,
+                                    videoId = video.bvid
+                                )
+                            }
                         )
-                        OutlinedRoundButton(
+                        /*OutlinedRoundButton(
                             icon = {
                                 Icon(
                                     imageVector = Icons.Outlined.FileDownload,
@@ -381,7 +406,8 @@ fun VideoInformationScreen(
                             modifier = Modifier.weight(1f),
                             buttonModifier = Modifier.aspectRatio(1f)
 
-                        )
+                        )*/
+                        Spacer(modifier = Modifier.weight(1f))  //placeholder
                         Spacer(modifier = Modifier.weight(1f))  //placeholder
                     }
                 }

@@ -64,6 +64,7 @@ fun OutlinedRoundButton(
     modifier: Modifier = Modifier,
     buttonModifier: Modifier = Modifier,
     text: String,
+    clickable: Boolean = true,
     onClick: () -> Unit = { },
     icon: @Composable BoxScope.() -> Unit,
 ) {
@@ -78,7 +79,8 @@ fun OutlinedRoundButton(
             innerPaddingValues = PaddingValues(3.dp),
             modifier = buttonModifier/*.fillMaxSize()*/,
             shape = CircleShape,
-            outerPaddingValues = PaddingValues(2.dp)
+            outerPaddingValues = PaddingValues(2.dp),
+            isClickEnabled = clickable
         ) {
             icon()
         }

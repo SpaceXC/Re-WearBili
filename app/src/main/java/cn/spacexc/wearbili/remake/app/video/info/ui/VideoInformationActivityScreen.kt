@@ -14,7 +14,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.media3.common.util.UnstableApi
 import androidx.paging.PagingData
 import androidx.palette.graphics.Palette
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
@@ -42,7 +41,7 @@ data class VideoInformationActivityScreenState @OptIn(ExperimentalFoundationApi:
 )
 
 @OptIn(ExperimentalFoundationApi::class)
-@UnstableApi
+/*@UnstableApi*/
 @Composable
 fun VideoInformationActivityScreen(
     context: Context,
@@ -50,7 +49,7 @@ fun VideoInformationActivityScreen(
     videoInformationScreenState: VideoInformationScreenState,
     videoInformationViewModel: VideoInformationViewModel,
     commentViewModel: CommentViewModel,
-    commentDataFlow: Flow<PagingData<CommentContentData>>,
+    commentDataFlow: Flow<PagingData<CommentContentData>>?,
     relatedVideosViewModel: RelatedVideosViewModel,
     uploaderMid: Long,
     oid: Long,
@@ -61,11 +60,11 @@ fun VideoInformationActivityScreen(
     }
     val color by animateColorAsState(
         targetValue = currentColor,
-        animationSpec = tween(durationMillis = 1000)
+        animationSpec = tween(durationMillis = 1000), label = ""
     )
     val ambientAlpha by animateFloatAsState(
         targetValue = if (currentColor == BilibiliPink) 0.6f else 1f,
-        animationSpec = tween(durationMillis = 1000)
+        animationSpec = tween(durationMillis = 1000), label = ""
     )
     LaunchedEffect(key1 = videoInformationViewModel.imageBitmap, block = {
         videoInformationViewModel.imageBitmap?.let { bitmap ->

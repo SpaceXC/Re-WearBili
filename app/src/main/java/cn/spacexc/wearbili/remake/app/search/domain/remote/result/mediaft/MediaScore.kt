@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class MediaScore(
     @SerializedName("score")
-    val score: Int,
+    val score: Float,
     @SerializedName("user_count")
     val userCount: Int
 )

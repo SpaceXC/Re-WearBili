@@ -31,7 +31,7 @@ import java.util.concurrent.Executor
 
 const val DOWNLOAD_NOTIFICATION_CHANNEL_ID = "WearBiliChannelID"
 
-@UnstableApi
+/*@UnstableApi*/
 class ExoPlayerUtils(context: Context) {
 
     private var downloadManager: DownloadManager

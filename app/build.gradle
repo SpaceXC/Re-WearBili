@@ -14,8 +14,8 @@ android {
         applicationId "cn.spacexc.wearbili.remake"
         minSdk 21
         targetSdk 34
-        versionCode 10
-        versionName "UI Refactor 0.3.3"
+        versionCode 13
+        versionName "HatsuDesuYo 0.5.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -41,7 +41,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.3'
+        kotlinCompilerExtensionVersion '1.5.0-dev-k1.9.0-6a60475e07f'
     }
     packagingOptions {
         resources {
@@ -49,7 +49,7 @@ android {
         }
         excludes += 'META-INF/beans.xml'
     }
-    android.applicationVariants.all {
+    android.applicationVariants.configureEach {
         variant ->
             variant.outputs.all {
                 outputFileName = "Re-WearBili - ${variant.versionName} Rel.${variant.versionCode}.apk"
@@ -74,7 +74,8 @@ dependencies {
     implementation "androidx.compose.material3:material3:1.1.1"
     implementation "androidx.compose.material3:material3-window-size-class:1.1.1"
     implementation 'androidx.compose.runtime:runtime-livedata:1.4.3'
-    implementation 'androidx.palette:palette:1.0.0'
+    implementation 'androidx.palette:palette-ktx:1.0.0'
+    implementation "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.7.0"
     implementation project(path: ':app:common')
     implementation project(path: ':Bilibili-Kotlin-SDK')
     implementation 'androidx.core:core-ktx:1.10.1'
@@ -99,7 +100,7 @@ dependencies {
     def gson_version = "2.10.1"
     implementation "com.google.code.gson:gson:$gson_version"
 
-    def hilt_version = "2.46"
+    def hilt_version = "2.47"
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
     implementation "com.google.dagger:hilt-android:$hilt_version"
@@ -113,7 +114,7 @@ dependencies {
     implementation "com.google.accompanist:accompanist-placeholder-material:$accompanist_version"
 
     def paging_version = "3.1.1"
-    implementation "androidx.paging:paging-runtime:$paging_version"
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
     //noinspection GradleDependency
     implementation "androidx.paging:paging-compose:1.0.0-alpha18"
 
@@ -164,6 +165,4 @@ dependencies {
     api 'javax.servlet:javax.servlet-api:3.1.0'
     api 'org.nanohttpd:nanohttpd:2.3.1'
     api 'com.github.devin1014.DLNA-Cast:dlna-dmc:V1.0.0'
-
-
 }

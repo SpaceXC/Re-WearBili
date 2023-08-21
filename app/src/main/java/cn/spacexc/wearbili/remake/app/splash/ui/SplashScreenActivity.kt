@@ -6,6 +6,15 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.util.UnstableApi
 import cn.spacexc.bilibilisdk.sdk.user.webi.WebiSignature
@@ -16,6 +25,7 @@ import cn.spacexc.wearbili.remake.app.login.ui.LoginActivity
 import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
 import cn.spacexc.wearbili.remake.app.update.ui.UpdateActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
+import cn.spacexc.wearbili.remake.common.ui.Checkbox
 import dagger.hilt.android.AndroidEntryPoint
 import io.ktor.client.request.header
 import kotlinx.coroutines.launch
@@ -33,7 +43,7 @@ import javax.inject.Inject
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
-@UnstableApi
+/*@UnstableApi*/
 class SplashScreenActivity : ComponentActivity() {
     @Inject
     lateinit var networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
@@ -43,31 +53,27 @@ class SplashScreenActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        /*startActivity(Intent(this@SplashScreenActivity, MainActivity::class.java))
-        finish()
-        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)*/
-        /*Intent(this, DlnaDeviceDiscoverActivity::class.java).apply {
-            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-            putExtra(PARAM_VIDEO_ID, "BV1tQ4y1R7MR")
-            putExtra(PARAM_VIDEO_CID, 341732612L)
-            startActivity(this)
-        }
-        finish()
-        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)*/
-        /*startActivity(Intent(this@SplashScreenActivity, BangumiActivity::class.java).apply {
-            putExtra(
-                PARAM_BANGUMI_ID, 35220L
-            )
-            putExtra(
-                PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_SSID
-            )
-        })
-        finish()
-        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)*/
-        val currentTime = System.currentTimeMillis()    //后面leancloud签名用到，别删
         setContent {
             SplashScreen()
+            //UIPreview()
         }
+        initApp()
+    }
+
+    @Composable
+    fun UIPreview() {
+        var isChecked by remember {
+            mutableStateOf(false)
+        }
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Checkbox(isChecked = isChecked) {
+                isChecked = it
+            }
+        }
+    }
+
+    private fun initApp() {
+        val currentTime = System.currentTimeMillis()    //后面leancloud签名用到，别删
         lifecycleScope.launch {
             //VideoInfo.getVideoInfoApp(VIDEO_TYPE_AID, "954781099").logd()
             println(VideoInfo.getVideoPlayUrlForTv(1158277626))
@@ -101,7 +107,7 @@ class SplashScreenActivity : ComponentActivity() {
             }
             if (userManager.isUserLoggedIn()) {
                 val response = userManager.mid()?.let { uid ->
-                    networkUtils.get<LeanCloudUserSearch>("https://mae7lops.lc-cn-n1-shared.com/1.1/classes/ActivatedUIDs?where={\"uid\":\"$uid\"}") {
+                    networkUtils.get<LeanCloudUserSearch>("https://mae7lops.lc-cn-n1-shared.com/1.1/classes/ReActivatedUIDs?where={\"uid\":\"$uid\"}") {
                         header("X-LC-Id", cn.spacexc.wearbili.common.LEANCLOUD_APP_ID)
                         header(
                             "X-LC-Sign",
@@ -115,7 +121,7 @@ class SplashScreenActivity : ComponentActivity() {
                         finish()
                         overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
                     } else {
-                        ToastUtils.showText("现暂未开放内测申请, 请耐心等待正式版")
+                        ToastUtils.showText("这里是内测版吖！然鹅你好像还木有内测资格捏...")
                         userManager.logout()
                         startActivity(Intent(this@SplashScreenActivity, LoginActivity::class.java))
                         finish()
@@ -123,6 +129,7 @@ class SplashScreenActivity : ComponentActivity() {
                     }
                     return@launch
                 }
+                ToastUtils.showText("刚刚的内测检查失败噜！可以重新登陆再来一次嘛？（如果你已经登录了账号，也可以直接重启应用的说！）")
                 startActivity(Intent(this@SplashScreenActivity, LoginActivity::class.java))
                 finish()
                 overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)

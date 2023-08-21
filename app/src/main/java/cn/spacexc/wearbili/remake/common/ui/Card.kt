@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.common.ui
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -9,11 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -23,6 +27,10 @@ import androidx.compose.ui.unit.dp
  * 给！爷！写！注！释！
  * 给！爷！写！注！释！
  */
+
+val CardBorderColor = Color(54, 54, 54, 255)
+val CardBorderWidth = 0.4f.dp
+val CardBackgroundColor = Color(38, 38, 38, 77)
 
 @Composable
 fun Card(
@@ -64,7 +72,10 @@ fun Card(
     isClickEnabled: Boolean = true,
     shape: Shape = RoundedCornerShape(10.dp),
     onClick: (() -> Unit)? = null,
-    borderColor: Color = Color(54, 54, 54, 255),
+    isGradient: Boolean = true,
+    borderColor: Color = CardBorderColor,
+    borderWidth: Dp = CardBorderWidth,
+    backgroundColor: Color = CardBackgroundColor,
     innerPaddingValues: PaddingValues = PaddingValues(
         start = 8.dp,
         end = 8.dp,
@@ -74,6 +85,9 @@ fun Card(
     outerPaddingValues: PaddingValues = PaddingValues(vertical = 4.dp),
     content: @Composable BoxScope.() -> Unit,
 ) {
+    val secondColor by animateColorAsState(targetValue = if (isGradient) Color.Transparent else borderColor,
+        label = "wearbiliCardSecondColor"
+    )
     Box(
         modifier = modifier
             .padding(outerPaddingValues)
@@ -82,16 +96,16 @@ fun Card(
             }
             .clip(shape)
             .border(
-                width = 0.4f.dp,
+                width = borderWidth,
                 shape = shape,
                 brush = Brush.linearGradient(
                     listOf(
                         borderColor,
-                        Color.Transparent
+                        secondColor
                     )
                 )
             )
-            .background(color = Color(38, 38, 38, 77))
+            .background(color = backgroundColor)
             .padding(innerPaddingValues)
             .fillMaxWidth(),
     ) {

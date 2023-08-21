@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
@@ -52,125 +53,148 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun CommentScreen(
     viewModel: CommentViewModel,
-    commentDataFlow: Flow<PagingData<CommentContentData>>,
+    commentDataFlow: Flow<PagingData<CommentContentData>>?,
     oid: Long,
     uploaderMid: Long,
     context: Context
 ) {
-    val commentsData = commentDataFlow.collectAsLazyPagingItems()
-    LoadableBox(
-        uiState = when (commentsData.loadState.refresh) {
-            is LoadState.Error -> UIState.Failed
-            is LoadState.Loading -> UIState.Loading
-            else -> UIState.Success
-        },
-        modifier = Modifier.fillMaxSize()
-    ) {
-        if (commentsData.itemCount == 0) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth(0.8f)
+    if(commentDataFlow != null) {
+        val commentsData = commentDataFlow.collectAsLazyPagingItems()
+        LoadableBox(
+            uiState = when (commentsData.loadState.refresh) {
+                is LoadState.Error -> UIState.Failed
+                is LoadState.Loading -> UIState.Loading
+                else -> UIState.Success
+            },
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (commentsData.itemCount == 0) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.img_empty_box),
-                        contentDescription = "Empty...",
-                        modifier = Modifier.fillMaxWidth()
-                        //.fillMaxWidth(0.3f)
-                        //.aspectRatio(1f)
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(text = "什么都没有啊")
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.img_empty_box),
+                            contentDescription = "Empty...",
+                            modifier = Modifier.fillMaxWidth()
+                            //.fillMaxWidth(0.3f)
+                            //.aspectRatio(1f)
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(text = "什么都没有啊")
+                    }
                 }
-            }
-        } else {
-            val pullToRefreshState = rememberPullRefreshState(
-                refreshing = commentsData.loadState.refresh is LoadState.Loading,
-                onRefresh = commentsData::refresh,
-                refreshThreshold = 60.dp
-            )
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .pullRefresh(state = pullToRefreshState)) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .border(
-                            width = (0.1).dp,
-                            color = Color(112, 112, 112, 112),
-                            shape = RoundedCornerShape(
-                                topStart = 8.dp, topEnd = 8.dp
+            } else {
+                val pullToRefreshState = rememberPullRefreshState(
+                    refreshing = commentsData.loadState.refresh is LoadState.Loading,
+                    onRefresh = commentsData::refresh,
+                    refreshThreshold = 60.dp
+                )
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .pullRefresh(state = pullToRefreshState)) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .border(
+                                width = (0.1).dp,
+                                color = Color(112, 112, 112, 112),
+                                shape = RoundedCornerShape(
+                                    topStart = 8.dp, topEnd = 8.dp
+                                )
                             )
-                        )
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 8.dp, topEnd = 8.dp
+                            .clip(
+                                RoundedCornerShape(
+                                    topStart = 8.dp, topEnd = 8.dp
+                                )
                             )
-                        )
-                        .background(Color(36, 36, 36, 199)),
-                    contentPadding = PaddingValues(4.dp),
-                    state = viewModel.scrollState
-                ) {
-                    items(commentsData) {
-                        it?.let { comment ->
-                            Spacer(modifier = Modifier.height(12.dp))
-                            CommentCard(
-                                senderName = comment.member?.uname ?: "",
-                                senderAvatar = comment.member?.avatar ?: "",
-                                senderNameColor = comment.member?.vip?.nickname_color.ifNullOrEmpty { "#FFFFFF" },
-                                senderPendant = comment.member?.pendant?.image_enhance
-                                    ?: "",
-                                senderOfficialVerify = comment.member?.official_verify?.type
-                                    ?: -1,
-                                senderMid = comment.member?.mid ?: 0,
-                                senderIpLocation = comment.reply_control?.location
-                                    ?: "",
-                                sendTimeStamp = comment.ctime.times(1000),
-                                commentContent = comment.content?.message ?: "",
-                                commentLikeCount = comment.like,
-                                commentRepliesCount = comment.rcount,
-                                commentReplies = comment.replies ?: emptyList(),
-                                commentEmoteMap = comment.content?.emote
-                                    ?: emptyMap(),
-                                commentJumpUrlMap = comment.content?.jump_url
-                                    ?: emptyMap(),
-                                commentAttentionedUsersMap = comment.content?.at_name_to_mid
-                                    ?: emptyMap(),
-                                commentReplyControl = comment.reply_control?.sub_reply_entry_text
-                                    ?: "",
-                                commentImagesList = comment.content?.pictures,
-                                commentRpid = comment.rpid,
-                                uploaderMid = uploaderMid,
-                                isTopComment = comment.is_top,
-                                isUpLiked = comment.up_action.like,
-                                context = context,
-                                isClickable = true,
-                                oid = oid,
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Divider(
-                                modifier = Modifier.padding(horizontal = 2.dp),
-                                color = Color(61, 61, 61, 255)
+                            .background(Color(36, 36, 36, 199)),
+                        contentPadding = PaddingValues(4.dp),
+                        state = viewModel.getScrollState(oid.toString()) ?: rememberLazyListState()
+                    ) {
+                        items(commentsData) {
+                            it?.let { comment ->
+                                Spacer(modifier = Modifier.height(12.dp))
+                                CommentCard(
+                                    senderName = comment.member?.uname ?: "",
+                                    senderAvatar = comment.member?.avatar ?: "",
+                                    senderNameColor = comment.member?.vip?.nickname_color.ifNullOrEmpty { "#FFFFFF" },
+                                    senderPendant = comment.member?.pendant?.image_enhance
+                                        ?: "",
+                                    senderOfficialVerify = comment.member?.official_verify?.type
+                                        ?: -1,
+                                    senderMid = comment.member?.mid ?: 0,
+                                    senderIpLocation = comment.reply_control?.location
+                                        ?: "",
+                                    sendTimeStamp = comment.ctime.times(1000),
+                                    commentContent = comment.content?.message ?: "",
+                                    commentLikeCount = comment.like,
+                                    commentRepliesCount = comment.rcount,
+                                    commentReplies = comment.replies ?: emptyList(),
+                                    commentEmoteMap = comment.content?.emote
+                                        ?: emptyMap(),
+                                    commentJumpUrlMap = comment.content?.jump_url
+                                        ?: emptyMap(),
+                                    commentAttentionedUsersMap = comment.content?.at_name_to_mid
+                                        ?: emptyMap(),
+                                    commentReplyControl = comment.reply_control?.sub_reply_entry_text
+                                        ?: "",
+                                    commentImagesList = comment.content?.pictures,
+                                    commentRpid = comment.rpid,
+                                    uploaderMid = uploaderMid,
+                                    isTopComment = comment.is_top,
+                                    isUpLiked = comment.up_action.like,
+                                    context = context,
+                                    isClickable = true,
+                                    oid = oid,
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Divider(
+                                    modifier = Modifier.padding(horizontal = 2.dp),
+                                    color = Color(61, 61, 61, 255)
+                                )
+                            }
+                        }
+                        item {
+                            LoadingTip(
+                                loadingState = commentsData.loadState.append.toLoadingState(),
+                                onRetry = commentsData::retry
                             )
                         }
                     }
-                    item {
-                        LoadingTip(
-                            loadingState = commentsData.loadState.append.toLoadingState(),
-                            onRetry = commentsData::retry
+                    PullRefreshIndicator(
+                        refreshing = commentsData.loadState.refresh is LoadState.Loading,
+                        state = pullToRefreshState,
+                        modifier = Modifier.align(
+                            Alignment.TopCenter
                         )
-                    }
-                }
-                PullRefreshIndicator(
-                    refreshing = commentsData.loadState.refresh is LoadState.Loading,
-                    state = pullToRefreshState,
-                    modifier = Modifier.align(
-                        Alignment.TopCenter
                     )
+                }
+            }
+        }
+    }
+    else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth(0.8f)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.img_empty_box),
+                    contentDescription = "Empty...",
+                    modifier = Modifier.fillMaxWidth()
+                    //.fillMaxWidth(0.3f)
+                    //.aspectRatio(1f)
                 )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(text = "选择一集才能康评论啊啊啊啊")
             }
         }
     }

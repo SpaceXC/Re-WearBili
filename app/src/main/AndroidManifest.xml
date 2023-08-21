@@ -32,6 +32,7 @@
             </intent-filter>
         </activity>
         <service android:name="com.android.cast.dlna.dmc.DLNACastService" />
+
         <activity
             android:name=".app.login.ui.LoginActivity"
             android:exported="false" />
@@ -63,7 +64,7 @@
             android:name=".app.main.profile.detail.watchlater.ui.WatchLaterActivity"
             android:exported="false" />
         <activity
-            android:name=".app.main.profile.detail.favorite.ui.FavoriteFolderActivity"
+            android:name=".app.main.profile.detail.favorite.folders.ui.FavoriteFolderActivity"
             android:exported="false" />
         <activity
             android:name=".app.videoplayer.defaultplayer.Media3PlayerActivity"
@@ -88,7 +89,22 @@
             android:name=".app.videoplayer.mirroring.ScreenMirrorActivity"
             android:exported="false" />
         <activity
-            android:name=".app.bangumi.ui.BangumiActivity"
+            android:name=".app.bangumi.info.ui.BangumiActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.settings.ui.SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.bangumi.index.ui.BangumiIndexActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.bangumi.timeline.ui.BangumiTimelineActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.video.action.favourite.ui.VideoFavouriteFoldersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.main.profile.detail.favorite.detail.ui.FavouriteFolderDetailActivity"
             android:exported="false" />
     </application>
 

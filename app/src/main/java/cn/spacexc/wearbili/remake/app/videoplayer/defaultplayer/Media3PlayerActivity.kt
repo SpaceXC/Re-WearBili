@@ -24,7 +24,7 @@ const val VIDEO_TYPE_AID = "aid"
 const val VIDEO_TYPE_BVID = "bvid"
 const val PARAM_IS_BANGUMI = "isBangumi"
 
-@UnstableApi
+/*@UnstableApi*/
 class Media3PlayerActivity : ComponentActivity() {
     private val viewModel by viewModels<Media3PlayerViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {

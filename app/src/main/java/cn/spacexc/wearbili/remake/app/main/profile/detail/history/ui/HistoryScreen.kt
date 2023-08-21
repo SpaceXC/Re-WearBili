@@ -62,32 +62,40 @@ fun Context.HistoryScreen(
             ) {
                 items(lazyListItems) {
                     it?.let { item ->
-                        VideoCard(
-                            videoName = buildString {
-                                if (item.show_title.isNotEmpty()) {
-                                    append(item.show_title)
-                                    append(" - ")
-                                }
-                                append(item.title)
-                            },
-                            uploader = it.author_name,
-                            badge = item.badge,
-                            views = buildString {
-                                if (item.progress != -1) {
-                                    append("看到")
-                                    append(item.progress.secondToTime())
-                                    if (it.new_desc.isNotEmpty()) {
-                                        append(" | ")
-                                        append(it.new_desc)
-                                    }
-                                } else {
-                                    append("已看完")
-                                }
-                            },
-                            coverUrl = item.cover,
-                            videoId = it.history.bvid,
-                            videoIdType = VIDEO_TYPE_BVID,
-                        )
+                        when(item.history.business) {
+                            "archive" -> {
+                                VideoCard(
+                                    videoName = buildString {
+                                        if (item.show_title.isNotEmpty()) {
+                                            append(item.show_title)
+                                            append(" - ")
+                                        }
+                                        append(item.title)
+                                    },
+                                    uploader = it.author_name,
+                                    badge = item.badge,
+                                    views = buildString {
+                                        if (item.progress != -1) {
+                                            append("看到")
+                                            append(item.progress.secondToTime())
+                                            if (it.new_desc.isNotEmpty()) {
+                                                append(" | ")
+                                                append(it.new_desc)
+                                            }
+                                        } else {
+                                            append("已看完")
+                                        }
+                                    },
+                                    coverUrl = item.cover,
+                                    videoId = it.history.bvid,
+                                    videoIdType = VIDEO_TYPE_BVID,
+                                )
+                            }
+                            "pgc" -> {
+
+                            }
+                        }
+
                     }
                 }
             }

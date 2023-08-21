@@ -56,9 +56,11 @@ import androidx.compose.ui.unit.dp
 import cn.spacexc.bilibilisdk.sdk.user.profile.remote.info.Data
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.folders.ui.FavoriteFolderActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.following.ui.FollowingUsersActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.history.ui.HistoryActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.watchlater.ui.WatchLaterActivity
+import cn.spacexc.wearbili.remake.app.settings.ui.SettingsActivity
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
@@ -358,7 +360,15 @@ fun ProfileScreen(
                                 },
                                 text = "个人收藏",
                                 modifier = Modifier.weight(1f),
-                                buttonModifier = Modifier.aspectRatio(1f)
+                                buttonModifier = Modifier.aspectRatio(1f),
+                                onClick = {
+                                    context.startActivity(
+                                        Intent(
+                                            context,
+                                            FavoriteFolderActivity::class.java
+                                        )
+                                    )
+                                }
                             )
                         }
                         Row(
@@ -397,7 +407,10 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth(),
                         outerPaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         innerPaddingValues = PaddingValues(12.dp),
-                        shape = RoundedCornerShape(40)
+                        shape = RoundedCornerShape(40),
+                        onClick = {
+                            context.startActivity(Intent(context, SettingsActivity::class.java))
+                        }
                     ) {
                         IconText(
                             text = "设置",

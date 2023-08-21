@@ -1,7 +1,10 @@
 package cn.spacexc.wearbili.remake.app.video.info.info.ui
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +14,11 @@ import cn.spacexc.bilibilisdk.sdk.video.action.VideoAction
 import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_EPID
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiActivity
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID_TYPE
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,11 +50,17 @@ class VideoInformationViewModel @Inject constructor(
         VideoInformationScreenState()
     )
 
+    //TODO 把点赞 收藏 投币 三种状态从state里面分离出来
+    var isLiked by mutableStateOf(false)
+    var isFav by mutableStateOf(false)
+    var isCoined by mutableStateOf(false)
+
     var imageBitmap: Bitmap? by mutableStateOf(null)
 
     fun getVideoInfo(
         videoIdType: String,
-        videoId: String?
+        videoId: String?,
+        activity: Activity
     ) {
         viewModelScope.launch {
             if (videoId.isNullOrEmpty()) {
@@ -59,7 +73,25 @@ class VideoInformationViewModel @Inject constructor(
                 state = state.copy(uiState = UIState.Failed)
                 return@launch
             }
-            state = state.copy(uiState = UIState.Success, videoData = response.data?.data)
+            response.data?.data?.season?.let { season ->
+                val uri = Uri.parse(season.ogv_play_url)
+                val epid = uri.path?.replace("/bangumi/play/", "")
+                if (epid?.startsWith("ep") == true) {
+                    val epidLong = epid.replace("ep", "").toLong()
+                    activity.startActivity(Intent(activity, BangumiActivity::class.java).apply {
+                        putExtra(PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_EPID)
+                        putExtra(PARAM_BANGUMI_ID, epidLong)
+                    })
+                    activity.finish()
+                } else {
+                    val ssid = season.season_id.toLong()
+                    activity.startActivity(Intent(activity, BangumiActivity::class.java).apply {
+                        putExtra(PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_SSID)
+                        putExtra(PARAM_BANGUMI_ID, ssid)
+                    })
+                    activity.finish()
+                }
+            }
             listOf(
                 viewModelScope.async {
                     getVideoSanLianState(videoIdType, videoId)
@@ -68,10 +100,11 @@ class VideoInformationViewModel @Inject constructor(
                     getImageBitmap(response.data?.data?.pic?.replace("http://", "https://") ?: "")
                 }
             ).awaitAll()
+            state = state.copy(uiState = UIState.Success, videoData = response.data?.data)
         }
     }
 
-    suspend fun getVideoSanLianState(
+    private suspend fun getVideoSanLianState(
         videoIdType: String,
         videoId: String?
     ) {    //三连有英文吗？
@@ -84,7 +117,6 @@ class VideoInformationViewModel @Inject constructor(
             },
             viewModelScope.async {
                 isFav(videoId)
-
             }
         )
         tasks.awaitAll()
@@ -94,11 +126,9 @@ class VideoInformationViewModel @Inject constructor(
         videoIdType: String,
         videoId: String?
     ) {
-        state = state.copy(
-            isLiked = VideoInfo.isLiked(
-                videoIdType,
-                videoId
-            )
+        isLiked = VideoInfo.isLiked(
+            videoIdType,
+            videoId
         )
     }
 
@@ -106,35 +136,33 @@ class VideoInformationViewModel @Inject constructor(
         videoIdType: String,
         videoId: String?
     ) {
-        state = state.copy(
-            isCoined = VideoInfo.isCoined(
-                videoIdType,
-                videoId
-            )
+        isCoined = VideoInfo.isCoined(
+            videoIdType,
+            videoId
         )
     }
 
+    /**
+     * info screen fav checking required
+     */
     private suspend fun isFav(
         videoId: String?
     ) {
-        state = state.copy(
-            isFav = VideoInfo.isFav(videoId)
-        )
+        isFav = VideoInfo.isFav(videoId)
+
     }
 
     fun likeVideo(
         videoIdType: String,
         videoId: String?
     ) {
-        state = state.copy(
-            isLiked = !state.isLiked
-        )
+        isLiked = !isLiked
+
         viewModelScope.launch {
-            val response = VideoAction.likeVideo(videoIdType, videoId, !state.isLiked)
+            val response = VideoAction.likeVideo(videoIdType, videoId, !isLiked)
             if (response.code != 0) {
-                state = state.copy(
-                    isLiked = !state.isLiked
-                )
+                isLiked = !isLiked
+
                 ToastUtils.showText("${response.code}: ${response.message}")
             }
             isLiked(videoIdType, videoId)

@@ -140,7 +140,7 @@ fun Modifier.clickAlpha(
             val isPressed by interactionSource.collectIsPressedAsState()
             val sizePercent by animateFloatAsState(
                 targetValue = if (isPressed) 0.8f else 1f,
-                animationSpec = tween(durationMillis = 150)
+                animationSpec = tween(durationMillis = 150), label = ""
             )
             scale(sizePercent).pointerInput(Unit) {
                 detectTapGestures(

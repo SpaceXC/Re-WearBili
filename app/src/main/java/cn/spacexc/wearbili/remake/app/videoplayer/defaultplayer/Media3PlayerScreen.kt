@@ -132,7 +132,7 @@ sealed class VideoPlayerPages(val weight: Int) {
 }
 
 
-@UnstableApi
+/*@UnstableApi*/
 @Composable
 @OptIn(
     ExperimentalAnimationApi::class,

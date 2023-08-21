@@ -17,6 +17,9 @@ dependencyResolutionManagement {
             url 'http://4thline.org/m2'
             allowInsecureProtocol = true
         }
+        maven {
+            url "https://androidx.dev/storage/compose-compiler/repository/"
+        }
     }
 }
 rootProject.name = "WearBili"

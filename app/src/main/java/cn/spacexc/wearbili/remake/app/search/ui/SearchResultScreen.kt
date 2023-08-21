@@ -13,16 +13,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.util.UnstableApi
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
 import cn.spacexc.wearbili.remake.app.search.domain.paging.SearchObject
+import cn.spacexc.wearbili.remake.app.search.domain.remote.result.mediaft.SearchedMediaFt
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.user.SearchedUser
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.video.SearchedVideo
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.UIState
+import cn.spacexc.wearbili.remake.common.ui.LargeBangumiCard
 import cn.spacexc.wearbili.remake.common.ui.LargeUserCard
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
@@ -39,6 +43,7 @@ import kotlinx.coroutines.flow.Flow
  * 给！爷！写！注！释！
  */
 
+/*@UnstableApi*/
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Context.SearchResultScreen(
@@ -91,6 +96,23 @@ fun Context.SearchResultScreen(
                                     mid = user.mid,
                                     officialVerify = user.officialVerify.type.toOfficialVerify(),
                                     userInfo = (if (user.officialVerify.desc.isEmpty()) "" else user.officialVerify.desc + "\n") + user.usign
+                                )
+                            }
+
+                            is SearchedMediaFt -> {
+                                val media = searchObject.item
+                                LargeBangumiCard(
+                                    title = media.title.replace("<em class=\"keyword\">", "")
+                                        .replace("</em>", ""),
+                                    cover = media.cover,
+                                    score = media.mediaScore.score,
+                                    areas = listOf(media.areas),
+                                    updateInformation = media.indexShow,
+                                    badge = media.badges.map { badge -> badge.text },
+                                    badgeColor = media.badges.map { badge -> badge.bgColor },
+                                    bangumiId = media.seasonid,
+                                    bangumiIdType = BANGUMI_ID_TYPE_SSID,
+                                    context = this@SearchResultScreen
                                 )
                             }
                         }

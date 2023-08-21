@@ -25,9 +25,10 @@ import javax.inject.Inject
 class CommentViewModel @Inject constructor(
     private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils,
 ) : ViewModel() {
-    val scrollState = LazyListState(0)
     private val commentPagingSources = HashMap<String, Pager<Int, CommentContentData>>()
-    fun commentListFlow(oid: String): Flow<PagingData<CommentContentData>> {
+    private val commentLazyColumnScrollState = HashMap<String, LazyListState>()
+    fun commentListFlow(oid: String?): Flow<PagingData<CommentContentData>>? {
+        if(oid == null) return null
         if (commentPagingSources[oid] != null) commentPagingSources[oid]
         else
             commentPagingSources[oid] = Pager(config = PagingConfig(pageSize = 1)) {
@@ -37,6 +38,14 @@ class CommentViewModel @Inject constructor(
                 )
             }
 
-        return commentPagingSources[oid]!!.flow.cachedIn(viewModelScope)
+        return commentPagingSources[oid]?.flow?.cachedIn(viewModelScope)
+    }
+
+    fun getScrollState(oid: String?): LazyListState? {
+        if (oid == null) return null
+        if(commentLazyColumnScrollState[oid] == null) {
+            commentLazyColumnScrollState[oid] = LazyListState()
+        }
+        return commentLazyColumnScrollState[oid]
     }
 }
