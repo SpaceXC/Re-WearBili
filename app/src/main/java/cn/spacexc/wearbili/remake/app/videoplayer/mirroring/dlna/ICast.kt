@@ -1,22 +1,28 @@
-package com.android.cast.dlna.core //别把这个改过来！（为了骗过kotlin的嘻嘻
+/*
+package cn.spacexc.wearbili.remake.app.videoplayer.mirroring.dlna
 
-interface ICast {
-    val id: String
-    val uri: String
-    val name: String
+import com.android.cast.dlna.core.ICast
 
-    interface ICastVideo : ICast {
-        val durationMillSeconds: Long // video duration, ms
-        val size: Long
-        val bitrate: Long
+//别把这个改过来！（为了骗过kotlin的嘻嘻
+
+interface MyICast : ICast {
+    var mId: String
+    var mUri: String
+    var mName: String
+
+    interface MyICastVideo : MyICast {
+        var durationMillSeconds: Long // video duration, ms
+        var size: Long
+        var bitrate: Long
     }
 
-    interface ICastAudio : ICast {
-        val durationMillSeconds: Long // audio duration, ms
-        val size: Long
+    interface MyICastAudio : MyICast {
+        var durationMillSeconds: Long // audio duration, ms
+        var size: Long
     }
 
-    interface ICastImage : ICast {
-        val size: Long
+    interface MyICastImage : MyICast {
+        var size: Long
     }
 }
+*/

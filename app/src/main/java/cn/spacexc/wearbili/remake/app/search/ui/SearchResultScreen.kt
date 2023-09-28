@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.UnstableApi
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -108,8 +107,8 @@ fun Context.SearchResultScreen(
                                     score = media.mediaScore.score,
                                     areas = listOf(media.areas),
                                     updateInformation = media.indexShow,
-                                    badge = media.badges.map { badge -> badge.text },
-                                    badgeColor = media.badges.map { badge -> badge.bgColor },
+                                    badge = media.badges?.map { badge -> badge.text },
+                                    badgeColor = media.badges?.map { badge -> badge.bgColor },
                                     bangumiId = media.seasonid,
                                     bangumiIdType = BANGUMI_ID_TYPE_SSID,
                                     context = this@SearchResultScreen

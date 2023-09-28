@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app
 
-//import cn.spacexc.wearbili.videoplayer.VideoPlayerManager
-
 import android.os.Build
 import android.util.Log
 import cn.spacexc.bilibilisdk.BilibiliSdkManager
@@ -9,12 +7,16 @@ import cn.spacexc.bilibilisdk.data.DataManager
 import cn.spacexc.wearbili.common.APP_CENTER_SECRET
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.common.domain.log.logd
+import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.crash.ui.CrashActivity
+import cn.spacexc.wearbili.remake.common.AriaDownloadProgressSyncer
+import com.arialyy.aria.core.Aria
 import com.developer.crashx.config.CrashConfig
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.android.HiltAndroidApp
+import java.io.File
 import javax.inject.Inject
 
 
@@ -35,12 +37,21 @@ class Application : android.app.Application() {
     @Inject
     lateinit var dataManager: DataManager   //TODO 别在application下放这种对象啊喂！（虽然是迫不得已的啦，不过还是找个时间研究一下拿走罢（20230711
 
+    @Inject
+    lateinit var repository: VideoCacheRepository
+
+    private lateinit var ariaDownloadSyncer: AriaDownloadProgressSyncer
+
     override fun onCreate() {
         super.onCreate()
         AppCenter.start(
             this, APP_CENTER_SECRET,
             Analytics::class.java, Crashes::class.java
         )
+        val cachePath = File(filesDir, "/videoCaches/")
+        cachePath.mkdir()
+        Aria.init(this)
+        ariaDownloadSyncer = AriaDownloadProgressSyncer(repository)
         val dataStore = DataStoreManager(this)
         BilibiliSdkManager.initSdk(
             dataManager = dataStore
@@ -54,6 +65,11 @@ class Application : android.app.Application() {
             TAG,
             "20230708: 记住，在这里每一处不合理的地方，都有他的合理之处和存在于此的理由 ————XC于00:17有感而发"
         )
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        ariaDownloadSyncer.onDestroy()
     }
 
     init {

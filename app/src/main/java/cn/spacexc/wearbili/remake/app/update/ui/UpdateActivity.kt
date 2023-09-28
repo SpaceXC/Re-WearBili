@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
 
 /**
@@ -15,6 +16,7 @@ import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
  */
 
 class UpdateActivity : ComponentActivity() {
+    val viewModel by viewModels<UpdateViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val versionInfo = if (Build.VERSION.SDK_INT >= 33) intent.getParcelableExtra(
@@ -22,7 +24,7 @@ class UpdateActivity : ComponentActivity() {
             SplashScreenActivity.AppUpdatesResult::class.java
         ) else intent.getParcelableExtra("updateInfo")
         setContent {
-            UpdateActivityScreen(versionInfo = versionInfo)
+            UpdateActivityScreen(versionInfo = versionInfo, viewModel = viewModel)
         }
     }
 }

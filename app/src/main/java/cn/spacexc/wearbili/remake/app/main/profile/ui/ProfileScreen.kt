@@ -34,6 +34,7 @@ import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -56,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import cn.spacexc.bilibilisdk.sdk.user.profile.remote.info.Data
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.cache.list.CacheListActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.folders.ui.FavoriteFolderActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.following.ui.FollowingUsersActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.history.ui.HistoryActivity
@@ -67,6 +70,7 @@ import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.UserAvatar
+import cn.spacexc.wearbili.remake.common.ui.rotateInput
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
@@ -90,6 +94,9 @@ fun ProfileScreen(
     state: ProfileScreenState,
     context: Context,
 ) {
+    val focusRequester = remember {
+        FocusRequester()
+    }
     val localDensity = LocalDensity.current
     var avatarHeight by remember {
         mutableStateOf(0.dp)
@@ -124,7 +131,8 @@ fun ProfileScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(state.scrollState),
+                        .verticalScroll(state.scrollState)
+                        .rotateInput(focusRequester, state.scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -399,7 +407,15 @@ fun ProfileScreen(
                                 },
                                 text = "离线缓存",
                                 modifier = Modifier.weight(1f),
-                                buttonModifier = Modifier.aspectRatio(1f)
+                                buttonModifier = Modifier.aspectRatio(1f),
+                                onClick = {
+                                    context.startActivity(
+                                        Intent(
+                                            context,
+                                            CacheListActivity::class.java
+                                        )
+                                    )
+                                }
                             )
                         }
                     }
@@ -428,6 +444,9 @@ fun ProfileScreen(
                         }
                     }
                 }
+                LaunchedEffect(key1 = Unit, block = {
+                    focusRequester.requestFocus()
+                })
             }
         }
     }

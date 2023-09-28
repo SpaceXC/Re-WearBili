@@ -102,7 +102,7 @@ fun CommentScreen(
                             .fillMaxSize()
                             .border(
                                 width = (0.1).dp,
-                                color = Color(112, 112, 112, 112),
+                                color = Color(54, 54, 54, 255),
                                 shape = RoundedCornerShape(
                                     topStart = 8.dp, topEnd = 8.dp
                                 )
@@ -112,7 +112,7 @@ fun CommentScreen(
                                     topStart = 8.dp, topEnd = 8.dp
                                 )
                             )
-                            .background(Color(36, 36, 36, 199)),
+                            .background(Color(38, 38, 38, 77)),
                         contentPadding = PaddingValues(4.dp),
                         state = viewModel.getScrollState(oid.toString()) ?: rememberLazyListState()
                     ) {

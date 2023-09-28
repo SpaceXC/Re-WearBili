@@ -21,26 +21,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.MonetizationOn
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material.icons.outlined.SendToMobile
-import androidx.compose.material.icons.outlined.StarOutline
-import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -65,18 +59,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.UnstableApi
-import cn.spacexc.bilibilisdk.utils.UserUtils
+import androidx.lifecycle.viewModelScope
 import cn.spacexc.wearbili.common.domain.color.parseColor
-import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.PARAM_VIDEO_AID
-import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.VideoFavouriteFoldersActivity
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_WEBI_SIGNATURE_KEY
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.app.videoplayer.defaultplayer.Media3PlayerActivity
 import cn.spacexc.wearbili.remake.app.videoplayer.defaultplayer.PARAM_IS_BANGUMI
@@ -113,7 +102,7 @@ fun Activity.BangumiInfoScreen(
     LoadableBox(uiState = viewModel.uiState) {
         viewModel.bangumiInfo?.let { bangumi ->
             LaunchedEffect(key1 = viewModel.currentSelectedEpisodeId, block = {
-                if(viewModel.currentSelectedEpisodeId != 0L) {
+                if (viewModel.currentSelectedEpisodeId != 0L) {
                     if (bangumi.episodes.find { it.ep_id == viewModel.currentSelectedEpisodeId } != null) {
                         val index =
                             bangumi.episodes.indexOfFirst { it.ep_id == viewModel.currentSelectedEpisodeId }
@@ -129,14 +118,15 @@ fun Activity.BangumiInfoScreen(
                         val sectionIndex =
                             bangumi.section?.indexOf(section)
                         val sectionScrollState = viewModel.getSectionScrollState(section?.id ?: 0)
-                        val episodeIndex = section?.episodes?.indexOfFirst { it.ep_id == viewModel.currentSelectedEpisodeId  }
+                        val episodeIndex =
+                            section?.episodes?.indexOfFirst { it.ep_id == viewModel.currentSelectedEpisodeId }
                         viewModel.bangumiInfoScreenScrollState.animateScrollToItem(2 + sectionIndex!!)
                         sectionScrollState.animateScrollToItem(episodeIndex!!)//因为要是没有sections的话，小朋友根本就选不中section中的episode呀
                     }
                 }
             })
 
-            LazyColumn(                 
+            LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(6.dp),
                 state = viewModel.bangumiInfoScreenScrollState,
                 contentPadding = PaddingValues(vertical = 6.dp)
@@ -465,7 +455,10 @@ fun Activity.BangumiInfoScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            val playButtonAlpha by animateFloatAsState(targetValue = if(viewModel.currentSelectedEpisodeId != 0L) 1f else 0.3f, label = "")
+                            val playButtonAlpha by animateFloatAsState(
+                                targetValue = if (viewModel.currentSelectedEpisodeId != 0L) 1f else 0.3f,
+                                label = ""
+                            )
                             OutlinedRoundButton(
                                 clickable = viewModel.currentSelectedEpisodeId != 0L,
                                 icon = {
@@ -476,7 +469,7 @@ fun Activity.BangumiInfoScreen(
                                         Icon(
                                             imageVector = Icons.Outlined.PlayCircle,
                                             tint = Color.White,
-                                            contentDescription = null
+                                            contentDescription = "播放按钮"
                                         )
                                         androidx.compose.material.Text(
                                             text = "播放 ",    //这个空格是为了让图标和文字视觉剧中，万万不能删
@@ -490,16 +483,18 @@ fun Activity.BangumiInfoScreen(
                                     .aspectRatio(2f / 1f)
                                     .alpha(playButtonAlpha),
                                 onClick = {
-                                    var episode = bangumi.episodes.find { it.ep_id == viewModel.currentSelectedEpisodeId }
-                                    if(episode == null) {
+                                    var episode =
+                                        bangumi.episodes.find { it.ep_id == viewModel.currentSelectedEpisodeId }
+                                    if (episode == null) {
                                         val section = bangumi.section?.find {
                                             it.episodes.find { epInSection ->
                                                 epInSection.ep_id == viewModel.currentSelectedEpisodeId
                                             } != null
                                         }
-                                        episode = section?.episodes?.find { it.ep_id == viewModel.currentSelectedEpisodeId }
+                                        episode =
+                                            section?.episodes?.find { it.ep_id == viewModel.currentSelectedEpisodeId }
                                     }
-                                    if(episode != null) {
+                                    if (episode != null) {
                                         Intent(
                                             this@BangumiInfoScreen,
                                             Media3PlayerActivity::class.java
@@ -518,7 +513,7 @@ fun Activity.BangumiInfoScreen(
                                     Icon(
                                         imageVector = Icons.Outlined.SendToMobile,
                                         tint = Color.White,
-                                        contentDescription = null,
+                                        contentDescription = "在手机上播放按钮",
                                         modifier = Modifier.align(Alignment.Center)
                                     )
                                 },
@@ -540,7 +535,7 @@ fun Activity.BangumiInfoScreen(
                                         Icon(
                                             imageVector = Icons.Outlined.History,
                                             tint = Color.White,
-                                            contentDescription = null
+                                            contentDescription = "稍后再看按钮"
                                         )
                                     }
                                 },
@@ -548,7 +543,7 @@ fun Activity.BangumiInfoScreen(
                                 modifier = Modifier.weight(1f),
                                 buttonModifier = Modifier.aspectRatio(1f)
                             )
-                            /*OutlinedRoundButton(
+                            OutlinedRoundButton(
                                 icon = {
                                     Icon(
                                         imageVector = Icons.Outlined.FileDownload,
@@ -559,10 +554,14 @@ fun Activity.BangumiInfoScreen(
                                 },
                                 text = "缓存",
                                 modifier = Modifier.weight(1f),
-                                buttonModifier = Modifier.aspectRatio(1f)
-
-                            )*/
-                            Spacer(modifier = Modifier.weight(1f))  //placeholder
+                                buttonModifier = Modifier.aspectRatio(1f),
+                                onClick = {
+                                    viewModel.viewModelScope.launch {
+                                        viewModel.cacheBangumi()
+                                    }
+                                }
+                            )
+                            //Spacer(modifier = Modifier.weight(1f))  //placeholder
                             Spacer(modifier = Modifier.weight(1f))  //placeholder
                         }
                     }

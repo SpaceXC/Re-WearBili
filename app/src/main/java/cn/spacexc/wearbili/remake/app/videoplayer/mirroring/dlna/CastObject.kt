@@ -18,27 +18,43 @@ object CastObject {
 
     // demo
     fun newInstance(url: String, id: String, name: String): ICast {
-        return CastVideo(url, id, name)
+        return MyCastVideo(url, id, name)
     }
 }
 
-data class CastImage @JvmOverloads constructor(
-    override val uri: String,
-    override val id: String,
-    override val name: String,
-    override val size: Long = 0L
-) : ICast.ICastImage
 
-data class CastVideo @JvmOverloads constructor(
-    override val uri: String,
-    override val id: String,
-    override val name: String,
-    override val size: Long = 0L,
-    override val bitrate: Long = 0
+class MyCastVideo(
+    private val mUrl: String,
+    private val mId: String,
+    private val mName: String
 ) : ICast.ICastVideo {
+    private val durationMillis = 0L
+    private val size = 0L
+    private val bitrate = 0L
+    override fun getId(): String {
+        return mId
+    }
 
-    var duration: Long = 0
+    override fun getUri(): String {
+        return mUrl
+    }
 
-    override val durationMillSeconds: Long
-        get() = duration
+    override fun getName(): String {
+        return mName
+    }
+
+    /**
+     * @return video duration, ms
+     */
+    override fun getDurationMillSeconds(): Long {
+        return durationMillis
+    }
+
+    override fun getSize(): Long {
+        return size
+    }
+
+    override fun getBitrate(): Long {
+        return bitrate
+    }
 }

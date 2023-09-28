@@ -1,6 +1,8 @@
 package cn.spacexc.wearbili.remake.common.ui
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -16,7 +18,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -83,9 +84,11 @@ fun Card(
         bottom = 10.dp
     ),
     outerPaddingValues: PaddingValues = PaddingValues(vertical = 4.dp),
+    fillMaxSize: Boolean = true,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    val secondColor by animateColorAsState(targetValue = if (isGradient) Color.Transparent else borderColor,
+    val secondColor by animateColorAsState(
+        targetValue = if (isGradient) Color.Transparent else borderColor,
         label = "wearbiliCardSecondColor"
     )
     Box(
@@ -106,6 +109,73 @@ fun Card(
                 )
             )
             .background(color = backgroundColor)
+            .padding(innerPaddingValues)
+            .then(if (fillMaxSize) Modifier.fillMaxWidth() else Modifier),
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun Card(
+    modifier: Modifier = Modifier,
+    isClickEnabled: Boolean = true,
+    shape: Shape = RoundedCornerShape(10.dp),
+    onClick: (() -> Unit)? = null,
+    innerPaddingValues: PaddingValues = PaddingValues(
+        start = 8.dp,
+        end = 8.dp,
+        top = 10.dp,
+        bottom = 10.dp
+    ),
+    isHighlighted: Boolean,
+    outerPaddingValues: PaddingValues = PaddingValues(vertical = 4.dp),
+    content: @Composable BoxScope.() -> Unit,
+) {
+    val secondColor by animateColorAsState(
+        targetValue = if (isHighlighted) BilibiliPink else Color.Transparent,
+        label = "wearbiliCardSecondColor"
+    )
+    val cardBorderColor by animateColorAsState(
+        targetValue = if (isHighlighted) BilibiliPink else CardBorderColor,
+        label = "wearbiliVideoFavouriteFoldersScreenBorderColor",
+        animationSpec = tween()
+    )
+    val cardBackgroundColor by animateColorAsState(
+        targetValue = if (isHighlighted) Color(
+            231,
+            86,
+            136,
+            26
+        ) else CardBackgroundColor,
+        label = "wearbiliVideoFavouriteFoldersScreenBackgroundColor",
+        animationSpec = tween()
+
+    )
+    val width by animateDpAsState(
+        targetValue = if (isHighlighted) 2.dp else CardBorderWidth,
+        label = "wearbiliVideoFavouriteFoldersScreenDp",
+        animationSpec = tween()
+    )
+
+    Box(
+        modifier = modifier
+            .padding(outerPaddingValues)
+            .clickVfx(isEnabled = isClickEnabled && onClick != null) {
+                onClick?.invoke()
+            }
+            .clip(shape)
+            .border(
+                width = width,
+                shape = shape,
+                brush = Brush.linearGradient(
+                    listOf(
+                        cardBorderColor,
+                        secondColor
+                    )
+                )
+            )
+            .background(color = cardBackgroundColor)
             .padding(innerPaddingValues)
             .fillMaxWidth(),
     ) {

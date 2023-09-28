@@ -129,8 +129,9 @@ fun Context.AboutScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalAlignment = if (isRound()) Alignment.CenterHorizontally else Alignment.Start
                 ) {
-                    Image(painter = painterResource(id = R.drawable.img_wearbili_banner_remake),
-                        contentDescription = null,
+                    Image(
+                        painter = painterResource(id = R.drawable.img_wearbili_banner_remake),
+                        contentDescription = "App Banner",
                         modifier = Modifier
                             .fillMaxWidth(0.9f)
                             .clickable(

@@ -20,6 +20,7 @@ import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter.Companion.DefaultTransform
 import coil.compose.AsyncImagePainter.State
 import coil.request.ImageRequest
+import coil.transform.Transformation
 import com.google.accompanist.placeholder.PlaceholderDefaults
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.color
@@ -40,6 +41,7 @@ fun BiliImage(
     contentDescription: String?,
     modifier: Modifier = Modifier,
     transform: (State) -> State = DefaultTransform,
+    transformations: List<Transformation> = emptyList(),
     onState: ((State) -> Unit)? = null,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
@@ -69,6 +71,7 @@ fun BiliImage(
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(realUrl)
+                    .transformations(transformations)
                     .crossfade(true).build(),
                 contentDescription = contentDescription,
                 modifier = Modifier.matchParentSize(),

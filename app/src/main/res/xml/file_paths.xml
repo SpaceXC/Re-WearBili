@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-files-path
+        name="my_images"
+        path="Android/data/cn.spacexc.travelmap/files/Pictures" />
+    <root-path
+        name="root"
+        path="." />
+    <root-path
+        name="root"
+        path="" />
+</paths>
+    

@@ -1,10 +1,20 @@
 package cn.spacexc.wearbili.remake.app.login.ui
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -46,20 +56,21 @@ fun LoginScreen(
                 .background(Color.White)
                 .padding(4.dp)
         ) {
-            Crossfade(targetState = state.currentLoginStatus) {
+            Crossfade(targetState = state.currentLoginStatus, label = "") {
                 when (it) {
                     LoginStatus.Loading, LoginStatus.GettingKey -> {
                         Image(
                             painter = painterResource(id = R.drawable.img_loading_2233),
-                            contentDescription = null,
+                            contentDescription = "加载中...",
                             modifier = Modifier
                                 .fillMaxSize()
                         )
                     }
+
                     LoginStatus.Failed, LoginStatus.Timeout, LoginStatus.FailedGettingKey -> {
                         Image(
                             painter = painterResource(id = R.drawable.img_loading_2233_error),
-                            contentDescription = null,
+                            contentDescription = "加载失败",
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clickable(
@@ -74,7 +85,7 @@ fun LoginScreen(
                         state.qrCodeBitmap?.let {
                             Image(
                                 bitmap = state.qrCodeBitmap,
-                                contentDescription = null,
+                                contentDescription = "登录二维码",
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(6.dp)

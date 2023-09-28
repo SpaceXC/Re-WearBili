@@ -1,23 +1,48 @@
 package cn.spacexc.wearbili.remake.app.update.ui
 
 import android.annotation.SuppressLint
-import android.content.Context
+import android.app.Activity
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.SystemUpdateAlt
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import cn.spacexc.wearbili.common.domain.data.DataStoreManager
+import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
 import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
+import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
+import cn.spacexc.wearbili.remake.common.ui.Card
+import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
+import cn.spacexc.wearbili.remake.common.ui.clickVfx
+import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -32,10 +57,16 @@ import java.util.Date
 
 @SuppressLint("SimpleDateFormat")
 @Composable
-fun Context.UpdateActivityScreen(
-    versionInfo: SplashScreenActivity.AppUpdatesResult?
+fun Activity.UpdateActivityScreen(
+    versionInfo: SplashScreenActivity.AppUpdatesResult?,
+    viewModel: UpdateViewModel
 ) {
-    TitleBackground(title = "更新") {
+    val downloadPercent by viewModel.downloadProgress.collectAsState()
+    val downloadSpeed by viewModel.downloadSpeed.collectAsState()
+    val downloadTimeLeft by viewModel.downloadTimeLeft.collectAsState()
+
+    val scope = rememberCoroutineScope()
+    TitleBackground(title = "更新", onBack = ::finish) {
         versionInfo?.let {
             val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
             val outputFormat = SimpleDateFormat("yyyy年MM月dd日")
@@ -44,7 +75,7 @@ fun Context.UpdateActivityScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(TitleBackgroundHorizontalPadding)
+                    .padding(horizontal = TitleBackgroundHorizontalPadding)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -74,6 +105,83 @@ fun Context.UpdateActivityScreen(
                     style = AppTheme.typography.body1,
                     textAlign = TextAlign.Center
                 )
+                if (viewModel.isDownloading) {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "$downloadPercent%",
+                            style = AppTheme.typography.body1,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = downloadSpeed,
+                            style = AppTheme.typography.body1,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    LinearProgressIndicator(
+                        progress = downloadPercent / 100f,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = BilibiliPink
+                    )
+                    Text(
+                        text = "剩余时间：$downloadTimeLeft",
+                        style = AppTheme.typography.body1,
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        outerPaddingValues = PaddingValues(vertical = 8.dp),
+                        innerPaddingValues = PaddingValues(12.dp),
+                        shape = RoundedCornerShape(30),
+                        onClick = {
+                            viewModel.download(versionInfo.downloadAddress, versionInfo.versionCode)
+                        }
+                    ) {
+                        IconText(
+                            text = "下载并更新！",
+                            fontSize = 12.spx,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier.align(
+                                Alignment.Center
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.SystemUpdateAlt,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        }
+                    }
+                    Text(
+                        text = "跳过此版本",
+                        style = AppTheme.typography.body1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .alpha(0.6f)
+                            .padding(6.dp)
+                            .clickVfx {
+                                scope.launch {
+                                    DataStoreManager
+                                        .getInstance(this@UpdateActivityScreen)
+                                        .saveInt("latestSkippedVersion", versionInfo.versionCode)
+                                    startActivity(
+                                        Intent(
+                                            this@UpdateActivityScreen,
+                                            MainActivity::class.java
+                                        )
+                                    )
+                                    finish()
+                                    overridePendingTransition(
+                                        R.anim.activity_fade_in,
+                                        R.anim.activity_fade_out
+                                    )
+                                }
+                            }
+                    )
+                }
             }
         }
     }

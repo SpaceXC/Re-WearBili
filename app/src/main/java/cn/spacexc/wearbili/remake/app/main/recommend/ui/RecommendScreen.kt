@@ -32,12 +32,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -54,6 +56,7 @@ import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
 import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
+import cn.spacexc.wearbili.remake.common.ui.lazyRotateInput
 import cn.spacexc.wearbili.remake.common.ui.spx
 
 /**
@@ -79,11 +82,13 @@ fun RecommendScreen(
     recommendSource: String,
     onFetch: (isRefresh: Boolean) -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
     val pullRefreshState =
         rememberPullRefreshState(refreshing = state.isRefreshing, onRefresh = {
             onFetch(true)
         }, refreshThreshold = 40.dp)
     val localDensity = LocalDensity.current
+    val scope = rememberCoroutineScope()
     LoadableBox(
         uiState = state.uiState, modifier = Modifier
             .fillMaxSize()
@@ -93,7 +98,9 @@ fun RecommendScreen(
             mutableStateOf(true)
         }
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .lazyRotateInput(focusRequester, state.scrollState),
             contentPadding = PaddingValues(
                 start = TitleBackgroundHorizontalPadding,
                 end = TitleBackgroundHorizontalPadding,
@@ -220,6 +227,9 @@ fun RecommendScreen(
                 }
             }
         }
+        LaunchedEffect(key1 = Unit, block = {
+            focusRequester.requestFocus()
+        })
         PullRefreshIndicator(
             refreshing = state.isRefreshing, state = pullRefreshState,
             modifier = Modifier.align(

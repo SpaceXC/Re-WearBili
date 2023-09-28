@@ -9,6 +9,16 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
+    <uses-permission android:name="android.permission.RESTART_PACKAGES" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
 
     <application
         android:name=".app.Application"
@@ -21,6 +31,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WearBili"
         tools:targetApi="31">
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
         <activity
             android:name=".app.splash.ui.SplashScreenActivity"
             android:exported="true"
@@ -32,6 +51,9 @@
             </intent-filter>
         </activity>
         <service android:name="com.android.cast.dlna.dmc.DLNACastService" />
+        <receiver
+            android:name=".app.update.UpdateReceiver"
+            android:exported="false" />
 
         <activity
             android:name=".app.login.ui.LoginActivity"
@@ -106,6 +128,11 @@
         <activity
             android:name=".app.main.profile.detail.favorite.detail.ui.FavouriteFolderDetailActivity"
             android:exported="false" />
+        <activity
+            android:name=".app.cache.create.ui.CreateNewCacheActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.cache.list.CacheListActivity"
+            android:exported="false" />
     </application>
-
 </manifest>

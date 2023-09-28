@@ -71,5 +71,6 @@ dependencies {
     def zxing_version = "3.5.0"     //QR Code Generation
     implementation "com.google.zxing:core:$zxing_version"
 
-
+    implementation 'me.laoyuyu.aria:core:3.8.16'
+    kapt 'me.laoyuyu.aria:compiler:3.8.16'
 }

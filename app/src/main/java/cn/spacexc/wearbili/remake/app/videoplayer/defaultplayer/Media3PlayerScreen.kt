@@ -12,6 +12,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -25,21 +26,26 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -49,14 +55,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.BrightnessLow
 import androidx.compose.material.icons.outlined.Cast
+import androidx.compose.material.icons.outlined.FitScreen
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Speed
+import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
@@ -73,6 +82,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
@@ -91,7 +101,10 @@ import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.R.drawable
 import cn.spacexc.wearbili.remake.app.videoplayer.danmaku.BiliDanmukuParser
 import cn.spacexc.wearbili.remake.app.videoplayer.mirroring.dlna.DlnaDeviceDiscoverActivity
+import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
+import cn.spacexc.wearbili.remake.common.ui.clickAlpha
+import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimatedContentSize
 import coil.ImageLoader
@@ -127,13 +140,23 @@ enum class VideoDisplaySurface {
 }
 
 sealed class VideoPlayerPages(val weight: Int) {
-    object Main : VideoPlayerPages(0)
-    object Settings : VideoPlayerPages(1)
+    data object Main : VideoPlayerPages(0)
+    data object Settings : VideoPlayerPages(1)
+}
+
+enum class VideoPlayerSurfaceRatio(val ratioName: String) {
+    FitIn("适应"),
+    FillMax("填充"),
+    SixteenByNine("16:9"),
+    NineBySixteen("9:16"),
+    FourByThree("4:3"),
+    ThreeByFour("3:4")
 }
 
 
 /*@UnstableApi*/
 @Composable
+@UnstableApi
 @OptIn(
     ExperimentalAnimationApi::class,
     ExperimentalMaterial3Api::class
@@ -143,12 +166,16 @@ fun Activity.Media3PlayerScreen(
     viewModel: Media3PlayerViewModel,
     displaySurface: VideoDisplaySurface,
     withSubtitleAnimation: Boolean = true,
+    isCacheVideo: Boolean,
     context: Context,
     onBack: () -> Unit
 ) {
+    val localDensity = LocalDensity.current
     val currentSubtitleText by viewModel.currentSubtitleText.collectAsState(initial = null)
     val currentPlayerPosition by viewModel.currentPlayProgress.collectAsState(initial = 0)
-    val localDensity = LocalDensity.current
+    var currentPlayerSurfaceRatio: VideoPlayerSurfaceRatio by remember {
+        mutableStateOf(VideoPlayerSurfaceRatio.FitIn)
+    }
     var controllerProgressColumnHeight by remember {
         mutableStateOf(0.dp)
     }
@@ -191,8 +218,9 @@ fun Activity.Media3PlayerScreen(
             0,
             0,
             0,
-            153
-        )
+            204
+        ),
+        label = ""
     )
 
     val danmakuInputStream by viewModel.danmakuInputStream.collectAsState()
@@ -206,9 +234,12 @@ fun Activity.Media3PlayerScreen(
             38,
             38,
             255
-        )
+        ), label = ""
     )
-    val danmakuAlpha by animateFloatAsState(targetValue = if (isDanmakuVisible) 1f else 0f)
+    val danmakuAlpha by animateFloatAsState(
+        targetValue = if (isDanmakuVisible) 1f else 0f,
+        label = ""
+    )
 
     //For Danmaku
     LaunchedEffect(key1 = danmakuInputStream, block = {
@@ -304,8 +335,15 @@ fun Activity.Media3PlayerScreen(
             .background(Color.Black)
     ) {
         Box(
-            modifier = Modifier
-                .aspectRatio(viewModel.videoPlayerAspectRatio)
+            modifier = when (currentPlayerSurfaceRatio) {
+                VideoPlayerSurfaceRatio.FitIn -> Modifier.aspectRatio(viewModel.videoPlayerAspectRatio)
+                VideoPlayerSurfaceRatio.FillMax -> Modifier.fillMaxSize()
+                VideoPlayerSurfaceRatio.FourByThree -> Modifier.aspectRatio(4f / 3f)
+                VideoPlayerSurfaceRatio.NineBySixteen -> Modifier.aspectRatio(9f / 16f)
+                VideoPlayerSurfaceRatio.SixteenByNine -> Modifier.aspectRatio(16f / 9f)
+                VideoPlayerSurfaceRatio.ThreeByFour -> Modifier.aspectRatio(3f / 4f)
+            }
+                .animateContentSize()
                 .align(Alignment.Center)
         ) {
             when (displaySurface) {
@@ -344,7 +382,7 @@ fun Activity.Media3PlayerScreen(
                     slideInHorizontally { height -> -height } + fadeIn() with
                             slideOutHorizontally { height -> height } + fadeOut()
                 }
-            }) {
+            }, label = "") {
                 when (currentPage) {
                     VideoPlayerPages.Main -> {
                         Box(modifier = Modifier.fillMaxSize()) {
@@ -366,7 +404,8 @@ fun Activity.Media3PlayerScreen(
                                     )
                                 }
                             }
-                            viewModel.videoInfo?.let { video ->
+
+                            if (viewModel.isReady) {
                                 Column(
                                     modifier = Modifier
                                         .fillMaxSize()
@@ -438,7 +477,8 @@ fun Activity.Media3PlayerScreen(
                                             Spacer(modifier = Modifier.width(2.dp))
                                             Column {
                                                 Text(
-                                                    text = video.data.title,
+                                                    text = (if (isCacheVideo) viewModel.cacheVideoInfo?.videoName else viewModel.videoInfo?.data?.title)
+                                                        ?: "",
                                                     color = Color.White,
                                                     fontSize = 13.sp,
                                                     fontFamily = wearbiliFontFamily,
@@ -447,7 +487,7 @@ fun Activity.Media3PlayerScreen(
                                                     overflow = TextOverflow.Ellipsis
                                                 )
                                                 Text(
-                                                    text = "${viewModel.onlineCount}人在看",
+                                                    text = if (isCacheVideo) "来自缓存的视频" else "${viewModel.onlineCount}人在看",
                                                     color = Color.White,
                                                     fontSize = 11.sp,
                                                     fontFamily = wearbiliFontFamily,
@@ -655,42 +695,6 @@ fun Activity.Media3PlayerScreen(
                                                             .size(14.dp)
                                                     )
                                                 }
-
-                                                Box(
-                                                    modifier = Modifier
-                                                        .background(
-                                                            color = Color(
-                                                                38,
-                                                                38,
-                                                                38,
-                                                                255
-                                                            ),
-                                                            shape = CircleShape
-                                                        )
-                                                        .size(22.dp)
-                                                        .clickable {
-                                                            startActivity(
-                                                                Intent(
-                                                                    this@Media3PlayerScreen,
-                                                                    DlnaDeviceDiscoverActivity::class.java
-                                                                ).apply {
-                                                                    putExtra(
-                                                                        "url",
-                                                                        viewModel.videoCastUrl
-                                                                    )
-                                                                })
-                                                            finish()
-                                                        },
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Icon(
-                                                        imageVector = Icons.Outlined.Cast,
-                                                        contentDescription = null,
-                                                        tint = Color.White,
-                                                        modifier = Modifier
-                                                            .size(14.dp)
-                                                    )
-                                                }
                                             }
                                         }
                                     }
@@ -820,18 +824,16 @@ fun Activity.Media3PlayerScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(8.dp)
-                                .verticalScroll(rememberScrollState()),
+                                .verticalScroll(rememberScrollState())
+                                .padding(8.dp),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             IconText(
-                                text = "返回",
+                                text = "",
                                 color = Color.White,
-                                fontSize = 10.sp,
+                                fontSize = 14.sp,
                                 modifier = Modifier
-                                    .alpha(0.8f)
                                     .clickable { currentPage = VideoPlayerPages.Main }
-
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ArrowBackIosNew,
@@ -839,130 +841,134 @@ fun Activity.Media3PlayerScreen(
                                     tint = Color.White
                                 )
                             }
-                            Divider(color = Color(148, 148, 148, 204))
-                            Column {
-                                Text(
-                                    text = "CC字幕",
-                                    color = Color.White,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier
-                                        .alpha(0.9f)
+                            androidx.compose.material3.Text(
+                                text = "播放选项",
+                                color = Color.White,
+                                fontFamily = wearbiliFontFamily,
+                                fontSize = 20.spx,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            PlayerSetting(itemIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Speed,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.fillMaxSize()
                                 )
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    modifier = Modifier.horizontalScroll(rememberScrollState())
+                            }, settingName = "播放速度") {
+                                for (i in 25 until 100 step 25) {
+                                    PlayerSettingItem(
+                                        text = i.toFloat().div(100).toString() + "x",
+                                        isSelected = playBackSpeed == i
+                                    ) {
+                                        viewModel.player.setPlaybackSpeed(
+                                            i.toFloat().div(100)
+                                        )
+                                        playBackSpeed = i
+                                    }
+                                }
+                                for (i in 100..300 step 50) {
+                                    PlayerSettingItem(
+                                        text = i.toFloat().div(100).toString() + "x",
+                                        isSelected = playBackSpeed == i
+                                    ) {
+                                        viewModel.player.setPlaybackSpeed(
+                                            i.toFloat().div(100)
+                                        )
+                                        playBackSpeed = i
+                                    }
+                                }
+                            }
+
+                            PlayerSetting(itemIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Subtitles,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }, settingName = "CC字幕") {
+                                PlayerSettingItem(
+                                    text = "关闭",
+                                    isSelected = viewModel.currentSubtitleLanguage == null
                                 ) {
-                                    Text(
-                                        text = "关闭", modifier = Modifier
-                                            .clickable {
-                                                viewModel.currentSubtitleLanguage = null
-                                            },
-                                        color = if (viewModel.currentSubtitleLanguage == null) BilibiliPink else Color.White,
-                                        fontSize = 12.sp,
-                                        fontFamily = wearbiliFontFamily,
-                                        fontWeight = FontWeight.Normal,
-                                        textAlign = TextAlign.Center
+                                    viewModel.currentSubtitleLanguage =
+                                        null
+                                }
+                                viewModel.subtitleList.forEach {
+                                    PlayerSettingItem(
+                                        text = it.value.subtitleLanguage,
+                                        isSelected = viewModel.currentSubtitleLanguage == it.key
+                                    ) {
+                                        viewModel.currentSubtitleLanguage =
+                                            it.key
+                                    }
+                                }
+                            }
+
+                            PlayerSetting(itemIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.FitScreen,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }, settingName = "播放器比例") {
+                                VideoPlayerSurfaceRatio.entries.forEach { ratio ->
+                                    PlayerSettingItem(
+                                        text = ratio.ratioName,
+                                        isSelected = currentPlayerSurfaceRatio == ratio
+                                    ) {
+                                        currentPlayerSurfaceRatio = ratio
+                                    }
+                                }
+                                viewModel.subtitleList.forEach {
+
+                                }
+                            }
+
+                            PlayerSetting(itemIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.BrightnessLow,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }, settingName = "滑动灵敏度") {
+                                for (i in 60..180 step 30) {
+                                    PlayerSettingItem(
+                                        text = i.toString(),
+                                        isSelected = dragSensibility == i
+                                    ) {
+                                        dragSensibility = i
+                                    }
+                                }
+                            }
+                            PlayerSettingActionItem(
+                                name = "投屏",
+                                description = "投射视频到DLNA设备",
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Cast,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.fillMaxSize()
                                     )
-                                    viewModel.subtitleList.forEach {
-                                        Text(
-                                            text = it.value.subtitleLanguage,
-                                            modifier = Modifier
-                                                .clickable {
-                                                    viewModel.currentSubtitleLanguage =
-                                                        it.key
-                                                },
-                                            color = if (viewModel.currentSubtitleLanguage == it.key) BilibiliPink else Color.White,
-                                            fontSize = 12.sp,
-                                            fontFamily = wearbiliFontFamily,
-                                            fontWeight = FontWeight.Normal,
-                                            textAlign = TextAlign.Center,
-                                            maxLines = 1
+                                }) {
+                                startActivity(
+                                    Intent(
+                                        this@Media3PlayerScreen,
+                                        DlnaDeviceDiscoverActivity::class.java
+                                    ).apply {
+                                        putExtra(
+                                            "url",
+                                            viewModel.videoCastUrl
                                         )
-                                    }
-                                }
+                                    })
+                                finish()
                             }
-                            Divider(color = Color(148, 148, 148, 204))
-                            Column {
-                                Text(
-                                    text = "滑动灵敏度",
-                                    color = Color.White,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier
-                                        .alpha(0.9f)
-                                )
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    modifier = Modifier.horizontalScroll(rememberScrollState())
-                                ) {
-                                    for (i in 60..180 step 30) {
-                                        Text(
-                                            text = i.toString(),
-                                            modifier = Modifier
-                                                .clickable {
-                                                    dragSensibility = i
-                                                },
-                                            color = if (dragSensibility == i) BilibiliPink else Color.White,
-                                            fontSize = 12.sp,
-                                            fontFamily = wearbiliFontFamily,
-                                            fontWeight = FontWeight.Normal,
-                                            textAlign = TextAlign.Center,
-                                            maxLines = 1
-                                        )
-                                    }
-                                }
-                            }
-                            Divider(color = Color(148, 148, 148, 204))
-                            Column {
-                                Text(
-                                    text = "播放速度",
-                                    color = Color.White,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier
-                                        .alpha(0.9f)
-                                )
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    modifier = Modifier.horizontalScroll(rememberScrollState())
-                                ) {
-                                    for (i in 25 until 100 step 25) {
-                                        Text(
-                                            text = i.toFloat().div(100).toString() + "x",
-                                            modifier = Modifier
-                                                .clickable {
-                                                    viewModel.player.setPlaybackSpeed(
-                                                        i.toFloat().div(100)
-                                                    )
-                                                    playBackSpeed = i
-                                                },
-                                            color = if (playBackSpeed == i) BilibiliPink else Color.White,
-                                            fontSize = 12.sp,
-                                            fontFamily = wearbiliFontFamily,
-                                            fontWeight = FontWeight.Normal,
-                                            textAlign = TextAlign.Center,
-                                            maxLines = 1
-                                        )
-                                    }
-                                    for (i in 100..300 step 50) {
-                                        Text(
-                                            text = i.toFloat().div(100).toString() + "x",
-                                            modifier = Modifier
-                                                .clickable {
-                                                    viewModel.player.setPlaybackSpeed(
-                                                        i.toFloat().div(100)
-                                                    )
-                                                    playBackSpeed = i
-                                                },
-                                            color = if (playBackSpeed == i) BilibiliPink else Color.White,
-                                            fontSize = 12.sp,
-                                            fontFamily = wearbiliFontFamily,
-                                            fontWeight = FontWeight.Normal,
-                                            textAlign = TextAlign.Center,
-                                            maxLines = 1
-                                        )
-                                    }
-                                }
-                            }
-                            Divider(color = Color(148, 148, 148, 204))
+
                             Column {
                                 Row {
                                     Text(
@@ -987,7 +993,7 @@ fun Activity.Media3PlayerScreen(
                                     modifier = Modifier.offset(y = (-6).dp),
                                     thumb = {
 
-                                    SliderDefaults.Thumb(
+                                        SliderDefaults.Thumb(
                                             interactionSource = MutableInteractionSource(),
                                             thumbSize = DpSize(12.dp, 12.dp),
                                             modifier = Modifier
@@ -1070,4 +1076,151 @@ fun Context.adjustVolume(value: Int) {
     //获取系统的Audio管理者
     val mAudioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value, 0)
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun PlayerSetting(
+    itemIcon: @Composable () -> Unit,
+    settingName: String,
+    settingItems: @Composable RowScope.() -> Unit
+) {
+    val localDensity = LocalDensity.current
+    Card(
+        innerPaddingValues = PaddingValues(0.dp),
+        shape = RoundedCornerShape(10.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            var textHeight by remember {
+                mutableStateOf(0.dp)
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 14.dp, end = 14.dp, top = 16.dp, bottom = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(modifier = Modifier.size(textHeight)) {
+                    itemIcon()
+                }
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = settingName,
+                    fontFamily = wearbiliFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.spx,
+                    color = Color.White,
+                    modifier = Modifier.onSizeChanged {
+                        textHeight = with(localDensity) {
+                            it.height.toDp()
+                        }
+                    })
+            }
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 0.3f.dp,
+                        shape = RectangleShape,
+                        brush = Brush.linearGradient(
+                            listOf(
+                                Color(84, 84, 84, 255),
+                                Color.Transparent
+                            )
+                        )
+                    )
+                    .background(color = Color(38, 38, 38, 77))
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+
+                ) {
+                settingItems()
+            }
+        }
+    }
+}
+
+@Composable
+fun PlayerSettingItem(
+    text: String,
+    isSelected: Boolean,
+    onSelected: () -> Unit
+) {
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isSelected) BilibiliPink else Color(
+            41,
+            41,
+            41,
+            255
+        ), label = ""
+    )
+    val textAlpha by animateFloatAsState(targetValue = if (isSelected) 1f else 0.5f, label = "")
+    Box(
+        modifier = Modifier
+            .padding(bottom = 3.dp, top = 3.dp)
+            .clip(RoundedCornerShape(30))
+            .background(backgroundColor)
+            .padding(horizontal = 6.dp, vertical = 4.dp)
+            .clickAlpha { onSelected() },
+        //.fillMaxSize()
+        //.offset(y = (1).dp)
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            fontSize = 11.spx,
+            fontFamily = wearbiliFontFamily,
+            color = Color.White,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.alpha(textAlpha)
+        )
+    }
+}
+
+@Composable
+fun PlayerSettingActionItem(
+    name: String,
+    description: String,
+    icon: @Composable () -> Unit,
+    action: () -> Unit
+) {
+    val localDensity = LocalDensity.current
+    var textHeight by remember {
+        mutableStateOf(0.dp)
+    }
+    Card(shape = RoundedCornerShape(15.dp), onClick = action) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(2.dp), verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(modifier = Modifier.size(textHeight * 0.6f)) {
+                icon()
+            }
+            Spacer(modifier = Modifier.width(6.dp))
+            Column(modifier = Modifier.onSizeChanged {
+                textHeight = with(localDensity) {
+                    it.height.toDp()
+                }
+            }) {
+                androidx.compose.material3.Text(
+                    text = name,
+                    color = Color.White,
+                    fontFamily = wearbiliFontFamily,
+                    fontSize = 13.spx,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                androidx.compose.material3.Text(
+                    text = description,
+                    color = Color.White,
+                    fontFamily = wearbiliFontFamily,
+                    fontSize = 10.spx,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.alpha(0.7f)
+                )
+            }
+        }
+    }
 }

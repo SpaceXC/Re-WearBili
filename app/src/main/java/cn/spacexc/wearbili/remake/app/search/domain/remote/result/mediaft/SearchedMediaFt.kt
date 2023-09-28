@@ -7,7 +7,7 @@ data class SearchedMediaFt(
     @SerializedName("areas")
     val areas: String,
     @SerializedName("badges")
-    val badges: List<Badge>,
+    val badges: List<Badge>?,
     @SerializedName("button_text")
     val buttonText: String,
     @SerializedName("corner")

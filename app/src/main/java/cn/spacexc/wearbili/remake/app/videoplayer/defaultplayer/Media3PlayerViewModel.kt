@@ -1,40 +1,50 @@
 package cn.spacexc.wearbili.remake.app.videoplayer.defaultplayer
 
 import android.app.Application
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.compose.runtime.toMutableStateMap
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem.fromUri
 import androidx.media3.common.Player
 import androidx.media3.common.Player.Listener
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
-import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.MergingMediaSource
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BANGUMI_ID_TYPE_CID
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BangumiInfo
 import cn.spacexc.bilibilisdk.sdk.video.action.VideoAction
 import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
 import cn.spacexc.bilibilisdk.sdk.video.info.remote.subtitle.Subtitle
+import cn.spacexc.bilibilisdk.sdk.video.info.remote.subtitle.SubtitleFile
 import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.log.logd
+import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
+import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
+import com.google.gson.Gson
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import java.io.File
 import java.io.InputStream
+import javax.inject.Inject
+
 
 /*@UnstableApi*/
 /**
@@ -45,9 +55,13 @@ import java.io.InputStream
  * 给！爷！写！注！释！
  */
 
-class Media3PlayerViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+@UnstableApi
+class Media3PlayerViewModel @Inject constructor(
+    private val application: Application,
+    private val repository: VideoCacheRepository
+) : ViewModel() {
     private var httpDataSourceFactory = DefaultHttpDataSource.Factory()
-    private var cacheDataSourceFactory: DataSource.Factory
     private var httpMediaSourceFactory: MediaSource.Factory
     lateinit var player: Player
 
@@ -55,7 +69,12 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
     var loadingMessage by mutableStateOf("")
     var isVideoControllerVisible by mutableStateOf(false)
 
+    var isReady by mutableStateOf(false)
+
     var videoInfo: cn.spacexc.bilibilisdk.sdk.video.info.remote.info.web.WebVideoInfo? by mutableStateOf(
+        null
+    )
+    var cacheVideoInfo: VideoCacheFileInfo? by mutableStateOf(
         null
     )
 
@@ -73,7 +92,6 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
 
     var currentSubtitleLanguage: String? by mutableStateOf(subtitleList.keys.lastOrNull())
     var currentSubtitleText = flow {
-        //emit("字幕测试")
         var index = 0
         while (true) {
             //emit("index: $index")
@@ -104,11 +122,6 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
         httpDataSourceFactory.setDefaultRequestProperties(headers)
             .setAllowCrossProtocolRedirects(true)
 
-        cacheDataSourceFactory = CacheDataSource.Factory()
-            .setCache(ExoPlayerUtils.getInstance(getApplication()).getCache())
-            .setUpstreamDataSourceFactory(httpDataSourceFactory)
-            .setCacheWriteDataSinkFactory(null) // Disable writing.
-
         httpMediaSourceFactory =
             DefaultMediaSourceFactory(application).setDataSourceFactory(httpDataSourceFactory)
         player = ExoPlayer.Builder(application)
@@ -117,7 +130,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                     DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
                 )
             )
-            .setMediaSourceFactory(httpMediaSourceFactory)
+            .setMediaSourceFactory(/*httpMediaSourceFactory*/DefaultMediaSourceFactory(application))    //因为要兼容本地缓存嘛，而且现在获取的视频也不用UA，所以暂时先用这个，后面有问题再说
             .build()
 
         player.addListener(object : Listener {
@@ -130,6 +143,7 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                         videoDuration = player.duration
                         Log.d(TAG, "onPlaybackStateChanged: startUpdatingSubtitles")
                         currentStat = PlayerStats.Playing
+                        isReady = true
                         isVideoControllerVisible = true
                     }
 
@@ -185,7 +199,6 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                     .createMediaSource(fromUri(videoUrl))
 
                 player.setMediaItem(mediaSource.mediaItem)
-                player
                 player.playWhenReady = true
                 player.prepare()
             } else {
@@ -248,6 +261,51 @@ class Media3PlayerViewModel(application: Application) : AndroidViewModel(applica
                 }
             }
             startContinuouslyUploadingPlayingProgress()
+        }
+    }
+
+    fun playVideoFromLocalFile(
+        videoCid: Long
+    ) {
+        viewModelScope.launch {
+            val cacheFileInfo = repository.getTaskInfoByVideoCid(videoCid)
+            if (cacheFileInfo == null) {
+                appendLoadMessage("好像没有这个缓存耶...")
+                return@launch
+            }
+            val cacheFolder = File(application.filesDir, "videoCaches/$videoCid")
+            val videoFile = File(cacheFolder, cacheFileInfo.downloadedVideoFileName)
+            val danmakuFile = File(cacheFolder, cacheFileInfo.downloadedDanmakuFileName)
+
+            val subtitleFiles = cacheFileInfo.downloadedSubtitleFileNames.map {
+                it.key to Gson().fromJson(
+                    String(
+                        File(
+                            cacheFolder,
+                            it.value
+                        ).readBytes()
+                    ), SubtitleFile::class.java
+                )
+            }.map {
+                it.first to SubtitleConfig(
+                    subtitleList = it.second.body,
+                    subtitleLanguageCode = it.first,
+                    subtitleLanguage = it.first
+                )
+            }
+
+            subtitleList = subtitleFiles.toMutableStateMap()
+            println("subtitleList: ${subtitleList.values}")
+
+            danmakuInputStream.value = danmakuFile.inputStream()
+
+            val mediaSource = ProgressiveMediaSource.Factory(DefaultDataSource.Factory(application))
+                .createMediaSource(fromUri(Uri.fromFile(videoFile)))
+
+            player.setMediaItem(mediaSource.mediaItem)
+            player.playWhenReady = true
+            player.prepare()
+            startContinuouslyUpdatingSubtitle()
         }
     }
 

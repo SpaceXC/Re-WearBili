@@ -30,7 +30,6 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.RssFeed
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
@@ -51,6 +50,7 @@ import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.about.ui.AboutActivity
 import cn.spacexc.wearbili.remake.app.bangumi.index.ui.BangumiIndexActivity
+import cn.spacexc.wearbili.remake.app.cache.list.CacheListActivity
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicScreen
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicViewModel
 import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreen
@@ -130,7 +130,8 @@ val menuItems = listOf(
     MenuItem(
         "缓存",
         icon = Icons.Outlined.FileDownload,
-        onClick = { _, _ ->
+        onClick = { _, context ->
+            context.startActivity(Intent(context, CacheListActivity::class.java))
         }
     ),
     MenuItem(
@@ -215,7 +216,7 @@ fun MainActivityScreen(
                     }/*.using(
                         SizeTransform(clip = false)
                     )*/
-                }
+                }, label = "mainActivityMenu"
             ) { isDropdownShowing ->
                 if (isDropdownShowing) {
                     LazyVerticalGrid(

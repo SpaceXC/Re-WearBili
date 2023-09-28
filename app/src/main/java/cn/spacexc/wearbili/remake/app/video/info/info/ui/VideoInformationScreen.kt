@@ -32,6 +32,7 @@ import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.SendToMobile
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,8 +45,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
-import androidx.media3.common.util.UnstableApi
 import cn.spacexc.bilibilisdk.sdk.video.info.remote.info.app.Data
 import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.copyToClipboard
@@ -54,6 +53,8 @@ import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.cache.create.ui.CreateNewCacheActivity
+import cn.spacexc.wearbili.remake.app.cache.create.ui.PARAM_VIDEO_BVID
 import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.PARAM_VIDEO_AID
 import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.VideoFavouriteFoldersActivity
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
@@ -158,6 +159,20 @@ fun VideoInformationScreen(
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.icon_view_count),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                tint = Color.White
+                            )
+                        }
+
+                        IconText(
+                            text = video.stat.vt.secondToTime(),
+                            modifier = Modifier
+                                .alpha(0.7f),
+                            fontSize = 11.spx,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Timer,
                                 contentDescription = null,
                                 modifier = Modifier.fillMaxSize(),
                                 tint = Color.White
@@ -393,7 +408,7 @@ fun VideoInformationScreen(
                                 )
                             }
                         )
-                        /*OutlinedRoundButton(
+                        OutlinedRoundButton(
                             icon = {
                                 Icon(
                                     imageVector = Icons.Outlined.FileDownload,
@@ -404,10 +419,19 @@ fun VideoInformationScreen(
                             },
                             text = "缓存",
                             modifier = Modifier.weight(1f),
-                            buttonModifier = Modifier.aspectRatio(1f)
+                            buttonModifier = Modifier.aspectRatio(1f),
+                            onClick = {
+                                context.startActivity(
+                                    Intent(
+                                        context,
+                                        CreateNewCacheActivity::class.java
+                                    ).apply {
+                                        putExtra(PARAM_VIDEO_BVID, video.bvid)
+                                    })
+                            }
 
-                        )*/
-                        Spacer(modifier = Modifier.weight(1f))  //placeholder
+                        )
+                        //Spacer(modifier = Modifier.weight(1f))  //placeholder
                         Spacer(modifier = Modifier.weight(1f))  //placeholder
                     }
                 }

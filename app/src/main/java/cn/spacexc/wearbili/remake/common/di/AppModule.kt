@@ -6,6 +6,7 @@ import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.common.domain.network.cookie.KtorCookiesManager
 import cn.spacexc.wearbili.common.domain.qrcode.QRCodeUtil
 import cn.spacexc.wearbili.remake.app.Application
+import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import dagger.Module
 import dagger.Provides
@@ -31,7 +32,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideDataStoreManager(application: Application): DataStoreManager =
-        DataStoreManager(application)
+        DataStoreManager.getInstance(application)
 
     @Provides
     @Singleton
@@ -50,4 +51,9 @@ object AppModule {
     @Provides
     @Singleton
     fun providesSettingsManager(): SettingsManager = SettingsManager
+
+    @Provides
+    @Singleton
+    fun provideVideoCacheRepository(application: Application): VideoCacheRepository =
+        VideoCacheRepository(application)
 }

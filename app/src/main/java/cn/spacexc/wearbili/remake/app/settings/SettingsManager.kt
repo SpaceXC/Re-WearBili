@@ -15,7 +15,7 @@ object SettingsManager {
     val dataManager: DataManager = Application.getApplication().dataManager
 
     val isDarkTheme = dataManager.getBoolFlow("isDarkTheme", false)
-    val recommendSource = dataManager.getStringFlow("recommendationSource", "app")
+    val recommendSource = dataManager.getStringFlow("recommendationSource", "web")
     const val isDebug = false
     val isLowPerformance = dataManager.getBoolFlow("isLowPerformance", false)
 }

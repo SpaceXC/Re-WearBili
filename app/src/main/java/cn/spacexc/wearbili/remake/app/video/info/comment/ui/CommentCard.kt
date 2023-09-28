@@ -3,9 +3,11 @@ package cn.spacexc.wearbili.remake.app.video.info.comment.ui
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -44,6 +46,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -72,6 +75,7 @@ import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
+import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.ClickableText
 import cn.spacexc.wearbili.remake.common.ui.SmallUserCard
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
@@ -114,30 +118,16 @@ fun RichText(
     val inlineTextContent = hashMapOf(
         "topCommentLabel" to InlineTextContent(
             placeholder = Placeholder(
-                width = 20.spx * 1.1f,
-                height = 12.5.spx * 1.1f,
+                width = fontSize * 3.4f,
+                height = fontSize * 1.1f,
                 placeholderVerticalAlign = PlaceholderVerticalAlign.Center
             ),
         ) {
-            Text(
-                text = "置顶",
-                fontSize = 8.spx,
-                fontFamily = wearbiliFontFamily,
-                color = Color.White,
-                modifier = Modifier
-                    .padding(end = 1.dp)
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(BilibiliPink)
-                    .fillMaxSize()
-                    .offset(y = (1).dp)
-                /*.padding(
-                    start = 11.dp,
-                    end = 10.5.dp,
-                    top = 4.dp,
-                    bottom = 4.dp
-                )*/,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center
+            Image(
+                painter = painterResource(id = R.drawable.img_comment_pin_top),
+                contentDescription = "标签 置顶",
+                modifier = Modifier.fillMaxSize(),
+                alignment = Alignment.BottomStart
             )
         }
     )
@@ -378,6 +368,9 @@ fun CommentCard(
     isClickable: Boolean,
     oid: Long,
 ) {
+    var commentInfoItemHeight by remember {
+        mutableStateOf(0.dp)
+    }
     Column(
         modifier = Modifier
             .clickVfx(isEnabled = isClickable) {
@@ -521,8 +514,22 @@ fun CommentCard(
                     }
                 }
             }
+            if (isUpLiked) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.img_comment_up_liked),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(commentInfoItemHeight * 1.2f)
+                        .offset(x = (-0.1).dp)
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
-            Row {
+            Row(modifier = Modifier.onSizeChanged {
+                commentInfoItemHeight = with(localDensity) {
+                    it.height.toDp()
+                }
+            }) {
                 CommentInfoItem(
                     icon = Icons.Outlined.ThumbUp,
                     content = commentLikeCount.toShortChinese()
@@ -535,117 +542,79 @@ fun CommentCard(
                     content = "回复(${commentRepliesCount.toShortChinese()})"
                 )
             }
-            if (isUpLiked) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier
-                        .clip(
-                            RoundedCornerShape(100)
-                        )
-                        .background(BilibiliPink)
-                        .padding(
-                            start = 11.dp,
-                            end = 10.5.dp,
-                            top = 4.dp,
-                            bottom = 4.dp
-                        ), verticalAlignment = Alignment.CenterVertically
-                ) {
-                    var textHeight by remember {
-                        mutableStateOf(0.dp)
-                    }
-                    Icon(
-                        imageVector = Icons.Outlined.ThumbUp,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(textHeight),
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Text(
-                        text = "UP主觉得很赞",
-                        fontSize = 9.5.spx,
-                        fontFamily = wearbiliFontFamily,
-                        color = Color.White,
-                        modifier = Modifier
-                            .onGloballyPositioned {
-                                textHeight =
-                                    with(localDensity) { it.size.height.toDp() }
-                            },
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
             if (commentReplies.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            cn.spacexc.wearbili.common.domain.color.parseColor("#262626")
-                        )
-                        .padding(8.dp)
+                Card(
+                    outerPaddingValues = PaddingValues(0.dp),
+                    innerPaddingValues = PaddingValues(8.dp)
                 ) {
-                    commentReplies.forEach {
-                        RichText(
-                            isTopComment = false,
-                            origText = it.content?.message ?: "",
-                            emoteMap = it.content?.emote ?: emptyMap(),
-                            jumpUrlMap = it.content?.jump_url ?: emptyMap(),
-                            attentionUserMap = it.content?.at_name_to_mid ?: emptyMap(),
-                            fontSize = AppTheme.typography.body1.fontSize,
-                            isCommentReply = true,
-                            context = context,
-                            replyUserName = buildAnnotatedString {
-                                withStyle(
-                                    style = SpanStyle(
-                                        color = if (it.member.mid == uploaderMid) BilibiliPink else Color.White,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                ) {
-                                    append(it.member.uname)
-                                }
-                                append(": ")
-                            },
-                            replyUserMid = it.member.mid,
-                            maxLines = 2
-                        ) {
-                            /*if (isClickable) {
-                                Intent(context, CommentRepliesActivity::class.java).apply {
-                                    putExtra("oid", oid)
-                                    putExtra("rootCommentId", commentRpid)
-                                    putExtra("upMid", uploaderMid)
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    context.startActivity(this)
-                                }
-                            }*/
-                        }
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        var textHeight by remember {
-                            mutableStateOf(0.dp)
-                        }
-                        Text(
-                            text = commentReplyControl,
-                            fontSize = 9.spx,
-                            fontFamily = wearbiliFontFamily,
-                            color = BilibiliPink,
-                            modifier = Modifier
-                                .onGloballyPositioned {
-                                    textHeight =
-                                        with(localDensity) { it.size.height.toDp() }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                    ) {
+                        commentReplies.forEach {
+                            RichText(
+                                isTopComment = false,
+                                origText = it.content?.message ?: "",
+                                emoteMap = it.content?.emote ?: emptyMap(),
+                                jumpUrlMap = it.content?.jump_url ?: emptyMap(),
+                                attentionUserMap = it.content?.at_name_to_mid ?: emptyMap(),
+                                fontSize = AppTheme.typography.body1.fontSize,
+                                isCommentReply = true,
+                                context = context,
+                                replyUserName = buildAnnotatedString {
+                                    withStyle(
+                                        style = SpanStyle(
+                                            color = if (it.member.mid == uploaderMid) BilibiliPink else Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    ) {
+                                        append(it.member.uname)
+                                    }
+                                    append(": ")
                                 },
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Icon(
-                            imageVector = Icons.Default.ArrowForwardIos,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(textHeight - 4.dp)
-                                .offset(y = (0.5).dp),
-                            tint = BilibiliPink
-                        )
+                                replyUserMid = it.member.mid,
+                                maxLines = 2
+                            ) {
+                                /*if (isClickable) {
+                                    Intent(context, CommentRepliesActivity::class.java).apply {
+                                        putExtra("oid", oid)
+                                        putExtra("rootCommentId", commentRpid)
+                                        putExtra("upMid", uploaderMid)
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                        context.startActivity(this)
+                                    }
+                                }*/
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            var textHeight by remember {
+                                mutableStateOf(0.dp)
+                            }
+                            Text(
+                                text = commentReplyControl,
+                                fontSize = AppTheme.typography.body1.fontSize,
+                                fontFamily = wearbiliFontFamily,
+                                color = BilibiliPink,
+                                modifier = Modifier
+                                    .onGloballyPositioned {
+                                        textHeight =
+                                            with(localDensity) { it.size.height.toDp() }
+                                    },
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Icon(
+                                imageVector = Icons.Default.ArrowForwardIos,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(textHeight - 4.dp)
+                                    .offset(y = (0.5).dp),
+                                tint = BilibiliPink
+                            )
+                        }
                     }
                 }
             }

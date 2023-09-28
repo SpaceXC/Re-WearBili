@@ -80,7 +80,7 @@ class SearchPagingSource(
             return LoadResult.Page(
                 data = userSearchObjectList + bangumiSearchObjectList + mediaSearchObjectList + videoSearchObjectList,
                 prevKey = null,
-                nextKey = page + 1
+                nextKey = if (page >= (response.data?.data?.numPages ?: 0)) null else page + 1
             )
         } else {
             //val videos = result.find { it.resultType == "video" }?.data?.map { it as SearchedVideo }?.map { SearchObject(type = "video", item = it) } ?: emptyList()
@@ -95,7 +95,7 @@ class SearchPagingSource(
             return LoadResult.Page(
                 data = videoSearchObjectList,
                 prevKey = page - 1,
-                nextKey = if (page == response.data?.data?.numPages) null else page + 1
+                nextKey = if (page >= (response.data?.data?.numPages ?: 0)) null else page + 1
             )
         }
     }

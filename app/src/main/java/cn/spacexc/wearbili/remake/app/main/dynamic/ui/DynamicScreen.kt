@@ -10,14 +10,19 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
+import cn.spacexc.wearbili.remake.common.ui.lazyRotateInput
 
 /**
  * Created by XC-Qan on 2023/4/27.
@@ -33,7 +38,11 @@ fun DynamicScreen(
     viewModel: DynamicViewModel,
     context: Context
 ) {
+    val focusRequester = remember {
+        FocusRequester()
+    }
     val dynamicListData = viewModel.dynamicFlow.collectAsLazyPagingItems()
+    val scope = rememberCoroutineScope()
     val pullToRefreshState = rememberPullRefreshState(
         refreshing = dynamicListData.loadState.refresh is LoadState.Loading,
         onRefresh = { dynamicListData.refresh() },
@@ -53,7 +62,9 @@ fun DynamicScreen(
         ) {
             LazyColumn(
                 state = viewModel.scrollState,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .lazyRotateInput(focusRequester, viewModel.scrollState),
                 contentPadding = PaddingValues(
                     vertical = 4.dp,
                     horizontal = /*TitleBackgroundHorizontalPadding*/ 8.dp
@@ -65,6 +76,9 @@ fun DynamicScreen(
                     }
                 }
             }
+            LaunchedEffect(key1 = Unit, block = {
+                focusRequester.requestFocus()
+            })
             PullRefreshIndicator(
                 refreshing = dynamicListData.loadState.refresh is LoadState.Loading,
                 state = pullToRefreshState,

@@ -1,31 +1,33 @@
 package cn.spacexc.wearbili.remake.app.splash.ui
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
-import androidx.media3.common.util.UnstableApi
 import cn.spacexc.bilibilisdk.sdk.user.webi.WebiSignature
-import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
+import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.login.ui.LoginActivity
 import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
 import cn.spacexc.wearbili.remake.app.update.ui.UpdateActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
-import cn.spacexc.wearbili.remake.common.ui.Checkbox
+import cn.spacexc.wearbili.remake.common.ui.Card
 import dagger.hilt.android.AndroidEntryPoint
 import io.ktor.client.request.header
 import kotlinx.coroutines.launch
@@ -49,7 +51,18 @@ class SplashScreenActivity : ComponentActivity() {
     lateinit var networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 
     @Inject
+    lateinit var dataStoreManager: DataStoreManager
+
+    @Inject
     lateinit var userManager: cn.spacexc.wearbili.common.domain.user.UserManager
+
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
+            if (granted.all { it.value }) {
+                //initApp()
+            }
+            initApp()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,18 +70,33 @@ class SplashScreenActivity : ComponentActivity() {
             SplashScreen()
             //UIPreview()
         }
-        initApp()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.REQUEST_INSTALL_PACKAGES,
+                    Manifest.permission.INSTALL_PACKAGES,
+                )
+            )
+        } else {
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+            )
+        }
+        //initApp()
     }
 
     @Composable
-    fun UIPreview() {
-        var isChecked by remember {
+    private fun UIPreview() {
+        var isSelected by remember {
             mutableStateOf(false)
         }
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Checkbox(isChecked = isChecked) {
-                isChecked = it
-            }
+        Card(isHighlighted = isSelected, onClick = { isSelected = !isSelected }) {
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 
@@ -76,8 +104,6 @@ class SplashScreenActivity : ComponentActivity() {
         val currentTime = System.currentTimeMillis()    //后面leancloud签名用到，别删
         lifecycleScope.launch {
             //VideoInfo.getVideoInfoApp(VIDEO_TYPE_AID, "954781099").logd()
-            println(VideoInfo.getVideoPlayUrlForTv(1158277626))
-
             networkUtils.get<String>("https://bilibili.com")    // 每次启动获取最新的cookie
             WebiSignature.getWebiSignature()    //保存新的webi签名
             //print(VideoInfo.getVideoPlaybackUrls(videoId = "BV1ng4y1877V", videoCid = 175354448))
@@ -91,18 +117,25 @@ class SplashScreenActivity : ComponentActivity() {
                     )
                 }
             appUpdatesResponse.data?.results?.let { updateLists ->
-                updateLists.find { it.versionCode.toLong() > Application.getVersionCode() }
+                updateLists.firstOrNull { it.versionCode.toLong() > Application.getVersionCode() }
                     ?.let { version ->
-                        startActivity(
-                            Intent(
-                                this@SplashScreenActivity,
-                                UpdateActivity::class.java
-                            ).apply {
-                                putExtra("updateInfo", version)
-                            })
-                        finish()
-                        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
-                        return@launch
+                        val latestSkippedVersion =
+                            dataStoreManager.getInt("latestSkippedVersion") ?: 0
+                        if (version.versionCode > latestSkippedVersion) {
+                            startActivity(
+                                Intent(
+                                    this@SplashScreenActivity,
+                                    UpdateActivity::class.java
+                                ).apply {
+                                    putExtra("updateInfo", version)
+                                })
+                            finish()
+                            overridePendingTransition(
+                                R.anim.activity_fade_in,
+                                R.anim.activity_fade_out
+                            )
+                            return@launch
+                        }
                     }
             }
             if (userManager.isUserLoggedIn()) {
@@ -134,6 +167,7 @@ class SplashScreenActivity : ComponentActivity() {
                 finish()
                 overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
             } else {
+                ToastUtils.showText("你好像还没有登陆诶...")
                 startActivity(Intent(this@SplashScreenActivity, LoginActivity::class.java))
                 finish()
                 overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
@@ -166,6 +200,7 @@ class SplashScreenActivity : ComponentActivity() {
         val versionName: String,
         val versionCode: Int,
         val downloadAddress: String,
+        val mandatory: Boolean,
         val updateLog: String,
         val updatedAt: String
     ) : Parcelable

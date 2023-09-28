@@ -155,7 +155,7 @@ fun Activity.CrashActivityScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ContentCopy,
-                        contentDescription = null,
+                        contentDescription = "复制日志到剪贴板",
                         tint = Color.White,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -170,7 +170,7 @@ fun Activity.CrashActivityScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.QrCode,
-                        contentDescription = null,
+                        contentDescription = "生成日志二维码",
                         tint = Color.White,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -194,7 +194,7 @@ fun Activity.CrashActivityScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.RestartAlt,
-                        contentDescription = null,
+                        contentDescription = "重启应用",
                         tint = Color.White,
                         modifier = Modifier
                             .fillMaxWidth()

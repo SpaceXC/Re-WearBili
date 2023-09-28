@@ -78,4 +78,12 @@ class DataStoreManager(application: Context) : DataManager {
     override suspend fun getBool(name: String, defVal: Boolean?): Boolean? {
         return dataStore.data.first()[booleanPreferencesKey(name)] ?: defVal
     }
+
+    companion object {
+        private var mInstance: DataStoreManager? = null
+        fun getInstance(context: Context): DataStoreManager {
+            if (mInstance == null) mInstance = DataStoreManager(context)
+            return mInstance!!
+        }
+    }
 }

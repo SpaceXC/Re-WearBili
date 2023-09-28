@@ -5,10 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.ViewModel
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicViewModel
 import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileViewModel
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendViewModel
@@ -25,6 +26,8 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    val viewModel by viewModels<MainActivityViewModel>()
+
     private val recommendViewModel by viewModels<RecommendViewModel>()
     private val dynamicViewModel by viewModels<DynamicViewModel>()
     private val profileViewModel by viewModels<ProfileViewModel>()
@@ -34,14 +37,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         profileViewModel.getProfile()
         setContent {
-            val pagerState = rememberPagerState()
             val recommendSource by SettingsManager.recommendSource.collectAsState(initial = "app")
             LaunchedEffect(key1 = recommendSource, block = {
                 recommendViewModel.getRecommendVideos(true, recommendSource)
             })
             MainActivityScreen(
                 context = this,
-                pagerState = pagerState,
+                pagerState = viewModel.pagerState,
                 recommendScreenState = recommendViewModel.screenState,
                 recommendSource = recommendSource,
                 onRecommendRefresh = { isRefresh ->
@@ -54,5 +56,10 @@ class MainActivity : ComponentActivity() {
                 profileScreenState = profileViewModel.screenState,
             )
         }
+    }
+
+    class MainActivityViewModel : ViewModel() {
+        @OptIn(ExperimentalFoundationApi::class)
+        val pagerState = PagerState()
     }
 }

@@ -2,15 +2,12 @@ package cn.spacexc.wearbili.remake.app.bangumi.timeline.ui
 
 import android.app.Activity
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -103,7 +100,7 @@ fun Activity.BangumiTimelineScreen(
                                 item {
                                     val color by animateColorAsState(
                                         targetValue = if (viewModel.currentDate == day.first) BilibiliPink else Color.Transparent,
-                                        animationSpec = tween(durationMillis = 400)
+                                        animationSpec = tween(durationMillis = 400), label = ""
                                     )
                                     Column(
                                         horizontalAlignment = Alignment.CenterHorizontally,
