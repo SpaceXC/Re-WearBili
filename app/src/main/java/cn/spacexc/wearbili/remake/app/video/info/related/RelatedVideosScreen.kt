@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
-import cn.spacexc.wearbili.remake.app.videoplayer.defaultplayer.VIDEO_TYPE_BVID
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
 

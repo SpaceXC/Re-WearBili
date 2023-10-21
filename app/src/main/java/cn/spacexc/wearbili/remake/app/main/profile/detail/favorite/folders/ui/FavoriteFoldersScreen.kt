@@ -1,6 +1,6 @@
 package cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.folders.ui
 
-import android.content.Context
+import android.app.Activity
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,7 +47,7 @@ import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
  */
 
 @Composable
-fun Context.FavoriteFoldersScreen(
+fun Activity.FavoriteFoldersScreen(
     viewModel: FavoriteFolderViewModel,
     onBack: () -> Unit
 ) {

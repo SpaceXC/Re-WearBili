@@ -1,6 +1,6 @@
 package cn.spacexc.wearbili.remake.app.about.ui
 
-import android.content.Context
+import android.app.Activity
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun Context.AboutScreen(
+fun Activity.AboutScreen(
     onBack: () -> Unit, state: LazyListState
 ) {
     val firstVisibleElement by remember { derivedStateOf { state.firstVisibleItemIndex } }

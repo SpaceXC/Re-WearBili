@@ -1,6 +1,6 @@
 package cn.spacexc.wearbili.remake.app.search.ui
 
-import android.content.Context
+import android.app.Activity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,7 +45,7 @@ import kotlinx.coroutines.flow.Flow
 /*@UnstableApi*/
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Context.SearchResultScreen(
+fun Activity.SearchResultScreen(
     onBack: () -> Unit,
     flow: Flow<PagingData<SearchObject>>
 ) {

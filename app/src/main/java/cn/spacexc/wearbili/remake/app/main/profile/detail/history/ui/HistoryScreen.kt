@@ -1,6 +1,6 @@
 package cn.spacexc.wearbili.remake.app.main.profile.detail.history.ui
 
-import android.content.Context
+import android.app.Activity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,7 +33,7 @@ import cn.spacexc.wearbili.remake.common.ui.VideoCard
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Context.HistoryScreen(
+fun Activity.HistoryScreen(
     viewModel: HistoryViewModel,
     onBack: () -> Unit
 ) {

@@ -14,7 +14,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.media3.common.util.UnstableApi
 import androidx.palette.graphics.Palette
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentScreen
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentViewModel
@@ -31,12 +30,12 @@ import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-/*@UnstableApi*/
+        /*@UnstableApi*/
 fun Activity.BangumiScreen(
     bangumiInfoViewModel: BangumiViewModel,
     bangumiCommentViewModel: CommentViewModel
 ) {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(pageCount = { 2 })
     var currentColor by remember {
         mutableStateOf(BilibiliPink)
     }
@@ -65,7 +64,7 @@ fun Activity.BangumiScreen(
         ambientAlpha = ambientAlpha,
         onBack = ::finish
     ) {
-        HorizontalPager(pageCount = 2) { page ->
+        HorizontalPager(state = pagerState) { page ->
             when (page) {
                 0 -> BangumiInfoScreen(viewModel = bangumiInfoViewModel)
                 1 -> CommentScreen(

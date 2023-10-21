@@ -1,7 +1,6 @@
 package cn.spacexc.wearbili.remake.app.settings.domain
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.Dp
 
 /**
  * Created by XC-Qan on 2023/8/7.
@@ -14,5 +13,6 @@ import androidx.compose.ui.unit.Dp
 data class SettingsItem(
     val icon: @Composable () -> Unit,
     val name: String,
-    val description: String
+    val description: String,
+    val action: (() -> Unit)? = null
 )

@@ -1,6 +1,6 @@
 package cn.spacexc.wearbili.remake.app.search.ui
 
-import android.content.Context
+import android.app.Activity
 import android.content.Intent
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -78,7 +78,7 @@ fun SearchActivityScreen(
     searchViewModel: SearchViewModel,
     onBack: () -> Unit,
     defaultSearchKeyword: String = "",
-    context: Context
+    context: Activity
 ) {
     val localDensity = LocalDensity.current
     val hotWords by searchViewModel.hotSearchedWords.collectAsState()
@@ -148,15 +148,7 @@ fun SearchActivityScreen(
                                 keyboardActions = KeyboardActions(onSearch = {
                                     if (searchInputValue.isNotEmpty()) {
                                         searchViewModel.addSearchHistory(searchInputValue)
-                                        context.startActivity(
-                                            Intent(
-                                                context,
-                                                SearchResultActivity::class.java
-                                            ).apply {
-                                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                                putExtra(PARAM_KEYWORD, searchInputValue)
-                                            }
-                                        )
+                                        searchViewModel.searchByKeyword(context, searchInputValue)
                                     }
                                 }),
                                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -170,12 +162,7 @@ fun SearchActivityScreen(
                             modifier = Modifier.clickVfx {
                                 if (searchInputValue.isNotEmpty()) {
                                     searchViewModel.addSearchHistory(searchInputValue)
-                                    context.startActivity(
-                                        Intent(context, SearchResultActivity::class.java).apply {
-                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                            putExtra(PARAM_KEYWORD, searchInputValue)
-                                        }
-                                    )
+                                    searchViewModel.searchByKeyword(context, searchInputValue)
                                 }
                             }
                         )
@@ -234,12 +221,7 @@ fun SearchActivityScreen(
                         outerPaddingValues = PaddingValues(),
                         innerPaddingValues = PaddingValues(8.dp),
                         onClick = {
-                            context.startActivity(
-                                Intent(context, SearchResultActivity::class.java).apply {
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    putExtra(PARAM_KEYWORD, item)
-                                }
-                            )
+                            searchViewModel.searchByKeyword(context, item)
                         }
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {

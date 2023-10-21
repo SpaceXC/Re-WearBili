@@ -63,12 +63,12 @@ import androidx.lifecycle.viewModelScope
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_IS_BANGUMI
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
-import cn.spacexc.wearbili.remake.app.videoplayer.defaultplayer.Media3PlayerActivity
-import cn.spacexc.wearbili.remake.app.videoplayer.defaultplayer.PARAM_IS_BANGUMI
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card

@@ -1,6 +1,6 @@
 package cn.spacexc.wearbili.remake.app.video.info.ui
 
-import android.content.Context
+import android.app.Activity
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -36,16 +36,12 @@ import kotlinx.coroutines.flow.Flow
  * 给！爷！写！注！释！
  */
 
-data class VideoInformationActivityScreenState @OptIn(ExperimentalFoundationApi::class) constructor(
-    val pagerState: PagerState = PagerState(initialPage = 0),
-)
-
 @OptIn(ExperimentalFoundationApi::class)
 /*@UnstableApi*/
 @Composable
 fun VideoInformationActivityScreen(
-    context: Context,
-    state: VideoInformationActivityScreenState,
+    context: Activity,
+    state: PagerState,
     videoInformationScreenState: VideoInformationScreenState,
     videoInformationViewModel: VideoInformationViewModel,
     commentViewModel: CommentViewModel,
@@ -75,7 +71,7 @@ fun VideoInformationActivityScreen(
         }
     })
     context.TitleBackground(
-        title = when (state.pagerState.currentPage) {
+        title = when (state.currentPage) {
             0 -> "详情"
             1 -> "评论"
             2 -> "相关推荐"
@@ -86,7 +82,7 @@ fun VideoInformationActivityScreen(
         ambientAlpha = ambientAlpha
         //backgroundColor = color,
     ) {
-        HorizontalPager(pageCount = 3, state = state.pagerState) {
+        HorizontalPager(state = state) {
             when (it) {
                 0 -> VideoInformationScreen(
                     state = videoInformationScreenState,

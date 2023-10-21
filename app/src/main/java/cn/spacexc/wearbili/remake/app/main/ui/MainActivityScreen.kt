@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app.main.ui
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.DrawableRes
@@ -154,7 +155,7 @@ val menuItems = listOf(
 @OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun MainActivityScreen(
-    context: Context,
+    context: Activity,
     pagerState: PagerState,
     recommendScreenState: RecommendScreenState,
     recommendSource: String,
@@ -266,7 +267,7 @@ fun MainActivityScreen(
                     }
                 } else {
                     HorizontalPager(
-                        pageCount = 3 /* 推荐页，动态页，个人页 */,
+                        //pageCount = 3 /* 推荐页，动态页，个人页 */,
                         modifier = Modifier.fillMaxSize(),
                         state = pagerState
                     ) {

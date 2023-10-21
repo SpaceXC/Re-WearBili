@@ -1,6 +1,7 @@
 package cn.spacexc.wearbili.remake.common.ui
 
-import android.content.Context
+import android.app.Activity
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -19,6 +20,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -28,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
@@ -49,11 +52,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
@@ -65,6 +68,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.isAudioServiceUp
+import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerActivity
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.ToastUtils.toastContent
 import cn.spacexc.wearbili.remake.common.UIState
@@ -89,7 +94,7 @@ import kotlinx.coroutines.delay
  */
 @Composable
 @OptIn(ExperimentalAnimationApi::class) //DON'T DELETE THIS!!!!!!!!!!!!!!!!(DELETING CAUSES BUILD TIME EXCEPTION "This is an experimental animation API.")
-fun Context.CirclesBackground(
+fun Activity.CirclesBackground(
     modifier: Modifier = Modifier,
     uiState: UIState = UIState.Success,
     isShowing: Boolean = true,
@@ -129,7 +134,10 @@ fun Context.CirclesBackground(
                     .fillMaxSize()
                     .background(backgroundColor)
             ) {
-                LoadableBox(uiState = uiState, content = content)
+                LoadableBox(
+                    uiState = uiState,
+                    content = content,
+                    onLongClick = { this@CirclesBackground.finish() })
             }
         } else {
             Box(
@@ -158,7 +166,10 @@ fun Context.CirclesBackground(
                     }
 
                 }
-                LoadableBox(uiState = uiState, content = content)
+                LoadableBox(
+                    uiState = uiState,
+                    content = content,
+                    onLongClick = { this@CirclesBackground.finish() })
             }
         }
         Box(modifier = Modifier.fillMaxSize()) {
@@ -199,6 +210,7 @@ fun Context.CirclesBackground(
 fun LoadableBox(
     modifier: Modifier = Modifier,
     uiState: UIState,
+    onLongClick: () -> Unit = {},
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -206,7 +218,9 @@ fun LoadableBox(
             when (it) {
                 UIState.Loading -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickVfx(onLongClick = onLongClick),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(
@@ -227,19 +241,28 @@ fun LoadableBox(
                 }
 
                 UIState.Success -> {
-                    Box(modifier = Modifier.fillMaxSize()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
                         content()
                     }
                 }
 
                 UIState.Failed -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickVfx(onLongClick = onLongClick),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillMaxWidth(0.8f)
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .clickVfx(onLongClick = {
+
+                                })
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.img_loading_2233_error),
@@ -261,7 +284,7 @@ fun LoadableBox(
 val TitleBackgroundHorizontalPadding = 12.dp
 
 @Composable
-fun Context.TitleBackground(
+fun Activity.TitleBackground(
     modifier: Modifier = Modifier,
     title: String,
     isTitleClipToBounds: Boolean = true,
@@ -290,14 +313,19 @@ fun Context.TitleBackground(
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
-                    .padding(horizontal = TitleBackgroundHorizontalPadding, vertical = 8.dp)
+                    .padding(
+                        horizontal = TitleBackgroundHorizontalPadding,
+                        vertical = if (isAudioServiceUp) 6.5.dp else 8.dp
+                    )
                     .fillMaxWidth()
                     .clickable(interactionSource = MutableInteractionSource(), indication = null) {
                         if (isTitleClickable) {
                             if (isDropdownTitle) onDropdown() else onBack()
                         }
                     },
-                verticalAlignment = if (isRound()) Alignment.CenterVertically else Alignment.Top
+                //hori = if (isRound()) Alignment.CenterVertically else Alignment.Top
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = if (isRound()) Arrangement.Center else Arrangement.Start
             ) {
                 if (isDropdownTitle) {
                     Text(
@@ -326,8 +354,7 @@ fun Context.TitleBackground(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
                     )
-                }
-                else {
+                } else {
                     Text(
                         text = buildAnnotatedString {
                             appendInlineContent(id = "backIcon")
@@ -352,12 +379,63 @@ fun Context.TitleBackground(
                         textAlign = if (isRound()) TextAlign.Center else null,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f).wrapContentHeight()
+                        modifier = Modifier
+                            .weight(1f)
+                            .wrapContentHeight()
                     )
                 }
                 if (!isRound()) {
                     //Spacer(modifier = Modifier.weight(1f))
-                    Text(text = timeText, style = AppTheme.typography.h2)
+
+                    Text(
+                        text = buildAnnotatedString {
+                            if (isAudioServiceUp) {
+                                appendInlineContent("playIcon")
+                                append(' ')
+                            }
+                            append(timeText)
+                        },
+                        style = AppTheme.typography.h2,
+                        modifier = Modifier
+                            .clickVfx(isEnabled = isAudioServiceUp) {
+                                startActivity(
+                                    Intent(
+                                        this@TitleBackground,
+                                        AudioPlayerActivity::class.java
+                                    ).apply {
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                )
+                            }
+                            .then(
+                                if (isAudioServiceUp) {
+                                    Modifier
+                                        .clip(CircleShape)
+                                        .background(BilibiliPink)
+                                        .padding(vertical = 1.5.dp, horizontal = 8.dp)
+                                } else {
+                                    Modifier
+                                }
+                            ),
+                        inlineContent = mapOf(
+                            "playIcon" to InlineTextContent(
+                                placeholder = Placeholder(
+                                    width = AppTheme.typography.h2.fontSize.times(0.8f),
+                                    height = AppTheme.typography.h2.fontSize.times(0.8f),
+                                    placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                                )
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.img_play_icon),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .offset(),
+                                    tint = Color.White
+                                )
+                            }
+                        )
+                    )
                 }
             }
             Box(
@@ -371,5 +449,124 @@ fun Context.TitleBackground(
                 content()
             }
         }
+    }
+}
+
+@Composable
+fun Activity.ArrowTitleBackgroundWithCustomBackground(
+    onBack: () -> Unit = ::finish,
+    background: @Composable BoxScope.() -> Unit,
+    title: String = "",
+    content: @Composable BoxScope.() -> Unit
+) {
+    val timeSource = DefaultTimeSource("HH:mm")
+    val timeText = timeSource.currentTime
+
+    LaunchedEffect(key1 = toastContent, block = {
+        if (toastContent.isNotEmpty()) {
+            delay(2000)
+            toastContent = ""
+        }
+    })
+    WearBiliTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            background()
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .padding(
+                            start = TitleBackgroundHorizontalPadding,
+                            end = TitleBackgroundHorizontalPadding,
+                            top = 8.dp,
+                            bottom = 4.dp
+                        )
+                        .fillMaxWidth()
+                        .clickable(
+                            interactionSource = MutableInteractionSource(),
+                            indication = null
+                        ) {
+                            onBack()
+                        },
+                    verticalAlignment = if (isRound()) Alignment.CenterVertically else Alignment.Top
+                ) {
+                    Text(
+                        text = buildAnnotatedString {
+                            appendInlineContent(id = "backIcon")
+                            append(title)
+                        },
+                        style = AppTheme.typography.h2,
+                        inlineContent = mapOf(
+                            "backIcon" to InlineTextContent(
+                                placeholder = Placeholder(
+                                    width = AppTheme.typography.h2.fontSize,
+                                    height = AppTheme.typography.h2.fontSize,
+                                    placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowBackIos,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }),
+                        textAlign = if (isRound()) TextAlign.Center else null,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(1f)
+                            .wrapContentHeight()
+                    )
+                    if (!isRound()) {
+                        //Spacer(modifier = Modifier.weight(1f))
+                        Text(text = timeText, style = AppTheme.typography.h2)
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                    //.weight(1f)
+                    /*.apply {
+                        if (isTitleClipToBounds) clipToBounds()
+                    }*/
+                ) {
+                    content()
+                }
+            }
+        }
+        Box(modifier = Modifier.fillMaxSize()) {
+            AnimatedVisibility(
+                visible = toastContent.isNotEmpty(),
+                enter = scaleIn() + fadeIn() + slideInVertically { it / 2 },
+                exit = scaleOut() + fadeOut() + slideOutVertically { it / 2 },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+            ) {
+                Text(
+                    text = toastContent, modifier = Modifier
+                        .padding(
+                            bottom = 24.dp,
+                            start = 8.dp,
+                            end = 8.dp
+                        )
+                        .background(
+                            color = Color(0, 0, 0, 153),
+                            shape = CircleShape
+                        )
+                        .padding(8.dp)
+                        .align(Alignment.BottomCenter)
+                        .wearBiliAnimatedContentSize(),
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontFamily = wearbiliFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
     }
 }

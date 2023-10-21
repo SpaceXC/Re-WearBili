@@ -19,7 +19,6 @@
     <uses-permission android:name="android.permission.RESTART_PACKAGES" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
-
     <application
         android:name=".app.Application"
         android:allowBackup="true"
@@ -40,6 +39,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
         <activity
             android:name=".app.splash.ui.SplashScreenActivity"
             android:exported="true"
@@ -50,7 +50,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service android:name="com.android.cast.dlna.dmc.DLNACastService" />
+        <service
+            android:name=".app.player.audio.AudioPlayerService"
+            android:exported="false" />
+
         <receiver
             android:name=".app.update.UpdateReceiver"
             android:exported="false" />
@@ -89,7 +94,7 @@
             android:name=".app.main.profile.detail.favorite.folders.ui.FavoriteFolderActivity"
             android:exported="false" />
         <activity
-            android:name=".app.videoplayer.defaultplayer.Media3PlayerActivity"
+            android:name=".app.player.videoplayer.defaultplayer.Media3PlayerActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false"
             android:theme="@style/Theme.WearBili.Player" />
@@ -105,10 +110,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".app.videoplayer.mirroring.dlna.DlnaDeviceDiscoverActivity"
+            android:name=".app.player.videoplayer.mirroring.dlna.DlnaDeviceDiscoverActivity"
             android:exported="false" />
         <activity
-            android:name=".app.videoplayer.mirroring.ScreenMirrorActivity"
+            android:name=".app.player.videoplayer.mirroring.ScreenMirrorActivity"
             android:exported="false" />
         <activity
             android:name=".app.bangumi.info.ui.BangumiActivity"
@@ -134,5 +139,9 @@
         <activity
             android:name=".app.cache.list.CacheListActivity"
             android:exported="false" />
+        <activity
+            android:name=".app.player.audio.AudioPlayerActivity"
+            android:exported="true" />
     </application>
+
 </manifest>

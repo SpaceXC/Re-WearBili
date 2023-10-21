@@ -1,7 +1,12 @@
 package cn.spacexc.wearbili.remake.app
 
+import android.app.ActivityManager
+import android.content.Context
 import android.os.Build
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import cn.spacexc.bilibilisdk.BilibiliSdkManager
 import cn.spacexc.bilibilisdk.data.DataManager
 import cn.spacexc.wearbili.common.APP_CENTER_SECRET
@@ -9,6 +14,7 @@ import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.crash.ui.CrashActivity
+import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerService
 import cn.spacexc.wearbili.remake.common.AriaDownloadProgressSyncer
 import com.arialyy.aria.core.Aria
 import com.developer.crashx.config.CrashConfig
@@ -16,6 +22,10 @@ import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
@@ -31,6 +41,8 @@ import javax.inject.Inject
 const val TAG = "Re:WearBili"
 val APP_VERSION_NAME = Application.getVersionName()
 val APP_VERSION_CODE = Application.getVersionCode()
+
+var Context.isAudioServiceUp by mutableStateOf(false)
 
 @HiltAndroidApp
 class Application : android.app.Application() {
@@ -65,7 +77,38 @@ class Application : android.app.Application() {
             TAG,
             "20230708: 记住，在这里每一处不合理的地方，都有他的合理之处和存在于此的理由 ————XC于00:17有感而发"
         )
+        checkIfAudioServiceIsUp()
     }
+
+    private fun checkIfAudioServiceIsUp() {
+        CoroutineScope(Dispatchers.IO).launch {
+            while (true) {
+                this@Application.isAudioServiceUp =
+                    isForegroundServiceRunning(this@Application, AudioPlayerService::class.java)
+                delay(800)
+            }
+        }
+    }
+
+
+    private fun isForegroundServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
+        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+
+        return activityManager.getRunningServices(Int.MAX_VALUE)
+            .find { it.service.className == serviceClass.name } != null
+        /*for (service in activityManager.getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                if (service.foreground) {
+                    // 服务正在前台运行
+                    return true
+                }
+            }
+        }
+
+        // 服务不在前台运行
+        return false*/
+    }
+
 
     override fun onTerminate() {
         super.onTerminate()

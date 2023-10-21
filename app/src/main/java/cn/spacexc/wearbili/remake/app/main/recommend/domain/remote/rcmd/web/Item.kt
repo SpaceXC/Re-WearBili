@@ -7,7 +7,7 @@ data class Item(
     @SerializedName("av_feature")
     val avFeature: Any?,
     @SerializedName("business_info")
-    val businessInfo: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.BusinessInfo?,
+    val businessInfo: BusinessInfo?,
     @SerializedName("bvid")
     val bvid: String,
     @SerializedName("cid")
@@ -25,7 +25,7 @@ data class Item(
     @SerializedName("ogv_info")
     val ogvInfo: Any?,
     @SerializedName("owner")
-    val owner: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.Owner?,
+    val owner: Owner?,
     @SerializedName("pic")
     val pic: String,
     @SerializedName("pos")
@@ -33,13 +33,13 @@ data class Item(
     @SerializedName("pubdate")
     val pubdate: Int,
     @SerializedName("rcmd_reason")
-    val rcmdReason: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.RcmdReason?,
+    val rcmdReason: RcmdReason?,
     @SerializedName("room_info")
     val roomInfo: Any?,
     @SerializedName("show_info")
     val showInfo: Int,
     @SerializedName("stat")
-    val stat: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.Stat?,
+    val stat: Stat?,
     @SerializedName("title")
     val title: String,
     @SerializedName("track_id")

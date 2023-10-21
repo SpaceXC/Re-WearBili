@@ -9,15 +9,11 @@ import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import cn.spacexc.bilibilisdk.sdk.user.webi.WebiSignature
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
@@ -27,7 +23,7 @@ import cn.spacexc.wearbili.remake.app.login.ui.LoginActivity
 import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
 import cn.spacexc.wearbili.remake.app.update.ui.UpdateActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
-import cn.spacexc.wearbili.remake.common.ui.Card
+import cn.spacexc.wearbili.remake.common.ui.GradientSlider
 import dagger.hilt.android.AndroidEntryPoint
 import io.ktor.client.request.header
 import kotlinx.coroutines.launch
@@ -92,15 +88,20 @@ class SplashScreenActivity : ComponentActivity() {
 
     @Composable
     private fun UIPreview() {
-        var isSelected by remember {
-            mutableStateOf(false)
+        var value by remember {
+            mutableFloatStateOf(0f)
         }
-        Card(isHighlighted = isSelected, onClick = { isSelected = !isSelected }) {
-            Spacer(modifier = Modifier.height(32.dp))
-        }
+        GradientSlider(value = value, onValueChanged = {
+            value = it
+        }, range = 0f..10f)
     }
 
     private fun initApp() {
+        startActivity(Intent(this@SplashScreenActivity, MainActivity::class.java))
+        finish()
+        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
+        return
+
         val currentTime = System.currentTimeMillis()    //后面leancloud签名用到，别删
         lifecycleScope.launch {
             //VideoInfo.getVideoInfoApp(VIDEO_TYPE_AID, "954781099").logd()

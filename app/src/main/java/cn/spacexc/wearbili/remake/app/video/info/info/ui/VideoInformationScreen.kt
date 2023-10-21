@@ -34,6 +34,7 @@ import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -55,6 +56,9 @@ import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.cache.create.ui.CreateNewCacheActivity
 import cn.spacexc.wearbili.remake.app.cache.create.ui.PARAM_VIDEO_BVID
+import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerActivity
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
+import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.PARAM_VIDEO_AID
 import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.VideoFavouriteFoldersActivity
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
@@ -62,7 +66,6 @@ import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_WEBI_SIGNATURE_KEY
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
-import cn.spacexc.wearbili.remake.app.videoplayer.defaultplayer.Media3PlayerActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
@@ -107,13 +110,14 @@ fun VideoInformationScreen(
 
     val scope = rememberCoroutineScope()
 
+    val currentPlayer by SettingsManager.currentPlayer.collectAsState(initial = "videoPlayer")
 
     val favouriteRequestActivityLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = { result ->
             logd("back from favourite activity!")
             val isStillFavourite = result.data?.getBooleanExtra("isStillFavourite", true)
-            if(isStillFavourite != null) {
+            if (isStillFavourite != null) {
                 videoInformationViewModel.isFav = isStillFavourite
             }
         }
@@ -290,19 +294,44 @@ fun VideoInformationScreen(
                                     )
                                 }
                             },
-                            text = "用内置播放器播放",
+                            text = "用${
+                                when (currentPlayer) {
+                                    "videoPlayer" -> "视频播放器"
+                                    "audioPlayer" -> "音频播放器"
+                                    else -> "???"
+                                }
+                            }播放",
                             modifier = Modifier.weight(2f),
                             buttonModifier = Modifier.aspectRatio(2f / 1f),
                             onClick = {
                                 scope.launch {
-                                    Intent(context, Media3PlayerActivity::class.java).apply {
-                                        putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-                                        putExtra(PARAM_VIDEO_ID, video.bvid)
-                                        putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
-                                        putExtra(
-                                            PARAM_WEBI_SIGNATURE_KEY, UserUtils.webiSign()
-                                        )    //这个方法是suspend
-                                        context.startActivity(this)
+                                    when (currentPlayer) {
+                                        "videoPlayer" -> {
+                                            Intent(
+                                                context,
+                                                Media3PlayerActivity::class.java
+                                            ).apply {
+                                                putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
+                                                putExtra(PARAM_VIDEO_ID, video.bvid)
+                                                putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
+                                                putExtra(
+                                                    PARAM_WEBI_SIGNATURE_KEY, UserUtils.webiSign()
+                                                )    //这个方法是suspend
+                                                context.startActivity(this)
+                                            }
+                                        }
+
+                                        "audioPlayer" -> {
+                                            Intent(context, AudioPlayerActivity::class.java).apply {
+                                                putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
+                                                putExtra(PARAM_VIDEO_ID, video.bvid)
+                                                putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
+                                                putExtra(
+                                                    PARAM_WEBI_SIGNATURE_KEY, UserUtils.webiSign()
+                                                )    //这个方法是suspend
+                                                context.startActivity(this)
+                                            }
+                                        }
                                     }
                                 }
                             })
@@ -341,7 +370,7 @@ fun VideoInformationScreen(
                             buttonModifier = Modifier.aspectRatio(1f),
                             onClick = {
                                 videoInformationViewModel.likeVideo(
-                                    cn.spacexc.wearbili.remake.app.videoplayer.defaultplayer.VIDEO_TYPE_BVID,
+                                    cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.VIDEO_TYPE_BVID,
                                     video.bvid
                                 )
                             })

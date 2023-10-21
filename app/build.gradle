@@ -14,8 +14,8 @@ android {
         applicationId "cn.spacexc.wearbili.remake"
         minSdk 21
         targetSdk 34
-        versionCode 16
-        versionName "Downloadable 0.6.5"
+        versionCode 17
+        versionName "Audio 0.7.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -63,31 +63,32 @@ kapt {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
     implementation 'androidx.activity:activity-compose:1.7.2'
     //noinspection GradleDependency
-    implementation "androidx.compose.ui:ui:$compose_ui_version"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
-    implementation 'androidx.compose.material:material:1.4.3'
-    implementation "androidx.compose.material:material-icons-extended:1.4.3"
+    implementation "androidx.compose.ui:ui:1.5.3"
+    implementation "androidx.compose.ui:ui-tooling-preview:1.5.3"
+    implementation 'androidx.compose.material:material:1.5.0'
+    implementation "androidx.compose.material:material-icons-extended:1.5.0"
     implementation "androidx.compose.material3:material3:1.1.1"
     implementation "androidx.compose.material3:material3-window-size-class:1.1.1"
-    implementation 'androidx.compose.runtime:runtime-livedata:1.4.3'
+    implementation 'androidx.compose.runtime:runtime-livedata:1.5.3'
     implementation 'androidx.palette:palette-ktx:1.0.0'
     implementation "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.7.0"
     implementation project(path: ':app:common')
     implementation project(path: ':Bilibili-Kotlin-SDK')
-    implementation 'androidx.core:core-ktx:1.10.1'
+    //implementation project(path: ':live_stream_player')
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.lifecycle:lifecycle-service:$lifecycle_version'
     //implementation project(path: ':app:videoplayer')
     //implementation project(path: ':')
     //implementation 'androidx.core:core-ktx:+'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_ui_version"
-    debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
-    debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 
     def ktor_version = "2.2.4"
     implementation "io.ktor:ktor-client-core:$ktor_version"
@@ -127,18 +128,10 @@ dependencies {
     implementation "androidx.media3:media3-exoplayer:$media3_version"
     // For DASH playback support with ExoPlayer
     implementation "androidx.media3:media3-exoplayer-dash:$media3_version"
-    // For RTSP playback support with ExoPlayer
-    implementation "androidx.media3:media3-exoplayer-rtsp:$media3_version"
-    // For building media playback UIs
-    implementation "androidx.media3:media3-ui:$media3_version"
     // For exposing and controlling media sessions
     implementation "androidx.media3:media3-session:$media3_version"
-    // For extracting data from media containers
-    implementation "androidx.media3:media3-extractor:$media3_version"
     // For scheduling background operations using Jetpack Work's WorkManager with ExoPlayer
     implementation "androidx.media3:media3-exoplayer-workmanager:$media3_version"
-    // Common functionality for media database components
-    implementation "androidx.media3:media3-database:$media3_version"
     // Common functionality for media decoders
     implementation "androidx.media3:media3-decoder:$media3_version"
     // Common functionality for loading data
@@ -169,7 +162,7 @@ dependencies {
     implementation 'me.laoyuyu.aria:core:3.8.16'
     kapt 'me.laoyuyu.aria:compiler:3.8.16'
 
-    def work_version = "2.8.0"
+    def work_version = "2.8.1"
     // (Java only)
     implementation "androidx.work:work-runtime:$work_version"
     // Kotlin + coroutines

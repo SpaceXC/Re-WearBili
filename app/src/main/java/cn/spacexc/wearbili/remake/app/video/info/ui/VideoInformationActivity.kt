@@ -4,13 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.media3.common.util.UnstableApi
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.rememberPagerState
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentViewModel
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
 import cn.spacexc.wearbili.remake.app.video.info.related.RelatedVideosViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 /**
  * Created by XC-Qan on 2023/4/12.
@@ -29,12 +28,12 @@ const val PARAM_WEBI_SIGNATURE_KEY = "webi_signature_key"
 
 @AndroidEntryPoint
 class VideoInformationActivity : ComponentActivity() {
-    private val viewModel by viewModels<VideoInformationActivityViewModel>()
     private val videoInfoViewModel by viewModels<VideoInformationViewModel>()
     private val commentViewModel by viewModels<CommentViewModel>()
     private val relatedVideoViewModel by viewModels<RelatedVideosViewModel>()
 
     /*@UnstableApi*/
+    @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val videoIdType = intent.getStringExtra(PARAM_VIDEO_ID_TYPE) ?: VIDEO_TYPE_BVID
@@ -53,9 +52,13 @@ class VideoInformationActivity : ComponentActivity() {
         } else "0")
         val commentDataFlow = commentViewModel.commentListFlow(aid)
         setContent {
+            val pagerState = rememberPagerState {
+                3
+            }
+
             VideoInformationActivityScreen(
                 context = this,
-                state = viewModel.state,
+                state = pagerState,
                 videoInformationScreenState = videoInfoViewModel.state,
                 commentViewModel = commentViewModel,
                 uploaderMid = videoInfoViewModel.state.videoData?.owner?.mid ?: 0,

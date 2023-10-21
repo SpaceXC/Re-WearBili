@@ -44,8 +44,8 @@ class FollowingUsersActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         viewModel.getFollowedUserTags()
         setContent {
-            val pagerState = rememberPagerState()
             val followingTags by viewModel.followedUserTags.collectAsState()
+            val pagerState = rememberPagerState(pageCount = { followingTags.size })
             val followingUsersByTags by viewModel.followedUsers.collectAsState(initial = emptyList())
 
             TitleBackground(
@@ -54,7 +54,7 @@ class FollowingUsersActivity : ComponentActivity() {
                 onBack = ::finish
             ) {
                 HorizontalPager(
-                    pageCount = followingTags.size,
+                    //pageCount = followingTags.size,
                     state = pagerState,
                     modifier = Modifier
                         .fillMaxSize()

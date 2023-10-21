@@ -11,11 +11,19 @@ import cn.spacexc.wearbili.remake.app.Application
  * 给！爷！写！注！释！
  */
 
+const val SETTING_RECOMMENDATION_SOURCE = "recommendationSource"
+const val SETTING_IS_DARK_THEME = "isDarkTheme"
+
+//const val SETTING_IS_DEBUG = "isDebug"
+const val SETTING_IS_LOW_PERFORMANCE = "isLowPerformance"
+const val SETTING_CURRENT_PLAYER = "currentPlayer"
+
 object SettingsManager {
     val dataManager: DataManager = Application.getApplication().dataManager
 
-    val isDarkTheme = dataManager.getBoolFlow("isDarkTheme", false)
-    val recommendSource = dataManager.getStringFlow("recommendationSource", "web")
+    val isDarkTheme = dataManager.getBoolFlow(SETTING_IS_DARK_THEME, false)
+    val recommendSource = dataManager.getStringFlow(SETTING_RECOMMENDATION_SOURCE, "web")
     const val isDebug = false
-    val isLowPerformance = dataManager.getBoolFlow("isLowPerformance", false)
+    val isLowPerformance = dataManager.getBoolFlow(SETTING_IS_LOW_PERFORMANCE, false)
+    val currentPlayer = dataManager.getStringFlow(SETTING_CURRENT_PLAYER, "audioPlayer")
 }

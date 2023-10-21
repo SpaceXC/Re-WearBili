@@ -74,8 +74,15 @@ fun SettingsItem(
     var textHeight by remember {
         mutableStateOf(0.dp)
     }
-    Card(shape = RoundedCornerShape(15.dp)) {
-        Row(modifier = Modifier.fillMaxSize().padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
+    Card(shape = RoundedCornerShape(15.dp), onClick = {
+        item.action?.invoke()
+    }) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(2.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Box(modifier = Modifier.size(textHeight * 0.6f)) {
                 item.icon()
             }
