@@ -368,7 +368,7 @@ class Media3AudioPlayerViewModel /*@Inject constructor*/(
     ) {
         appendLoadMessage("获取音频信息...")
         val response =
-            VideoInfo.getVideoInfoByIdWeb(videoIdType, videoId)//.logd("subtitleResponse")!!
+            VideoInfo.getVideoInfoByIdWeb(videoIdType, videoId)
         print("Obtained Video Info")
         if (response.code != 0 || response.data == null || response.data?.data == null) return
         videoInfo = response.data

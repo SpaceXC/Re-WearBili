@@ -31,7 +31,7 @@ import java.net.HttpCookie
  */
 
 @SuppressLint("UnsafeOptInUsageError")
-class LiveStreamPlayerViewModel(private val application: Application) :
+class LiveStreamPlayerViewModel(application: Application) :
     AndroidViewModel(application) {
     enum class StreamPlayerState {
         Loading,

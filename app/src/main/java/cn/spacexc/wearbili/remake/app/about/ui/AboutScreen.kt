@@ -12,10 +12,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -23,6 +21,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,6 +49,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Created by XC-Qan on 2023/4/21.
+ * Modified on 2023/10/24!
  * I'm very cute so please be nice to my code!
  * 给！爷！写！注！释！
  * 给！爷！写！注！释！
@@ -62,10 +62,7 @@ fun Activity.AboutScreen(
 ) {
     val firstVisibleElement by remember { derivedStateOf { state.firstVisibleItemIndex } }
     var bannerClickedTimes by rememberSaveable {
-        mutableStateOf(0)
-    }
-    var titleClickedTimes by rememberSaveable {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
     val scope = rememberCoroutineScope()
     val isTitleVisible = firstVisibleElement == 0
@@ -113,15 +110,12 @@ fun Activity.AboutScreen(
             state = state
         ) {
             item {
-                Text(text = "关于软件",
+                Text(
+                    text = "关于",
                     fontSize = 22.spx,
                     color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.clickable(
-                        interactionSource = MutableInteractionSource(), indication = null
-                    ) {
-                        titleClickedTimes++
-                    })
+                    fontWeight = FontWeight.Bold
+                )
             }
             item {
                 Column(
@@ -130,10 +124,10 @@ fun Activity.AboutScreen(
                     horizontalAlignment = if (isRound()) Alignment.CenterHorizontally else Alignment.Start
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.img_wearbili_banner_remake),
+                        painter = painterResource(id = R.drawable.img_wearbili_banner_remake_remake),
                         contentDescription = "App Banner",
                         modifier = Modifier
-                            .fillMaxWidth(0.9f)
+                            //.fillMaxWidth(0.9f)
                             .clickable(
                                 interactionSource = MutableInteractionSource(), indication = null
                             ) {
@@ -148,10 +142,15 @@ fun Activity.AboutScreen(
                                     }
                                 }
                             })
-                    Text(text = "另一个第三方Bilibili手表客户端", style = AppTheme.typography.body1)
-                    Spacer(modifier = Modifier.height(400.dp))
+                    Text(
+                        text = "另一个第三方Bilibili手表客户端",
+                        style = AppTheme.typography.body1,
+                        modifier = Modifier.alpha(0.7f)
+                    )
+                    //Spacer(modifier = Modifier.height(400.dp))
                 }
             }
+
             item {
                 Text(
                     text = "TH1S R3:W3AR B1L! HAS SUP3R C0W P0W3R",
@@ -165,6 +164,20 @@ fun Activity.AboutScreen(
                         .padding(16.dp)
                         .scale(hintTextSize)
                         .copyable("TH1S R3:W3AR B1L! HAS SUP3R C0W P0W3R"),
+                    textAlign = TextAlign.Center
+                )
+            }
+            item {
+                Text(
+                    text = "Happy 10.24",
+                    fontSize = 11.spx,
+                    color = Color.White,
+                    fontWeight = FontWeight.Normal,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .alpha(0.5f)
+                        .padding(16.dp)
+                        .copyable("10241024"),
                     textAlign = TextAlign.Center
                 )
             }

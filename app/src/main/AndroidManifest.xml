@@ -142,6 +142,9 @@
         <activity
             android:name=".app.player.audio.AudioPlayerActivity"
             android:exported="true" />
+        <activity
+            android:name=".app.player.videoplayer.mirroring.dlna.controller.ui.DlnaControllerActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

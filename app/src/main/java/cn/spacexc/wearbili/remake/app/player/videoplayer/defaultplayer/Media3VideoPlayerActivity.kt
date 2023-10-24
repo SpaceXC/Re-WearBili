@@ -67,7 +67,8 @@ class Media3PlayerActivity : ComponentActivity() {
                 displaySurface = VideoDisplaySurface.TEXTURE_VIEW,
                 onBack = ::finish,
                 context = this,
-                isCacheVideo = isCache
+                isCacheVideo = isCache,
+                isBangumi = isBangumi
             )
         }
     }

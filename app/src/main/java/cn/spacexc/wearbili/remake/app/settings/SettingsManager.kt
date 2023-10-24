@@ -25,5 +25,5 @@ object SettingsManager {
     val recommendSource = dataManager.getStringFlow(SETTING_RECOMMENDATION_SOURCE, "web")
     const val isDebug = false
     val isLowPerformance = dataManager.getBoolFlow(SETTING_IS_LOW_PERFORMANCE, false)
-    val currentPlayer = dataManager.getStringFlow(SETTING_CURRENT_PLAYER, "audioPlayer")
+    val currentPlayer = dataManager.getStringFlow(SETTING_CURRENT_PLAYER, "videoPlayer")
 }

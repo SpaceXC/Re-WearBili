@@ -102,6 +102,7 @@ import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.R.drawable
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.BiliDanmukuParser
 import cn.spacexc.wearbili.remake.app.player.videoplayer.mirroring.dlna.DlnaDeviceDiscoverActivity
+import cn.spacexc.wearbili.remake.app.player.videoplayer.mirroring.dlna.PARAM_DLNA_VIDEO_NAME
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.clickAlpha
@@ -171,6 +172,7 @@ fun Activity.Media3PlayerScreen(
     withSubtitleAnimation: Boolean = true,
     isCacheVideo: Boolean,
     context: Context,
+    isBangumi: Boolean,
     onBack: () -> Unit
 ) {
     //region variables
@@ -999,9 +1001,14 @@ fun Activity.Media3PlayerScreen(
                                         DlnaDeviceDiscoverActivity::class.java
                                     ).apply {
                                         putExtra(
-                                            "url",
-                                            viewModel.videoCastUrl
+                                            cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID,
+                                            /*videoCid*/viewModel.videoInfo?.data?.cid
                                         )
+                                        putExtra(
+                                            PARAM_DLNA_VIDEO_NAME,
+                                            viewModel.videoInfo?.data?.title
+                                        )
+                                        putExtra(PARAM_IS_BANGUMI, isBangumi)
                                     })
                                 finish()
                             }

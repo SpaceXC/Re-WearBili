@@ -52,7 +52,7 @@ fun Activity.SettingsActivityScreen(
                     text = "设置",
                     color = Color.White,
                     fontFamily = wearbiliFontFamily,
-                    fontSize = 26.spx,
+                    fontSize = 22.spx,
                     fontWeight = FontWeight.Bold
                 )
             }
