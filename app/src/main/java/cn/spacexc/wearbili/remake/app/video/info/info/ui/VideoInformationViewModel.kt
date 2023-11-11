@@ -15,7 +15,6 @@ import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_EPID
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiActivity
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID_TYPE
@@ -68,26 +67,19 @@ class VideoInformationViewModel @Inject constructor(
                 return@launch
             }
             val response =
-                VideoInfo.getVideoInfoByIdApp(videoIdType, videoId)
+                VideoInfo.getVideoDetailedInfoByIdWeb(videoIdType, videoId)
             if (response.code != 0 || response.data?.data == null || response.data?.code != 0) {
                 state = state.copy(uiState = UIState.Failed)
                 return@launch
             }
-            response.data?.data?.season?.let { season ->
-                val uri = Uri.parse(season.ogv_play_url)
+            response.data?.data?.view?.redirectUrl?.let { url ->
+                val uri = Uri.parse(url)
                 val epid = uri.path?.replace("/bangumi/play/", "")
                 if (epid?.startsWith("ep") == true) {
                     val epidLong = epid.replace("ep", "").toLong()
                     activity.startActivity(Intent(activity, BangumiActivity::class.java).apply {
                         putExtra(PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_EPID)
                         putExtra(PARAM_BANGUMI_ID, epidLong)
-                    })
-                    activity.finish()
-                } else {
-                    val ssid = season.season_id.toLong()
-                    activity.startActivity(Intent(activity, BangumiActivity::class.java).apply {
-                        putExtra(PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_SSID)
-                        putExtra(PARAM_BANGUMI_ID, ssid)
                     })
                     activity.finish()
                 }
@@ -97,7 +89,9 @@ class VideoInformationViewModel @Inject constructor(
                     getVideoSanLianState(videoIdType, videoId)
                 },
                 viewModelScope.async {
-                    getImageBitmap(response.data?.data?.pic?.replace("http://", "https://") ?: "")
+                    getImageBitmap(
+                        response.data?.data?.view?.pic?.replace("http://", "https://") ?: ""
+                    )
                 }
             ).awaitAll()
             state = state.copy(uiState = UIState.Success, videoData = response.data?.data)

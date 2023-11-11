@@ -101,6 +101,7 @@ fun Activity.CirclesBackground(
     backgroundColor: Color = Color.Black,
     themeColor: Color = BilibiliPink,
     ambientAlpha: Float = 0.6f,
+    onRetry: () -> Unit = {},
     content: @Composable BoxScope.() -> Unit
 ) {
     val localDensity = LocalDensity.current
@@ -137,7 +138,9 @@ fun Activity.CirclesBackground(
                 LoadableBox(
                     uiState = uiState,
                     content = content,
-                    onLongClick = { this@CirclesBackground.finish() })
+                    onLongClick = { this@CirclesBackground.finish() },
+                    onRetry = onRetry
+                )
             }
         } else {
             Box(
@@ -169,7 +172,9 @@ fun Activity.CirclesBackground(
                 LoadableBox(
                     uiState = uiState,
                     content = content,
-                    onLongClick = { this@CirclesBackground.finish() })
+                    onLongClick = { this@CirclesBackground.finish() },
+                    onRetry = onRetry
+                )
             }
         }
         Box(modifier = Modifier.fillMaxSize()) {
@@ -211,6 +216,7 @@ fun LoadableBox(
     modifier: Modifier = Modifier,
     uiState: UIState,
     onLongClick: () -> Unit = {},
+    onRetry: () -> Unit = {},
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -260,9 +266,7 @@ fun LoadableBox(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
-                                .clickVfx(onLongClick = {
-
-                                })
+                                .clickVfx(onLongClick = onLongClick, onClick = onRetry)
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.img_loading_2233_error),
@@ -298,6 +302,7 @@ fun Activity.TitleBackground(
     uiState: UIState = UIState.Success,
     themeColor: Color = BilibiliPink,
     ambientAlpha: Float = 0.6f,
+    onRetry: () -> Unit = {},
     content: @Composable BoxScope.() -> Unit
 ) {
     val timeSource = DefaultTimeSource("HH:mm")
@@ -308,7 +313,8 @@ fun Activity.TitleBackground(
         isShowing = isBackgroundShowing,
         backgroundColor = backgroundColor,
         themeColor = themeColor,
-        ambientAlpha = ambientAlpha
+        ambientAlpha = ambientAlpha,
+        onRetry = onRetry
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
@@ -323,10 +329,10 @@ fun Activity.TitleBackground(
                             if (isDropdownTitle) onDropdown() else onBack()
                         }
                     },
-                //hori = if (isRound()) Alignment.CenterVertically else Alignment.Top
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = if (isRound()) Arrangement.Center else Arrangement.Start
             ) {
+
                 if (isDropdownTitle) {
                     Text(
                         text = buildAnnotatedString {
@@ -384,6 +390,7 @@ fun Activity.TitleBackground(
                             .wrapContentHeight()
                     )
                 }
+
                 if (!isRound()) {
                     //Spacer(modifier = Modifier.weight(1f))
 
@@ -449,6 +456,13 @@ fun Activity.TitleBackground(
                 content()
             }
         }
+    }
+}
+
+@Composable
+fun Wrapper(content: @Composable () -> Unit) {
+    Box {
+        content()
     }
 }
 

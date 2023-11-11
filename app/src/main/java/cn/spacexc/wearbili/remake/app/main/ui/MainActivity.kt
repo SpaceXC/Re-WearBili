@@ -54,6 +54,9 @@ class MainActivity : ComponentActivity() {
                 },
                 dynamicViewModel = dynamicViewModel,
                 profileScreenState = profileViewModel.screenState,
+                onProfileRetry = {
+                    profileViewModel.getProfile()
+                }
             )
         }
     }

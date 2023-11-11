@@ -56,6 +56,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_EPID
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiActivity
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID_TYPE
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicItem
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.ItemRichTextNode
 import cn.spacexc.wearbili.remake.app.search.ui.PARAM_DEFAULT_SEARCH_KEYWORD
@@ -108,7 +112,7 @@ fun DynamicRichText(
             Placeholder(
                 width = textStyle.fontSize,
                 height = textStyle.fontSize,
-                placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                placeholderVerticalAlign = PlaceholderVerticalAlign.TextBottom
             )
         ) {
             Icon(
@@ -204,8 +208,8 @@ fun DynamicRichText(
                     appendInlineContent(it.emoji?.text ?: "")
                     inlineContentMap[it.emoji?.text ?: ""] = InlineTextContent(
                         Placeholder(
-                            width = textStyle.fontSize.times(1.4f),
-                            height = textStyle.fontSize.times(1.4f),
+                            width = textStyle.fontSize.times(1.4f).times(it.emoji?.size ?: 1),
+                            height = textStyle.fontSize.times(1.4f).times(it.emoji?.size ?: 1),
                             placeholderVerticalAlign = PlaceholderVerticalAlign.Center
                         )
                     ) { _ ->
@@ -263,7 +267,7 @@ fun DynamicRichText(
 fun DynamicContent(
     item: DynamicItem,
     textSizeScale: Float = 1.0f,
-    context: Context/*?*/   //for preview   //f*** **u compose preview!
+    context: Context/*?*/   //for compose preview   //f*** **u compose preview!
 ) {
     val localDensity = LocalDensity.current
     Column(modifier = Modifier.padding(4.dp)) {
@@ -470,14 +474,14 @@ fun DynamicContent(
                     fontSize = 10.spx
                 )*/
                 Column(modifier = Modifier.clickVfx {
-                    /*Intent(
+                    Intent(
                         context,
                         BangumiActivity::class.java
                     ).apply {
-                        putExtra("id", item.modules.moduleDynamic.major?.pgc?.epid.toString())
-                        putExtra("idType", ID_TYPE_EPID)
+                        putExtra(PARAM_BANGUMI_ID, item.modules.moduleDynamic.major?.pgc?.epid)
+                        putExtra(PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_EPID)
                         context.startActivity(this)
-                    }*/
+                    }
                 }) {
                     var infoHeight by remember {
                         mutableStateOf(0.dp)

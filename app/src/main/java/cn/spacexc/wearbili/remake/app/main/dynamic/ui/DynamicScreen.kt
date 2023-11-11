@@ -12,7 +12,6 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -42,7 +41,6 @@ fun DynamicScreen(
         FocusRequester()
     }
     val dynamicListData = viewModel.dynamicFlow.collectAsLazyPagingItems()
-    val scope = rememberCoroutineScope()
     val pullToRefreshState = rememberPullRefreshState(
         refreshing = dynamicListData.loadState.refresh is LoadState.Loading,
         onRefresh = { dynamicListData.refresh() },
@@ -53,7 +51,8 @@ fun DynamicScreen(
             is LoadState.Error -> UIState.Failed
             is LoadState.Loading -> UIState.Loading
             else -> UIState.Success
-        }, modifier = Modifier.fillMaxSize()
+        }, modifier = Modifier.fillMaxSize(),
+        onRetry = dynamicListData::retry
     ) {
         Box(
             modifier = Modifier

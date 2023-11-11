@@ -8,7 +8,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentViewModel
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
-import cn.spacexc.wearbili.remake.app.video.info.related.RelatedVideosViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -30,7 +29,6 @@ const val PARAM_WEBI_SIGNATURE_KEY = "webi_signature_key"
 class VideoInformationActivity : ComponentActivity() {
     private val videoInfoViewModel by viewModels<VideoInformationViewModel>()
     private val commentViewModel by viewModels<CommentViewModel>()
-    private val relatedVideoViewModel by viewModels<RelatedVideosViewModel>()
 
     /*@UnstableApi*/
     @OptIn(ExperimentalFoundationApi::class)
@@ -40,7 +38,6 @@ class VideoInformationActivity : ComponentActivity() {
         val videoId = intent.getStringExtra(PARAM_VIDEO_ID)
         if (videoId != null) {
             videoInfoViewModel.getVideoInfo(videoIdType = videoIdType, videoId = videoId, activity = this)
-            relatedVideoViewModel.getRelatedVideos(videoIdType = videoIdType, videoId = videoId)
         }
         val aid = (if (!videoId.isNullOrEmpty()) {
             if (videoIdType == VIDEO_TYPE_AID) videoId.replace(
@@ -61,12 +58,11 @@ class VideoInformationActivity : ComponentActivity() {
                 state = pagerState,
                 videoInformationScreenState = videoInfoViewModel.state,
                 commentViewModel = commentViewModel,
-                uploaderMid = videoInfoViewModel.state.videoData?.owner?.mid ?: 0,
-                oid = videoInfoViewModel.state.videoData?.aid ?: 0,
+                uploaderMid = videoInfoViewModel.state.videoData?.view?.owner?.mid ?: 0,
+                oid = videoInfoViewModel.state.videoData?.view?.aid ?: 0,
                 onBack = ::finish,
                 commentDataFlow = commentDataFlow,
-                videoInformationViewModel = videoInfoViewModel,
-                relatedVideosViewModel = relatedVideoViewModel
+                videoInformationViewModel = videoInfoViewModel
             )
         }
     }

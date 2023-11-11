@@ -98,129 +98,180 @@ fun VideoCard(
             }
         }
     }) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 2.dp, horizontal = 2.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Box(modifier = Modifier.weight(6f)) {
-                    BiliImage(
-                        url = coverUrl,
-                        contentDescription = "$videoName 封面",
-                        modifier = Modifier
-                            .aspectRatio(16f / 10f)
-                            .clip(RoundedCornerShape(6.dp)),
-                        contentScale = ContentScale.FillBounds
-                    )
-                    if (!badge.isNullOrEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .padding(2.dp)
-                                .clip(RoundedCornerShape(3.dp))
-                                .background(BilibiliPink)
-                                .padding(2.dp)
-                                .align(Alignment.TopEnd),
-                            //.fillMaxSize()
-                            //.offset(y = (1).dp)
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = badge,
-                                fontSize = 8.spx,
-                                fontFamily = wearbiliFontFamily,
-                                color = Color.White,
-                                fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center
-                            )
-                        }
+        VideoCardContent(
+            videoName = videoName,
+            uploader = uploader,
+            views = views,
+            coverUrl = coverUrl,
+            badge = badge
+        )
+    }
+}
 
-                    }
+@Composable
+fun VideoCardWithNoBorder(
+    modifier: Modifier = Modifier,
+    videoName: String,
+    uploader: String,
+    views: String,
+    badge: String? = "",
+    coverUrl: String,
+    videoId: String? = null,
+    videoIdType: String? = null,
+    context: Context = Application.getApplication()
+) {
+    Box(modifier = modifier
+        .padding(vertical = 2.dp)
+        .clickVfx {
+            if (!videoId.isNullOrEmpty() && !videoIdType.isNullOrEmpty()) {
+                Intent(context, VideoInformationActivity::class.java).apply {
+                    putExtra(PARAM_VIDEO_ID, videoId)
+                    putExtra(PARAM_VIDEO_ID_TYPE, videoIdType)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    context.startActivity(this)
                 }
+            }
+        }) {
+        VideoCardContent(
+            videoName = videoName,
+            uploader = uploader,
+            views = views,
+            coverUrl = coverUrl,
+            badge = badge
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun VideoCardContent(
+    videoName: String,
+    uploader: String,
+    views: String,
+    badge: String? = "",
+    coverUrl: String
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp, horizontal = 2.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Box(modifier = Modifier.weight(6f)) {
+                BiliImage(
+                    url = coverUrl,
+                    contentDescription = "$videoName 封面",
+                    modifier = Modifier
+                        .aspectRatio(16f / 10f)
+                        .clip(RoundedCornerShape(6.dp)),
+                    contentScale = ContentScale.FillBounds
+                )
+                if (!badge.isNullOrEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(BilibiliPink)
+                            .padding(2.dp)
+                            .align(Alignment.TopEnd),
+                        //.fillMaxSize()
+                        //.offset(y = (1).dp)
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = badge,
+                            fontSize = 8.spx,
+                            fontFamily = wearbiliFontFamily,
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                }
+            }
+            Text(
+                text = videoName,
+                style = AppTheme.typography.h3,
+                maxLines = 3,
+                modifier = Modifier.weight(7f),
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        FlowRow {
+            if (views.isNotEmpty()) {
+                val inlineTextContent = mapOf("viewCountIcon" to InlineTextContent(
+                    placeholder = Placeholder(
+                        width = 12.spx,
+                        height = 12.spx,
+                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_view_count),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(end = 2.dp)
+                    )
+                })
                 Text(
-                    text = videoName,
-                    style = AppTheme.typography.h3,
-                    maxLines = 3,
-                    modifier = Modifier.weight(7f),
+                    text = buildAnnotatedString {
+                        if (views.isNotEmpty()) {
+                            appendInlineContent("viewCountIcon")
+                            append(views)
+                        }
+                    },
+                    fontSize = 9.spx,
+                    modifier = Modifier.alpha(0.7f),
+                    color = Color.White,
+                    inlineContent = inlineTextContent,
+                    //maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+            }
+            if (uploader.isNotEmpty()) {
+                val inlineTextContent = mapOf("uploaderIcon" to InlineTextContent(
+                    placeholder = Placeholder(
+                        width = 12.spx,
+                        height = 12.spx,
+                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_uploader),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(end = 2.dp)
+                    )
+                })
+                Text(
+                    text = buildAnnotatedString {
+                        if (uploader.isNotEmpty()) {
+                            appendInlineContent("uploaderIcon")
+                            append(uploader)
+                        }
+                    },
+                    fontSize = 9.spx,
+                    modifier = Modifier.alpha(0.7f),
+                    color = Color.White,
+                    inlineContent = inlineTextContent,
+                    //maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-
-            FlowRow {
-                if (views.isNotEmpty()) {
-                    val inlineTextContent = mapOf("viewCountIcon" to InlineTextContent(
-                        placeholder = Placeholder(
-                            width = 12.spx,
-                            height = 12.spx,
-                            placeholderVerticalAlign = PlaceholderVerticalAlign.Center
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.icon_view_count),
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(end = 2.dp)
-                        )
-                    })
-                    Text(
-                        text = buildAnnotatedString {
-                            if (views.isNotEmpty()) {
-                                appendInlineContent("viewCountIcon")
-                                append(views)
-                            }
-                        },
-                        fontSize = 9.spx,
-                        modifier = Modifier.alpha(0.7f),
-                        color = Color.White,
-                        inlineContent = inlineTextContent,
-                        //maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                }
-                if (uploader.isNotEmpty()) {
-                    val inlineTextContent = mapOf("uploaderIcon" to InlineTextContent(
-                        placeholder = Placeholder(
-                            width = 12.spx,
-                            height = 12.spx,
-                            placeholderVerticalAlign = PlaceholderVerticalAlign.Center
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.icon_uploader),
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(end = 2.dp)
-                        )
-                    })
-                    Text(
-                        text = buildAnnotatedString {
-                            if (uploader.isNotEmpty()) {
-                                appendInlineContent("uploaderIcon")
-                                append(uploader)
-                            }
-                        },
-                        fontSize = 9.spx,
-                        modifier = Modifier.alpha(0.7f),
-                        color = Color.White,
-                        inlineContent = inlineTextContent,
-                        //maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
         }
     }
-
 }
 
 @Composable

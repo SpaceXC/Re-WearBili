@@ -294,7 +294,7 @@ fun SearchActivityScreen(
                                 Spacer(modifier = Modifier.width(2.dp))
                             }
                             Text(
-                                text = item.show_name,
+                                text = item.showName,
                                 style = AppTheme.typography.body1
                             )
                         }

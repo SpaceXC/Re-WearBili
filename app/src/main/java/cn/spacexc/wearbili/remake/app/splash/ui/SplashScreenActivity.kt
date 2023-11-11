@@ -16,10 +16,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import cn.spacexc.bilibilisdk.sdk.user.webi.WebiSignature
+import cn.spacexc.bilibilisdk.utils.EncryptUtils
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.Application
-import cn.spacexc.wearbili.remake.app.login.ui.LoginActivity
+import cn.spacexc.wearbili.remake.app.login.qrcode.web.ui.QrCodeLoginActivity
 import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
 import cn.spacexc.wearbili.remake.app.update.ui.UpdateActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
@@ -108,6 +109,10 @@ class SplashScreenActivity : ComponentActivity() {
             networkUtils.get<String>("https://bilibili.com")    // 每次启动获取最新的cookie
             WebiSignature.getWebiSignature()    //保存新的webi签名
 
+            if (dataStoreManager.getString("buvid").isNullOrEmpty()) {
+                dataStoreManager.saveString("buvid", EncryptUtils.generateBuvid())
+            }
+
             val appUpdatesResponse =
                 networkUtils.get<LeanCloudAppUpdatesSearch>("https://mae7lops.lc-cn-n1-shared.com/1.1/classes/AppUpdates") {
                     header("X-LC-Id", cn.spacexc.wearbili.common.LEANCLOUD_APP_ID)
@@ -156,19 +161,24 @@ class SplashScreenActivity : ComponentActivity() {
                     } else {
                         ToastUtils.showText("这里是内测版吖！然鹅你好像还木有内测资格捏...")
                         userManager.logout()
-                        startActivity(Intent(this@SplashScreenActivity, LoginActivity::class.java))
+                        startActivity(
+                            Intent(
+                                this@SplashScreenActivity,
+                                QrCodeLoginActivity::class.java
+                            )
+                        )
                         finish()
                         overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
                     }
                     return@launch
                 }
                 ToastUtils.showText("刚刚的内测检查失败噜！可以重新登陆再来一次嘛？（如果你已经登录了账号，也可以直接重启应用的说！）")
-                startActivity(Intent(this@SplashScreenActivity, LoginActivity::class.java))
+                startActivity(Intent(this@SplashScreenActivity, QrCodeLoginActivity::class.java))
                 finish()
                 overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
             } else {
                 ToastUtils.showText("你好像还没有登陆诶...")
-                startActivity(Intent(this@SplashScreenActivity, LoginActivity::class.java))
+                startActivity(Intent(this@SplashScreenActivity, QrCodeLoginActivity::class.java))
                 finish()
                 overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
             }

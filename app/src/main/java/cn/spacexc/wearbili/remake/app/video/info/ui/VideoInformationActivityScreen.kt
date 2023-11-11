@@ -23,7 +23,6 @@ import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationScreen
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationScreenState
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
 import cn.spacexc.wearbili.remake.app.video.info.related.RelatedVideosScreen
-import cn.spacexc.wearbili.remake.app.video.info.related.RelatedVideosViewModel
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import kotlinx.coroutines.flow.Flow
@@ -46,7 +45,6 @@ fun VideoInformationActivityScreen(
     videoInformationViewModel: VideoInformationViewModel,
     commentViewModel: CommentViewModel,
     commentDataFlow: Flow<PagingData<CommentContentData>>?,
-    relatedVideosViewModel: RelatedVideosViewModel,
     uploaderMid: Long,
     oid: Long,
     onBack: () -> Unit
@@ -65,7 +63,6 @@ fun VideoInformationActivityScreen(
     LaunchedEffect(key1 = videoInformationViewModel.imageBitmap, block = {
         videoInformationViewModel.imageBitmap?.let { bitmap ->
             val palette = Palette.from(bitmap).generate()
-            val newColor = palette.getDarkVibrantColor(BilibiliPink.value.toInt())
             //if(newColor < Color(0x10000000).value.toInt())
             currentColor = Color(palette.getLightMutedColor(BilibiliPink.value.toInt()))
         }
@@ -87,7 +84,8 @@ fun VideoInformationActivityScreen(
                 0 -> VideoInformationScreen(
                     state = videoInformationScreenState,
                     context,
-                    videoInformationViewModel
+                    videoInformationViewModel,
+                    currentColor
                 )
 
                 1 -> {
@@ -102,7 +100,7 @@ fun VideoInformationActivityScreen(
                     }
                 }
 
-                2 -> RelatedVideosScreen(viewModel = relatedVideosViewModel)
+                2 -> RelatedVideosScreen(viewModel = videoInformationViewModel)
 
             }
         }

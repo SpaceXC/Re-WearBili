@@ -59,6 +59,7 @@ import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreenState
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendScreen
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendScreenState
 import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
+import cn.spacexc.wearbili.remake.app.settings.ui.SettingsActivity
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import kotlinx.coroutines.CoroutineScope
@@ -138,8 +139,8 @@ val menuItems = listOf(
     MenuItem(
         "设置",
         icon = Icons.Outlined.Settings,
-        onClick = { _, _ ->
-
+        onClick = { _, context ->
+            context.startActivity(Intent(context, SettingsActivity::class.java))
         }
     ),
     MenuItem(
@@ -162,7 +163,7 @@ fun MainActivityScreen(
     onRecommendRefresh: (isRefresh: Boolean) -> Unit,
     dynamicViewModel: DynamicViewModel,
     profileScreenState: ProfileScreenState,
-
+    onProfileRetry: () -> Unit
     ) {
     var isDropdownMenuShowing by remember {
         mutableStateOf(false)
@@ -282,7 +283,8 @@ fun MainActivityScreen(
                             1 -> DynamicScreen(viewModel = dynamicViewModel, context = context)
                             2 -> ProfileScreen(
                                 state = profileScreenState,
-                                context = context
+                                context = context,
+                                onRetry = onProfileRetry
                             )
                         }
                     }

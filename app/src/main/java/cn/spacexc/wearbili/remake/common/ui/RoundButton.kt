@@ -66,10 +66,14 @@ fun OutlinedRoundButton(
     text: String,
     clickable: Boolean = true,
     onClick: () -> Unit = { },
+    onLongClick: () -> Unit = { },
     icon: @Composable BoxScope.() -> Unit,
 ) {
     Column(
-        modifier = modifier.clickVfx(onClick = onClick)/*.height(IntrinsicSize.Max)*//*.wrapContentHeight()*/,
+        modifier = modifier.clickVfx(
+            onClick = onClick,
+            onLongClick = onLongClick
+        )/*.height(IntrinsicSize.Max)*//*.wrapContentHeight()*/,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         /*Box {

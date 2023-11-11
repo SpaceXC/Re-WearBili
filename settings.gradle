@@ -27,5 +27,4 @@ include ':app'
 include ':app:common'
 include ':Bilibili-Kotlin-SDK'
 project(':Bilibili-Kotlin-SDK').projectDir = new File('/Users/Xiaochang/Documents/Bilibili-Kotlin-SDK')
-//project(':DLNA-Cast').projectDir = new File('/Users/Xiaochang/Documents/Bilibili-Kotlin-SDK')
 include ':live_stream_player'

@@ -41,7 +41,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.OndemandVideo
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Stop
@@ -91,7 +90,6 @@ import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerSet
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.adjustVolume
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.getCurrentVolume
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.getMaxVolume
-import cn.spacexc.wearbili.remake.app.player.videoplayer.mirroring.dlna.DlnaDeviceDiscoverActivity
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
@@ -690,7 +688,7 @@ fun Activity.SettingsPage(
                     }
                 }
             }
-            PlayerSettingActionItem(
+            /*PlayerSettingActionItem(
                 name = "投屏",
                 description = "投射视频到DLNA设备",
                 icon = {
@@ -712,7 +710,7 @@ fun Activity.SettingsPage(
                         )
                     })
                 finish()
-            }
+            }*/
 
             Column {
                 Row {

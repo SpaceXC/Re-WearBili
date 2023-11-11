@@ -11,8 +11,8 @@ import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.common.domain.video.VideoUtils
 import cn.spacexc.wearbili.remake.app.search.domain.SearchHistory
-import cn.spacexc.wearbili.remake.app.search.domain.remote.hot.HotSearch
-import cn.spacexc.wearbili.remake.app.search.domain.remote.hot.HotSearchList
+import cn.spacexc.wearbili.remake.app.search.domain.remote.hot.TrendingWord
+import cn.spacexc.wearbili.remake.app.search.domain.remote.hot.TrendingWordList
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
@@ -46,7 +46,7 @@ class SearchViewModel @Inject constructor(
     private val dataManager: DataManager
 ) : ViewModel() {
     val scrollState = ScrollState(0)
-    private val _hotSearchedWords = MutableStateFlow(emptyList<HotSearch>())
+    private val _hotSearchedWords = MutableStateFlow(emptyList<TrendingWord>())
     val hotSearchedWords = _hotSearchedWords.asStateFlow()
     val searchHistory =
         dataManager.getStringFlow("searchHistory", "{\"history\":[]}").map {
@@ -62,9 +62,9 @@ class SearchViewModel @Inject constructor(
     fun getHotSearch() {
         viewModelScope.launch {
             val response =
-                networkUtils.get<HotSearchList>("https://s.search.bilibili.com/main/hotword")
+                networkUtils.get<TrendingWordList>("https://api.bilibili.com/x/web-interface/wbi/search/square?limit=10&platform=web")
             if (response.code != 0) return@launch
-            _hotSearchedWords.value = response.data?.list ?: emptyList()
+            _hotSearchedWords.value = response.data?.data?.trending?.list ?: emptyList()
         }
     }
 

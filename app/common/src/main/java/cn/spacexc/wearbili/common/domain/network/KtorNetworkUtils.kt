@@ -1,5 +1,8 @@
 package cn.spacexc.wearbili.common.domain.network
 
+import cn.spacexc.bilibilisdk.network.APP_KEY
+import cn.spacexc.bilibilisdk.network.APP_SEC
+import cn.spacexc.wearbili.common.EncryptUtils
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.network.cookie.KtorCookiesManager
 import cn.spacexc.wearbili.common.domain.network.dto.BasicResponseDto
@@ -22,7 +25,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.Parameters
 import io.ktor.http.userAgent
 import io.ktor.serialization.gson.gson
+import java.net.URLEncoder
+import java.util.TreeMap
 import javax.inject.Inject
+
 
 /**
  * Created by XC-Qan on 2023/3/22.
@@ -52,6 +58,11 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
             storage = cookiesManager
         }
         expectSuccess = true
+
+    }
+
+    val noRedirectClient = HttpClient(CIO) {
+        followRedirects = false
     }
 
 
@@ -80,6 +91,26 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
             e.printStackTrace()
             NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
         }
+    }
+
+    suspend inline fun <reified T> getWithAppSign(
+        host: String,
+        origParams: String,
+        appKey: String = APP_KEY,
+        appSec: String = APP_SEC,
+        builder: HttpRequestBuilder.() -> Unit = {}
+    ): NetworkResponse<T> {
+        var temp = origParams
+        temp += "&appkey=$appKey"
+        temp = temp.split("&").sorted().joinToString(separator = "&")
+        val sign = cn.spacexc.bilibilisdk.utils.EncryptUtils.md5("$temp$appSec")
+        val param = "$temp&sign=$sign"
+        return get(url = "$host?$param", builder = builder)
+    }
+
+    suspend fun getRedirectUrl(url: String): String? {
+        //if(response.status != HttpStatusCode.Found) return null
+        return noRedirectClient.get(url).headers["location"]
     }
 
     suspend inline fun <reified T> get(
@@ -145,6 +176,56 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
             e.printStackTrace()
             NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
         }
+    }
+
+    suspend inline fun <reified T> postWithAppSign(
+        host: String,
+        form: Map<String, String>,
+        appKey: String = APP_KEY,
+        appSec: String = APP_SEC,
+    ): NetworkResponse<T> {
+        val signedParams = appSign(form.toMutableMap(), appKey, appSec)
+        return post(url = host, form = signedParams)
+
+
+        /*val temp = form.toMutableMap()//.toSortedMap(compareBy { it.first() })
+        temp += Pair("appkey", appKey)
+        val final = temp.toSortedMap(compareBy { it.first() }).toMutableMap()
+        val sign = EncryptUtils.md5(
+            "${
+                final.entries.sortedBy { it.key }.joinToString(
+                    separator = "&",
+                    transform = { "${it.key}=${it.value}" })
+            }$appSec"
+        )
+        final += Pair("sign", sign)
+        final.logd("final params")
+        return post(url = host, form = final)*/
+    }
+
+    fun appSign(
+        params: MutableMap<String, String>,
+        appKey: String = APP_KEY,
+        appsec: String = APP_SEC
+    ): Map<String, String> {
+        // 为请求参数进行 APP 签名
+        params["appkey"] = appKey
+        // 按照 key 重排参数
+        val sortedParams: Map<String?, String?> = TreeMap(params)
+        // 序列化参数
+        val queryBuilder = StringBuilder()
+        for (pair in sortedParams) {
+            if (queryBuilder.isNotEmpty()) {
+                queryBuilder.append('&')
+            }
+            queryBuilder
+                .append(URLEncoder.encode(pair.key, "utf-8"))
+                .append('=')
+                .append(URLEncoder.encode(pair.value, "utf-8"))
+        }
+        val sign = EncryptUtils.md5(queryBuilder.append(appsec).toString())
+        params["sign"] = sign
+        return params
     }
 
     suspend fun getCookie(name: String): String? {

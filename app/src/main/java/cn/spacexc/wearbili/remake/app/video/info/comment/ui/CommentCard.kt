@@ -160,9 +160,9 @@ fun RichText(
                 appendInlineContent(id = "[$it]")
                 inlineTextContent["[$it]"] = InlineTextContent(
                     placeholder = Placeholder(
-                        width = fontSize.times(1.4f),
-                        height = fontSize.times(1.4f),
-                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                        width = fontSize.times(1.4f).times(emoteMap["[$it]"]?.meta?.size ?: 1),
+                        height = fontSize.times(1.4f).times(emoteMap["[$it]"]?.meta?.size ?: 1),
+                        placeholderVerticalAlign = PlaceholderVerticalAlign.Bottom
                     )
                 ) { _ ->
                     AsyncImage(

@@ -101,25 +101,25 @@ fun Activity.BangumiInfoScreen(
     val localDensity = LocalDensity.current
     LoadableBox(uiState = viewModel.uiState) {
         viewModel.bangumiInfo?.let { bangumi ->
-            LaunchedEffect(key1 = viewModel.currentSelectedEpisodeId, block = {
-                if (viewModel.currentSelectedEpisodeId != 0L) {
-                    if (bangumi.episodes.find { it.ep_id == viewModel.currentSelectedEpisodeId } != null) {
+            LaunchedEffect(key1 = viewModel.currentSelectedEpid, block = {
+                if (viewModel.currentSelectedEpid != 0L) {
+                    if (bangumi.episodes.find { it.ep_id == viewModel.currentSelectedEpid } != null) {
                         val index =
-                            bangumi.episodes.indexOfFirst { it.ep_id == viewModel.currentSelectedEpisodeId }
+                            bangumi.episodes.indexOfFirst { it.ep_id == viewModel.currentSelectedEpid }
                         viewModel.bangumiInfoScreenScrollState.animateScrollToItem(1)
                         viewModel.episodeScrollState.animateScrollToItem(index)
                     } else {
                         val section =
                             bangumi.section?.find { section ->
                                 section.episodes.find { episode ->
-                                    episode.ep_id == viewModel.currentSelectedEpisodeId
+                                    episode.ep_id == viewModel.currentSelectedEpid
                                 } != null //当前遍历到的section下的episode中包含当前选中的epid
                             }
                         val sectionIndex =
                             bangumi.section?.indexOf(section)
                         val sectionScrollState = viewModel.getSectionScrollState(section?.id ?: 0)
                         val episodeIndex =
-                            section?.episodes?.indexOfFirst { it.ep_id == viewModel.currentSelectedEpisodeId }
+                            section?.episodes?.indexOfFirst { it.ep_id == viewModel.currentSelectedEpid }
                         viewModel.bangumiInfoScreenScrollState.animateScrollToItem(2 + sectionIndex!!)
                         sectionScrollState.animateScrollToItem(episodeIndex!!)//因为要是没有sections的话，小朋友根本就选不中section中的episode呀
                     }
@@ -336,18 +336,18 @@ fun Activity.BangumiInfoScreen(
                         bangumi.episodes.forEachIndexed { index, episode ->
                             item {
                                 val cardBorderColor by animateColorAsState(
-                                    targetValue = if (viewModel.currentSelectedEpisodeId == episode.ep_id) BilibiliPink else CardBorderColor,
+                                    targetValue = if (viewModel.currentSelectedEpid == episode.ep_id) BilibiliPink else CardBorderColor,
                                     label = "cardBorderColor"
                                 )
                                 val cardBorderWidth by animateDpAsState(
-                                    targetValue = if (viewModel.currentSelectedEpisodeId == episode.ep_id) 1.dp else CardBorderWidth,
+                                    targetValue = if (viewModel.currentSelectedEpid == episode.ep_id) 1.dp else CardBorderWidth,
                                     label = "cardBorderColor"
                                 )
                                 Card(
                                     borderColor = cardBorderColor,
                                     borderWidth = cardBorderWidth,
                                     onClick = {
-                                        viewModel.currentSelectedEpisodeId = episode.ep_id
+                                        viewModel.currentSelectedEpid = episode.ep_id
                                     }) {
                                     Column {
                                         Row(verticalAlignment = CenterVertically) {
@@ -411,18 +411,24 @@ fun Activity.BangumiInfoScreen(
                             section.episodes.forEachIndexed { index, episode ->
                                 item {
                                     val cardBorderColor by animateColorAsState(
-                                        targetValue = if (viewModel.currentSelectedEpisodeId == episode.ep_id) BilibiliPink else CardBorderColor,
+                                        targetValue = if (viewModel.currentSelectedEpid == episode.ep_id && viewModel.currentSelectedEpid != 0L) BilibiliPink else CardBorderColor,
                                         label = "cardBorderColor"
                                     )
                                     val cardBorderWidth by animateDpAsState(
-                                        targetValue = if (viewModel.currentSelectedEpisodeId == episode.ep_id) 1.dp else CardBorderWidth,
+                                        targetValue = if (viewModel.currentSelectedEpid == episode.ep_id && viewModel.currentSelectedEpid != 0L) 1.dp else CardBorderWidth,
                                         label = "cardBorderColor"
                                     )
                                     Card(
                                         borderColor = cardBorderColor,
                                         borderWidth = cardBorderWidth,
                                         onClick = {
-                                            viewModel.currentSelectedEpisodeId = episode.ep_id
+                                            if (episode.ep_id == 0L) {
+                                                /*startActivity(Intent(this@BangumiInfoScreen, LinkProcessActivity::class.java).apply {
+                                                    putExtra("url", episode.link)
+                                                })*/
+                                            } else {
+                                                viewModel.currentSelectedEpid = episode.ep_id
+                                            }
                                         }) {
                                         Column {
                                             Text(
@@ -456,11 +462,11 @@ fun Activity.BangumiInfoScreen(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             val playButtonAlpha by animateFloatAsState(
-                                targetValue = if (viewModel.currentSelectedEpisodeId != 0L) 1f else 0.3f,
+                                targetValue = if (viewModel.currentSelectedEpid != 0L) 1f else 0.3f,
                                 label = ""
                             )
                             OutlinedRoundButton(
-                                clickable = viewModel.currentSelectedEpisodeId != 0L,
+                                clickable = viewModel.currentSelectedEpid != 0L,
                                 icon = {
                                     Row(
                                         modifier = Modifier.align(Alignment.Center),
@@ -484,15 +490,15 @@ fun Activity.BangumiInfoScreen(
                                     .alpha(playButtonAlpha),
                                 onClick = {
                                     var episode =
-                                        bangumi.episodes.find { it.ep_id == viewModel.currentSelectedEpisodeId }
+                                        bangumi.episodes.find { it.ep_id == viewModel.currentSelectedEpid }
                                     if (episode == null) {
                                         val section = bangumi.section?.find {
                                             it.episodes.find { epInSection ->
-                                                epInSection.ep_id == viewModel.currentSelectedEpisodeId
+                                                epInSection.ep_id == viewModel.currentSelectedEpid
                                             } != null
                                         }
                                         episode =
-                                            section?.episodes?.find { it.ep_id == viewModel.currentSelectedEpisodeId }
+                                            section?.episodes?.find { it.ep_id == viewModel.currentSelectedEpid }
                                     }
                                     if (episode != null) {
                                         Intent(

@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -64,17 +65,17 @@ class BangumiViewModel @Inject constructor(
     private val sectionsScrollState = HashMap<Long, LazyListState>()
     val episodeScrollState = LazyListState()
 
-    var currentSelectedEpisodeId by mutableStateOf(0L)
+    var currentSelectedEpid by mutableLongStateOf(0L)
 
     fun getCurrentSelectedEpisode(): Episode? {
-        var episode = bangumiInfo?.episodes?.find { it.ep_id == currentSelectedEpisodeId }
+        var episode = bangumiInfo?.episodes?.find { it.ep_id == currentSelectedEpid }
         if (episode == null) {
             val section = bangumiInfo?.section?.find {
                 it.episodes.find { epInSection ->
-                    epInSection.ep_id == currentSelectedEpisodeId
+                    epInSection.ep_id == currentSelectedEpid
                 } != null
             }
-            episode = section?.episodes?.find { it.ep_id == currentSelectedEpisodeId }
+            episode = section?.episodes?.find { it.ep_id == currentSelectedEpid }
         }
         return episode
     }
@@ -136,7 +137,7 @@ class BangumiViewModel @Inject constructor(
         uiState = UIState.Loading
         val videoBvid = getCurrentSelectedEpisode()?.bvid ?: ""
         val response =
-            BangumiInfo.getBangumiPlaybackUrl(BANGUMI_ID_TYPE_EPID, currentSelectedEpisodeId)
+            BangumiInfo.getBangumiPlaybackUrl(BANGUMI_ID_TYPE_EPID, currentSelectedEpid)
         if (response.code != 0) {
             ToastUtils.showText("缓存任务创建失败!", application)
             return

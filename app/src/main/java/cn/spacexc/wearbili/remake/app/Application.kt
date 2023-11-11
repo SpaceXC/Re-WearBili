@@ -77,6 +77,10 @@ class Application : android.app.Application() {
             TAG,
             "20230708: 记住，在这里每一处不合理的地方，都有他的合理之处和存在于此的理由 ————XC于00:17有感而发"
         )
+        Log.e(
+            TAG,
+            "20231104: 妥协不可耻还有用 ————XC于23:17有感而发"
+        )
         checkIfAudioServiceIsUp()
     }
 

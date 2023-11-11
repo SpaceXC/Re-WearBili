@@ -21,6 +21,13 @@
 #-renamesourcefileattribute SourceFile
 # Please add these rules to your existing keep rules in order to suppress warnings.
 # This is generated automatically by the Android Gradle plugin.
+-printmapping mapping.txt
+
+# Please add these rules to your existing keep rules in order to suppress warnings.
+# This is generated automatically by the Android Gradle plugin.
+-dontwarn java.lang.management.ManagementFactory
+-dontwarn java.lang.management.RuntimeMXBean
+
 -dontwarn org.bouncycastle.jsse.BCSSLParameters
 -dontwarn org.bouncycastle.jsse.BCSSLSocket
 -dontwarn org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
@@ -36,12 +43,39 @@
 
 -keep class io.ktor.http.Cookie
 -keep class com.google.gson.internal.LinkedTreeMap
--keep class cn.spacexc.** {*;}
+-keep class cn.spacexc.wearbili** {*;}
+-keep class cn.spacexc.bilibilisdk.** { *; }
+-keep class com.arialyy.** { *; }
+-keep class com.arialyy.*
+-keep class com.arialyy.**
+-keep class com.arialyy**
+-keep class com.microsoft.** { *; }
+-keep class com.microsoft.*
+-keep class com.microsoft.**
+-keep class com.microsoft**
+-keep class io.ktor.** { *; }
+-keep class io.ktor.*
+-keep class io.ktor.**
+-keep class io.ktor**
 -keep class cn.spacexc**
 -keep class com.google.* {*;}
 
--keep class cn.spacexc.wearbili.remake.app.search.domain.remote.result.**
--keep class cn.spacexc.wearbili.remake.app.search.domain.remote.result.*
+-keep class cn.spacexc.*
+-keep class cn.spacexc.**
+-keep class com.google.* {*;}
+-keep class com.google.gson.** {*;}
+-keep class com.google.gson.reflect.** {*;}
+-keep class com.google.gson.stream.** {*;}
+-keep class com.google.gson.internal.** {*;}
+-keep class com.google.gson.internal.bind.** {*;}
+-keep class com.google.gson.internal.bind.util.** {*;}
+-keep class com.google.gson.internal.bind.reflectiveTypeAdapterFactory.** {*;}
+-keep class com.google.gson.internal.bind.reflectiveTypeAdapterFactory$Adapter** {*;}
+-keep class com.google.gson.internal.bind.reflectiveTypeAdapterFactory$Adapter$$** {*;}
+-keep class com.google.gson.internal.bind.reflectiveTypeAdapterFactory$BoundField** {*;}
+
+
+-keep class android.** { *; }
 
 # Gson uses generic type information stored in a class file when working with
 # fields. Proguard removes such information by default, keep it.

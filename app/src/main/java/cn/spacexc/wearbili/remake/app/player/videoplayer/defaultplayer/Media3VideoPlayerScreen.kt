@@ -2,7 +2,6 @@ package cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.media.AudioManager
 import android.os.Build
@@ -61,7 +60,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.BrightnessLow
-import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.FitScreen
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
@@ -101,8 +99,6 @@ import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.R.drawable
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.BiliDanmukuParser
-import cn.spacexc.wearbili.remake.app.player.videoplayer.mirroring.dlna.DlnaDeviceDiscoverActivity
-import cn.spacexc.wearbili.remake.app.player.videoplayer.mirroring.dlna.PARAM_DLNA_VIDEO_NAME
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.clickAlpha
@@ -984,7 +980,7 @@ fun Activity.Media3PlayerScreen(
                                     }
                                 }
                             }
-                            PlayerSettingActionItem(
+                            /*PlayerSettingActionItem(
                                 name = "投屏",
                                 description = "投射视频到DLNA设备",
                                 icon = {
@@ -1002,7 +998,7 @@ fun Activity.Media3PlayerScreen(
                                     ).apply {
                                         putExtra(
                                             cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID,
-                                            /*videoCid*/viewModel.videoInfo?.data?.cid
+                                            *//*videoCid*//*viewModel.videoInfo?.data?.cid
                                         )
                                         putExtra(
                                             PARAM_DLNA_VIDEO_NAME,
@@ -1011,7 +1007,7 @@ fun Activity.Media3PlayerScreen(
                                         putExtra(PARAM_IS_BANGUMI, isBangumi)
                                     })
                                 finish()
-                            }
+                            }*/
 
                             Column {
                                 Row {

@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 17,
-      "versionName": "Audio 0.7.0",
-      "outputFile": "Re-WearBili - Audio 0.7.0 Rel.17.apk"
+      "versionCode": 19,
+      "versionName": "Canary 0.8.1",
+      "outputFile": "Re-WearBili - Canary 0.8.1 Rel.19.apk"
     }
   ],
   "elementType": "File"

@@ -58,11 +58,12 @@ enum class OfficialVerify {
     ORG
 }
 
-fun Int.toOfficialVerify(): OfficialVerify {
+fun Int?.toOfficialVerify(): OfficialVerify {
     return when (this) {
         -1 -> OfficialVerify.NONE
         0 -> OfficialVerify.PERSONAL
         1 -> OfficialVerify.ORG
+        null -> OfficialVerify.NONE
         else -> OfficialVerify.NONE
     }
 }

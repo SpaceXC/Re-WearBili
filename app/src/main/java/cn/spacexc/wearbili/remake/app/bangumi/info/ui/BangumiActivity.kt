@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.media3.common.util.UnstableApi
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -32,7 +31,7 @@ class BangumiActivity : ComponentActivity() {
         val bangumiId = intent.getLongExtra(PARAM_BANGUMI_ID, 0L)
         if (bangumiId != 0L) {
             if(bangumiIdType == BANGUMI_ID_TYPE_EPID) {
-                bangumiInfoViewModel.currentSelectedEpisodeId = bangumiId
+                bangumiInfoViewModel.currentSelectedEpid = bangumiId
             }
             bangumiInfoViewModel.getBangumiInfo(bangumiIdType, bangumiId)
         }

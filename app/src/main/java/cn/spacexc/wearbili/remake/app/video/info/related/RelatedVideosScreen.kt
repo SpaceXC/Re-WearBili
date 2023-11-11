@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.VIDEO_TYPE_BVID
+import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
 
@@ -21,14 +22,14 @@ import cn.spacexc.wearbili.remake.common.ui.VideoCard
 
 @Composable
 fun RelatedVideosScreen(
-    viewModel: RelatedVideosViewModel
+    viewModel: VideoInformationViewModel
 ) {
-    LoadableBox(uiState = viewModel.uiState) {
+    LoadableBox(uiState = viewModel.state.uiState) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 6.dp, end = 6.dp, bottom = 6.dp, top = 2.dp)
         ) {
-            viewModel.videos.forEach { video ->
+            viewModel.state.videoData?.related?.forEach { video ->
                 item {
                     VideoCard(
                         videoName = video.title,

@@ -61,7 +61,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".app.login.ui.LoginActivity"
+            android:name=".app.login.qrcode.tv.ui.TVQrCodeLoginActivity"
             android:exported="false" />
         <activity
             android:name=".app.main.ui.MainActivity"
@@ -109,12 +109,12 @@
                 <action android:name="com.developer.crashx.ERROR" />
             </intent-filter>
         </activity>
-        <activity
+        <!--<activity
             android:name=".app.player.videoplayer.mirroring.dlna.DlnaDeviceDiscoverActivity"
             android:exported="false" />
         <activity
             android:name=".app.player.videoplayer.mirroring.ScreenMirrorActivity"
-            android:exported="false" />
+            android:exported="false" />-->
         <activity
             android:name=".app.bangumi.info.ui.BangumiActivity"
             android:exported="false" />
@@ -142,9 +142,18 @@
         <activity
             android:name=".app.player.audio.AudioPlayerActivity"
             android:exported="true" />
-        <activity
+        <!--<activity
             android:name=".app.player.videoplayer.mirroring.dlna.controller.ui.DlnaControllerActivity"
+            android:exported="false" />-->
+        <activity
+            android:name=".app.login.password.ui.PasswordLoginActivity"
             android:exported="false" />
+        <activity
+            android:name=".app.login.qrcode.web.ui.QrCodeLoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.season.ui.SeasonActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

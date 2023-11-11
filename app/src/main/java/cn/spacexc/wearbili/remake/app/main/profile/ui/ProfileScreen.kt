@@ -36,6 +36,7 @@ import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -93,6 +94,7 @@ data class ProfileScreenState(
 fun ProfileScreen(
     state: ProfileScreenState,
     context: Context,
+    onRetry: () -> Unit
 ) {
     val focusRequester = remember {
         FocusRequester()
@@ -105,14 +107,16 @@ fun ProfileScreen(
         mutableStateOf(0.dp)
     }
     var avatarHeightPx by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
 
     LoadableBox(
         uiState = state.uiState,
         modifier = Modifier.onSizeChanged {
             screenWidth = with(localDensity) { it.width.toDp() }
-        }) {
+        },
+        onRetry = onRetry
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
             /*WearBiliAnimatedVisibility(
                 visible = avatarBackgroundVisibility,

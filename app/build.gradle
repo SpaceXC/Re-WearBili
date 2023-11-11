@@ -14,8 +14,8 @@ android {
         applicationId "cn.spacexc.wearbili.remake"
         minSdk 21
         targetSdk 34
-        versionCode 17
-        versionName "Audio 0.7.0"
+        versionCode 19
+        versionName "Canary 0.8.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -82,7 +82,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-service:$lifecycle_version'
+    implementation 'androidx.lifecycle:lifecycle-service:2.6.1'
     //implementation project(path: ':app:videoplayer')
     //implementation project(path: ':')
     //implementation 'androidx.core:core-ktx:+'
@@ -107,7 +107,7 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
 
-    def coil_version = "2.3.0"
+    def coil_version = "2.4.0"
     implementation "io.coil-kt:coil-compose:$coil_version"
     implementation "io.coil-kt:coil-gif:$coil_version"
 
@@ -155,9 +155,9 @@ dependencies {
     api "org.eclipse.jetty:jetty-client:$jetty_version"
     api 'javax.servlet:javax.servlet-api:3.1.0'
     api 'org.nanohttpd:nanohttpd:2.3.1'*/
-    api 'javax.servlet:javax.servlet-api:3.1.0'
+    /*api 'javax.servlet:javax.servlet-api:3.1.0'
     api 'org.nanohttpd:nanohttpd:2.3.1'
-    api 'com.github.devin1014.DLNA-Cast:dlna-dmc:V1.0.0'
+    api 'com.github.devin1014.DLNA-Cast:dlna-dmc:V1.0.0'*/
 
     implementation 'me.laoyuyu.aria:core:3.8.16'
     kapt 'me.laoyuyu.aria:compiler:3.8.16'
@@ -174,5 +174,6 @@ dependencies {
     // optional - Paging 3 Integration
     implementation "androidx.room:room-paging:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
+
 
 }
