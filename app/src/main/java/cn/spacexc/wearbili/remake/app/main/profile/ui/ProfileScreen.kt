@@ -68,10 +68,10 @@ import cn.spacexc.wearbili.remake.app.settings.ui.SettingsActivity
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
-import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.UserAvatar
 import cn.spacexc.wearbili.remake.common.ui.rotateInput
+import cn.spacexc.wearbili.remake.common.ui.shimmerPlaceHolder
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
@@ -110,36 +110,38 @@ fun ProfileScreen(
         mutableIntStateOf(0)
     }
 
-    LoadableBox(
-        uiState = state.uiState,
-        modifier = Modifier.onSizeChanged {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .onSizeChanged {
             screenWidth = with(localDensity) { it.width.toDp() }
-        },
-        onRetry = onRetry
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            /*WearBiliAnimatedVisibility(
-                visible = avatarBackgroundVisibility,
-                enter = slideInVertically(),
-                exit = slideOutVertically()
+        }) {
+        /*WearBiliAnimatedVisibility(
+            visible = avatarBackgroundVisibility,
+            enter = slideInVertically(),
+            exit = slideOutVertically()
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(screenWidth)
+                    .scale(2f)
+                    .offset(y = (avatarHeight + screenWidth).times(-.42f))
+                    .background(color = BilibiliPink, shape = CircleShape)
+            )
+        }*/
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(state.scrollState)
+                .rotateInput(focusRequester, state.scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()//.placeholder(visible = state.user != null, shape = RoundedCornerShape(8.dp), highlight = PlaceholderHighlight.shimmer())
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(screenWidth)
-                        .scale(2f)
-                        .offset(y = (avatarHeight + screenWidth).times(-.42f))
-                        .background(color = BilibiliPink, shape = CircleShape)
-                )
-            }*/
-            state.user?.let { user ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(state.scrollState)
-                        .rotateInput(focusRequester, state.scrollState),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                state.user.let { user ->
+                    //region 个人信息
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -148,8 +150,8 @@ fun ProfileScreen(
                             mutableStateOf(0.dp)
                         }
                         UserAvatar(
-                            avatar = user.face,
-                            pendant = user.pendant?.image,
+                            avatar = user?.face ?: "",
+                            pendant = user?.pendant?.image,
                             size = DpSize.Unspecified,
                             modifier = Modifier
                                 .fillMaxWidth(0.5f)
@@ -159,10 +161,10 @@ fun ProfileScreen(
                                     }
                                     avatarHeightPx = it.height
                                 },
-                            officialVerify = user.official.type.toOfficialVerify()
+                            officialVerify = user?.official?.type.toOfficialVerify()
                         )
 
-                        val levelCardResourceId = when (user.level) {
+                        val levelCardResourceId = when (user?.level) {
                             0 -> R.drawable.icon_lv0_card
                             1 -> R.drawable.icon_lv1_card
                             2 -> R.drawable.icon_lv2_card
@@ -197,25 +199,27 @@ fun ProfileScreen(
                         )
                         Text(
                             text = buildAnnotatedString {
-                                append(user.name)
+                                append(user?.name ?: "WearBili")
                                 append(" ")
-                                if (user.vip?.type != 0 && user.vip?.type != null) {
+                                if (user?.vip?.type != 0 && user?.vip?.type != null) {
                                     appendInlineContent("vip")
                                 }
                             },
                             style = AppTheme.typography.h2,
                             color = parseColor(
-                                (user.vip?.nickname_color ?: "#FFFFFF").ifEmpty { "#FFFFFF" }),
+                                (user?.vip?.nickname_color ?: "#FFFFFF").ifEmpty { "#FFFFFF" }),
                             inlineContent = inlineTextContent,
-                            modifier = Modifier.onSizeChanged {
-                                usernameHeight = with(localDensity) { it.height.toDp() }
-                            }
+                            modifier = Modifier
+                                .onSizeChanged {
+                                    usernameHeight = with(localDensity) { it.height.toDp() }
+                                }
+                                .shimmerPlaceHolder(user?.name == null)
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
                         if (levelCardResourceId != 0) {
                             Image(
-                                painter = painterResource(id = if (user.is_senior_member == 1) R.drawable.icon_lv6_plus_card else levelCardResourceId),
+                                painter = painterResource(id = if (user?.is_senior_member == 1) R.drawable.icon_lv6_plus_card else levelCardResourceId),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -240,10 +244,11 @@ fun ProfileScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = user.coins.toString(),
+                                text = user?.coins.toString(),
                                 fontSize = 12.spx,
                                 color = Color.White,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.shimmerPlaceHolder(user?.coins == null)
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
@@ -266,10 +271,11 @@ fun ProfileScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = user.follower.toString(),
+                                text = user?.follower.toString(),
                                 fontSize = 12.spx,
                                 color = Color.White,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.shimmerPlaceHolder(user?.coins == null)
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
@@ -281,178 +287,182 @@ fun ProfileScreen(
                             )
                         }
                     }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 18.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(24.dp)
-                        ) {
-                            OutlinedRoundButton(
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.PersonAdd,
-                                        tint = Color.White,
-                                        contentDescription = null,
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
-                                },
-                                text = "我的关注",
-                                modifier = Modifier.weight(1f),
-                                buttonModifier = Modifier.aspectRatio(1f),
-                                onClick = {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            FollowingUsersActivity::class.java
-                                        )
-                                    )
-                                }
-                            )
-                            OutlinedRoundButton(
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.History,
-                                        tint = Color.White,
-                                        contentDescription = null,
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
-                                },
-                                text = "历史记录",
-                                modifier = Modifier.weight(1f),
-                                buttonModifier = Modifier.aspectRatio(1f),
-                                onClick = {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            HistoryActivity::class.java
-                                        )
-                                    )
-
-                                }
-                            )
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(24.dp)
-                        ) {
-                            OutlinedRoundButton(
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.PlayCircle,
-                                        tint = Color.White,
-                                        contentDescription = null,
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
-                                },
-                                text = "稍后再看",
-                                modifier = Modifier.weight(1f),
-                                buttonModifier = Modifier.aspectRatio(1f),
-                                onClick = {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            WatchLaterActivity::class.java
-                                        )
-                                    )
-                                }
-                            )
-
-                            OutlinedRoundButton(
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.StarOutline,
-                                        tint = Color.White,
-                                        contentDescription = null,
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
-                                },
-                                text = "个人收藏",
-                                modifier = Modifier.weight(1f),
-                                buttonModifier = Modifier.aspectRatio(1f),
-                                onClick = {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            FavoriteFolderActivity::class.java
-                                        )
-                                    )
-                                }
-                            )
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(24.dp)
-                        ) {
-                            OutlinedRoundButton(
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.MailOutline,
-                                        tint = Color.White,
-                                        contentDescription = null,
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
-                                },
-                                text = "我的消息",
-                                modifier = Modifier.weight(1f),
-                                buttonModifier = Modifier.aspectRatio(1f)
-                            )
-                            OutlinedRoundButton(
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.FileDownload,
-                                        tint = Color.White,
-                                        contentDescription = null,
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
-                                },
-                                text = "离线缓存",
-                                modifier = Modifier.weight(1f),
-                                buttonModifier = Modifier.aspectRatio(1f),
-                                onClick = {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            CacheListActivity::class.java
-                                        )
-                                    )
-                                }
-                            )
-                        }
-                    }
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        outerPaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        innerPaddingValues = PaddingValues(12.dp),
-                        shape = RoundedCornerShape(40),
-                        onClick = {
-                            context.startActivity(Intent(context, SettingsActivity::class.java))
-                        }
-                    ) {
-                        IconText(
-                            text = "设置",
-                            fontSize = 13.spx,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.align(
-                                Alignment.Center
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Settings,
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                        }
-                    }
-                    //TODO Settings 设置功能！！！
+                    //endregion
                 }
-                LaunchedEffect(key1 = Unit, block = {
-                    focusRequester.requestFocus()
-                })
             }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    OutlinedRoundButton(
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Outlined.PersonAdd,
+                                tint = Color.White,
+                                contentDescription = null,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        },
+                        text = "我的关注",
+                        modifier = Modifier.weight(1f),
+                        buttonModifier = Modifier.aspectRatio(1f),
+                        onClick = {
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    FollowingUsersActivity::class.java
+                                )
+                            )
+                        }
+                    )
+                    OutlinedRoundButton(
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Outlined.History,
+                                tint = Color.White,
+                                contentDescription = null,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        },
+                        text = "历史记录",
+                        modifier = Modifier.weight(1f),
+                        buttonModifier = Modifier.aspectRatio(1f),
+                        onClick = {
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    HistoryActivity::class.java
+                                )
+                            )
+
+                        }
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    OutlinedRoundButton(
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Outlined.PlayCircle,
+                                tint = Color.White,
+                                contentDescription = null,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        },
+                        text = "稍后再看",
+                        modifier = Modifier.weight(1f),
+                        buttonModifier = Modifier.aspectRatio(1f),
+                        onClick = {
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    WatchLaterActivity::class.java
+                                )
+                            )
+                        }
+                    )
+
+                    OutlinedRoundButton(
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Outlined.StarOutline,
+                                tint = Color.White,
+                                contentDescription = null,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        },
+                        text = "个人收藏",
+                        modifier = Modifier.weight(1f),
+                        buttonModifier = Modifier.aspectRatio(1f),
+                        onClick = {
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    FavoriteFolderActivity::class.java
+                                )
+                            )
+                        }
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    OutlinedRoundButton(
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Outlined.MailOutline,
+                                tint = Color.White,
+                                contentDescription = null,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        },
+                        text = "我的消息",
+                        modifier = Modifier.weight(1f),
+                        buttonModifier = Modifier.aspectRatio(1f)
+                    )
+                    OutlinedRoundButton(
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Outlined.FileDownload,
+                                tint = Color.White,
+                                contentDescription = null,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        },
+                        text = "离线缓存",
+                        modifier = Modifier.weight(1f),
+                        buttonModifier = Modifier.aspectRatio(1f),
+                        onClick = {
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    CacheListActivity::class.java
+                                )
+                            )
+                        }
+                    )
+                }
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                outerPaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                innerPaddingValues = PaddingValues(12.dp),
+                shape = RoundedCornerShape(40),
+                onClick = {
+                    context.startActivity(Intent(context, SettingsActivity::class.java))
+                }
+            ) {
+                IconText(
+                    text = "设置",
+                    fontSize = 13.spx,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.align(
+                        Alignment.Center
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Settings,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                }
+            }
+            //TODO Settings 设置功能！！！
         }
+        LaunchedEffect(key1 = Unit, block = {
+            focusRequester.requestFocus()
+        })
+
     }
 }

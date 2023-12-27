@@ -100,17 +100,6 @@ class Application : android.app.Application() {
 
         return activityManager.getRunningServices(Int.MAX_VALUE)
             .find { it.service.className == serviceClass.name } != null
-        /*for (service in activityManager.getRunningServices(Int.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) {
-                if (service.foreground) {
-                    // 服务正在前台运行
-                    return true
-                }
-            }
-        }
-
-        // 服务不在前台运行
-        return false*/
     }
 
 

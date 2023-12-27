@@ -10,13 +10,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import cn.spacexc.bilibilisdk.sdk.user.webi.WebiSignature
 import cn.spacexc.bilibilisdk.utils.EncryptUtils
+import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.Application
@@ -24,7 +21,6 @@ import cn.spacexc.wearbili.remake.app.login.qrcode.web.ui.QrCodeLoginActivity
 import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
 import cn.spacexc.wearbili.remake.app.update.ui.UpdateActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
-import cn.spacexc.wearbili.remake.common.ui.GradientSlider
 import dagger.hilt.android.AndroidEntryPoint
 import io.ktor.client.request.header
 import kotlinx.coroutines.launch
@@ -89,19 +85,36 @@ class SplashScreenActivity : ComponentActivity() {
 
     @Composable
     private fun UIPreview() {
-        var value by remember {
+        /*var value by remember {
             mutableFloatStateOf(0f)
         }
         GradientSlider(value = value, onValueChanged = {
             value = it
-        }, range = 0f..10f)
+        }, range = 0f..10f)*/
+        //ImageWithZoomAndPan(imageUrl = "http://i1.hdslb.com/bfs/archive/7d75542d12b40b96f21d4c691ed2355868a292b6.jpg")
     }
 
     private fun initApp() {
-        /*startActivity(Intent(this@SplashScreenActivity, MainActivity::class.java))
-        finish()
-        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
+        /*lifecycleScope.launch {
+            val danmaku = DanmakuGetter(networkUtils).getDanmaku(197407064, 1)
+            Log.d(TAG, "initApp: ${danmaku.elemsList}")
+        }
         return*/
+        lifecycleScope.launch {
+            if (!UserUtils.isUserLoggedIn()) {
+                ToastUtils.showText("你好像还没有登陆诶...")
+                startActivity(Intent(this@SplashScreenActivity, QrCodeLoginActivity::class.java))
+                finish()
+                overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
+                return@launch
+            } else {
+                startActivity(Intent(this@SplashScreenActivity, MainActivity::class.java))
+                finish()
+                overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
+                return@launch
+            }
+        }
+
 
         val currentTime = System.currentTimeMillis()    //后面leancloud签名用到，别删
         lifecycleScope.launch {

@@ -71,6 +71,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -87,7 +89,9 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
@@ -98,7 +102,8 @@ import androidx.media3.common.util.UnstableApi
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.R.drawable
-import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.BiliDanmukuParser
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.rememberDanmakuCanvasState
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.ui.DanmakuCanvas
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.clickAlpha
@@ -112,16 +117,6 @@ import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
-import master.flame.danmaku.controller.DrawHandler
-import master.flame.danmaku.danmaku.loader.ILoader
-import master.flame.danmaku.danmaku.loader.IllegalDataException
-import master.flame.danmaku.danmaku.loader.android.DanmakuLoaderFactory
-import master.flame.danmaku.danmaku.model.BaseDanmaku
-import master.flame.danmaku.danmaku.model.DanmakuTimer
-import master.flame.danmaku.danmaku.model.IDisplayer
-import master.flame.danmaku.danmaku.model.android.DanmakuContext
-import master.flame.danmaku.danmaku.parser.IDataSource
-import master.flame.danmaku.ui.widget.DanmakuView
 import kotlin.math.roundToInt
 
 val BilibiliPink = Color(254, 103, 154)
@@ -159,7 +154,7 @@ enum class VideoPlayerSurfaceRatio(val ratioName: String) {
 @UnstableApi
 @OptIn(
     ExperimentalAnimationApi::class,
-    ExperimentalMaterial3Api::class
+    ExperimentalMaterial3Api::class, ExperimentalTextApi::class
 )    //不要删掉这个OptIn!!!!!!!!!!!!!!!!!!灰色的也别删掉!!!!!!!!!!!!
 //如果不小心删掉：ExperimentalAnimationApi::class
 fun Activity.Media3PlayerScreen(
@@ -185,19 +180,19 @@ fun Activity.Media3PlayerScreen(
         mutableStateOf(0.dp)
     }
     var draggedProgress by remember {
-        mutableStateOf(0L)
+        mutableLongStateOf(0L)
     }
     var isDraggingProgress by remember {
         mutableStateOf(false)
     }
     var dragSensibility by remember {
-        mutableStateOf(60)
+        mutableIntStateOf(60)
     }
     var playBackSpeed by remember {
-        mutableStateOf(100)
+        mutableIntStateOf(100)
     }
     var currentVolume by remember {
-        mutableStateOf(context.getCurrentVolume())
+        mutableIntStateOf(context.getCurrentVolume())
     }
     val progressDraggableState = rememberDraggableState(onDelta = {
         if (draggedProgress + (it * dragSensibility).toLong() < 0) {
@@ -226,8 +221,8 @@ fun Activity.Media3PlayerScreen(
         label = ""
     )
 
-    val danmakuInputStream by viewModel.danmakuInputStream.collectAsState()
-    var danmakuView: DanmakuView? = null
+    val danmakuCanvasState = rememberDanmakuCanvasState { currentPlayerPosition }
+    val textMeasurer = rememberTextMeasurer()
     var isDanmakuVisible by remember {
         mutableStateOf(true)
     }
@@ -245,8 +240,9 @@ fun Activity.Media3PlayerScreen(
     )
     //endregion
 
-    //region region: For Danmaku
-    LaunchedEffect(key1 = danmakuInputStream, block = {
+    //region: For Danmaku
+
+    /*LaunchedEffect(key1 = danmakuInputStream, block = {
         if (danmakuInputStream != null && danmakuView != null) {
             val danmakuContext: DanmakuContext = DanmakuContext.create()       //弹幕context
 
@@ -306,28 +302,37 @@ fun Activity.Media3PlayerScreen(
             danmakuView!!.prepare(danmukuParser, danmakuContext)      //准备弹幕
             danmakuView!!.enableDanmakuDrawingCache(true)
         }
+    })*/
+
+
+    LaunchedEffect(key1 = viewModel.danmakuList, block = {
+        danmakuCanvasState.setDanmakuList(viewModel.danmakuList)
     })
     LaunchedEffect(key1 = viewModel.currentStat, block = {
         when (viewModel.currentStat) {
             PlayerStats.Loading -> {
-
+                danmakuCanvasState.pause()
             }
 
             PlayerStats.Playing -> {
-                danmakuView?.seekTo(currentPlayerPosition)
-                danmakuView?.resume()
+                //danmakuView?.seekTo(currentPlayerPosition)
+                //danmakuView?.resume()
+                danmakuCanvasState.seekTo(currentPlayerPosition)
+                danmakuCanvasState.start()
             }
 
             PlayerStats.Buffering -> {
-                danmakuView?.pause()
+                //danmakuView?.pause()
+                danmakuCanvasState.pause()
             }
 
             PlayerStats.Paused -> {
-                danmakuView?.pause()
+                //danmakuView?.pause()
+                danmakuCanvasState.pause()
             }
 
             PlayerStats.Finished -> {
-
+                danmakuCanvasState.pause()
             }
         }
     })
@@ -367,17 +372,24 @@ fun Activity.Media3PlayerScreen(
         }
         //endregion
         //region danmaku surface
-        AndroidView(
+        /*AndroidView(
             factory = { DanmakuView(it) },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 4.dp)
-                .alpha(danmakuAlpha)
+                //.alpha(danmakuAlpha)
+                .alpha(0f)
         ) {
             danmakuView = it
-        }
-        //endregion
+        }*/
+        DanmakuCanvas(
+            state = danmakuCanvasState,
+            textMeasurer = textMeasurer,
+            modifier = Modifier.alpha(danmakuAlpha),
+            playSpeed = playBackSpeed / 100f
+        )
 
+        //endregion
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -434,7 +446,7 @@ fun Activity.Media3PlayerScreen(
                                                 },
                                                 onDragStopped = {
                                                     viewModel.player.seekTo(draggedProgress)
-                                                    danmakuView?.seekTo(draggedProgress)
+                                                    //danmakuView?.seekTo(draggedProgress)
                                                     viewModel.currentStat = PlayerStats.Buffering
                                                     isDraggingProgress = false
                                                 }
@@ -567,7 +579,7 @@ fun Activity.Media3PlayerScreen(
                                                     },
                                                     onValueChangeFinished = {
                                                         viewModel.player.seekTo(draggedProgress)
-                                                        danmakuView?.seekTo(draggedProgress)
+                                                        //danmakuView?.seekTo(draggedProgress)
                                                         viewModel.currentStat =
                                                             PlayerStats.Buffering
                                                         isDraggingProgress = false
@@ -901,6 +913,7 @@ fun Activity.Media3PlayerScreen(
                                             i.toFloat().div(100)
                                         )
                                         playBackSpeed = i
+                                        //danmakuCanvasState.timer.setSpeed(i / 100f)
                                     }
                                 }
                                 for (i in 100..300 step 50) {
@@ -912,6 +925,7 @@ fun Activity.Media3PlayerScreen(
                                             i.toFloat().div(100)
                                         )
                                         playBackSpeed = i
+                                        //danmakuCanvasState.timer.setSpeed(i / 100f)
                                     }
                                 }
                             }

@@ -154,6 +154,9 @@
         <activity
             android:name=".app.season.ui.SeasonActivity"
             android:exported="true" />
+        <activity
+            android:name=".app.image.ImageViewerActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

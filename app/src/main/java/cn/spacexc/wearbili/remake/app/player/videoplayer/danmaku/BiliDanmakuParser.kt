@@ -94,6 +94,7 @@ open class BiliDanmukuParser : BaseDanmakuParser() {
                 // 5:弹幕池id
                 // 6:用户hash
                 // 7:弹幕id
+                // 8:屏蔽等级
                 val pValue = attributes.getValue("p")
                 // parse p value to danmaku
                 val values = pValue.split(",".toRegex()).dropLastWhile { it.isEmpty() }

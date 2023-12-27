@@ -1,6 +1,7 @@
 package cn.spacexc.wearbili.remake.app.video.info.info.ui
 
 import android.app.Activity
+import android.app.Application
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -29,6 +30,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import javax.inject.Inject
@@ -43,7 +45,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VideoInformationViewModel @Inject constructor(
-    private val ktorNetworkUtils: KtorNetworkUtils
+    private val ktorNetworkUtils: KtorNetworkUtils,
+    private val application: Application
 ) : ViewModel() {
     var state by mutableStateOf(
         VideoInformationScreenState()
@@ -206,40 +209,25 @@ class VideoInformationViewModel @Inject constructor(
         }
     }
 
-    @Throws(FileNotFoundException::class, IOException::class)
-    fun getBitmapFromBytes(bytes: ByteArray/*, needCompress: Boolean*/): Bitmap? {
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-        /*if (needCompress) {
-            val onlyBoundsOptions: BitmapFactory.Options = BitmapFactory.Options()
-            onlyBoundsOptions.inJustDecodeBounds = true
-            //onlyBoundsOptions.inDither = true //optional
-            onlyBoundsOptions.inPreferredConfig = Bitmap.Config.ARGB_8888 //optional
-            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-            val originalWidth = onlyBoundsOptions.outWidth
-            val originalHeight = onlyBoundsOptions.outHeight
-            if ((originalWidth == -1) || (originalHeight == -1)) return null
-            //图片分辨率以480x800为标准
-            val hh = 128f //这里设置高度为800f
-            val ww = 128f //这里设置宽度为480f
-            //缩放比。由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
-            var be = 1 //be=1表示不缩放
-            be = if (originalWidth > originalHeight && originalWidth > ww) {
-                (originalWidth / ww).toInt()
-            } else if (originalWidth < originalHeight && originalHeight > hh) {
-                (originalHeight / hh).toInt()
-            } else 1
+    fun downloadWebMask(
+        videoIdType: String,
+        videoId: String,
+        videoCid: Long
+    ) {
+        viewModelScope.launch {
+            val videoPlayerInformation =
+                VideoInfo.getVideoPlayerInfo(videoIdType, videoId, videoCid)
+            videoPlayerInformation.data?.data?.dm_mask?.let { maskInfo ->
+                val directory = File(application.cacheDir, "/danmakuMask")
+                if (!directory.exists()) directory.mkdir()
+                val maskFile = File(directory, "danmakuMask$videoCid.webmask")
+                VideoInfo.downloadDanmakuWebMask(maskInfo, maskFile)
+            }
+        }
+    }
 
-            //比例压缩
-            val bitmapOptions: BitmapFactory.Options = BitmapFactory.Options()
-            bitmapOptions.inSampleSize = be //设置缩放比例
-            //bitmapOptions.inDither = true //optional
-            bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888 //optional
-            //input = contentResolver.openInputStream(uri)
-            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-            //input?.close()
-            return compressImage(bitmap!!) //再进行质量压缩
-        } else {
-            return
-        }*/
+    @Throws(FileNotFoundException::class, IOException::class)
+    fun getBitmapFromBytes(bytes: ByteArray): Bitmap? {
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
     }
 }

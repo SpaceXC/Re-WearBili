@@ -20,11 +20,13 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.statement.readBytes
 import io.ktor.client.statement.request
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.Parameters
 import io.ktor.http.userAgent
 import io.ktor.serialization.gson.gson
+import io.ktor.serialization.kotlinx.protobuf.protobuf
 import java.net.URLEncoder
 import java.util.TreeMap
 import javax.inject.Inject
@@ -49,6 +51,7 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
                 serializeNulls()
                 enableComplexMapKeySerialization()
             }
+            protobuf()
         }
         install(Logging) {
             logger = Logger.SIMPLE
@@ -61,7 +64,7 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
 
     }
 
-    val noRedirectClient = HttpClient(CIO) {
+    private val noRedirectClient = HttpClient(CIO) {
         followRedirects = false
     }
 
@@ -79,17 +82,26 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
                 val body = response.body<BasicResponseDto>()
                 NetworkResponse.Failed(code = body.code, message = body.message, null)
             }
-        } /*catch (e: SocketException) {
-            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
-        } catch (e: JsonSyntaxException) {
-            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
-        } catch (e: JsonConvertException) {
-            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
-        } catch (e: UnresolvedAddressException) {
-            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
-        } */ catch (e: Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
             NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+        }
+    }
+
+    suspend fun getBytes(
+        url: String,
+        builder: HttpRequestBuilder.() -> Unit = {}
+    ): ByteArray? {
+        return try {
+            val response = client.get(url) {
+                userAgent(cn.spacexc.bilibilisdk.network.USER_AGENT)
+                header("Referer", cn.spacexc.bilibilisdk.network.BASE_URL)
+                builder()
+            }
+            return response.readBytes()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 
@@ -130,15 +142,7 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
                 val body = response.body<BasicResponseDto>()
                 NetworkResponse.Failed(code = body.code, message = body.message, null)
             }
-        } /*catch (e: SocketException) {
-            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
-        } catch (e: JsonSyntaxException) {
-            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
-        } catch (e: JsonConvertException) {
-            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
-        } catch (e: UnresolvedAddressException) {
-            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
-        } */ catch (e: Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
             NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
         }

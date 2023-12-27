@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
@@ -65,6 +65,9 @@ import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.TAG
+import cn.spacexc.wearbili.remake.app.image.ImageViewerActivity
+import cn.spacexc.wearbili.remake.app.image.PARAM_IMAGE_URLS
+import cn.spacexc.wearbili.remake.app.image.PARAM_SELECTED_INDEX
 import cn.spacexc.wearbili.remake.app.search.ui.PARAM_DEFAULT_SEARCH_KEYWORD
 import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
@@ -466,7 +469,7 @@ fun CommentCard(
                         if (commentImagesList.size == 1 || commentImagesList.size % 2 == 0) 2 else 3
                     )
                 ) {
-                    items(commentImagesList) { image ->
+                    itemsIndexed(commentImagesList) { index, image ->
                         BiliImage(
                             url = image.img_src,
                             contentDescription = null,
@@ -474,16 +477,18 @@ fun CommentCard(
                                 1 -> Modifier
                                     .fillMaxWidth()
                                     .clickVfx {
-                                        /*val intent =
+                                        val intent =
                                             Intent(context, ImageViewerActivity::class.java)
-                                        val arrayList = arrayListOf<DrawItem>()
-                                        arrayList.addAll(imageList)
-                                        intent.putParcelableArrayListExtra(
-                                            "imageList",
-                                            arrayList
+                                        val urls =
+                                            commentImagesList
+                                                .map { it.img_src }
+                                                .toTypedArray()
+                                        intent.putExtra(
+                                            PARAM_IMAGE_URLS,
+                                            urls
                                         )
-                                        intent.putExtra("currentPhotoItem", index)
-                                        context.startActivity(intent)*/
+                                        intent.putExtra(PARAM_SELECTED_INDEX, index)
+                                        context.startActivity(intent)
                                     }
                                     .aspectRatio(1f)
                                     .clip(
@@ -494,16 +499,18 @@ fun CommentCard(
                                     .padding(2.dp)
                                     .aspectRatio(1f)
                                     .clickVfx {
-                                        /*val intent =
+                                        val intent =
                                             Intent(context, ImageViewerActivity::class.java)
-                                        val arrayList = arrayListOf<DrawItem>()
-                                        arrayList.addAll(imageList)
-                                        intent.putParcelableArrayListExtra(
-                                            "imageList",
-                                            arrayList
+                                        val urls =
+                                            commentImagesList
+                                                .map { it.img_src }
+                                                .toTypedArray()
+                                        intent.putExtra(
+                                            PARAM_IMAGE_URLS,
+                                            urls
                                         )
-                                        intent.putExtra("currentPhotoItem", index)
-                                        context.startActivity(intent)*/
+                                        intent.putExtra(PARAM_SELECTED_INDEX, index)
+                                        context.startActivity(intent)
                                     }
                                     .clip(
                                         RoundedCornerShape(6.dp)

@@ -60,6 +60,9 @@ import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_EPID
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiActivity
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID_TYPE
+import cn.spacexc.wearbili.remake.app.image.ImageViewerActivity
+import cn.spacexc.wearbili.remake.app.image.PARAM_IMAGE_URLS
+import cn.spacexc.wearbili.remake.app.image.PARAM_SELECTED_INDEX
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicItem
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.ItemRichTextNode
 import cn.spacexc.wearbili.remake.app.search.ui.PARAM_DEFAULT_SEARCH_KEYWORD
@@ -314,7 +317,7 @@ fun DynamicContent(
                             if (imageList.size == 1 || imageList.size % 2 == 0) 2 else 3
                         )
                     ) {
-                        imageList.forEachIndexed { _, image ->
+                        imageList.forEachIndexed { index, image ->
                             item {
                                 BiliImage(
                                     url = image.src,
@@ -323,16 +326,17 @@ fun DynamicContent(
                                         1 -> Modifier
                                             .fillMaxWidth()
                                             .clickVfx {
-                                                /*val intent =
+                                                val intent =
                                                     Intent(context, ImageViewerActivity::class.java)
-                                                val arrayList = arrayListOf<DrawItem>()
-                                                arrayList.addAll(imageList)
-                                                intent.putParcelableArrayListExtra(
-                                                    "imageList",
-                                                    arrayList
+                                                val urls = imageList
+                                                    .map { it.src }
+                                                    .toTypedArray()
+                                                intent.putExtra(
+                                                    PARAM_IMAGE_URLS,
+                                                    urls
                                                 )
-                                                intent.putExtra("currentPhotoItem", index)
-                                                context.startActivity(intent)*/
+                                                intent.putExtra(PARAM_SELECTED_INDEX, index)
+                                                context.startActivity(intent)
                                             }
                                             .aspectRatio(image.width.toFloat() / image.height.toFloat())
                                             .clip(
@@ -343,16 +347,17 @@ fun DynamicContent(
                                             .padding(2.dp)
                                             .aspectRatio(1f)
                                             .clickVfx {
-                                                /*val intent =
+                                                val intent =
                                                     Intent(context, ImageViewerActivity::class.java)
-                                                val arrayList = arrayListOf<DrawItem>()
-                                                arrayList.addAll(imageList)
-                                                intent.putParcelableArrayListExtra(
-                                                    "imageList",
-                                                    arrayList
+                                                val urls = imageList
+                                                    .map { it.src }
+                                                    .toTypedArray()
+                                                intent.putExtra(
+                                                    PARAM_IMAGE_URLS,
+                                                    urls
                                                 )
-                                                intent.putExtra("currentPhotoItem", index)
-                                                context.startActivity(intent)*/
+                                                intent.putExtra(PARAM_SELECTED_INDEX, index)
+                                                context.startActivity(intent)
                                             }
                                             .clip(
                                                 RoundedCornerShape(6.dp)

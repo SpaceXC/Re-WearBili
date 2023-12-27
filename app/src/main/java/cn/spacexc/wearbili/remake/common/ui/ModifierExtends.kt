@@ -20,11 +20,18 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import cn.spacexc.wearbili.common.copyToClipboard
 import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import com.google.accompanist.placeholder.PlaceholderDefaults
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmerHighlightColor
+import com.google.accompanist.placeholder.shimmer
 import kotlinx.coroutines.launch
 
 /**
@@ -204,4 +211,22 @@ fun Modifier.copyable(content: String, label: String = ""): Modifier {
     return clickVfx(onLongClick = {
         content.copyToClipboard(Application.getApplication(), "")
     })
+}
+
+fun Modifier.shimmerPlaceHolder(isLoading: Boolean, shape: Shape? = null) = composed {
+    placeholder(
+        visible = isLoading,
+        shape = shape,
+        highlight = PlaceholderHighlight.shimmer(
+            highlightColor = PlaceholderDefaults.shimmerHighlightColor(
+                backgroundColor = Color(
+                    0,
+                    0,
+                    0,
+                    200
+                )
+            )
+        ),
+        color = Color(0, 0, 0, 200)
+    )
 }

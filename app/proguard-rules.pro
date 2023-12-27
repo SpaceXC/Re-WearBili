@@ -25,6 +25,8 @@
 
 # Please add these rules to your existing keep rules in order to suppress warnings.
 # This is generated automatically by the Android Gradle plugin.
+-keep class * extends com.google.protobuf.GeneratedMessageLite { *; }
+
 -dontwarn java.lang.management.ManagementFactory
 -dontwarn java.lang.management.RuntimeMXBean
 

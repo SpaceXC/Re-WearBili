@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        profileViewModel.getProfile()
+        //profileViewModel.getProfile()
         setContent {
             val pagerState = rememberPagerState {
                 3

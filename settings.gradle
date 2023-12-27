@@ -26,5 +26,7 @@ rootProject.name = "WearBili"
 include ':app'
 include ':app:common'
 include ':Bilibili-Kotlin-SDK'
+//include ':ComposeDanmakuMaster'
 project(':Bilibili-Kotlin-SDK').projectDir = new File('/Users/Xiaochang/Documents/Bilibili-Kotlin-SDK')
+//project(':ComposeDanmakuMaster').projectDir = new File('/Users/Xiaochang/Documents/ComposeDanmakuMaster/danmaku')
 include ':live_stream_player'

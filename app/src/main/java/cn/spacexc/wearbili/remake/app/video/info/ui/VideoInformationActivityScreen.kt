@@ -67,6 +67,15 @@ fun VideoInformationActivityScreen(
             currentColor = Color(palette.getLightMutedColor(BilibiliPink.value.toInt()))
         }
     })
+    LaunchedEffect(key1 = videoInformationViewModel.state, block = {
+        videoInformationViewModel.state.videoData?.let { data ->
+            videoInformationViewModel.downloadWebMask(
+                videoIdType = VIDEO_TYPE_BVID,
+                videoId = data.view.bvid,
+                videoCid = data.view.cid
+            )
+        }
+    })
     context.TitleBackground(
         title = when (state.currentPage) {
             0 -> "详情"

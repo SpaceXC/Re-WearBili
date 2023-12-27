@@ -5,6 +5,8 @@ import android.app.Application
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -31,18 +33,21 @@ import cn.spacexc.bilibilisdk.sdk.video.info.remote.subtitle.SubtitleFile
 import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.log.logd
+import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.DanmakuGetter
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.DanmakuSegment
+import cn.spacexc.wearbili.remake.common.ToastUtils
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import java.io.File
-import java.io.InputStream
 import javax.inject.Inject
 
 
@@ -59,7 +64,8 @@ import javax.inject.Inject
 @SuppressLint("UnsafeOptInUsageError")
 class Media3VideoPlayerViewModel @Inject constructor(
     private val application: Application,
-    private val repository: VideoCacheRepository
+    private val repository: VideoCacheRepository,
+    networkUtils: KtorNetworkUtils
 ) : ViewModel() {
     private var httpDataSourceFactory = DefaultHttpDataSource.Factory()
     private var httpMediaSourceFactory: MediaSource.Factory
@@ -77,8 +83,9 @@ class Media3VideoPlayerViewModel @Inject constructor(
     var cacheVideoInfo: VideoCacheFileInfo? by mutableStateOf(
         null
     )
+    var currentVideoCid: Long = 0L
 
-    var videoPlayerAspectRatio by mutableStateOf(16f / 9f)
+    var videoPlayerAspectRatio by mutableFloatStateOf(16f / 9f)
 
     val currentPlayProgress = flow {
         while (true) {
@@ -86,7 +93,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
             delay(10)
         }
     }
-    var videoDuration by mutableStateOf(0L)
+    var videoDuration by mutableLongStateOf(0L)
 
     var subtitleList = mutableStateMapOf<String, SubtitleConfig>()
 
@@ -107,7 +114,10 @@ class Media3VideoPlayerViewModel @Inject constructor(
         }
     }
 
-    var danmakuInputStream = MutableStateFlow<InputStream?>(null)
+    //var danmakuInputStream = MutableStateFlow<InputStream?>(null)
+    private val danmakuGetter = DanmakuGetter(networkUtils)
+    var danmakuList by mutableStateOf(listOf<DanmakuSegment>())
+    private val danmakuListLock = Mutex()
 
     var onlineCount by mutableStateOf("-")
 
@@ -143,8 +153,12 @@ class Media3VideoPlayerViewModel @Inject constructor(
                         videoPlayerAspectRatio = player.videoSize.width.toFloat()
                             .logd("width")!! / player.videoSize.height.toFloat().logd("height")!!
                         videoDuration = player.duration
-                        Log.d(TAG, "onPlaybackStateChanged: startUpdatingSubtitles")
                         currentStat = PlayerStats.Playing
+                        if (!isReady) {
+                            viewModelScope.launch {
+                                appendDanmaku(cid = currentVideoCid, videoDuration)
+                            }
+                        }
                         isReady = true
                         isVideoControllerVisible = true
                     }
@@ -179,10 +193,11 @@ class Media3VideoPlayerViewModel @Inject constructor(
         isLowResolution: Boolean = true
     ) {
         appendLoadMessage("初始化播放器...")
+        currentVideoCid = videoCid
         viewModelScope.launch {
             if (isBangumi) {
                 getVideoInfo(videoIdType, videoId)
-                loadDanmaku(cid = videoCid)
+                loadInitDanmaku(cid = videoCid)
                 appendLoadMessage("加载视频url...")
                 val urlResponse = BangumiInfo.getBangumiPlaybackUrl(BANGUMI_ID_TYPE_CID, videoCid)
                 val urlData = urlResponse.data?.result
@@ -206,7 +221,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
             } else {
                 getVideoInfo(videoIdType, videoId)
                 loadSubtitle()
-                loadDanmaku(cid = videoCid)
+                loadInitDanmaku(cid = videoCid)
                 appendLoadMessage("加载视频url...")
                 if (isLowResolution) {
                     val urlResponse =
@@ -255,7 +270,6 @@ class Media3VideoPlayerViewModel @Inject constructor(
                     val mergeSource: MediaSource = MergingMediaSource(videoSource, audioSource)
                     appendLoadMessage("成功!", needLineWrapping = false)
 
-
                     player.setMediaItem(mergeSource.mediaItem)
                     player.playWhenReady = true
                     player.prepare()
@@ -269,6 +283,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
     fun playVideoFromLocalFile(
         videoCid: Long
     ) {
+        currentVideoCid = videoCid
         viewModelScope.launch {
             val cacheFileInfo = repository.getTaskInfoByVideoCid(videoCid)
             if (cacheFileInfo == null) {
@@ -277,7 +292,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
             }
             val cacheFolder = File(application.filesDir, "videoCaches/$videoCid")
             val videoFile = File(cacheFolder, cacheFileInfo.downloadedVideoFileName)
-            val danmakuFile = File(cacheFolder, cacheFileInfo.downloadedDanmakuFileName)
+            //val danmakuFile = File(cacheFolder, cacheFileInfo.downloadedDanmakuFileName)
 
             val subtitleFiles = cacheFileInfo.downloadedSubtitleFileNames.map {
                 it.key to Gson().fromJson(
@@ -299,7 +314,9 @@ class Media3VideoPlayerViewModel @Inject constructor(
             subtitleList = subtitleFiles.toMutableStateMap()
             println("subtitleList: ${subtitleList.values}")
 
-            danmakuInputStream.value = danmakuFile.inputStream()
+            /*val danmakuContent = DmSegMobileReply.parseFrom(danmakuFile.inputStream().readBytes())
+            danmakuList.value= danmakuContent.elemsList*/
+            //TODO 缓存protobuf弹幕
 
             val mediaSource = ProgressiveMediaSource.Factory(DefaultDataSource.Factory(application))
                 .createMediaSource(fromUri(Uri.fromFile(videoFile)))
@@ -415,10 +432,43 @@ class Media3VideoPlayerViewModel @Inject constructor(
         //println("subtitleUpdated: ${subtitleList.map { "${it.key}: ${it.value.currentSubtitle}" }}")
     }
 
-    private suspend fun loadDanmaku(cid: Long) {
+    private suspend fun loadInitDanmaku(cid: Long) {
         appendLoadMessage("加载弹幕内容...")
-        danmakuInputStream.value = VideoInfo.getVideoDanmaku(cid)
-        appendLoadMessage("成功", needLineWrapping = false)
+        try {
+            val danmaku = danmakuGetter.getDanmaku(cid, 1)
+            danmakuList = listOf(DanmakuSegment(1, danmakuList = danmaku.elemsList))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            appendLoadMessage("加载弹幕内容失败! $e")
+        }
+    }
+
+    private suspend fun appendDanmaku(
+        cid: Long,
+        videoDuration: Long
+    ) {
+        val segments = (videoDuration / (6 * 60 * 1000)).toInt() + 1
+        Log.d(TAG, "appendDanmaku: 加载弹幕！共${segments}段")
+        val tasks = (2..segments).map { index ->
+            viewModelScope.async {
+                try {
+                    val danmaku = danmakuGetter.getDanmaku(cid, index)
+                    danmakuListLock.lock()
+                    try {
+                        val temp = danmakuList.toMutableList()
+                        temp.add(DanmakuSegment(index, danmakuList = danmaku.elemsList))
+                        danmakuList = temp
+                    } finally {
+                        danmakuListLock.unlock()
+                    }
+                    Log.d(TAG, "appendDanmaku: 第${index}段弹幕加载成功")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    ToastUtils.showText("第${index}段弹幕加载失败！", context = application)
+                }
+            }
+        }
+        tasks.awaitAll()
     }
 
     private fun startContinuouslyUpdatingSubtitle() {

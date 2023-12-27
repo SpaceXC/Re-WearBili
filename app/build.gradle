@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.protobuf'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'kotlin-parcelize'
@@ -49,9 +50,27 @@ android {
         }
         excludes += 'META-INF/beans.xml'
     }
+    protobuf {
+        protoc {
+            artifact = "com.google.protobuf:protoc:3.20.1"
+        }
+
+        generateProtoTasks {
+            all().each { task ->
+                task.builtins {
+                    java {
+                        option 'lite'
+                    }
+                    kotlin {
+                        option 'lite'
+                    }
+                }
+            }
+        }
+    }
     android.applicationVariants.configureEach {
         variant ->
-            variant.outputs.all {
+            variant.outputs.configureEach {
                 outputFileName = "Re-WearBili - ${variant.versionName} Rel.${variant.versionCode}.apk"
             }
     }
@@ -64,8 +83,8 @@ kapt {
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
-    implementation 'androidx.activity:activity-compose:1.7.2'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
+    implementation 'androidx.activity:activity-compose:1.8.0'
     //noinspection GradleDependency
     implementation "androidx.compose.ui:ui:1.5.3"
     implementation "androidx.compose.ui:ui-tooling-preview:1.5.3"
@@ -78,11 +97,12 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.7.0"
     implementation project(path: ':app:common')
     implementation project(path: ':Bilibili-Kotlin-SDK')
+    //implementation project(path: ':ComposeDanmakuMaster')
     //implementation project(path: ':live_stream_player')
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-service:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-service:2.6.2'
     //implementation project(path: ':app:videoplayer')
     //implementation project(path: ':')
     //implementation 'androidx.core:core-ktx:+'
@@ -97,6 +117,7 @@ dependencies {
     implementation "io.ktor:ktor-client-logging:$ktor_version"
     implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
     implementation "io.ktor:ktor-serialization-gson:$ktor_version"
+    implementation "io.ktor:ktor-serialization-kotlinx-protobuf:$ktor_version"
 
     def gson_version = "2.10.1"
     implementation "com.google.code.gson:gson:$gson_version"
@@ -168,12 +189,20 @@ dependencies {
     // Kotlin + coroutines
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
-    def room_version = "2.6.0-alpha03"
+    def room_version = "2.6.0"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     // optional - Paging 3 Integration
     implementation "androidx.room:room-paging:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
+    def protobuf_version = "3.21.2"
+    implementation "com.google.protobuf:protobuf-javalite:$protobuf_version"
+    implementation "com.google.protobuf:protobuf-kotlin-lite:$protobuf_version"
 
+    implementation "com.github.chrisbanes:PhotoView:2.3.0"
+
+    implementation "org.jsoup:jsoup:1.15.4"
+
+    //implementation "org.apache.directory.studio:org.apache.commons.io:2.4"
 }
