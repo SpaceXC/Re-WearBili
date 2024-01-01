@@ -15,8 +15,8 @@ android {
         applicationId "cn.spacexc.wearbili.remake"
         minSdk 21
         targetSdk 34
-        versionCode 19
-        versionName "Canary 0.8.1"
+        versionCode 21
+        versionName "DANMAKU!!! dm.0.10.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateMap
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem.fromUri
@@ -24,6 +25,7 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import bilibili.community.service.dm.v1.CommandDm
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BANGUMI_ID_TYPE_CID
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BangumiInfo
 import cn.spacexc.bilibilisdk.sdk.video.action.VideoAction
@@ -65,7 +67,7 @@ import javax.inject.Inject
 class Media3VideoPlayerViewModel @Inject constructor(
     private val application: Application,
     private val repository: VideoCacheRepository,
-    networkUtils: KtorNetworkUtils
+    private val networkUtils: KtorNetworkUtils
 ) : ViewModel() {
     private var httpDataSourceFactory = DefaultHttpDataSource.Factory()
     private var httpMediaSourceFactory: MediaSource.Factory
@@ -117,9 +119,19 @@ class Media3VideoPlayerViewModel @Inject constructor(
     //var danmakuInputStream = MutableStateFlow<InputStream?>(null)
     private val danmakuGetter = DanmakuGetter(networkUtils)
     var danmakuList by mutableStateOf(listOf<DanmakuSegment>())
+    var imageDanmakus by mutableStateOf(mapOf<List<String>, ImageBitmap>())
+    private val imageDanmakusLock = Mutex()
+    var commandDanmakus by mutableStateOf(listOf<CommandDm>())
     private val danmakuListLock = Mutex()
 
     var onlineCount by mutableStateOf("-")
+
+    /**
+     * A: 权重（时长）
+     * B: 显示内容
+     * C: 开始时间点
+     */
+    var videoChapters by mutableStateOf(listOf<Triple<Int, String, Int>>())
 
     var videoCastUrl = ""
 
@@ -160,7 +172,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
                             }
                         }
                         isReady = true
-                        isVideoControllerVisible = true
+                        //isVideoControllerVisible = true
                     }
 
                     Player.STATE_BUFFERING -> {
@@ -220,7 +232,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
                 player.prepare()
             } else {
                 getVideoInfo(videoIdType, videoId)
-                loadSubtitle()
+                loadSubtitleAndVideoChapters()
                 loadInitDanmaku(cid = videoCid)
                 appendLoadMessage("加载视频url...")
                 if (isLowResolution) {
@@ -244,6 +256,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
                     player.setMediaItem(mediaSource.mediaItem)
                     player.playWhenReady = true
                     player.prepare()
+                    isVideoControllerVisible = true
                     startContinuouslyUpdatingSubtitle()
                 } else {
                     val urlResponse =
@@ -273,6 +286,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
                     player.setMediaItem(mergeSource.mediaItem)
                     player.playWhenReady = true
                     player.prepare()
+                    isVideoControllerVisible = true
                     startContinuouslyUpdatingSubtitle()
                 }
             }
@@ -324,21 +338,27 @@ class Media3VideoPlayerViewModel @Inject constructor(
             player.setMediaItem(mediaSource.mediaItem)
             player.playWhenReady = true
             player.prepare()
+            isVideoControllerVisible = true
             startContinuouslyUpdatingSubtitle()
         }
     }
 
-    private suspend fun loadSubtitle() {
-        val urls = VideoInfo.getVideoPlayerInfo(
+    private suspend fun loadSubtitleAndVideoChapters() {
+        val response = VideoInfo.getVideoPlayerInfo(
             cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID,
             videoInfo?.data?.aid?.toString() ?: "",
             videoInfo?.data?.cid ?: 0
-        ).data?.data?.subtitle?.subtitles
+        ).data?.data
+        val urls = response?.subtitle?.subtitles
         urls.logd("subtitles0")
         urls?.let {
             initSubtitle(urls)
             subtitleList.logd("subtitles")
         }
+        val chapters = response?.view_points?.map {
+            Triple(it.to - it.from, it.content, it.from)
+        } ?: emptyList()
+        videoChapters = chapters
     }
 
     private suspend fun initSubtitle(urls: List<cn.spacexc.bilibilisdk.sdk.video.info.remote.playerinfo.Subtitle>) {
@@ -435,8 +455,43 @@ class Media3VideoPlayerViewModel @Inject constructor(
     private suspend fun loadInitDanmaku(cid: Long) {
         appendLoadMessage("加载弹幕内容...")
         try {
-            val danmaku = danmakuGetter.getDanmaku(cid, 1)
-            danmakuList = listOf(DanmakuSegment(1, danmakuList = danmaku.elemsList))
+            listOf(
+                viewModelScope.async {
+                    val danmaku = danmakuGetter.getDanmaku(cid, 1)
+                    danmakuList = listOf(DanmakuSegment(1, danmakuList = danmaku.elemsList))
+                },
+                viewModelScope.async {
+                    val specialDanmakus = danmakuGetter.getSpecialDanmakus(cid)
+                    commandDanmakus = specialDanmakus.commandDmsList
+                    val imageDanmakusTask = specialDanmakus.expressionsList.map { expressions ->
+                        viewModelScope.async {
+                            expressions.dataList.map { expression ->
+                                val tempMap = HashMap<List<String>, ImageBitmap>()
+                                viewModelScope.async {
+                                    Log.d(TAG, "loadInitDanmaku-image: $expression")
+                                    val imageBitmap = networkUtils.getImageBitmap(
+                                        expression.url.replace(
+                                            "http://",
+                                            "https://"
+                                        )
+                                    )
+                                    if (imageBitmap != null) {
+                                        imageDanmakusLock.lock()
+                                        try {
+                                            tempMap[expression.keywordList.map { "[$it]" }] =
+                                                imageBitmap
+                                            imageDanmakus = tempMap
+                                        } finally {
+                                            imageDanmakusLock.unlock()
+                                        }
+                                    }
+                                }
+                            }.awaitAll()    //单个expression的任务（还是没搞懂什么意思，不过api就是这么返回的，我也没办法（
+                        }
+                    }
+                    imageDanmakusTask.awaitAll()    //几个expressions的任务（说真的我没搞懂）
+                }
+            ).awaitAll()    //普通弹幕和特殊弹幕两个任务
         } catch (e: Exception) {
             e.printStackTrace()
             appendLoadMessage("加载弹幕内容失败! $e")
@@ -469,6 +524,10 @@ class Media3VideoPlayerViewModel @Inject constructor(
             }
         }
         tasks.awaitAll()
+        Log.d(
+            TAG,
+            "appendDanmaku: 弹幕加载完成！共${danmakuList.flatMap { it.danmakuList }.size}条弹幕！"
+        )
     }
 
     private fun startContinuouslyUpdatingSubtitle() {
