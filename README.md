@@ -1,4 +1,4 @@
-# Re:WearBili ![Static Badge](https://img.shields.io/badge/latest_version-Audio_0.7.0-blue)
+# Re:WearBili
 
 一个手表上的第三方Bilibili客户端，但是重制版
 
