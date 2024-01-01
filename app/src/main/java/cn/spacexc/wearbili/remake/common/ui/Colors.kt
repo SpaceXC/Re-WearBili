@@ -11,3 +11,4 @@ import androidx.compose.ui.graphics.Color
  */
 
 val BilibiliPink = Color(254, 103, 154)
+val BilibiliBlue = Color(0, 161, 214)

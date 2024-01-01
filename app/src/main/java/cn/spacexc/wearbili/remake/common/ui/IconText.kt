@@ -40,6 +40,7 @@ fun IconText(
     fontFamily: FontFamily = wearbiliFontFamily,
     letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
+    spacingWidth: TextUnit = 2.spx,
     textAlign: TextAlign? = null,
     lineHeight: TextUnit = TextUnit.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
@@ -61,17 +62,24 @@ fun IconText(
             )
         ) {
             icon()
-        }
+        },
+        "spacing" to InlineTextContent(
+            placeholder = Placeholder(
+                width = spacingWidth,
+                height = spacingWidth,
+                placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+            )
+        ) {}
     )
     Text(
         buildAnnotatedString {
             if (isAfterText) {
                 append(text)
-                append(" ")
+                appendInlineContent("spacing")
                 appendInlineContent("icon")
             } else {
                 appendInlineContent("icon")
-                append(" ")
+                appendInlineContent("spacing")
                 append(text)
             }
         },

@@ -442,7 +442,7 @@ fun Activity.PlayerPage(
                     },
                     valueRange = 0f..viewModel.videoDuration.toFloat(),
                     colors = SliderDefaults.colors(
-                        activeTrackColor = cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.BilibiliPink
+                        activeTrackColor = BilibiliPink
                     ),
                     thumb = {
                         Image(
@@ -730,7 +730,7 @@ fun Activity.SettingsPage(
                     },
                     valueRange = 0.toFloat()..getMaxVolume().toFloat(),
                     colors = SliderDefaults.colors(
-                        activeTrackColor = cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.BilibiliPink,
+                        activeTrackColor = BilibiliPink,
                         thumbColor = Color.White
                     ),
                     modifier = Modifier.offset(y = (-6).dp),

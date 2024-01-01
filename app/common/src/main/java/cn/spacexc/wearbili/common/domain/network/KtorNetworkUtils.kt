@@ -1,5 +1,8 @@
 package cn.spacexc.wearbili.common.domain.network
 
+import android.graphics.BitmapFactory
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import cn.spacexc.bilibilisdk.network.APP_KEY
 import cn.spacexc.bilibilisdk.network.APP_SEC
 import cn.spacexc.wearbili.common.EncryptUtils
@@ -240,5 +243,10 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
         return client.cookies(BASE_URL).associate {
             Pair(first = it.name, second = it.value)
         }
+    }
+
+    suspend fun getImageBitmap(url: String): ImageBitmap? {
+        val bytes = getBytes(url) ?: return null
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size).asImageBitmap()
     }
 }

@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.common.ui
 
+import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,9 +17,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
+import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter.Companion.DefaultTransform
 import coil.compose.AsyncImagePainter.State
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.transform.Transformation
 import com.google.accompanist.placeholder.PlaceholderDefaults
@@ -89,6 +93,14 @@ fun BiliImage(
                 alpha = alpha,
                 colorFilter = colorFilter,
                 filterQuality = filterQuality,
+                imageLoader = ImageLoader(LocalContext.current).newBuilder()
+                    .components {
+                        if (Build.VERSION.SDK_INT >= 28) {
+                            add(ImageDecoderDecoder.Factory())
+                        } else {
+                            add(GifDecoder.Factory())
+                        }
+                    }.build()
             )
         }
     }

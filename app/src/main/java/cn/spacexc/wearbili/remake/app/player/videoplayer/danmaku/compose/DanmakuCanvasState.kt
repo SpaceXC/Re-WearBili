@@ -6,17 +6,30 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
+import bilibili.community.service.dm.v1.CommandDm
 import bilibili.community.service.dm.v1.DanmakuElem
+import bilibili.community.service.dm.v1.DmColorfulType
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_ADVERTISE
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_RATE
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_SUBSCRIBE
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_VIDEO
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_VOTE
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.CommandDanmaku
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.DanmakuSegment
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.DisplayDanmakuItem
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.AdvertiseExtra
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.RateExtra
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.SubscribeExtra
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.VideoExtra
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.vote.VoteExtra
+import com.google.gson.Gson
 
 /**
  * Created by XC-Qan on 2023/12/10.
@@ -26,6 +39,9 @@ import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.Di
  * 给！爷！写！注！释！
  */
 
+/**
+ * 因为普通弹幕对应的类型数字有1 2 3，可以说是为了一碗醋包了一锅饺子了
+ **/
 class DanmakuType(vararg types: Int) {
     private val typeInts = types
     infix fun isEqualTo(other: Int): Boolean {
@@ -58,93 +74,103 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
     }
 
     private var danmakuList = emptyList<DanmakuElem>()
+    private var danmakuSegments = emptyList<DanmakuSegment>()
 
     var displayingDanmakus by mutableStateOf(listOf<DisplayDanmakuItem>())
 
     var state = DanmakuCanvasState.Idle
-    //var timer: MillisecondTimer = MillisecondTimer()
-    //private var displayDanmakus = mutableListOf<DisplayDanmakuItem>()
+
+    private var topDisplayRows = HashMap<Int, List<DisplayDanmakuItem>>()
+    private var bottomDisplayRows = HashMap<Int, List<DisplayDanmakuItem>>()
+
+    private var dynamicDanmakuSegments = emptyList<DanmakuSegment>()
+
+    var commandDanmakus by mutableStateOf(listOf<CommandDanmaku>())   //引导关注/推荐视频等
+    private var imageDanmakus = mapOf<List<String>, ImageBitmap>()  //如"前方高能"/"ohhhhh"等
+
 
     fun start() {
-        //timer.start()
         state = DanmakuCanvasState.Playing
     }
 
     fun pause() {
-        //timer.pause()
         state = DanmakuCanvasState.Paused
     }
 
     fun seekTo(time: Long) {
-        //timer.elapsedTime = time
-        dynamicDanmakuList = danmakuList.filter { it.progress >= time }.toMutableList()
+        dynamicDanmakuSegments = buildList {
+            danmakuSegments.forEach { segment ->
+                val newSegmentList = segment.danmakuList.filter { it.progress >= time }
+                add(segment.copy(danmakuList = newSegmentList))
+            }
+        }
         displayingDanmakus = emptyList()
         topDisplayRows = HashMap()
         bottomDisplayRows = HashMap()
     }
 
-    private var topDisplayRows = HashMap<Int, List<DisplayDanmakuItem>>()
-    private var bottomDisplayRows = HashMap<Int, List<DisplayDanmakuItem>>()
-
-    //private var displayedDanmakuIds = mutableListOf<Long>()
-    private var dynamicDanmakuList = mutableListOf<DanmakuElem>()
-
     /**
      * 在canvas上绘制弹幕
      */
-    @OptIn(ExperimentalTextApi::class)
     fun updatedDanmaku(
         textMeasurer: TextMeasurer,
         drawScope: DrawScope,
         fontSize: Float,
         playSpeed: Float,
-        framePerSecond: Int
     ) {
         if (state != DanmakuCanvasState.Playing) return
         drawScope.apply {
             var tempList = displayingDanmakus.toMutableList()
             //寻找新的可以被显示的弹幕，要求为 出现时间 > 当前计时器时间 且 不是高级弹幕/脚本弹幕
+            val currentSegmentIndex = (updateTimer() / (6 * 60 * 1000)).toInt() + 1
+            val currentList =
+                dynamicDanmakuSegments.firstOrNull { it.segmentIndex == currentSegmentIndex }?.danmakuList
+                    ?: emptyList()
             val newVisibleDanmakus =
-                dynamicDanmakuList.filter { danmakuItem ->
+                currentList.filter { danmakuItem ->
                     danmakuItem.progress <= updateTimer()
                             && DANMAKU_TYPE_ADVANCE isNotEqualTo danmakuItem.mode
                             && DANMAKU_TYPE_SCRIPT isNotEqualTo danmakuItem.mode
                             && danmakuItem.weight > 0   //屏蔽等级
                     //TODO 显示高级弹幕
-                }
-                    .map { danmakuItem ->
-                        //用来获取文字的大小
-                        val textLayoutResult: TextLayoutResult =
-                            textMeasurer.measure(
-                                text = AnnotatedString(danmakuItem.content),
-                                style = TextStyle(fontSize = (danmakuItem.fontsize * 0.55 * fontSize).sp)
-                            )
-                        val textSize = textLayoutResult.size
-
-                        val row = getRow(danmakuItem, textSize.width, drawScope)
-
-                        val newItem = DisplayDanmakuItem(
-                            appearTime = danmakuItem.progress.toDouble(),
-                            content = danmakuItem.content,
-                            x = when (parseDanmakuType(danmakuItem.mode)) {
-                                DANMAKU_TYPE_NORM -> size.width
-                                DANMAKU_TYPE_REVERSED -> 0f - textSize.width
-                                DANMAKU_TYPE_TOP, DANMAKU_TYPE_BOTTOM -> (size.width / 2) - (textSize.width / 2)
-                                else -> 0f
-                            },
-                            y = when (parseDanmakuType(danmakuItem.mode)) {
-                                DANMAKU_TYPE_BOTTOM -> size.height - ((row + 1) * textSize.height.toFloat())
-                                else -> row * textSize.height.toFloat()
-                            },
-                            color = Color(danmakuItem.color).copy(alpha = 1f),
-                            fontSize = danmakuItem.fontsize,
-                            type = danmakuItem.mode,
-                            displayedFrames = 0,
-                            danmakuId = danmakuItem.id,
-                            displayRow = row,
-                            textWidth = textSize.width,
-                            textHeight = textSize.height
+                }.map { danmakuItem ->
+                    //用来获取文字的大小
+                    val isHighlyLiked = danmakuItem.attr == 4 //貌似4和0按位与是2（2=高赞）
+                    val isGradient = danmakuItem.colorful == DmColorfulType.VipGradualColor
+                    val imageBitmap = getImageForExpression(danmakuItem.content)
+                    val textLayoutResult: TextLayoutResult =
+                        textMeasurer.measure(
+                            text = AnnotatedString(danmakuItem.content),
+                            style = TextStyle(fontSize = (danmakuItem.fontsize * 0.55 * fontSize).sp),
                         )
+                    val textSize = textLayoutResult.size
+
+                    val row = getRow(danmakuItem, textSize.width, drawScope)
+
+                    val newItem = DisplayDanmakuItem(
+                        appearTime = danmakuItem.progress,
+                        content = AnnotatedString(danmakuItem.content),
+                        x = when (parseDanmakuType(danmakuItem.mode)) {
+                            DANMAKU_TYPE_NORM -> if (isHighlyLiked) size.width + textSize.height else size.width
+                            DANMAKU_TYPE_REVERSED -> 0f - textSize.width
+                            DANMAKU_TYPE_TOP, DANMAKU_TYPE_BOTTOM -> (size.width / 2) - (textSize.width / 2)
+                            else -> 0f
+                        },
+                        y = when (parseDanmakuType(danmakuItem.mode)) {
+                            DANMAKU_TYPE_BOTTOM -> size.height - ((row + 1) * textSize.height.toFloat())
+                            else -> row * textSize.height.toFloat()
+                        },
+                        color = Color(danmakuItem.color).copy(alpha = 1f),
+                        fontSize = danmakuItem.fontsize,
+                        type = danmakuItem.mode,
+                        danmakuId = danmakuItem.id,
+                        displayRow = row,
+                        textWidth = textSize.width,
+                        textHeight = textSize.height,
+                        isLiked = isHighlyLiked,
+                        image = imageBitmap,
+                        isGradient = isGradient
+                    )
                         if (DANMAKU_TYPE_BOTTOM isEqualTo danmakuItem.mode) {
                             val danmakusInRow =
                                 (bottomDisplayRows[row] ?: emptyList()).toMutableList()
@@ -160,53 +186,49 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
                             }
                             topDisplayRows[row] = danmakusInRow
                         }
-                        newItem
-                    }
-            //Log.d("TAG", "updateDanmaku: $newVisibleDanmakus")
+                    newItem
+                }
+
             tempList.addAll(newVisibleDanmakus)
-            dynamicDanmakuList.removeAll {
-                newVisibleDanmakus.map { it.danmakuId }.contains(it.id)
+            val tempDanmakuSegmentList = currentList.toMutableList()
+            tempDanmakuSegmentList.removeAll { tempDanmakuElem ->
+                newVisibleDanmakus.map { it.danmakuId }.contains(tempDanmakuElem.id)
             }
-            //displayedDanmakuIds.addAll(newVisibleDanmakus.map { it.danmakuId })
+            dynamicDanmakuSegments = dynamicDanmakuSegments.toMutableList().apply {
+                set(
+                    index = indexOfFirst { it.segmentIndex == currentSegmentIndex },
+                    element = DanmakuSegment(currentSegmentIndex, tempDanmakuSegmentList)
+                )
+            }
 
             tempList = tempList.map {
                 when (parseDanmakuType(it.type)) {
                     DANMAKU_TYPE_NORM -> it.copy(
-                        x = it.x - (2.5f * playSpeed),
-                        displayedFrames = it.displayedFrames + 1
+                        x = it.x - (2.5f * playSpeed)
                     )
 
                     DANMAKU_TYPE_REVERSED -> it.copy(
-                        x = it.x + (2.5f * playSpeed),
-                        displayedFrames = it.displayedFrames + 1
+                        x = it.x + (2.5f * playSpeed)
                     )
-
-                    DANMAKU_TYPE_TOP, DANMAKU_TYPE_BOTTOM -> it.copy(displayedFrames = it.displayedFrames + 1)
+                    //顶端/底端弹幕不需要更新位置
                     else -> it
                 }
             }.toMutableList()
 
             //新的不可见弹幕
             val newInvisibleDanmakus = displayingDanmakus.filter { displayDanmakuItem ->
-                val textPaint = Paint().asFrameworkPaint().apply {
-                    textSize = 20 * density
-                }
-                val textBounds = android.graphics.Rect()
-                textPaint.getTextBounds(
-                    displayDanmakuItem.content,
-                    0,
-                    displayDanmakuItem.content.length,
-                    textBounds
-                )
-
-                val isOut = when (parseDanmakuType(displayDanmakuItem.type)) {
-                    DANMAKU_TYPE_NORM -> displayDanmakuItem.x + textBounds.width() < 0
+                val textLayoutResult: TextLayoutResult =
+                    textMeasurer.measure(
+                        text = displayDanmakuItem.content,
+                        style = TextStyle(fontSize = (displayDanmakuItem.fontSize * 0.55 * fontSize).sp),
+                    )
+                val textSize = textLayoutResult.size
+                when (parseDanmakuType(displayDanmakuItem.type)) {
+                    DANMAKU_TYPE_NORM -> displayDanmakuItem.x + textSize.width < 0
                     DANMAKU_TYPE_REVERSED -> displayDanmakuItem.x > size.width
-                    DANMAKU_TYPE_TOP, DANMAKU_TYPE_BOTTOM -> displayDanmakuItem.displayedFrames.toFloat() > (300 / playSpeed)    //5秒
+                    DANMAKU_TYPE_TOP, DANMAKU_TYPE_BOTTOM -> (updateTimer() - displayDanmakuItem.appearTime) > 5000    //5秒
                     else -> false
                 }
-                //Log.d("TAG", "getUpdatedDanmaku: ${displayDanmakuItem.content}: $isOut")
-                isOut
             }
             newInvisibleDanmakus.forEach { newInvisibleDanmaku ->
                 tempList.removeAll { it.danmakuId == newInvisibleDanmaku.danmakuId }
@@ -221,8 +243,31 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
                     topDisplayRows[newInvisibleDanmaku.displayRow] = list ?: emptyList()
                 }
             }
-            //Log.d("TAG", "getUpdatedDanmaku: $tempList")
+
             displayingDanmakus = tempList
+            updateCommandDanmakus()
+        }
+    }
+
+    private fun updateCommandDanmakus() {
+        commandDanmakus = commandDanmakus.map { danmaku ->
+            if (danmaku.isDisplaying) { //如果正在显示
+                if (updateTimer() - danmaku.appearTime > 5000) { //如果显示时间超过5秒钟
+                    danmaku.copy(isDisplaying = false)  //则停止显示
+                } else {
+                    danmaku //否则继续显示
+                }
+            } else {  //如果没有在显示
+                if (danmaku.appearTime < updateTimer()) {    //如果到了显示的时间点
+                    if (updateTimer() - danmaku.appearTime < 5000) { //如果显示时间没有超过5秒（即没有显示过
+                        danmaku.copy(isDisplaying = true)   //那么开始显示
+                    } else {
+                        danmaku     //否则继续不显示（已经显示过）
+                    }
+                } else {
+                    danmaku //否则继续不显示（还没到时间显示）
+                }
+            }
         }
     }
 
@@ -243,7 +288,7 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
 
                     DANMAKU_TYPE_REVERSED -> {
                         val hasHitDanmaku = danmakusInRow.any {
-                            textWidth - 50 >= it.x
+                            textWidth >= it.x
                         }   //文字宽度没有超过上一个弹幕的
                                 || danmakusInRow.any { DANMAKU_TYPE_NORM isEqualTo it.type }  //同一行不能同时有从左到右或从右到左
                         if (!hasHitDanmaku) return row
@@ -266,11 +311,58 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
         }
     }
 
-    fun setDanmakuList(newDanmakuList: List<DanmakuSegment>) {
-        val newList = newDanmakuList.map { it.danmakuList }.flatten()
-        val difference = newList - danmakuList.toSet()
-        danmakuList = newList
-        dynamicDanmakuList.addAll(difference)
+    fun setDanmakuList(
+        newDanmakuList: List<DanmakuSegment> = emptyList(),
+        commandDanmakus: List<CommandDm> = emptyList(),
+        imageDanmakus: Map<List<String>, ImageBitmap> = mapOf()
+    ) {
+        if (newDanmakuList.isNotEmpty()) {
+            val newList = newDanmakuList.map { it.danmakuList }.flatten()
+            danmakuList = newList
+            danmakuSegments = newDanmakuList
+            dynamicDanmakuSegments = dynamicDanmakuSegments.toMutableList().apply {
+                addAll(newDanmakuList - dynamicDanmakuSegments.toSet())
+            }
+        }
+        if (commandDanmakus.isNotEmpty()) {
+            this.commandDanmakus = buildList {
+                commandDanmakus.forEach { danmaku ->
+                    val extraType = when (danmaku.command) {
+                        COMMAND_SUBSCRIBE -> SubscribeExtra::class.java
+                        COMMAND_VOTE -> VoteExtra::class.java
+                        COMMAND_VIDEO -> VideoExtra::class.java
+                        COMMAND_RATE -> RateExtra::class.java
+                        COMMAND_ADVERTISE -> AdvertiseExtra::class.java
+                        else -> null
+                    }
+                    if (extraType != null) {
+                        try {
+                            val extra = Gson().fromJson(danmaku.extra, extraType)
+                            val commandDanmaku = CommandDanmaku(
+                                type = danmaku.command,
+                                appearTime = danmaku.progress,
+                                extra = extra,
+                                displayedMillisecond = 0,
+                                isDisplaying = false
+                            )
+                            add(commandDanmaku)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+
+        }
+        if (imageDanmakus.isNotEmpty()) {
+            this.imageDanmakus = imageDanmakus
+        }
+    }
+
+    private fun getImageForExpression(content: String): ImageBitmap? {
+        return imageDanmakus.entries.find {
+            it.key.contains(content)
+        }?.value
     }
 
     private fun parseDanmakuType(type: Int): DanmakuType {

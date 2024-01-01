@@ -57,7 +57,7 @@ data class CommentContentData(
     var rcount: Int,
     var state: Int,
     var fansgrade: Int,
-    var attr: Int,
+    var attr: Long,
     var ctime: Long,
     var rpid_str: String,
     var root_str: String,
