@@ -204,11 +204,11 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
             tempList = tempList.map {
                 when (parseDanmakuType(it.type)) {
                     DANMAKU_TYPE_NORM -> it.copy(
-                        x = it.x - (2.5f * playSpeed)
+                        x = it.x - ((2.5f + it.textWidth / 230) * playSpeed)
                     )
 
                     DANMAKU_TYPE_REVERSED -> it.copy(
-                        x = it.x + (2.5f * playSpeed)
+                        x = it.x + ((2.5f * it.textWidth / 230) * playSpeed)
                     )
                     //顶端/底端弹幕不需要更新位置
                     else -> it

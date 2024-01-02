@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,7 +49,7 @@ import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.co
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.vote.VoteExtra
 import cn.spacexc.wearbili.remake.common.ui.BilibiliBlue
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
-import cn.spacexc.wearbili.remake.common.ui.Chip
+import cn.spacexc.wearbili.remake.common.ui.DanmakuChip
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import kotlinx.coroutines.delay
 
@@ -195,13 +192,9 @@ fun DanmakuCanvas(
                             exit = fadeOut(),
                             modifier = Modifier.centeredOffset(position)
                         ) {
-                            Chip(icon = {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = null,
-                                    tint = Color.White
-                                )
-                            }, text = "关注", backgroundColor = BilibiliBlue)
+                            DanmakuChip(commandDanmakuType = it.type) {
+
+                            }
                         }
 
                     }
@@ -218,10 +211,9 @@ fun DanmakuCanvas(
                             exit = fadeOut(),
                             modifier = Modifier.centeredOffset(position)
                         ) {
-                            Text(
-                                text = "投个票!",
-                                color = Color.Blue,
-                            )
+                            DanmakuChip(commandDanmakuType = it.type) {
+
+                            }
                         }
 
                     }
@@ -238,10 +230,9 @@ fun DanmakuCanvas(
                             exit = fadeOut(),
                             modifier = Modifier.centeredOffset(position)
                         ) {
-                            Text(
-                                text = "打个分!",
-                                color = Color.Green,
-                            )
+                            DanmakuChip(commandDanmakuType = it.type) {
+
+                            }
                         }
 
                     }
@@ -258,10 +249,9 @@ fun DanmakuCanvas(
                             exit = fadeOut(),
                             modifier = Modifier.centeredOffset(position)
                         ) {
-                            Text(
-                                text = "看个视频!",
-                                color = Color.Cyan,
-                            )
+                            DanmakuChip(commandDanmakuType = it.type) {
+
+                            }
                         }
 
                     }

@@ -459,6 +459,8 @@ class Media3VideoPlayerViewModel @Inject constructor(
                 viewModelScope.async {
                     val danmaku = danmakuGetter.getDanmaku(cid, 1)
                     danmakuList = listOf(DanmakuSegment(1, danmakuList = danmaku.elemsList))
+                    val advanceDanmaku = danmaku.elemsList.filter { it.mode == 7 }
+                    Log.d(TAG, "loadInitDanmaku: $advanceDanmaku")
                 },
                 viewModelScope.async {
                     val specialDanmakus = danmakuGetter.getSpecialDanmakus(cid)
