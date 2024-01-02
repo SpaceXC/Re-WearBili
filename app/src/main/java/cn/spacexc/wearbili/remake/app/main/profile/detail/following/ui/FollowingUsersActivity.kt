@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
@@ -79,7 +78,8 @@ class FollowingUsersActivity : ComponentActivity() {
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(bottom = 8.dp)
                         ) {
-                            items(items) { user ->
+                            items(items.itemCount) {
+                                val user=  items[it]
                                 user?.let {
                                     TinyUserCard(avatar = user.face, username = user.uname)
                                 }
