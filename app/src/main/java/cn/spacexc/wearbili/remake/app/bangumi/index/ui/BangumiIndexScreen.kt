@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
 import cn.spacexc.wearbili.remake.app.bangumi.timeline.ui.BangumiTimelineActivity
@@ -122,7 +121,8 @@ fun Activity.BangumiIndexScreen(
                         )
                     }
                 }
-                items(lazyItems) { bangumi ->
+                items(lazyItems.itemCount) {
+                    val bangumi = lazyItems[it]
                     bangumi?.let {
                         LargeBangumiCard(
                             title = bangumi.title,

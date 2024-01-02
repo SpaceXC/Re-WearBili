@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.toUIState
@@ -60,8 +59,8 @@ fun Activity.FavouriteFolderDetailScreen(
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                items(lazyPagingItem) {
-                    it?.let { video ->
+                items(lazyPagingItem.itemCount) {
+                    lazyPagingItem[it]?.let { video ->
                         VideoCard(
                             videoName = video.title,
                             uploader = video.upper.name,

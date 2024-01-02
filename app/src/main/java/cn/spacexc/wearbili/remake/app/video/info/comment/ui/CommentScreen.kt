@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import cn.spacexc.wearbili.common.ifNullOrEmpty
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
@@ -116,8 +115,8 @@ fun CommentScreen(
                         contentPadding = PaddingValues(4.dp),
                         state = viewModel.getScrollState(oid.toString()) ?: rememberLazyListState()
                     ) {
-                        items(commentsData) {
-                            it?.let { comment ->
+                        items(commentsData.itemCount) {
+                            commentsData[it]?.let { comment ->
                                 Spacer(modifier = Modifier.height(12.dp))
                                 CommentCard(
                                     senderName = comment.member?.uname ?: "",

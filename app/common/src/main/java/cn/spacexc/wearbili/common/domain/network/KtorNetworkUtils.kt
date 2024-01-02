@@ -30,6 +30,7 @@ import io.ktor.http.Parameters
 import io.ktor.http.userAgent
 import io.ktor.serialization.gson.gson
 import io.ktor.serialization.kotlinx.protobuf.protobuf
+import kotlinx.serialization.ExperimentalSerializationApi
 import java.net.URLEncoder
 import java.util.TreeMap
 import javax.inject.Inject
@@ -48,6 +49,7 @@ const val USER_AGENT =
 const val BASE_URL = "https://www.bilibili.com" //Referer必须符合^https?://(\S+).bilibili.com
 
 class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCookiesManager) {
+    @OptIn(ExperimentalSerializationApi::class)
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             gson {

@@ -21,7 +21,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import cn.spacexc.bilibilisdk.sdk.season.remote.list.Archive
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
@@ -98,8 +97,8 @@ fun Activity.SeasonActivityScreen(
                     }
                 }
             }
-            items(items) {
-                it?.let { video ->
+            items(items.itemCount) {
+                items[it]?.let { video ->
                     VideoCardWithNoBorder(
                         videoName = video.title,
                         uploader = "",
