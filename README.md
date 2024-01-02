@@ -1,6 +1,9 @@
-# Re:WearBili
+<p align="center">
+    <img src="https://repository-images.githubusercontent.com/625249285/2494a768-0911-4380-98a4-a3395c0e637f">
+</p>
 
-一个手表上的第三方Bilibili客户端，但是重制版
+
+<h3 align="center">一个手表上的第三方Bilibili客户端，但是重制版</center>
 
 ## :watch:配置要求
 
