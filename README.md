@@ -28,9 +28,9 @@
 
 ##  :hammer_and_wrench: 构建
 
-1. 该项目依赖于[`Bilibili-Kotlin-SDK`](https://github.com/SpaceXC/Bilibili-Kotlin-SDK)，clone此项目前，请先clone该项目
+1. 该项目依赖于[`Bilibili-Kotlin-SDK`](https://github.com/SpaceXC/Bilibili-Kotlin-SDK)，~~clone此项目前，请先clone该项目~~
 
-2. clone该仓库后，在项目根目录下`settings.gradle`将`Bilibili-Kotlin-SDK`的路径修改为你clone的路径
+2. 使用 `git submodule update`，等待下载完成后就可以正常开发
 
 3. 在Android Studio中删除位于`cn.spacexc.wearbili.remake.app.splash.ui.SplashScreen.kt`中有关更新检测以及内测资格检查的相关代码。
 4. 开始构建或二次开发！

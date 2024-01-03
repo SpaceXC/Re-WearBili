@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.toUIState
@@ -60,8 +59,8 @@ fun Activity.HistoryScreen(
                     horizontal = TitleBackgroundHorizontalPadding - 4.dp
                 )
             ) {
-                items(lazyListItems) {
-                    it?.let { item ->
+                items(lazyListItems.itemCount) {
+                    lazyListItems[it]?.let { item ->
                         when(item.history.business) {
                             "archive" -> {
                                 VideoCard(
@@ -72,22 +71,22 @@ fun Activity.HistoryScreen(
                                         }
                                         append(item.title)
                                     },
-                                    uploader = it.author_name,
+                                    uploader = item.author_name,
                                     badge = item.badge,
                                     views = buildString {
                                         if (item.progress != -1) {
                                             append("看到")
                                             append(item.progress.secondToTime())
-                                            if (it.new_desc.isNotEmpty()) {
+                                            if (item.new_desc.isNotEmpty()) {
                                                 append(" | ")
-                                                append(it.new_desc)
+                                                append(item.new_desc)
                                             }
                                         } else {
                                             append("已看完")
                                         }
                                     },
                                     coverUrl = item.cover,
-                                    videoId = it.history.bvid,
+                                    videoId = item.history.bvid,
                                     videoIdType = VIDEO_TYPE_BVID,
                                 )
                             }

@@ -18,7 +18,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.lazyRotateInput
@@ -69,8 +68,8 @@ fun DynamicScreen(
                     horizontal = /*TitleBackgroundHorizontalPadding*/ 8.dp
                 )
             ) {
-                items(dynamicListData) {
-                    it?.let { dynamicItem ->
+                items(dynamicListData.itemCount) {
+                    dynamicListData[it]?.let { dynamicItem ->
                         DynamicCard(item = dynamicItem, context = context)
                     }
                 }

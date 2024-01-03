@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
 import cn.spacexc.wearbili.remake.app.search.domain.paging.SearchObject
@@ -71,8 +70,8 @@ fun Activity.SearchResultScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(vertical = 4.dp, horizontal = 8.dp)
             ) {
-                items(searchResult) {
-                    it?.let { searchObject ->
+                items(searchResult.itemCount) {
+                    searchResult[it]?.let { searchObject ->
                         when (searchObject.item) {
                             is SearchedVideo -> {
                                 val video = searchObject.item
