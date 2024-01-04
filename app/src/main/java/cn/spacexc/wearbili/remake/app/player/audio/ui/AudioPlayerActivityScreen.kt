@@ -15,6 +15,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,7 +46,6 @@ import androidx.compose.material.icons.outlined.OndemandVideo
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.material.icons.outlined.Subtitles
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -77,7 +77,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
-import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R
@@ -276,46 +275,9 @@ fun SubtitlePage(
             viewModel.player.seekTo((it.from * 1000).toLong())
         }
     }
-
-    /*LazyColumn(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentPadding = PaddingValues(TitleBackgroundHorizontalPadding),
-        state = state
-    ) {*/
-    /*viewModel.subtitleList[viewModel.currentSubtitleLanguage]?.subtitleList?.forEach {
-        //item {
-            val color by animateColorAsState(
-                targetValue = if (currentSubtitle == it) Color.White else Color(
-                    255,
-                    255,
-                    255,
-                    51
-                )
-            )
-            val size by animateFloatAsState(targetValue = if (currentSubtitle == it) 1.1f else 1f)
-            Text(text = it.content,
-                color = color,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.spx,
-                fontFamily = wearbiliFontFamily,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .animateContentSize()
-                    .scale(size)
-                    .graphicsLayer {
-                        clip = false
-                    }
-                    .clickVfx {
-                        viewModel.player.seekTo((it.from * 1000).toLong())
-                    })
-            Spacer(modifier = Modifier.height(6.dp))
-        //}
-    }*/
-    //}
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun Activity.PlayerPage(
     service: AudioPlayerService
@@ -344,8 +306,9 @@ fun Activity.PlayerPage(
                     color = Color.White,
                     fontSize = 13.spx,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontFamily = wearbiliFontFamily
+                    //overflow = TextOverflow.Ellipsis,
+                    fontFamily = wearbiliFontFamily,
+                    modifier = Modifier.basicMarquee()
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
@@ -381,7 +344,7 @@ fun Activity.PlayerPage(
                         .padding(10.dp)
                     ) {
                         if (viewModel.currentStat == PlayerStats.Buffering) {
-                            CircularProgressIndicator(color = parseColor("#FFDBE7"))
+                            //CircularProgressIndicator(color = BilibiliPink/*parseColor("#FFDBE7")*/)
                         } else {
                             TextIcon(
                                 icon = if (viewModel.player.isPlaying) "\\uf8ae" else "\\uf5b0",
@@ -450,7 +413,7 @@ fun Activity.PlayerPage(
                             contentDescription = null,
                             modifier = Modifier
                                 .offset(
-                                    y = 4.dp,
+                                    y = 5.dp,
                                     x = 3.dp
                                 )
                                 .size(10.dp)

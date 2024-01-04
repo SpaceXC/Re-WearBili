@@ -25,8 +25,11 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -159,7 +162,7 @@ enum class VideoPlayerSurfaceRatio(val ratioName: String) {
 @UnstableApi
 @OptIn(
     ExperimentalAnimationApi::class,
-    ExperimentalMaterial3Api::class, ExperimentalTextApi::class
+    ExperimentalMaterial3Api::class, ExperimentalTextApi::class, ExperimentalFoundationApi::class
 )    //不要删掉这个OptIn!!!!!!!!!!!!!!!!!!灰色的也别删掉!!!!!!!!!!!!
 //如果不小心删掉：ExperimentalAnimationApi::class
 fun Activity.Media3PlayerScreen(
@@ -476,7 +479,8 @@ fun Activity.Media3PlayerScreen(
                                                         fontFamily = wearbiliFontFamily,
                                                         fontWeight = FontWeight.Medium,
                                                         maxLines = 1,
-                                                        overflow = TextOverflow.Ellipsis
+                                                        //overflow = TextOverflow.Ellipsis,
+                                                        modifier = Modifier.basicMarquee()
                                                     )
                                                     Text(
                                                         text = if (isCacheVideo) "来自缓存的视频" else "${viewModel.onlineCount}人在看",
@@ -709,11 +713,18 @@ fun Activity.Media3PlayerScreen(
                                                         .align(Alignment.BottomCenter)
                                                 ) {
                                                     viewModel.videoChapters.forEachIndexed { index, chapter ->
+                                                        val isAtCurrentChapter =
+                                                            currentPlayerPosition in chapter.third * 1000..(chapter.third + chapter.first) * 1000
                                                         Text(
                                                             text = chapter.second,
                                                             color = Color.White,
                                                             modifier = Modifier
                                                                 .align(CenterVertically)
+                                                                .then(
+                                                                    if (isAtCurrentChapter) Modifier.basicMarquee(
+                                                                        animationMode = MarqueeAnimationMode.Immediately
+                                                                    ) else Modifier
+                                                                )
                                                                 .alpha(0.7f)
                                                                 .weight(chapter.first.toFloat())
                                                                 .fillMaxWidth()
@@ -732,7 +743,8 @@ fun Activity.Media3PlayerScreen(
                                                             fontSize = 7.spx,
                                                             textAlign = TextAlign.Center,
                                                             fontFamily = wearbiliFontFamily,
-                                                            maxLines = 2
+                                                            maxLines = if (isAtCurrentChapter) 1 else 2,
+                                                            overflow = if (isAtCurrentChapter) TextOverflow.Clip else TextOverflow.Ellipsis
                                                         )
                                                         if (index < viewModel.videoChapters.size - 1) {  //最后一个没有分割线
                                                             Box(

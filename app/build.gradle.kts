@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.google.protobuf)
     alias(libs.plugins.google.dagger.hilt.android)
+    alias(libs.plugins.google.devtools.ksp)
     kotlin("kapt")
     id("kotlin-parcelize")
 }
@@ -160,10 +161,14 @@ dependencies {
 
 
     implementation(libs.androidx.room.runtime)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
     // optional - Paging 3 Integration
     implementation(libs.androidx.room.paging)
     implementation(libs.androidx.room.ktx)
+
+    implementation(libs.okhttp)
+    implementation(libs.rxhttp)
+    ksp(libs.rxhttp.compiler)
 
 
     implementation(libs.photoView)
