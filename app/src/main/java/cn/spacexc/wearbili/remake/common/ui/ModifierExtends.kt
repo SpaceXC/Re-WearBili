@@ -25,8 +25,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import cn.spacexc.wearbili.common.copyToClipboard
-import cn.spacexc.wearbili.remake.app.Application
-import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.ui.Application
+import cn.spacexc.wearbili.remake.ui.settings.SettingsManager
 import com.google.accompanist.placeholder.PlaceholderDefaults
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder

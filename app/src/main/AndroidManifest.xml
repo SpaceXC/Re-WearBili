@@ -20,7 +20,7 @@
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
     <application
-        android:name=".app.Application"
+        android:name=".ui.Application"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -41,7 +41,7 @@
         </provider>
 
         <activity
-            android:name=".app.splash.ui.SplashScreenActivity"
+            android:name=".app.WearBiliActivity"
             android:exported="true"
             android:theme="@style/Theme.WearBili">
             <intent-filter>
@@ -51,58 +51,64 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.splash.ui.SplashScreenActivity"
+            android:exported="true">
+
+        </activity>
+
         <service android:name="com.android.cast.dlna.dmc.DLNACastService" />
         <service
-            android:name=".app.player.audio.AudioPlayerService"
+            android:name=".ui.player.audio.AudioPlayerService"
             android:exported="false" />
 
         <receiver
-            android:name=".app.update.UpdateReceiver"
+            android:name=".ui.update.UpdateReceiver"
             android:exported="false" />
 
         <activity
-            android:name=".app.login.qrcode.tv.ui.TVQrCodeLoginActivity"
+            android:name=".ui.login.qrcode.tv.ui.TVQrCodeLoginActivity"
             android:exported="false" />
         <activity
-            android:name=".app.main.ui.MainActivity"
+            android:name=".ui.main.ui.MainActivity"
             android:exported="false" />
         <activity
-            android:name=".app.video.info.ui.VideoInformationActivity"
+            android:name=".ui.video.info.ui.VideoInformationActivity"
             android:exported="true" />
         <activity
-            android:name=".app.about.ui.AboutActivity"
+            android:name=".ui.about.ui.AboutActivity"
             android:exported="false" />
         <activity
-            android:name=".app.update.ui.UpdateActivity"
+            android:name=".ui.update.ui.UpdateActivity"
             android:exported="false" />
         <activity
-            android:name=".app.search.ui.SearchActivity"
+            android:name=".ui.search.ui.SearchActivity"
             android:exported="false" />
         <activity
-            android:name=".app.search.ui.SearchResultActivity"
+            android:name=".ui.search.ui.SearchResultActivity"
             android:exported="false" />
         <activity
-            android:name=".app.main.profile.detail.following.ui.FollowingUsersActivity"
+            android:name=".ui.main.profile.detail.following.ui.FollowingUsersActivity"
             android:exported="false" />
         <activity
-            android:name=".app.main.profile.detail.history.ui.HistoryActivity"
+            android:name=".ui.main.profile.detail.history.ui.HistoryActivity"
             android:exported="false" />
         <activity
-            android:name=".app.main.profile.detail.watchlater.ui.WatchLaterActivity"
+            android:name=".ui.main.profile.detail.watchlater.ui.WatchLaterActivity"
             android:exported="false" />
         <activity
-            android:name=".app.main.profile.detail.favorite.folders.ui.FavoriteFolderActivity"
+            android:name=".ui.main.profile.detail.favorite.folders.ui.FavoriteFolderActivity"
             android:exported="false" />
         <activity
-            android:name=".app.player.videoplayer.defaultplayer.Media3PlayerActivity"
+            android:name=".ui.player.videoplayer.defaultplayer.Media3PlayerActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false"
             android:theme="@style/Theme.WearBili.Player" />
         <activity
-            android:name=".app.settings.toolbar.ui.QuickToolbarCustomizationActivity"
+            android:name=".ui.settings.toolbar.ui.QuickToolbarCustomizationActivity"
             android:exported="false" />
         <activity
-            android:name=".app.crash.ui.CrashActivity"
+            android:name=".ui.crash.ui.CrashActivity"
             android:exported="false"
             android:process=":error_activity">
             <intent-filter>
@@ -116,46 +122,46 @@
             android:name=".app.player.videoplayer.mirroring.ScreenMirrorActivity"
             android:exported="false" />-->
         <activity
-            android:name=".app.bangumi.info.ui.BangumiActivity"
+            android:name=".ui.bangumi.info.ui.BangumiActivity"
             android:exported="false" />
         <activity
-            android:name=".app.settings.ui.SettingsActivity"
+            android:name=".ui.settings.ui.SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".app.bangumi.index.ui.BangumiIndexActivity"
+            android:name=".ui.bangumi.index.ui.BangumiIndexActivity"
             android:exported="false" />
         <activity
-            android:name=".app.bangumi.timeline.ui.BangumiTimelineActivity"
+            android:name=".ui.bangumi.timeline.ui.BangumiTimelineActivity"
             android:exported="false" />
         <activity
-            android:name=".app.video.action.favourite.ui.VideoFavouriteFoldersActivity"
+            android:name=".ui.video.action.favourite.ui.VideoFavouriteFoldersActivity"
             android:exported="false" />
         <activity
-            android:name=".app.main.profile.detail.favorite.detail.ui.FavouriteFolderDetailActivity"
+            android:name=".ui.main.profile.detail.favorite.detail.ui.FavouriteFolderDetailActivity"
             android:exported="false" />
         <activity
-            android:name=".app.cache.create.ui.CreateNewCacheActivity"
+            android:name=".ui.cache.create.ui.CreateNewCacheActivity"
             android:exported="false" />
         <activity
-            android:name=".app.cache.list.CacheListActivity"
+            android:name=".ui.cache.list.CacheListActivity"
             android:exported="false" />
         <activity
-            android:name=".app.player.audio.AudioPlayerActivity"
+            android:name=".ui.player.audio.AudioPlayerActivity"
             android:exported="true" />
         <!--<activity
             android:name=".app.player.videoplayer.mirroring.dlna.controller.ui.DlnaControllerActivity"
             android:exported="false" />-->
         <activity
-            android:name=".app.login.password.ui.PasswordLoginActivity"
+            android:name=".ui.login.password.ui.PasswordLoginActivity"
             android:exported="false" />
         <activity
-            android:name=".app.login.qrcode.web.ui.QrCodeLoginActivity"
+            android:name=".ui.login.qrcode.web.ui.QrCodeLoginActivity"
             android:exported="false" />
         <activity
-            android:name=".app.season.ui.SeasonActivity"
+            android:name=".ui.season.ui.SeasonActivity"
             android:exported="true" />
         <activity
-            android:name=".app.image.ImageViewerActivity"
+            android:name=".ui.image.ImageViewerActivity"
             android:exported="false" />
     </application>
 

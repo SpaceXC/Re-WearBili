@@ -5,9 +5,9 @@ import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.common.domain.network.cookie.KtorCookiesManager
 import cn.spacexc.wearbili.common.domain.qrcode.QRCodeUtil
-import cn.spacexc.wearbili.remake.app.Application
-import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
-import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.ui.Application
+import cn.spacexc.wearbili.remake.ui.cache.domain.database.VideoCacheRepository
+import cn.spacexc.wearbili.remake.ui.settings.SettingsManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

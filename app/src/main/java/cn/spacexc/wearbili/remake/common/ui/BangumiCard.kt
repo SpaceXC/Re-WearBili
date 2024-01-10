@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.common.ui
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,9 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,15 +32,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.UnstableApi
 import cn.spacexc.wearbili.common.domain.color.parseColor
-import cn.spacexc.wearbili.remake.app.Application
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiActivity
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID_TYPE
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.ui.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
 
 /**
  * Created by XC-Qan on 2023/8/8.
@@ -67,18 +57,11 @@ fun LargeBangumiCard(
     updateInformation: String,
     bangumiIdType: String = BANGUMI_ID_TYPE_SSID,
     bangumiId: Long,
-    context: Context
+    onJumpToBangumiDetail: (String, Long) -> Unit
 ) {
     val localDensity = LocalDensity.current
     Card(onClick = {
-        context.startActivity(Intent(context, BangumiActivity::class.java).apply {
-            putExtra(
-                PARAM_BANGUMI_ID, bangumiId
-            )
-            putExtra(
-                PARAM_BANGUMI_ID_TYPE, bangumiIdType
-            )
-        })
+        onJumpToBangumiDetail(bangumiIdType, bangumiId)
     }) {
         Row(modifier = Modifier.fillMaxWidth()) {
             var coverHeight by remember {
@@ -205,18 +188,11 @@ fun SmallBangumiCard(
     epName: String,
     bangumiIdType: String = BANGUMI_ID_TYPE_SSID,
     bangumiId: Long,
-    context: Context
+    onJumpToBangumiDetail: (String, Long) -> Unit
 ) {
     val localDensity = LocalDensity.current
     Card(onClick = {
-        context.startActivity(Intent(context, BangumiActivity::class.java).apply {
-            putExtra(
-                PARAM_BANGUMI_ID, bangumiId
-            )
-            putExtra(
-                PARAM_BANGUMI_ID_TYPE, bangumiIdType
-            )
-        })
+        onJumpToBangumiDetail(bangumiIdType, bangumiId)
     }, modifier = modifier) {
         Row(modifier = Modifier.fillMaxWidth()) {
             var coverHeight by remember {

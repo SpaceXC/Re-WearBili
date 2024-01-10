@@ -18,7 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import cn.spacexc.wearbili.remake.app.TAG
+import cn.spacexc.wearbili.remake.ui.TAG
 
 /**
  * Created by XC-Qan on 2023/4/21.

@@ -103,6 +103,10 @@ dependencies {
     implementation(libs.androidx.material3.window.size)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.palette.ktx)
+    implementation(libs.androidx.wear.compose.navigation)
+    //implementation(libs.androidx.compose.navigation)
+    implementation(libs.androidx.compose.navigation.hilt)
+
 
     implementation(libs.kotlinx.metadata.jvm)
     implementation(project(":app:common"))

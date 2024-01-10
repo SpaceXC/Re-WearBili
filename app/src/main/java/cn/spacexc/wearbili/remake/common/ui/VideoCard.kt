@@ -50,17 +50,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.Application
-import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_IS_CACHE
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_VIDEO_CID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
-import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
-import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.ui.Application
+import cn.spacexc.wearbili.remake.ui.cache.domain.database.VideoCacheFileInfo
+import cn.spacexc.wearbili.remake.ui.player.videoplayer.defaultplayer.Media3PlayerActivity
+import cn.spacexc.wearbili.remake.ui.player.videoplayer.defaultplayer.PARAM_IS_CACHE
+import cn.spacexc.wearbili.remake.ui.player.videoplayer.defaultplayer.PARAM_VIDEO_CID
+import cn.spacexc.wearbili.remake.ui.video.info.ui.PARAM_VIDEO_ID
+import cn.spacexc.wearbili.remake.ui.video.info.ui.PARAM_VIDEO_ID_TYPE
+import cn.spacexc.wearbili.remake.ui.video.info.ui.VIDEO_TYPE_BVID
+import cn.spacexc.wearbili.remake.ui.video.info.ui.VideoInformationActivity
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import kotlinx.coroutines.Dispatchers
@@ -86,16 +86,11 @@ fun VideoCard(
     coverUrl: String,
     videoId: String? = null,
     videoIdType: String? = null,
-    context: Context = Application.getApplication()
+    onJumpToVideo: (idType: String, id: String) -> Unit
 ) {
     Card(modifier = modifier, onClick = {
         if (!videoId.isNullOrEmpty() && !videoIdType.isNullOrEmpty()) {
-            Intent(context, VideoInformationActivity::class.java).apply {
-                putExtra(PARAM_VIDEO_ID, videoId)
-                putExtra(PARAM_VIDEO_ID_TYPE, videoIdType)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                context.startActivity(this)
-            }
+            onJumpToVideo(videoIdType, videoId)
         }
     }) {
         VideoCardContent(
@@ -118,18 +113,13 @@ fun VideoCardWithNoBorder(
     coverUrl: String,
     videoId: String? = null,
     videoIdType: String? = null,
-    context: Context = Application.getApplication()
+    onJumpToVideo: (idType: String, id: String) -> Unit
 ) {
     Box(modifier = modifier
         .padding(vertical = 2.dp)
         .clickVfx {
             if (!videoId.isNullOrEmpty() && !videoIdType.isNullOrEmpty()) {
-                Intent(context, VideoInformationActivity::class.java).apply {
-                    putExtra(PARAM_VIDEO_ID, videoId)
-                    putExtra(PARAM_VIDEO_ID_TYPE, videoIdType)
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    context.startActivity(this)
-                }
+                onJumpToVideo(videoIdType, videoId)
             }
         }) {
         VideoCardContent(

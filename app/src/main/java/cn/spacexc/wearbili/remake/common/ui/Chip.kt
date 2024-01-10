@@ -25,11 +25,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_RATE
-import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_SUBSCRIBE
-import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_VIDEO
-import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_VOTE
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.ui.player.videoplayer.danmaku.compose.data.COMMAND_RATE
+import cn.spacexc.wearbili.remake.ui.player.videoplayer.danmaku.compose.data.COMMAND_SUBSCRIBE
+import cn.spacexc.wearbili.remake.ui.player.videoplayer.danmaku.compose.data.COMMAND_VIDEO
+import cn.spacexc.wearbili.remake.ui.player.videoplayer.danmaku.compose.data.COMMAND_VOTE
 
 @Composable
 fun DanmakuChip(

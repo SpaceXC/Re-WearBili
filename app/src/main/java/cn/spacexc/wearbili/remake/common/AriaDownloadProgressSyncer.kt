@@ -1,7 +1,7 @@
 package cn.spacexc.wearbili.remake.common
 
 import cn.spacexc.wearbili.common.domain.log.logd
-import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
+import cn.spacexc.wearbili.remake.ui.cache.domain.database.VideoCacheRepository
 import com.arialyy.annotations.DownloadGroup
 import com.arialyy.aria.core.Aria
 import com.arialyy.aria.core.download.DownloadEntity

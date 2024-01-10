@@ -39,7 +39,8 @@ import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIos
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
+import androidx.compose.material.icons.automirrored.outlined.ArrowBackIos
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
@@ -57,6 +58,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
@@ -68,15 +70,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.isAudioServiceUp
-import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerActivity
-import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.ToastUtils.toastContent
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.WearBiliTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.time.DefaultTimeSource
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.ui.isAudioServiceUp
+import cn.spacexc.wearbili.remake.ui.player.audio.AudioPlayerActivity
+import cn.spacexc.wearbili.remake.ui.settings.SettingsManager
 import kotlinx.coroutines.delay
 
 /**
@@ -87,6 +89,8 @@ import kotlinx.coroutines.delay
  * 给！爷！写！注！释！
  */
 
+@Composable
+fun rememberMutableInteractionSource() = remember { MutableInteractionSource() }
 
 /**
  * 根背景，理论上每一处可见UI都应该以此为背景
@@ -94,7 +98,7 @@ import kotlinx.coroutines.delay
  */
 @Composable
 @OptIn(ExperimentalAnimationApi::class) //DON'T DELETE THIS!!!!!!!!!!!!!!!!(DELETING CAUSES BUILD TIME EXCEPTION "This is an experimental animation API.")
-fun Activity.CirclesBackground(
+fun CirclesBackground(
     modifier: Modifier = Modifier,
     uiState: UIState = UIState.Success,
     isShowing: Boolean = true,
@@ -138,7 +142,6 @@ fun Activity.CirclesBackground(
                 LoadableBox(
                     uiState = uiState,
                     content = content,
-                    onLongClick = { this@CirclesBackground.finish() },
                     onRetry = onRetry
                 )
             }
@@ -172,7 +175,6 @@ fun Activity.CirclesBackground(
                 LoadableBox(
                     uiState = uiState,
                     content = content,
-                    onLongClick = { this@CirclesBackground.finish() },
                     onRetry = onRetry
                 )
             }
@@ -288,7 +290,7 @@ fun LoadableBox(
 val TitleBackgroundHorizontalPadding = 12.dp
 
 @Composable
-fun Activity.TitleBackground(
+fun TitleBackground(
     modifier: Modifier = Modifier,
     title: String,
     isTitleClipToBounds: Boolean = true,
@@ -316,6 +318,7 @@ fun Activity.TitleBackground(
         ambientAlpha = ambientAlpha,
         onRetry = onRetry
     ) {
+        val context = LocalContext.current
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
@@ -324,7 +327,10 @@ fun Activity.TitleBackground(
                         vertical = if (isAudioServiceUp) 6.5.dp else 8.dp
                     )
                     .fillMaxWidth()
-                    .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                    .clickable(
+                        interactionSource = rememberMutableInteractionSource(),
+                        indication = null
+                    ) {
                         if (isTitleClickable) {
                             if (isDropdownTitle) onDropdown() else onBack()
                         }
@@ -376,7 +382,7 @@ fun Activity.TitleBackground(
                                 )
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowBackIos,
+                                    imageVector = Icons.AutoMirrored.Outlined.ArrowBackIos,
                                     contentDescription = null,
                                     tint = Color.White,
                                     modifier = Modifier.fillMaxSize()
@@ -405,9 +411,9 @@ fun Activity.TitleBackground(
                         style = AppTheme.typography.h2,
                         modifier = Modifier
                             .clickVfx(isEnabled = isAudioServiceUp) {
-                                startActivity(
+                                context.startActivity(
                                     Intent(
-                                        this@TitleBackground,
+                                        context,
                                         AudioPlayerActivity::class.java
                                     ).apply {
                                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -459,13 +465,9 @@ fun Activity.TitleBackground(
     }
 }
 
-@Composable
-fun Wrapper(content: @Composable () -> Unit) {
-    Box {
-        content()
-    }
-}
-
+/**
+ * for Audio Player
+ */
 @Composable
 fun Activity.ArrowTitleBackgroundWithCustomBackground(
     onBack: () -> Unit = ::finish,
@@ -499,7 +501,7 @@ fun Activity.ArrowTitleBackgroundWithCustomBackground(
                         )
                         .fillMaxWidth()
                         .clickable(
-                            interactionSource = MutableInteractionSource(),
+                            interactionSource = rememberMutableInteractionSource(),
                             indication = null
                         ) {
                             onBack()
@@ -521,7 +523,7 @@ fun Activity.ArrowTitleBackgroundWithCustomBackground(
                                 )
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowBackIos,
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
                                     contentDescription = null,
                                     tint = Color.White,
                                     modifier = Modifier.fillMaxSize()
