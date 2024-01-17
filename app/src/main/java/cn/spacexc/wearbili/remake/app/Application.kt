@@ -7,6 +7,8 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import cn.spacexc.bilibilisdk.BilibiliSdkManager
 import cn.spacexc.bilibilisdk.data.DataManager
 import cn.spacexc.wearbili.common.APP_CENTER_SECRET
@@ -15,15 +17,18 @@ import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.crash.ui.CrashActivity
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerService
-import cn.spacexc.wearbili.remake.common.AriaDownloadProgressSyncer
-import com.arialyy.aria.core.Aria
 import com.developer.crashx.config.CrashConfig
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
+import dagger.hilt.EntryPoint
+import dagger.hilt.EntryPoints
+import dagger.hilt.InstallIn
 import dagger.hilt.android.HiltAndroidApp
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
@@ -45,14 +50,27 @@ val APP_VERSION_CODE = Application.getVersionCode()
 var Context.isAudioServiceUp by mutableStateOf(false)
 
 @HiltAndroidApp
-class Application : android.app.Application() {
+class Application : android.app.Application(), Configuration.Provider {
     @Inject
     lateinit var dataManager: DataManager   //TODO 别在application下放这种对象啊喂！（虽然是迫不得已的啦，不过还是找个时间研究一下拿走罢（20230711
-
     @Inject
     lateinit var repository: VideoCacheRepository
 
-    private lateinit var ariaDownloadSyncer: AriaDownloadProgressSyncer
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface HiltWorkerFactoryEntryPoint {
+        fun workerFactory(): HiltWorkerFactory
+    }
+
+    override var workManagerConfiguration =
+        Configuration.Builder()
+            .setExecutor(Dispatchers.Default.asExecutor())
+            .setWorkerFactory(
+                EntryPoints.get(this, HiltWorkerFactoryEntryPoint::class.java).workerFactory()
+            )
+            .setTaskExecutor(Dispatchers.Default.asExecutor())
+            //.setMaxSchedulerLimit(MAX_SCHEDULER_LIMIT)
+            .build()
 
     override fun onCreate() {
         super.onCreate()
@@ -62,8 +80,6 @@ class Application : android.app.Application() {
         )
         val cachePath = File(filesDir, "/videoCaches/")
         cachePath.mkdir()
-        Aria.init(this)
-        ariaDownloadSyncer = AriaDownloadProgressSyncer(repository)
         val dataStore = DataStoreManager(this)
         BilibiliSdkManager.initSdk(
             dataManager = dataStore
@@ -105,7 +121,6 @@ class Application : android.app.Application() {
 
     override fun onTerminate() {
         super.onTerminate()
-        ariaDownloadSyncer.onDestroy()
     }
 
     init {

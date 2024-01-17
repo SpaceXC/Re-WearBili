@@ -12,6 +12,7 @@ import cn.spacexc.wearbili.common.domain.network.dto.BasicResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.cookies.cookies
@@ -23,14 +24,21 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.readBytes
 import io.ktor.client.statement.request
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.Parameters
+import io.ktor.http.contentLength
 import io.ktor.http.userAgent
 import io.ktor.serialization.gson.gson
 import io.ktor.serialization.kotlinx.protobuf.protobuf
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.core.isEmpty
+import io.ktor.utils.io.core.readBytes
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
+import java.io.File
 import java.net.URLEncoder
 import java.util.TreeMap
 import javax.inject.Inject
@@ -67,6 +75,13 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
         }
         expectSuccess = true
 
+    }
+
+    val downloadClient = HttpClient(CIO) {
+        install(HttpTimeout)
+        engine {
+            requestTimeout = 0
+        }
     }
 
     private val noRedirectClient = HttpClient(CIO) {
@@ -185,6 +200,43 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
             e.printStackTrace()
             NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
         }
+    }
+
+    /**
+     * @param onDownloadFinished 其实这个回调只是为了传回一个结果而已，毕竟lambda内不能直接return嘛，，，
+     */
+    suspend fun downloadFile(
+        url: String,
+        file: File,
+        onProgressUpdate: suspend (Float) -> Unit,
+        onDownloadFinished: suspend (Boolean) -> Unit
+    ) {
+        runBlocking {
+            downloadClient.prepareGet(url) {
+                header("User-Agent", "Mozilla/5.0 BiliDroid/*.*.* (bbcallen@gmail.com)")
+                header("Referer", "https://bilibili.com/")
+            }.execute { httpResponse ->
+                try {
+                    val channel: ByteReadChannel = httpResponse.body()
+                    while (!channel.isClosedForRead) {
+                        val packet =
+                            channel.readRemaining(/*DEFAULT_BUFFER_SIZE.toLong()*/1024 * 1024)
+                        while (!packet.isEmpty) {
+                            val bytes = packet.readBytes()
+                            file.appendBytes(bytes)
+                            onProgressUpdate(
+                                file.length().toFloat() / (httpResponse.contentLength()
+                                    ?: 1).toInt()
+                            )
+                        }
+                    }
+                    onDownloadFinished(true)
+                } catch (e: Exception) {
+                    onDownloadFinished(false)
+                }
+            }
+        }
+        //downloadClient.close()
     }
 
     suspend inline fun <reified T> postWithAppSign(

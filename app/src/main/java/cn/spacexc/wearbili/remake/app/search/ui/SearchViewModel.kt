@@ -101,7 +101,7 @@ class SearchViewModel @Inject constructor(
                 context.startActivity(intent)
             } catch (e: java.lang.Exception) {
                 e.printStackTrace()
-                ToastUtils.showText("没有安装直播播放器哦", context = context)
+                ToastUtils.showText("没有安装直播播放器哦")
             }
             /*context.startActivity(Intent(context, LiveStreamPlayerActivity::class.java).apply {
                 putExtra(PARAM_LIVE_ROOM_ID, keyword.replace("live", "").toLong())

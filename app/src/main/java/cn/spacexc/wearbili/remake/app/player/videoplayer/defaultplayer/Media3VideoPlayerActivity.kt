@@ -75,6 +75,7 @@ class Media3PlayerActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.player.release()
+        viewModel.httpPlayer.release()
+        viewModel.cachePlayer.release()
     }
 }

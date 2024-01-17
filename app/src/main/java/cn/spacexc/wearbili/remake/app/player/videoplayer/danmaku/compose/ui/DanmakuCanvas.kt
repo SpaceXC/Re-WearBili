@@ -102,9 +102,9 @@ fun DanmakuCanvas(
                     val measuredText = textMeasurer.measure(
                         text = danmaku.content,
                         style = TextStyle(
-                            fontSize = (danmaku.fontSize * 0.55 * textSize).sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = wearbiliFontFamily
+                            fontSize = (danmaku.fontSize * 0.5 * textSize).sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = wearbiliFontFamily,
                         ),
                         layoutDirection = layoutDirection,
                         density = this@Canvas,

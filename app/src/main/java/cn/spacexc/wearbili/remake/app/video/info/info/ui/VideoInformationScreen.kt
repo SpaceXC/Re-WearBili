@@ -240,7 +240,7 @@ fun VideoInformationScreen(
                             .alpha(0.7f)
                             .clickVfx(onLongClick = {
                                 video.bvid.copyToClipboard(context = context)
-                                ToastUtils.showText(content = "已复制BV号", context = context)
+                                ToastUtils.showText(content = "已复制BV号")
                             }),
                         fontSize = 11.spx,
                     ) {

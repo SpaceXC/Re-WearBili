@@ -28,11 +28,6 @@ class VideoCacheRepository(
     fun getAllUncompletedTasks(): Flow<List<VideoCacheFileInfo>> =
         videoCacheDao.getUncompletedTasks()
 
-    fun getTaskInfoByUrl(url: String): VideoCacheFileInfo =
-        videoCacheDao.getTaskInfoByUrl(url)
-
-    suspend fun getTaskInfoById(id: Long): VideoCacheFileInfo? =
-        videoCacheDao.getTaskInfoByCacheId(id)
 
     suspend fun getTaskInfoByVideoCid(cid: Long): VideoCacheFileInfo? =
         videoCacheDao.getTaskInfoByVideoCid(cid)

@@ -4,7 +4,6 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 
 /**
  * Created by XC-Qan on 2023/4/2.
@@ -75,7 +75,7 @@ fun LoginScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clickable(
-                                    interactionSource = MutableInteractionSource(),
+                                    interactionSource = rememberMutableInteractionSource(),
                                     indication = null
                                 ) {
                                     onQrcodeClicked()
@@ -93,7 +93,7 @@ fun LoginScreen(
                                     .fillMaxSize()
                                     .padding(6.dp)
                                     .clickable(
-                                        interactionSource = MutableInteractionSource(),
+                                        interactionSource = rememberMutableInteractionSource(),
                                         indication = null
                                     ) {
                                         onQrcodeClicked()

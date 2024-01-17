@@ -44,7 +44,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Activity.CreateNewCacheScreen(
-    viewModel: CreateNewCacheViewModel
+    viewModel: CreateNewCacheViewModel,
 ) {
     var selectedPages by remember {
         mutableStateOf(emptyList<Page>())

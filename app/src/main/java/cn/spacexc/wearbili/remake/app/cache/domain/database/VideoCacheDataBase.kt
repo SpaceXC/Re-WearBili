@@ -11,7 +11,7 @@ import androidx.room.RoomDatabase
  * 给！爷！写！注！释！
  */
 
-@Database(entities = [VideoCacheFileInfo::class], version = 5, exportSchema = false)
+@Database(entities = [VideoCacheFileInfo::class], version = 12, exportSchema = false)
 abstract class
 VideoCacheDataBase : RoomDatabase() {
     abstract fun videoCacheDao(): VideoCacheDao

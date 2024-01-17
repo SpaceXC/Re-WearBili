@@ -7,6 +7,7 @@ import cn.spacexc.wearbili.common.domain.network.cookie.KtorCookiesManager
 import cn.spacexc.wearbili.common.domain.qrcode.QRCodeUtil
 import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.DanmakuGetter
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import dagger.Module
 import dagger.Provides
@@ -56,4 +57,8 @@ object AppModule {
     @Singleton
     fun provideVideoCacheRepository(application: Application): VideoCacheRepository =
         VideoCacheRepository(application)
+
+    @Provides
+    fun provideDanmakuGetter(networkUtils: KtorNetworkUtils): DanmakuGetter =
+        DanmakuGetter(networkUtils)
 }

@@ -51,6 +51,11 @@ import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.Application
+import cn.spacexc.wearbili.remake.app.cache.domain.database.STATE_COMPLETED
+import cn.spacexc.wearbili.remake.app.cache.domain.database.STATE_DOWNLOADING
+import cn.spacexc.wearbili.remake.app.cache.domain.database.STATE_FAILED
+import cn.spacexc.wearbili.remake.app.cache.domain.database.STATE_FETCHING
+import cn.spacexc.wearbili.remake.app.cache.domain.database.STATE_IDLE
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_IS_CACHE
@@ -286,11 +291,11 @@ fun VideoCacheCard(
     }
     val scope = rememberCoroutineScope()
     Card(modifier = modifier, onClick = {
-        if (cacheInfo.isCompleted) {
+        if (cacheInfo.state == STATE_COMPLETED) {
             val videoFile =
                 File(
                     context.filesDir,
-                    "videoCaches/${cacheInfo.videoCid}/${cacheInfo.downloadedVideoFileName}"
+                    "videoCaches/${cacheInfo.videoCid}/${cacheInfo.videoCid}.video.mp4"
                 )
             logd(videoFile.absolutePath)
             if (videoFile.exists()) {
@@ -317,15 +322,12 @@ fun VideoCacheCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Box(modifier = Modifier.weight(6f)) {
-                        if (cacheInfo.isCompleted && cacheInfo.downloadedCoverFileName.isNotEmpty()) {
+                        if (cacheInfo.state == STATE_COMPLETED) {
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current).data(
                                     File(
-                                        context.filesDir, "videoCaches/${cacheInfo.videoCid}/${
-                                            cacheInfo.downloadedCoverFileName.logd(
-                                                "image name"
-                                            )
-                                        }"
+                                        context.filesDir,
+                                        "videoCaches/${cacheInfo.videoCid}/${cacheInfo.videoCid}.cover.png"
                                     ).path.logd("image path")
                                 ).crossfade(true).build(),
                                 contentDescription = "${cacheInfo.videoName} 封面",
@@ -393,9 +395,15 @@ fun VideoCacheCard(
                         }
                     }
                 }
-                if (!cacheInfo.isCompleted) {
+                if (cacheInfo.state != STATE_COMPLETED) {
                     Text(
-                        text = "正在下载 ${cacheInfo.downloadProgress}%",
+                        text = when (cacheInfo.state) {
+                            STATE_IDLE -> "等待中..."
+                            STATE_FETCHING -> "获取缓存信息中"
+                            STATE_DOWNLOADING -> "正在下载 ${cacheInfo.downloadProgress}%"
+                            STATE_FAILED -> "下载失败了！"
+                            else -> "${cacheInfo.downloadProgress}%"
+                        },
                         style = AppTheme.typography.body1,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis

@@ -17,8 +17,8 @@ android {
         applicationId = "cn.spacexc.wearbili.remake"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 21
-        versionName = "DANMAKU!!! dm.0.10.1"
+        versionCode = 24
+        versionName = "Cache 0.11.0"
 
 
         vectorDrawables {
@@ -112,10 +112,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.service)
 
 
-
     implementation(libs.hilt.android)
+    implementation(libs.hilt.work)
     kapt(libs.hilt.compiler)
-
+    kapt(libs.hilt.work.compiler)
 
 
     implementation(libs.coil.compose)
@@ -150,8 +150,6 @@ dependencies {
     implementation(libs.danmaku.flame.master)
 
     implementation(libs.crashx)
-
-    kapt(libs.compiler)
 
 
     // (Java only)

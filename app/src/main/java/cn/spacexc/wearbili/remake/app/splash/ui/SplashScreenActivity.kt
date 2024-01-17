@@ -149,6 +149,7 @@ class SplashScreenActivity : ComponentActivity() {
                 return@launch
             }
         }
+        return
 
 
         val currentTime = System.currentTimeMillis()    //后面leancloud签名用到，别删

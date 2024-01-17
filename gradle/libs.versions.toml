@@ -11,7 +11,6 @@ compose = "1.6.0-beta03"
 compose-compiler = "1.5.4"
 
 constraintlayout = "2.1.4"
-core = "3.8.16"
 coreKtx = "1.12.0"
 coreVersion = "3.5.0"
 crashx = "v6.0.19"
@@ -19,6 +18,7 @@ danmakuflamemaster = "0.9.25"
 datastorePreferences = "1.0.0"
 gson = "2.10.1"
 hiltAndroid = "2.50"
+hiltWork = "1.0.0"
 jsoup = "1.15.4"
 rxhttp = "3.2.3"
 okhttp = "4.12.0"
@@ -95,13 +95,13 @@ appcenter-crashes = { module = "com.microsoft.appcenter:appcenter-crashes", vers
 atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coilCompose" }
-compiler = { module = "me.laoyuyu.aria:compiler", version.ref = "core" }
-core = { module = "me.laoyuyu.aria:core", version.ref = "core" }
 crashx = { module = "com.github.TutorialsAndroid:crashx", version.ref = "crashx" }
 danmaku-flame-master = { module = "com.github.ctiao:DanmakuFlameMaster", version.ref = "danmakuflamemaster" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
+hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
+hilt-work-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltWork" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 rxhttp = { module = "com.github.liujingxing.rxhttp:rxhttp", version.ref = "rxhttp" }

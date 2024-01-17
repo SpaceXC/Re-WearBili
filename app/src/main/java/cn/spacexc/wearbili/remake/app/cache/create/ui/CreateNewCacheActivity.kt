@@ -14,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
  * 给！爷！写！注！释！
  */
 const val PARAM_VIDEO_BVID = "videoBvid"
+const val PARAM_VIDEO_COVER_URL = "videoCoverUrl"
 
 @AndroidEntryPoint
 class CreateNewCacheActivity : ComponentActivity() {

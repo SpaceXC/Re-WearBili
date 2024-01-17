@@ -6,7 +6,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import cn.spacexc.bilibilisdk.sdk.video.info.remote.subtitle.Subtitle
+import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
@@ -248,7 +248,7 @@ private fun LyricsViewLine(
     var scale by remember { mutableStateOf(if (isActive) activeScale else inactiveScale) }
     var alpha by remember { mutableStateOf(if (isActive) activeAlpha else inactiveAlpha) }
 
-    val interactionSource = remember { MutableInteractionSource() }
+    val interactionSource = rememberMutableInteractionSource()
     val indication = rememberRipple(color = contentColor)
 
     LaunchedEffect(isActive) {

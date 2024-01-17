@@ -3,7 +3,6 @@ package cn.spacexc.wearbili.remake.app.video.action.favourite.ui
 import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +13,6 @@ import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.UIState
 import kotlinx.coroutines.launch
-import kotlin.properties.Delegates
 
 /**
  * Created by XC-Qan on 2023/8/17.
@@ -59,7 +57,7 @@ class VideoFavouriteViewModel : ViewModel() {
             )
             if(response.code != 0) {
                 uiState = UIState.Success   //因为要展示原来的页面啦，所以是success
-                ToastUtils.showText(content = "操作失败啦！${response.code}: ${response.message}", context = context)
+                ToastUtils.showText(content = "操作失败啦！${response.code}: ${response.message}")
                 return@launch
             }
             val previousFavouriteFolders = folders.filter { it.fav_state == 1 }.map { it.id }.logd("previousFavouriteFolders")!!

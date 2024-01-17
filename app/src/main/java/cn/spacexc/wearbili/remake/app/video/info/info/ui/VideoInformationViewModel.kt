@@ -221,7 +221,9 @@ class VideoInformationViewModel @Inject constructor(
                 val directory = File(application.cacheDir, "/danmakuMask")
                 if (!directory.exists()) directory.mkdir()
                 val maskFile = File(directory, "danmakuMask$videoCid.webmask")
-                VideoInfo.downloadDanmakuWebMask(maskInfo, maskFile)
+                VideoInfo.downloadDanmakuWebMask(maskInfo, maskFile) {
+
+                }
             }
         }
     }

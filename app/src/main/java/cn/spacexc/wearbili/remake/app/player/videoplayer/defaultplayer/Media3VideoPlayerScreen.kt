@@ -36,7 +36,6 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -119,6 +118,7 @@ import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.clickAlpha
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.isRound
+import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimatedContentSize
@@ -223,10 +223,12 @@ fun Activity.Media3PlayerScreen(
         currentVolume = dragVolume
     })
     val progressDraggableState = rememberDraggableState(onDelta = {
+        val duration =
+            if (isCacheVideo) viewModel.cachePlayer.duration else viewModel.httpPlayer.duration
         if (draggedProgress + (it * dragSensibility).toLong() < 0) {
             draggedProgress = 0
-        } else if (draggedProgress + (it * dragSensibility).toLong() > viewModel.player.duration) {
-            draggedProgress = viewModel.player.duration
+        } else if (draggedProgress + (it * dragSensibility).toLong() > duration) {
+            draggedProgress = duration
         } else {
             draggedProgress += (it * dragSensibility).toLong()
         }
@@ -321,13 +323,15 @@ fun Activity.Media3PlayerScreen(
             when (displaySurface) {
                 VideoDisplaySurface.TEXTURE_VIEW -> {
                     AndroidView(factory = { TextureView(it) }) { textureView ->
-                        viewModel.player.setVideoTextureView(textureView)
+                        viewModel.httpPlayer.setVideoTextureView(textureView)
+                        viewModel.cachePlayer.setVideoTextureView(textureView)
                     }
                 }
 
                 VideoDisplaySurface.SURFACE_VIEW -> {
                     AndroidView(factory = { SurfaceView(it) }) { surfaceView ->
-                        viewModel.player.setVideoSurfaceView(surfaceView)
+                        viewModel.httpPlayer.setVideoSurfaceView(surfaceView)
+                        viewModel.cachePlayer.setVideoSurfaceView(surfaceView)
                     }
                 }
             }
@@ -400,7 +404,12 @@ fun Activity.Media3PlayerScreen(
                                                     isDraggingProgress = true
                                                 },
                                                 onDragStopped = {
-                                                    viewModel.player.seekTo(draggedProgress)
+                                                    if (isCacheVideo) {
+                                                        viewModel.cachePlayer.seekTo(draggedProgress)
+                                                    } else {
+                                                        viewModel.httpPlayer.seekTo(draggedProgress)
+                                                    }
+
                                                     danmakuCanvasState.pause()
                                                     danmakuCanvasState.seekTo(draggedProgress)
                                                     viewModel.currentStat = PlayerStats.Buffering
@@ -424,7 +433,11 @@ fun Activity.Media3PlayerScreen(
                                                     viewModel.isVideoControllerVisible =
                                                         !viewModel.isVideoControllerVisible
                                                 }, onDoubleTap = {
-                                                    if (viewModel.player.isPlaying) viewModel.player.pause() else viewModel.player.play()
+                                                    if (isCacheVideo) {
+                                                        if (viewModel.cachePlayer.isPlaying) viewModel.cachePlayer.pause() else viewModel.cachePlayer.play()
+                                                    } else {
+                                                        if (viewModel.httpPlayer.isPlaying) viewModel.httpPlayer.pause() else viewModel.httpPlayer.play()
+                                                    }
                                                 })
                                             }
                                     ) {
@@ -457,7 +470,7 @@ fun Activity.Media3PlayerScreen(
                                                             with(localDensity) { it.height.toDp() }
                                                     }
                                                     .clickable(
-                                                        interactionSource = MutableInteractionSource(),
+                                                        interactionSource = rememberMutableInteractionSource(),
                                                         indication = null,
                                                         onClick = onBack
                                                     ),
@@ -547,7 +560,15 @@ fun Activity.Media3PlayerScreen(
                                                         draggedProgress = it.toLong()
                                                     },
                                                     onValueChangeFinished = {
-                                                        viewModel.player.seekTo(draggedProgress)
+                                                        if (isCacheVideo) {
+                                                            viewModel.cachePlayer.seekTo(
+                                                                draggedProgress
+                                                            )
+                                                        } else {
+                                                            viewModel.httpPlayer.seekTo(
+                                                                draggedProgress
+                                                            )
+                                                        }
                                                         danmakuCanvasState.pause()
                                                         danmakuCanvasState.seekTo(draggedProgress)
                                                         viewModel.currentStat =
@@ -560,7 +581,7 @@ fun Activity.Media3PlayerScreen(
                                                     ),
                                                     thumb = {
                                                         /*SliderDefaults.Thumb(
-                                                            interactionSource = MutableInteractionSource(),
+                                                            interactionSource = rememberMutableInteractionSource(),
                                                             thumbSize = DpSize(12.dp, 12.dp),
                                                             modifier = Modifier
                                                                 .offset(
@@ -615,11 +636,17 @@ fun Activity.Media3PlayerScreen(
                                                 ) {
                                                     if (!isRound()) {
                                                         Image(
-                                                            painter = painterResource(id = if (viewModel.player.isPlaying) drawable.img_pause_icon else drawable.img_play_icon),
+                                                            painter = painterResource(id = if (if (isCacheVideo) viewModel.cachePlayer.isPlaying else viewModel.httpPlayer.isPlaying) drawable.img_pause_icon else drawable.img_play_icon),
                                                             contentDescription = null,
                                                             modifier = Modifier
                                                                 //.clickVfx { if (viewModel.player.isPlaying) viewModel.player.pause() else viewModel.player.play() }
-                                                                .clickable { if (viewModel.player.isPlaying) viewModel.player.pause() else viewModel.player.play() }
+                                                                .clickable {
+                                                                    if (isCacheVideo) {
+                                                                        if (viewModel.cachePlayer.isPlaying) viewModel.cachePlayer.pause() else viewModel.cachePlayer.play()
+                                                                    } else {
+                                                                        if (viewModel.httpPlayer.isPlaying) viewModel.httpPlayer.pause() else viewModel.httpPlayer.play()
+                                                                    }
+                                                                }
                                                                 .size(18.dp)
 
                                                         )
@@ -729,10 +756,18 @@ fun Activity.Media3PlayerScreen(
                                                                 .weight(chapter.first.toFloat())
                                                                 .fillMaxWidth()
                                                                 .clickable(
-                                                                    interactionSource = MutableInteractionSource(),
+                                                                    interactionSource = rememberMutableInteractionSource(),
                                                                     indication = null
                                                                 ) {
-                                                                    viewModel.player.seekTo(chapter.third * 1000L)
+                                                                    if (isCacheVideo) {
+                                                                        viewModel.cachePlayer.seekTo(
+                                                                            chapter.third * 1000L
+                                                                        )
+                                                                    } else {
+                                                                        viewModel.httpPlayer.seekTo(
+                                                                            chapter.third * 1000L
+                                                                        )
+                                                                    }
                                                                     danmakuCanvasState.pause()
                                                                     danmakuCanvasState.seekTo(
                                                                         chapter.third * 1000L
@@ -774,11 +809,17 @@ fun Activity.Media3PlayerScreen(
                                                 contentAlignment = Alignment.Center
                                             ) {
                                                 Image(
-                                                    painter = painterResource(id = if (viewModel.player.isPlaying) drawable.img_pause_icon else drawable.img_play_icon),
+                                                    painter = painterResource(id = if (if (isCacheVideo) viewModel.cachePlayer.isPlaying else viewModel.httpPlayer.isPlaying) drawable.img_pause_icon else drawable.img_play_icon),
                                                     contentDescription = null,
                                                     modifier = Modifier
                                                         //.clickVfx { if (viewModel.player.isPlaying) viewModel.player.pause() else viewModel.player.play() }
-                                                        .clickable { if (viewModel.player.isPlaying) viewModel.player.pause() else viewModel.player.play() }
+                                                        .clickable {
+                                                            if (isCacheVideo) {
+                                                                if (viewModel.cachePlayer.isPlaying) viewModel.cachePlayer.pause() else viewModel.cachePlayer.play()
+                                                            } else {
+                                                                if (viewModel.httpPlayer.isPlaying) viewModel.httpPlayer.pause() else viewModel.httpPlayer.play()
+                                                            }
+                                                        }
                                                         .size(18.dp)
 
                                                 )
@@ -1038,7 +1079,7 @@ fun Activity.Media3PlayerScreen(
                                         text = i.toFloat().div(100).toString() + "x",
                                         isSelected = playBackSpeed == i
                                     ) {
-                                        viewModel.player.setPlaybackSpeed(
+                                        viewModel.httpPlayer.setPlaybackSpeed(
                                             i.toFloat().div(100)
                                         )
                                         playBackSpeed = i
@@ -1050,7 +1091,7 @@ fun Activity.Media3PlayerScreen(
                                         text = i.toFloat().div(100).toString() + "x",
                                         isSelected = playBackSpeed == i
                                     ) {
-                                        viewModel.player.setPlaybackSpeed(
+                                        viewModel.httpPlayer.setPlaybackSpeed(
                                             i.toFloat().div(100)
                                         )
                                         playBackSpeed = i
@@ -1176,7 +1217,7 @@ fun Activity.Media3PlayerScreen(
                                     modifier = Modifier.offset(y = (-6).dp),
                                     thumb = {
                                         SliderDefaults.Thumb(
-                                            interactionSource = MutableInteractionSource(),
+                                            interactionSource = rememberMutableInteractionSource(),
                                             thumbSize = DpSize(12.dp, 12.dp),
                                             modifier = Modifier
                                                 .offset(

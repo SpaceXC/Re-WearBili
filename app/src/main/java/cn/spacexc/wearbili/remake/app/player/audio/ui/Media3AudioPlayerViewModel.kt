@@ -2,44 +2,37 @@ package cn.spacexc.wearbili.remake.app.player.audio.ui
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateMap
 import androidx.media3.common.MediaItem.fromUri
 import androidx.media3.common.Player
 import androidx.media3.common.Player.Listener
-import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.MergingMediaSource
-import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BANGUMI_ID_TYPE_CID
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BangumiInfo
 import cn.spacexc.bilibilisdk.sdk.video.action.VideoAction
 import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
 import cn.spacexc.bilibilisdk.sdk.video.info.remote.subtitle.Subtitle
-import cn.spacexc.bilibilisdk.sdk.video.info.remote.subtitle.SubtitleFile
 import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import java.io.File
 
 
 /*@UnstableApi*/
@@ -284,7 +277,7 @@ class Media3AudioPlayerViewModel /*@Inject constructor*/(
     fun playVideoFromLocalFile(
         videoCid: Long
     ) {
-        scope.launch {
+        /*scope.launch {
             val cacheFileInfo = repository.getTaskInfoByVideoCid(videoCid)
             if (cacheFileInfo == null) {
                 appendLoadMessage("好像没有这个缓存耶...")
@@ -322,7 +315,7 @@ class Media3AudioPlayerViewModel /*@Inject constructor*/(
             player.playWhenReady = true
             player.prepare()
             startContinuouslyUpdatingSubtitle()
-        }
+        }*/
     }
 
     private suspend fun loadSubtitle() {

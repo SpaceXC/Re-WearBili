@@ -52,9 +52,6 @@ dependencies {
 
     implementation(libs.zxing.core)
 
-    api(libs.core)
-
     kapt(libs.hilt.compiler)
-    kapt (libs.compiler)
 
 }

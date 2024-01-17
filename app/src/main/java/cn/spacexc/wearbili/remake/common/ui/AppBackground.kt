@@ -19,7 +19,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -324,7 +323,10 @@ fun Activity.TitleBackground(
                         vertical = if (isAudioServiceUp) 6.5.dp else 8.dp
                     )
                     .fillMaxWidth()
-                    .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                    .clickable(
+                        interactionSource = rememberMutableInteractionSource(),
+                        indication = null
+                    ) {
                         if (isTitleClickable) {
                             if (isDropdownTitle) onDropdown() else onBack()
                         }
@@ -499,7 +501,7 @@ fun Activity.ArrowTitleBackgroundWithCustomBackground(
                         )
                         .fillMaxWidth()
                         .clickable(
-                            interactionSource = MutableInteractionSource(),
+                            interactionSource = rememberMutableInteractionSource(),
                             indication = null
                         ) {
                             onBack()

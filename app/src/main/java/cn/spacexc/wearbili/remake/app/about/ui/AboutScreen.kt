@@ -8,7 +8,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -42,6 +41,7 @@ import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.copyable
 import cn.spacexc.wearbili.remake.common.ui.isRound
+import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import kotlinx.coroutines.delay
@@ -129,7 +129,8 @@ fun Activity.AboutScreen(
                         modifier = Modifier
                             //.fillMaxWidth(0.9f)
                             .clickable(
-                                interactionSource = MutableInteractionSource(), indication = null
+                                interactionSource = rememberMutableInteractionSource(),
+                                indication = null
                             ) {
                                 bannerClickedTimes++
                                 if (bannerClickedTimes == 8) {

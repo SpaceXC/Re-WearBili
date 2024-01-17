@@ -21,20 +21,14 @@ interface VideoCacheDao {
     @Query("SELECT * FROM video_caches")
     fun getAllTasks(): Flow<List<VideoCacheFileInfo>>
 
-    @Query("SELECT * FROM video_caches WHERE is_completed=1")
+    @Query("SELECT * FROM video_caches WHERE state='completed'")
     fun getCompletedTasks(): Flow<List<VideoCacheFileInfo>>
 
-    @Query("SELECT * FROM video_caches WHERE is_completed=0")
+    @Query("SELECT * FROM video_caches WHERE state!='completed'")
     fun getUncompletedTasks(): Flow<List<VideoCacheFileInfo>>
-
-    @Query("SELECT * FROM video_caches WHERE cache_id=:cacheId")
-    suspend fun getTaskInfoByCacheId(cacheId: Long): VideoCacheFileInfo?
 
     @Query("SELECT * FROM video_caches WHERE cid=:videoCid")
     suspend fun getTaskInfoByVideoCid(videoCid: Long): VideoCacheFileInfo?
-
-    @Query("SELECT * FROM video_caches WHERE url=:downloadUrl")
-    fun getTaskInfoByUrl(downloadUrl: String): VideoCacheFileInfo
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNewTasks(vararg newTasks: VideoCacheFileInfo)

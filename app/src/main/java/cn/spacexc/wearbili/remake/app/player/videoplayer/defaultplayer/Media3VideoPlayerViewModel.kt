@@ -26,6 +26,7 @@ import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import bilibili.community.service.dm.v1.CommandDm
+import bilibili.community.service.dm.v1.DmSegMobileReply
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BANGUMI_ID_TYPE_CID
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BangumiInfo
 import cn.spacexc.bilibilisdk.sdk.video.action.VideoAction
@@ -46,6 +47,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -67,11 +69,13 @@ import javax.inject.Inject
 class Media3VideoPlayerViewModel @Inject constructor(
     private val application: Application,
     private val repository: VideoCacheRepository,
-    private val networkUtils: KtorNetworkUtils
+    private val networkUtils: KtorNetworkUtils,
+    private val danmakuGetter: DanmakuGetter
 ) : ViewModel() {
     private var httpDataSourceFactory = DefaultHttpDataSource.Factory()
     private var httpMediaSourceFactory: MediaSource.Factory
-    lateinit var player: Player
+    lateinit var httpPlayer: Player
+    lateinit var cachePlayer: Player
 
     var currentStat by mutableStateOf(PlayerStats.Loading)
     var loadingMessage by mutableStateOf("")
@@ -91,7 +95,11 @@ class Media3VideoPlayerViewModel @Inject constructor(
 
     val currentPlayProgress = flow {
         while (true) {
-            emit(player.currentPosition)
+            if (cacheVideoInfo != null) {
+                emit(cachePlayer.currentPosition)
+            } else {
+                emit(httpPlayer.currentPosition)
+            }
             delay(10)
         }
     }
@@ -117,7 +125,6 @@ class Media3VideoPlayerViewModel @Inject constructor(
     }
 
     //var danmakuInputStream = MutableStateFlow<InputStream?>(null)
-    private val danmakuGetter = DanmakuGetter(networkUtils)
     var danmakuList by mutableStateOf(listOf<DanmakuSegment>())
     var imageDanmakus by mutableStateOf(mapOf<List<String>, ImageBitmap>())
     private val imageDanmakusLock = Mutex()
@@ -147,30 +154,72 @@ class Media3VideoPlayerViewModel @Inject constructor(
         httpMediaSourceFactory =
             DefaultMediaSourceFactory(application)
                 .setDataSourceFactory(httpDataSourceFactory)
-        player = ExoPlayer.Builder(application)
+        httpPlayer = ExoPlayer.Builder(application)
             .setRenderersFactory(
                 DefaultRenderersFactory(application).setExtensionRendererMode(
                     DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
                 )
             )
-            .setMediaSourceFactory(httpMediaSourceFactory/*DefaultMediaSourceFactory(application)*/)    //因为要兼容本地缓存嘛，而且现在获取的视频也不用UA，所以暂时先用这个，后面有问题再说
-            //.setMediaSourceFactory(httpMediaSourceFactory)                                              //不用个鬼啊！番剧你不用UA？
+            .setMediaSourceFactory(httpMediaSourceFactory)
             .build()
 
-        player.addListener(object : Listener {
+        cachePlayer = ExoPlayer.Builder(application)
+            .setRenderersFactory(
+                DefaultRenderersFactory(application).setExtensionRendererMode(
+                    DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
+                )
+            )
+            .setMediaSourceFactory(DefaultMediaSourceFactory(application))
+            .build()
+
+        httpPlayer.addListener(object : Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 super.onPlaybackStateChanged(playbackState)
                 when (playbackState) {
                     Player.STATE_READY -> {
-                        videoPlayerAspectRatio = player.videoSize.width.toFloat()
-                            .logd("width")!! / player.videoSize.height.toFloat().logd("height")!!
-                        videoDuration = player.duration
+                        videoPlayerAspectRatio =
+                            httpPlayer.videoSize.width.toFloat() / httpPlayer.videoSize.height.toFloat()
+                        videoDuration = httpPlayer.duration
                         currentStat = PlayerStats.Playing
                         if (!isReady) {
                             viewModelScope.launch {
                                 appendDanmaku(cid = currentVideoCid, videoDuration)
                             }
                         }
+                        isReady = true
+                        //isVideoControllerVisible = true
+                    }
+
+                    Player.STATE_BUFFERING -> {
+                        appendLoadMessage("缓冲中...")
+                        currentStat = PlayerStats.Buffering
+                    }
+
+                    Player.STATE_ENDED -> {
+                        currentStat = PlayerStats.Finished
+                    }
+
+                    Player.STATE_IDLE -> {
+
+                    }
+                }
+            }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                super.onIsPlayingChanged(isPlaying)
+                currentStat = if (isPlaying) PlayerStats.Playing else PlayerStats.Paused
+            }
+        })
+        cachePlayer.addListener(object : Listener {
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                when (playbackState) {
+                    Player.STATE_READY -> {
+                        videoPlayerAspectRatio = cachePlayer.videoSize.width.toFloat()
+                            .logd("width")!! / cachePlayer.videoSize.height.toFloat()
+                            .logd("height")!!
+                        videoDuration = cachePlayer.duration
+                        currentStat = PlayerStats.Playing
                         isReady = true
                         //isVideoControllerVisible = true
                     }
@@ -227,9 +276,9 @@ class Media3VideoPlayerViewModel @Inject constructor(
                 val mediaSource: MediaSource = httpMediaSourceFactory
                     .createMediaSource(fromUri(videoUrl))
 
-                player.setMediaItem(mediaSource.mediaItem)
-                player.playWhenReady = true
-                player.prepare()
+                httpPlayer.setMediaItem(mediaSource.mediaItem)
+                httpPlayer.playWhenReady = true
+                httpPlayer.prepare()
             } else {
                 getVideoInfo(videoIdType, videoId)
                 loadSubtitleAndVideoChapters()
@@ -253,9 +302,9 @@ class Media3VideoPlayerViewModel @Inject constructor(
                     val mediaSource: MediaSource = httpMediaSourceFactory
                         .createMediaSource(fromUri(videoUrl))
 
-                    player.setMediaItem(mediaSource.mediaItem)
-                    player.playWhenReady = true
-                    player.prepare()
+                    httpPlayer.setMediaItem(mediaSource.mediaItem)
+                    httpPlayer.playWhenReady = true
+                    httpPlayer.prepare()
                     isVideoControllerVisible = true
                     startContinuouslyUpdatingSubtitle()
                 } else {
@@ -283,9 +332,9 @@ class Media3VideoPlayerViewModel @Inject constructor(
                     val mergeSource: MediaSource = MergingMediaSource(videoSource, audioSource)
                     appendLoadMessage("成功!", needLineWrapping = false)
 
-                    player.setMediaItem(mergeSource.mediaItem)
-                    player.playWhenReady = true
-                    player.prepare()
+                    httpPlayer.setMediaItem(mergeSource.mediaItem)
+                    httpPlayer.playWhenReady = true
+                    httpPlayer.prepare()
                     isVideoControllerVisible = true
                     startContinuouslyUpdatingSubtitle()
                 }
@@ -299,6 +348,66 @@ class Media3VideoPlayerViewModel @Inject constructor(
     ) {
         currentVideoCid = videoCid
         viewModelScope.launch {
+            cacheVideoInfo = repository.getTaskInfoByVideoCid(videoCid)
+            if (cacheVideoInfo == null) {
+                appendLoadMessage("好像没有这个缓存耶...")
+                return@launch
+            }
+
+            val downloadPath = File(application.filesDir, "videoCaches/$videoCid")
+
+            //region load subtitle
+            val subtitleFiles = cacheVideoInfo!!.downloadedSubtitleFileNames.map {
+                it.key to Gson().fromJson(
+                    String(
+                        File(
+                            downloadPath,
+                            it.value
+                        ).readBytes()
+                    ), SubtitleFile::class.java
+                )
+            }.map {
+                it.first to SubtitleConfig(
+                    subtitleList = it.second.body,
+                    subtitleLanguageCode = it.first,
+                    subtitleLanguage = it.first
+                )
+            }
+            subtitleList = subtitleFiles.toMutableStateMap()
+            //endregion
+
+            //region load danmaku
+            val segments = (cacheVideoInfo!!.videoDurationMillis / (6 * 60 * 1000)).toInt() + 1
+            Log.d(TAG, "playVideoFromLocalFile: 将加载${segments}段弹幕！")
+            danmakuList = buildList {
+                (1..segments).forEach { index ->
+                    val danmakuFile = File(downloadPath, "$videoCid.danmaku.seg$index")
+                    try {
+                        val danmakuReply = DmSegMobileReply.parseFrom(danmakuFile.readBytes())
+                        danmakuReply.elemsList/*?.filter {danmakus -> danmakus.weight > 4 }*/?.let { danmakuList ->
+                            add(DanmakuSegment(index, danmakuList))
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+            Log.d(TAG, "playVideoFromLocalFile: 加载了${danmakuList.size}段弹幕！")
+            //endregion
+
+            //region load video
+            val videoFile = File(downloadPath, "$videoCid.video.mp4")
+            val mediaSource = ProgressiveMediaSource.Factory(DefaultDataSource.Factory(application))
+                .createMediaSource(fromUri(Uri.fromFile(videoFile)))
+
+            cachePlayer.setMediaItem(mediaSource.mediaItem)
+            cachePlayer.playWhenReady = true
+            cachePlayer.prepare()
+            isVideoControllerVisible = true
+            //endregion
+            startContinuouslyUpdatingSubtitle()
+        }
+        /*viewModelScope.launch {
             val cacheFileInfo = repository.getTaskInfoByVideoCid(videoCid)
             if (cacheFileInfo == null) {
                 appendLoadMessage("好像没有这个缓存耶...")
@@ -328,9 +437,9 @@ class Media3VideoPlayerViewModel @Inject constructor(
             subtitleList = subtitleFiles.toMutableStateMap()
             println("subtitleList: ${subtitleList.values}")
 
-            /*val danmakuContent = DmSegMobileReply.parseFrom(danmakuFile.inputStream().readBytes())
-            danmakuList.value= danmakuContent.elemsList*/
-            //TODO 缓存protobuf弹幕
+            *//*val danmakuContent = DmSegMobileReply.parseFrom(danmakuFile.inputStream().readBytes())
+            danmakuList.value= danmakuContent.elemsList*//*
+
 
             val mediaSource = ProgressiveMediaSource.Factory(DefaultDataSource.Factory(application))
                 .createMediaSource(fromUri(Uri.fromFile(videoFile)))
@@ -340,7 +449,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
             player.prepare()
             isVideoControllerVisible = true
             startContinuouslyUpdatingSubtitle()
-        }
+        }*/
     }
 
     private suspend fun loadSubtitleAndVideoChapters() {
@@ -405,19 +514,20 @@ class Media3VideoPlayerViewModel @Inject constructor(
     private suspend fun updateSubtitle() {
         val tasks = subtitleList.entries.map { entry ->
             viewModelScope.async {
+                val currentPosition = currentPlayProgress.first()
                 val config = entry.value
                 if (config.currentSubtitle != null) {
-                    if (player.currentPosition !in (config.currentSubtitle.from * 1000).toLong()..(config.currentSubtitle.to * 1000).toLong()) {
+                    if (currentPosition !in (config.currentSubtitle.from * 1000).toLong()..(config.currentSubtitle.to * 1000).toLong()) {
                         if (config.currentSubtitleIndex + 1 < config.subtitleList.size) {
                             val nextSubtitle = config.subtitleList[config.currentSubtitleIndex + 1]
-                            if (player.currentPosition in (nextSubtitle.from * 1000).toLong()..(nextSubtitle.to * 1000).toLong()) {
+                            if (currentPosition in (nextSubtitle.from * 1000).toLong()..(nextSubtitle.to * 1000).toLong()) {
                                 subtitleList[entry.key] = subtitleList[entry.key]!!.copy(
                                     currentSubtitle = nextSubtitle,
                                     currentSubtitleIndex = config.currentSubtitleIndex + 1
                                 )
                             } else {
                                 val currentSubtitle =
-                                    config.subtitleList.indexOfFirst { player.currentPosition in (it.from * 1000).toLong()..(it.to * 1000).toLong() }
+                                    config.subtitleList.indexOfFirst { currentPosition in (it.from * 1000).toLong()..(it.to * 1000).toLong() }
                                 if (currentSubtitle != -1) {
                                     subtitleList[entry.key] = subtitleList[entry.key]!!.copy(
                                         currentSubtitle = config.subtitleList[currentSubtitle],
@@ -435,7 +545,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
                     }
                 } else {
                     val currentSubtitle =
-                        config.subtitleList.indexOfFirst { player.currentPosition in (it.from * 1000).toLong()..(it.to * 1000).toLong() }
+                        config.subtitleList.indexOfFirst { currentPosition in (it.from * 1000).toLong()..(it.to * 1000).toLong() }
                     if (currentSubtitle != -1) {
                         subtitleList[entry.key] = subtitleList[entry.key]!!.copy(
                             currentSubtitle = config.subtitleList[currentSubtitle],
@@ -458,7 +568,12 @@ class Media3VideoPlayerViewModel @Inject constructor(
             listOf(
                 viewModelScope.async {
                     val danmaku = danmakuGetter.getDanmaku(cid, 1)
-                    danmakuList = listOf(DanmakuSegment(1, danmakuList = danmaku.elemsList))
+                    danmakuList = listOf(
+                        DanmakuSegment(
+                            1,
+                            danmakuList = danmaku.elemsList/*.filter { it.weight > 4 }*/
+                        )
+                    )
                     val advanceDanmaku = danmaku.elemsList.filter { it.mode == 7 }
                     Log.d(TAG, "loadInitDanmaku: $advanceDanmaku")
                 },
@@ -513,7 +628,11 @@ class Media3VideoPlayerViewModel @Inject constructor(
                     danmakuListLock.lock()
                     try {
                         val temp = danmakuList.toMutableList()
-                        temp.add(DanmakuSegment(index, danmakuList = danmaku.elemsList))
+                        temp.add(
+                            DanmakuSegment(
+                                index,
+                                danmakuList = danmaku.elemsList.filter { it.weight > 4 })
+                        )
                         danmakuList = temp
                     } finally {
                         danmakuListLock.unlock()
@@ -521,7 +640,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
                     Log.d(TAG, "appendDanmaku: 第${index}段弹幕加载成功")
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    ToastUtils.showText("第${index}段弹幕加载失败！", context = application)
+                    ToastUtils.showText("第${index}段弹幕加载失败！")
                 }
             }
         }
@@ -536,7 +655,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
         Log.d(TAG, "startContinuouslyUpdatingSubtitle")
         currentSubtitleLanguage = subtitleList.keys.firstOrNull()
         viewModelScope.launch {
-            while (player.currentPosition >= 0) {
+            while (currentPlayProgress.first() >= 0) {
                 updateSubtitle()
                 delay(5)
             }
@@ -551,7 +670,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
                         VideoAction.updateHistory(
                             aid = it.data.aid,
                             cid = it.data.cid,
-                            progress = player.currentPosition.div(1000).toInt()
+                            progress = httpPlayer.currentPosition.div(1000).toInt()
                         )
                         delay(2000)
                     }
