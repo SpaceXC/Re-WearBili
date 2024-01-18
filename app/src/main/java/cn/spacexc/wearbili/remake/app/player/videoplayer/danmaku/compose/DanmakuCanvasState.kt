@@ -100,7 +100,8 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
     fun seekTo(time: Long) {
         dynamicDanmakuSegments = buildList {
             danmakuSegments.forEach { segment ->
-                val newSegmentList = segment.danmakuList.filter { it.progress >= time }
+                val newSegmentList =
+                    segment.danmakuList.filter { it.progress >= time }.sortedBy { it.progress }
                 add(segment.copy(danmakuList = newSegmentList))
             }
         }
@@ -127,14 +128,7 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
                 dynamicDanmakuSegments.firstOrNull { it.segmentIndex == currentSegmentIndex }?.danmakuList
                     ?: emptyList()
             val newVisibleDanmakus =
-                currentList.filter { danmakuItem ->
-                    danmakuItem.progress <= updateTimer()
-                            && DANMAKU_TYPE_ADVANCE isNotEqualTo danmakuItem.mode
-                            && DANMAKU_TYPE_SCRIPT isNotEqualTo danmakuItem.mode
-                    //&& DANMAKU_TYPE_NORM isEqualTo danmakuItem.mode
-                    //&& danmakuItem.weight > 0   //屏蔽等级
-                    //TODO 显示高级弹幕
-                }.map { danmakuItem ->
+                currentList.filterVisibleDanmaku().map { danmakuItem ->
                     //用来获取文字的大小
                     val isHighlyLiked = danmakuItem.attr == 4 //貌似4和0按位与是2（2=高赞）
                     val isGradient = danmakuItem.colorful == DmColorfulType.VipGradualColor
@@ -362,6 +356,20 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
         if (imageDanmakus.isNotEmpty()) {
             this.imageDanmakus = imageDanmakus
         }
+    }
+
+    private fun List<DanmakuElem>.filterVisibleDanmaku(): List<DanmakuElem> {
+        return buildList {
+            this@filterVisibleDanmaku.forEach { danmakuItem ->
+                if (danmakuItem.progress > updateTimer()) {
+                    return@buildList
+                }
+                if (DANMAKU_TYPE_ADVANCE isNotEqualTo danmakuItem.mode && DANMAKU_TYPE_SCRIPT isNotEqualTo danmakuItem.mode) {
+                    add(danmakuItem)
+                }
+            }
+        }
+
     }
 
     private fun getImageForExpression(content: String): ImageBitmap? {

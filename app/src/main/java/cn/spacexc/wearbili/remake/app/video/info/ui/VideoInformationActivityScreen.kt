@@ -69,11 +69,11 @@ fun VideoInformationActivityScreen(
     })
     LaunchedEffect(key1 = videoInformationViewModel.state, block = {
         videoInformationViewModel.state.videoData?.let { data ->
-            videoInformationViewModel.downloadWebMask(
+            /*videoInformationViewModel.downloadWebMask(
                 videoIdType = VIDEO_TYPE_BVID,
                 videoId = data.view.bvid,
                 videoCid = data.view.cid
-            )
+            )*/
         }
     })
     context.TitleBackground(

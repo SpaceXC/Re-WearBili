@@ -183,6 +183,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
                         currentStat = PlayerStats.Playing
                         if (!isReady) {
                             viewModelScope.launch {
+                                loadInitDanmaku(cid = currentVideoCid)
                                 appendDanmaku(cid = currentVideoCid, videoDuration)
                             }
                         }
@@ -255,11 +256,13 @@ class Media3VideoPlayerViewModel @Inject constructor(
     ) {
         appendLoadMessage("初始化播放器...")
         currentVideoCid = videoCid
-        viewModelScope.launch {
-            if (isBangumi) {
+        if (isBangumi) {
+            viewModelScope.launch {
                 getVideoInfo(videoIdType, videoId)
-                loadInitDanmaku(cid = videoCid)
+                //loadInitDanmaku(cid = videoCid)
                 appendLoadMessage("加载视频url...")
+            }
+            viewModelScope.launch {
                 val urlResponse = BangumiInfo.getBangumiPlaybackUrl(BANGUMI_ID_TYPE_CID, videoCid)
                 val urlData = urlResponse.data?.result
                 if (urlData == null) {
@@ -279,11 +282,10 @@ class Media3VideoPlayerViewModel @Inject constructor(
                 httpPlayer.setMediaItem(mediaSource.mediaItem)
                 httpPlayer.playWhenReady = true
                 httpPlayer.prepare()
-            } else {
-                getVideoInfo(videoIdType, videoId)
-                loadSubtitleAndVideoChapters()
-                loadInitDanmaku(cid = videoCid)
-                appendLoadMessage("加载视频url...")
+            }
+        } else {
+            appendLoadMessage("加载视频url...")
+            viewModelScope.launch {
                 if (isLowResolution) {
                     val urlResponse =
                         VideoInfo.getLowResolutionVideoPlaybackUrl(videoIdType, videoId, videoCid)
@@ -336,11 +338,16 @@ class Media3VideoPlayerViewModel @Inject constructor(
                     httpPlayer.playWhenReady = true
                     httpPlayer.prepare()
                     isVideoControllerVisible = true
-                    startContinuouslyUpdatingSubtitle()
                 }
             }
-            startContinuouslyUploadingPlayingProgress()
+            viewModelScope.launch {
+                getVideoInfo(videoIdType, videoId)
+                loadSubtitleAndVideoChapters()
+                startContinuouslyUpdatingSubtitle()
+            }
         }
+        startContinuouslyUploadingPlayingProgress()
+
     }
 
     fun playVideoFromLocalFile(
@@ -407,49 +414,6 @@ class Media3VideoPlayerViewModel @Inject constructor(
             //endregion
             startContinuouslyUpdatingSubtitle()
         }
-        /*viewModelScope.launch {
-            val cacheFileInfo = repository.getTaskInfoByVideoCid(videoCid)
-            if (cacheFileInfo == null) {
-                appendLoadMessage("好像没有这个缓存耶...")
-                return@launch
-            }
-            val cacheFolder = File(application.filesDir, "videoCaches/$videoCid")
-            val videoFile = File(cacheFolder, cacheFileInfo.downloadedVideoFileName)
-            //val danmakuFile = File(cacheFolder, cacheFileInfo.downloadedDanmakuFileName)
-
-            val subtitleFiles = cacheFileInfo.downloadedSubtitleFileNames.map {
-                it.key to Gson().fromJson(
-                    String(
-                        File(
-                            cacheFolder,
-                            it.value
-                        ).readBytes()
-                    ), SubtitleFile::class.java
-                )
-            }.map {
-                it.first to SubtitleConfig(
-                    subtitleList = it.second.body,
-                    subtitleLanguageCode = it.first,
-                    subtitleLanguage = it.first
-                )
-            }
-
-            subtitleList = subtitleFiles.toMutableStateMap()
-            println("subtitleList: ${subtitleList.values}")
-
-            *//*val danmakuContent = DmSegMobileReply.parseFrom(danmakuFile.inputStream().readBytes())
-            danmakuList.value= danmakuContent.elemsList*//*
-
-
-            val mediaSource = ProgressiveMediaSource.Factory(DefaultDataSource.Factory(application))
-                .createMediaSource(fromUri(Uri.fromFile(videoFile)))
-
-            player.setMediaItem(mediaSource.mediaItem)
-            player.playWhenReady = true
-            player.prepare()
-            isVideoControllerVisible = true
-            startContinuouslyUpdatingSubtitle()
-        }*/
     }
 
     private suspend fun loadSubtitleAndVideoChapters() {
