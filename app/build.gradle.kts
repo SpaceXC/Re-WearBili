@@ -147,7 +147,7 @@ dependencies {
     implementation(libs.androidx.media3.datasource)
     // Common functionality used across multiple media libraries
     implementation(libs.androidx.media3.common)
-    implementation(libs.danmaku.flame.master)
+    //implementation(libs.danmaku.flame.master)
 
     implementation(libs.crashx)
 

@@ -118,6 +118,8 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
         drawScope: DrawScope,
         fontSize: Float,
         playSpeed: Float,
+        blockLevel: Int,
+        textScale: Float
     ) {
         if (state != DanmakuCanvasState.Playing || danmakuSegments.isEmpty()) return
         drawScope.apply {
@@ -128,64 +130,67 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
                 dynamicDanmakuSegments.firstOrNull { it.segmentIndex == currentSegmentIndex }?.danmakuList
                     ?: emptyList()
             val newVisibleDanmakus =
-                currentList.filterVisibleDanmaku().map { danmakuItem ->
-                    //用来获取文字的大小
-                    val isHighlyLiked = danmakuItem.attr == 4 //貌似4和0按位与是2（2=高赞）
-                    val isGradient = danmakuItem.colorful == DmColorfulType.VipGradualColor
-                    val imageBitmap = getImageForExpression(danmakuItem.content)
-                    val textLayoutResult: TextLayoutResult =
-                        textMeasurer.measure(
-                            text = AnnotatedString(danmakuItem.content),
-                            style = TextStyle(
-                                fontSize = (danmakuItem.fontsize * 0.5 * fontSize).sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                        )
-                    val textSize = textLayoutResult.size
-
-                    val row = getRow(danmakuItem, textSize.width, drawScope)
-
-                    val newItem = DisplayDanmakuItem(
-                        appearTime = danmakuItem.progress,
-                        content = AnnotatedString(danmakuItem.content),
-                        x = when (parseDanmakuType(danmakuItem.mode)) {
-                            DANMAKU_TYPE_NORM -> if (isHighlyLiked) size.width + textSize.height else size.width
-                            DANMAKU_TYPE_REVERSED -> 0f - textSize.width
-                            DANMAKU_TYPE_TOP, DANMAKU_TYPE_BOTTOM -> (size.width / 2) - (textSize.width / 2)
-                            else -> 0f
-                        },
-                        y = when (parseDanmakuType(danmakuItem.mode)) {
-                            DANMAKU_TYPE_BOTTOM -> size.height - ((row + 1) * textSize.height.toFloat())
-                            else -> row * textSize.height.toFloat()
-                        },
-                        color = Color(danmakuItem.color).copy(alpha = 1f),
-                        fontSize = danmakuItem.fontsize,
-                        type = danmakuItem.mode,
-                        danmakuId = danmakuItem.id,
-                        displayRow = row,
-                        textWidth = textSize.width,
-                        textHeight = textSize.height,
-                        isLiked = isHighlyLiked,
-                        image = imageBitmap,
-                        isGradient = isGradient
-                    )
-                    if (DANMAKU_TYPE_BOTTOM isEqualTo danmakuItem.mode) {
-                        val danmakusInRow =
-                            (bottomDisplayRows[row] ?: emptyList()).toMutableList()
-                        if (!danmakusInRow.any { it.danmakuId == danmakuItem.id }) {
-                            danmakusInRow.add(newItem)
-                        }
-                        bottomDisplayRows[row] = danmakusInRow
-                    } else {
-                        val danmakusInRow =
-                            (topDisplayRows[row] ?: emptyList()).toMutableList()
-                        if (!danmakusInRow.any { it.danmakuId == danmakuItem.id }) {
-                            danmakusInRow.add(newItem)
-                        }
-                        topDisplayRows[row] = danmakusInRow
-                    }
-                    newItem
+                currentList.filterVisibleDanmaku { danmakuItem ->
+                    DANMAKU_TYPE_ADVANCE isNotEqualTo danmakuItem.mode && DANMAKU_TYPE_SCRIPT isNotEqualTo danmakuItem.mode && danmakuItem.weight >= blockLevel
                 }
+                    .map { danmakuItem ->
+                        val isHighlyLiked = danmakuItem.attr == 4 //貌似4和0按位与是2（2=高赞）
+                        val isGradient = danmakuItem.colorful == DmColorfulType.VipGradualColor
+                        val imageBitmap = getImageForExpression(danmakuItem.content)
+                        val textLayoutResult: TextLayoutResult =
+                            textMeasurer.measure(
+                                text = AnnotatedString(danmakuItem.content),
+                                style = TextStyle(
+                                    fontSize = (danmakuItem.fontsize * 0.5 * fontSize * textScale).sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            )
+                        val textSize = textLayoutResult.size
+
+                        val row = getRow(danmakuItem, textSize.width, drawScope)
+
+                        val newItem = DisplayDanmakuItem(
+                            appearTime = danmakuItem.progress,
+                            content = AnnotatedString(danmakuItem.content),
+                            x = when (parseDanmakuType(danmakuItem.mode)) {
+                                DANMAKU_TYPE_NORM -> if (isHighlyLiked) size.width + textSize.height else size.width
+                                DANMAKU_TYPE_REVERSED -> 0f - textSize.width
+                                DANMAKU_TYPE_TOP, DANMAKU_TYPE_BOTTOM -> (size.width / 2) - (textSize.width / 2)
+                                else -> 0f
+                            },
+                            y = when (parseDanmakuType(danmakuItem.mode)) {
+                                DANMAKU_TYPE_BOTTOM -> size.height - ((row + 1) * textSize.height.toFloat())
+                                else -> row * textSize.height.toFloat()
+                            },
+                            color = Color(danmakuItem.color).copy(alpha = 1f),
+                            fontSize = danmakuItem.fontsize,
+                            type = danmakuItem.mode,
+                            danmakuId = danmakuItem.id,
+                            displayRow = row,
+                            textWidth = textSize.width,
+                            textHeight = textSize.height,
+                            isLiked = isHighlyLiked,
+                            image = imageBitmap,
+                            isGradient = isGradient,
+                            weight = danmakuItem.weight
+                        )
+                        if (DANMAKU_TYPE_BOTTOM isEqualTo danmakuItem.mode) {
+                            val danmakusInRow =
+                                (bottomDisplayRows[row] ?: emptyList()).toMutableList()
+                            if (!danmakusInRow.any { it.danmakuId == danmakuItem.id }) {
+                                danmakusInRow.add(newItem)
+                            }
+                            bottomDisplayRows[row] = danmakusInRow
+                        } else {
+                            val danmakusInRow =
+                                (topDisplayRows[row] ?: emptyList()).toMutableList()
+                            if (!danmakusInRow.any { it.danmakuId == danmakuItem.id }) {
+                                danmakusInRow.add(newItem)
+                            }
+                            topDisplayRows[row] = danmakusInRow
+                        }
+                        newItem
+                    }
 
             tempList.addAll(newVisibleDanmakus)
             val tempDanmakuSegmentList = currentList.toMutableList()
@@ -224,7 +229,7 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
                 when (parseDanmakuType(displayDanmakuItem.type)) {
                     DANMAKU_TYPE_NORM -> displayDanmakuItem.x + textSize.width < 0
                     DANMAKU_TYPE_REVERSED -> displayDanmakuItem.x > size.width
-                    DANMAKU_TYPE_TOP, DANMAKU_TYPE_BOTTOM -> (updateTimer() - displayDanmakuItem.appearTime) > 5000    //5秒
+                    DANMAKU_TYPE_TOP, DANMAKU_TYPE_BOTTOM -> (updateTimer() - displayDanmakuItem.appearTime) > 3800    //弹幕存活时间
                     else -> false
                 }
             }
@@ -358,18 +363,17 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
         }
     }
 
-    private fun List<DanmakuElem>.filterVisibleDanmaku(): List<DanmakuElem> {
+    private fun List<DanmakuElem>.filterVisibleDanmaku(filter: (DanmakuElem) -> Boolean): List<DanmakuElem> {
         return buildList {
             this@filterVisibleDanmaku.forEach { danmakuItem ->
                 if (danmakuItem.progress > updateTimer()) {
                     return@buildList
                 }
-                if (DANMAKU_TYPE_ADVANCE isNotEqualTo danmakuItem.mode && DANMAKU_TYPE_SCRIPT isNotEqualTo danmakuItem.mode) {
+                if (filter(danmakuItem)) {
                     add(danmakuItem)
                 }
             }
         }
-
     }
 
     private fun getImageForExpression(content: String): ImageBitmap? {

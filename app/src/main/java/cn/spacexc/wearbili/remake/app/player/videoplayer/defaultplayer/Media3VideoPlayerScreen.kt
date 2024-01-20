@@ -145,6 +145,7 @@ enum class VideoDisplaySurface {
 sealed class VideoPlayerPages(val weight: Int) {
     data object Main : VideoPlayerPages(0)
     data object Settings : VideoPlayerPages(1)
+    data object DanmakuSettings : VideoPlayerPages(2)
 }
 
 enum class VideoPlayerSurfaceRatio(val ratioName: String) {
@@ -233,11 +234,26 @@ fun Activity.Media3PlayerScreen(
             draggedProgress += (it * dragSensibility).toLong()
         }
     })
-    val progressBarThumbScale by animateFloatAsState(targetValue = if (isDraggingProgress) 1.5f else 1f)
-    val roundScreenControllerAlpha by animateIntAsState(targetValue = if (isRound() && viewModel.isVideoControllerVisible) 127/*255/2*/ else 0)
-    val subtitleOffset by animateDpAsState(targetValue = if (viewModel.isVideoControllerVisible) controllerProgressColumnHeight - 14.dp else if (viewModel.videoChapters.isNotEmpty()) 18.dp else 6.dp)  //18:视频章节字幕条高度  6:普通进度条
-    val dragIndicatorOffset by animateDpAsState(targetValue = if (viewModel.isVideoControllerVisible) controllerTitleColumnHeight else 8.dp)
-    val subtitlePadding by animateDpAsState(targetValue = if (viewModel.isVideoControllerVisible) 0.dp else 6.dp)
+    val progressBarThumbScale by animateFloatAsState(
+        targetValue = if (isDraggingProgress) 1.5f else 1f,
+        label = ""
+    )
+    val roundScreenControllerAlpha by animateIntAsState(
+        targetValue = if (isRound() && viewModel.isVideoControllerVisible) 127/*255/2*/ else 0,
+        label = ""
+    )
+    val subtitleOffset by animateDpAsState(
+        targetValue = if (viewModel.isVideoControllerVisible) controllerProgressColumnHeight - 14.dp else if (viewModel.videoChapters.isNotEmpty()) 18.dp else 6.dp,
+        label = ""
+    )  //18:视频章节字幕条高度  6:普通进度条
+    val dragIndicatorOffset by animateDpAsState(
+        targetValue = if (viewModel.isVideoControllerVisible) controllerTitleColumnHeight else 8.dp,
+        label = ""
+    )
+    val subtitlePadding by animateDpAsState(
+        targetValue = if (viewModel.isVideoControllerVisible) 0.dp else 6.dp,
+        label = ""
+    )
     var currentPage: VideoPlayerPages by remember {
         mutableStateOf(VideoPlayerPages.Main)
     }
@@ -264,6 +280,19 @@ fun Activity.Media3PlayerScreen(
             255
         ), label = ""
     )
+
+    var danmakuCanvasAlpha by remember {
+        mutableFloatStateOf(1f)
+    }
+    var danmakuCanvasDisplayPercent by remember {
+        mutableFloatStateOf(1f)
+    }
+    var danmakuTextScale by remember {
+        mutableFloatStateOf(1f)
+    }
+    var danmakuBlockLevel by remember {
+        mutableIntStateOf(0)
+    }
     //endregion
 
     //region: For Danmaku
@@ -344,7 +373,13 @@ fun Activity.Media3PlayerScreen(
                 state = danmakuCanvasState,
                 textMeasurer = textMeasurer,
                 playSpeed = playBackSpeed / 100f,
-                videoAspectRatio = viewModel.videoPlayerAspectRatio
+                videoAspectRatio = viewModel.videoPlayerAspectRatio,
+                displayAreaPercent = danmakuCanvasDisplayPercent,
+                displayFrameRate = true,
+                blockLevel = danmakuBlockLevel,
+                modifier = Modifier.alpha(danmakuCanvasAlpha),
+                textScale = danmakuTextScale,
+                uploaderAvatarUrl = viewModel.videoInfo?.data?.owner?.face ?: ""
             )
         }
 
@@ -1066,6 +1101,20 @@ fun Activity.Media3PlayerScreen(
                                 fontWeight = FontWeight.Bold
                             )
 
+                            PlayerSettingActionItem(
+                                name = "弹幕选项",
+                                description = "调整弹幕显示设置",
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(id = drawable.icon_danmaku),
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }) {
+                                currentPage = VideoPlayerPages.DanmakuSettings
+                            }
+
                             PlayerSetting(itemIcon = {
                                 Icon(
                                     imageVector = Icons.Outlined.Speed,
@@ -1232,6 +1281,237 @@ fun Activity.Media3PlayerScreen(
                                     }
                                 )
                             }
+                            //endregion
+                        }
+                    }
+
+                    VideoPlayerPages.DanmakuSettings -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                                .padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            //region setting items
+                            IconText(
+                                text = "",
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                modifier = Modifier
+                                    .clickable { currentPage = VideoPlayerPages.Settings }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowBackIosNew,
+                                    contentDescription = null,
+                                    tint = Color.White
+                                )
+                            }
+                            androidx.compose.material3.Text(
+                                text = "弹幕选项",
+                                color = Color.White,
+                                fontFamily = wearbiliFontFamily,
+                                fontSize = 20.spx,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Column {
+                                Text(
+                                    text = "不透明度",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier
+                                        .alpha(0.9f)
+                                )
+
+                                Row {
+                                    androidx.compose.material3.Slider(
+                                        value = danmakuCanvasAlpha,
+                                        onValueChange = {
+                                            danmakuCanvasAlpha = it
+                                        },
+                                        valueRange = 0f..1f,
+                                        colors = SliderDefaults.colors(
+                                            activeTrackColor = BilibiliPink,
+                                            thumbColor = Color.White
+                                        ),
+                                        modifier = Modifier
+                                            .offset(y = (-6).dp)
+                                            .weight(1f),
+                                        thumb = {
+                                            SliderDefaults.Thumb(
+                                                interactionSource = rememberMutableInteractionSource(),
+                                                thumbSize = DpSize(12.dp, 12.dp),
+                                                modifier = Modifier
+                                                    .offset(
+                                                        y = 4.dp,
+                                                        x = 2.dp
+                                                    ),
+
+                                                colors = SliderDefaults.colors(
+                                                    thumbColor = Color.White
+                                                )
+                                            )
+                                        }
+                                    )
+                                    Text(
+                                        text = "${danmakuCanvasAlpha.times(100).toInt()}%",
+                                        color = Color.White,
+                                        fontSize = 12.sp,
+                                        modifier = Modifier
+                                            .alpha(0.9f)
+                                    )
+                                }
+                            }
+
+                            Column {
+                                Text(
+                                    text = "显示区域",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier
+                                        .alpha(0.9f)
+                                )
+
+                                Row {
+                                    androidx.compose.material3.Slider(
+                                        value = danmakuCanvasDisplayPercent,
+                                        onValueChange = {
+                                            danmakuCanvasDisplayPercent = it
+                                        },
+                                        valueRange = 0f..1f,
+                                        colors = SliderDefaults.colors(
+                                            activeTrackColor = BilibiliPink,
+                                            thumbColor = Color.White
+                                        ),
+                                        modifier = Modifier
+                                            .offset(y = (-6).dp)
+                                            .weight(1f),
+                                        thumb = {
+                                            SliderDefaults.Thumb(
+                                                interactionSource = rememberMutableInteractionSource(),
+                                                thumbSize = DpSize(12.dp, 12.dp),
+                                                modifier = Modifier
+                                                    .offset(
+                                                        y = 4.dp,
+                                                        x = 2.dp
+                                                    ),
+
+                                                colors = SliderDefaults.colors(
+                                                    thumbColor = Color.White
+                                                )
+                                            )
+                                        }
+                                    )
+                                    Text(
+                                        text = "${danmakuCanvasDisplayPercent.times(100).toInt()}%",
+                                        color = Color.White,
+                                        fontSize = 12.sp,
+                                        modifier = Modifier
+                                            .alpha(0.9f)
+                                    )
+                                }
+                            }
+
+                            Column {
+                                Text(
+                                    text = "字体缩放",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier
+                                        .alpha(0.9f)
+                                )
+
+                                Row {
+                                    androidx.compose.material3.Slider(
+                                        value = danmakuTextScale,
+                                        onValueChange = {
+                                            danmakuTextScale = it
+                                        },
+                                        valueRange = 0.5f..2f,
+                                        colors = SliderDefaults.colors(
+                                            activeTrackColor = BilibiliPink,
+                                            thumbColor = Color.White
+                                        ),
+                                        modifier = Modifier
+                                            .offset(y = (-6).dp)
+                                            .weight(1f),
+                                        thumb = {
+                                            SliderDefaults.Thumb(
+                                                interactionSource = rememberMutableInteractionSource(),
+                                                thumbSize = DpSize(12.dp, 12.dp),
+                                                modifier = Modifier
+                                                    .offset(
+                                                        y = 4.dp,
+                                                        x = 2.dp
+                                                    ),
+
+                                                colors = SliderDefaults.colors(
+                                                    thumbColor = Color.White
+                                                )
+                                            )
+                                        }
+                                    )
+                                    Text(
+                                        text = "${danmakuTextScale.times(100).toInt()}%",
+                                        color = Color.White,
+                                        fontSize = 12.sp,
+                                        modifier = Modifier
+                                            .alpha(0.9f)
+                                    )
+                                }
+                            }
+
+                            Column {
+                                Text(
+                                    text = "屏蔽等级",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier
+                                        .alpha(0.9f)
+                                )
+
+                                Row {
+                                    androidx.compose.material3.Slider(
+                                        value = danmakuBlockLevel.toFloat(),
+                                        onValueChange = {
+                                            danmakuBlockLevel = it.roundToInt()
+                                        },
+                                        valueRange = 0f..10f,
+                                        steps = 10,
+                                        colors = SliderDefaults.colors(
+                                            activeTrackColor = BilibiliPink,
+                                            thumbColor = Color.White
+                                        ),
+                                        modifier = Modifier
+                                            .offset(y = (-6).dp)
+                                            .weight(1f),
+                                        thumb = {
+                                            SliderDefaults.Thumb(
+                                                interactionSource = rememberMutableInteractionSource(),
+                                                thumbSize = DpSize(12.dp, 12.dp),
+                                                modifier = Modifier
+                                                    .offset(
+                                                        y = 4.dp,
+                                                        x = 2.dp
+                                                    ),
+
+                                                colors = SliderDefaults.colors(
+                                                    thumbColor = Color.White
+                                                )
+                                            )
+                                        }
+                                    )
+                                    Text(
+                                        text = "等级${danmakuBlockLevel}",
+                                        color = Color.White,
+                                        fontSize = 12.sp,
+                                        modifier = Modifier
+                                            .alpha(0.9f)
+                                    )
+                                }
+                            }
+
                             //endregion
                         }
                     }

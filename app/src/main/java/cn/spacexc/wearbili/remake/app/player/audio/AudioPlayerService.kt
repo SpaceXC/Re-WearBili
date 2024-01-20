@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
@@ -25,7 +24,6 @@ import cn.spacexc.wearbili.remake.common.ToastUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import master.flame.danmaku.ui.widget.DanmakuView
 import javax.inject.Inject
 
 /**
@@ -200,7 +198,6 @@ class AudioPlayerService : LifecycleService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(DanmakuView.TAG, "onDestroy: ")
         exitService()
     }
 }

@@ -238,7 +238,7 @@ data class CommentContentData(
         var rcount: Int,
         var state: Int,
         var fansgrade: Int,
-        var attr: Int,
+        var attr: Long,
         var ctime: Int,
         var rpid_str: String,
         var root_str: String,
@@ -354,7 +354,7 @@ data class CommentContentData(
 }
 
 data class EmoteObject(
-    val attr: Int,
+    val attr: Long,
     val id: Long,
     val jump_title: String,
     val meta: Meta,

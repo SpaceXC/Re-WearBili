@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateMap
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -41,6 +42,7 @@ import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.DanmakuGetter
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.DanmakuSegment
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.advance.AdvanceDanmakuParser
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -185,6 +187,19 @@ class Media3VideoPlayerViewModel @Inject constructor(
                             viewModelScope.launch {
                                 loadInitDanmaku(cid = currentVideoCid)
                                 appendDanmaku(cid = currentVideoCid, videoDuration)
+
+                                val advanceDanmaku =
+                                    danmakuList.flatMap { it.danmakuList }.filter { it.mode == 7 }
+                                        .map {
+                                            AdvanceDanmakuParser.parseAdvanceDanmaku(
+                                                it,
+                                                Size(
+                                                    httpPlayer.videoSize.width.toFloat(),
+                                                    httpPlayer.videoSize.height.toFloat()
+                                                )
+                                            )
+                                        }
+                                Log.d(TAG, "onPlaybackStateChanged: $advanceDanmaku")
                             }
                         }
                         isReady = true
@@ -216,13 +231,25 @@ class Media3VideoPlayerViewModel @Inject constructor(
                 super.onPlaybackStateChanged(playbackState)
                 when (playbackState) {
                     Player.STATE_READY -> {
-                        videoPlayerAspectRatio = cachePlayer.videoSize.width.toFloat()
-                            .logd("width")!! / cachePlayer.videoSize.height.toFloat()
-                            .logd("height")!!
+                        videoPlayerAspectRatio =
+                            cachePlayer.videoSize.width.toFloat() / cachePlayer.videoSize.height.toFloat()
+
                         videoDuration = cachePlayer.duration
                         currentStat = PlayerStats.Playing
                         isReady = true
                         //isVideoControllerVisible = true
+
+                        val advanceDanmaku =
+                            danmakuList.flatMap { it.danmakuList }.filter { it.mode == 7 }.map {
+                                AdvanceDanmakuParser.parseAdvanceDanmaku(
+                                    it,
+                                    Size(
+                                        cachePlayer.videoSize.width.toFloat(),
+                                        cachePlayer.videoSize.height.toFloat()
+                                    )
+                                )
+                            }
+                        Log.d(TAG, "onPlaybackStateChanged: $advanceDanmaku")
                     }
 
                     Player.STATE_BUFFERING -> {
@@ -394,6 +421,8 @@ class Media3VideoPlayerViewModel @Inject constructor(
                         danmakuReply.elemsList/*?.filter {danmakus -> danmakus.weight > 4 }*/?.let { danmakuList ->
                             add(DanmakuSegment(index, danmakuList))
                         }
+                        val advanceDanmaku = danmakuReply.elemsList.filter { it.mode == 7 }
+                        println(advanceDanmaku)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }

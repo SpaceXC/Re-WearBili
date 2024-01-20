@@ -74,7 +74,11 @@ fun DanmakuCanvas(
     textSize: Float = 1f,
     playSpeed: Float = 1f,
     videoAspectRatio: Float,
-    displayFrameRate: Boolean = false
+    displayFrameRate: Boolean = false,
+    displayAreaPercent: Float = 1f,
+    blockLevel: Int = 0,
+    textScale: Float = 1f,
+    uploaderAvatarUrl: String = ""
 ) {
     val localDensity = LocalDensity.current
     val localContext = LocalContext.current
@@ -98,12 +102,12 @@ fun DanmakuCanvas(
     Box(modifier = Modifier.fillMaxSize()) {
         Canvas(modifier = modifier.fillMaxSize()) {
             state.displayingDanmakus.forEach { danmaku ->
-                if (danmaku.y + danmaku.textHeight <= size.height && danmaku.y >= 0) {
+                if (danmaku.y + danmaku.textHeight <= size.height * displayAreaPercent && danmaku.y >= 0 && danmaku.weight >= blockLevel) {
                     val measuredText = textMeasurer.measure(
                         text = danmaku.content,
                         style = TextStyle(
-                            fontSize = (danmaku.fontSize * 0.5 * textSize).sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontSize = (danmaku.fontSize * 0.5 * textSize * textScale).sp,
+                            fontWeight = FontWeight.Medium,
                             fontFamily = wearbiliFontFamily,
                         ),
                         layoutDirection = layoutDirection,
@@ -161,10 +165,12 @@ fun DanmakuCanvas(
                 }
             }
             state.updatedDanmaku(
-                textMeasurer,
-                this,
-                textSize,
-                playSpeed
+                textMeasurer = textMeasurer,
+                drawScope = this,
+                fontSize = textSize,
+                playSpeed = playSpeed,
+                blockLevel = blockLevel,
+                textScale = textScale
             )
             framePerSecond++
         }

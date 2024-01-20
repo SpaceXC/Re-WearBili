@@ -21,11 +21,11 @@ data class DisplayDanmakuItem(
     val fontSize: Int,
     val type: Int,
     val danmakuId: Long,
-    //val displayedFrames: Int,    //已经显示了多少帧，用于顶端/底端弹幕
     val textWidth: Int,
     val textHeight: Int,
     val displayRow: Int,
     val isLiked: Boolean,
     val image: ImageBitmap? = null,
-    val isGradient: Boolean = false
+    val isGradient: Boolean = false,
+    val weight: Int
 )

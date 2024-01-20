@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -34,6 +35,7 @@ import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 @Composable
 fun DanmakuChip(
     commandDanmakuType: String,
+    uploaderAvatarUrl: String = "",
     onClick: () -> Unit
 ) {
     val localDensity = LocalDensity.current
@@ -78,14 +80,25 @@ fun DanmakuChip(
                     .background(Color(18, 18, 18, 255), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(id = icon),
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(textHeight * 0.9f)
-                        .offset(y = -0.5.dp, x = -0.25.dp)
-                )
+                if (uploaderAvatarUrl.isNotEmpty()) {
+                    BiliImage(
+                        url = uploaderAvatarUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(textHeight * 0.9f)
+                            .offset(y = (-0.5).dp, x = (-0.25).dp)
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(id = icon),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(textHeight * 0.9f)
+                            .offset(y = (-0.5).dp, x = (-0.25).dp)
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.width(4.dp))
