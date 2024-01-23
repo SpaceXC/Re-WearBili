@@ -11,7 +11,6 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateMap
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -42,7 +41,6 @@ import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.DanmakuGetter
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.DanmakuSegment
-import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.advance.AdvanceDanmakuParser
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -187,19 +185,6 @@ class Media3VideoPlayerViewModel @Inject constructor(
                             viewModelScope.launch {
                                 loadInitDanmaku(cid = currentVideoCid)
                                 appendDanmaku(cid = currentVideoCid, videoDuration)
-
-                                val advanceDanmaku =
-                                    danmakuList.flatMap { it.danmakuList }.filter { it.mode == 7 }
-                                        .map {
-                                            AdvanceDanmakuParser.parseAdvanceDanmaku(
-                                                it,
-                                                Size(
-                                                    httpPlayer.videoSize.width.toFloat(),
-                                                    httpPlayer.videoSize.height.toFloat()
-                                                )
-                                            )
-                                        }
-                                Log.d(TAG, "onPlaybackStateChanged: $advanceDanmaku")
                             }
                         }
                         isReady = true
@@ -238,18 +223,6 @@ class Media3VideoPlayerViewModel @Inject constructor(
                         currentStat = PlayerStats.Playing
                         isReady = true
                         //isVideoControllerVisible = true
-
-                        val advanceDanmaku =
-                            danmakuList.flatMap { it.danmakuList }.filter { it.mode == 7 }.map {
-                                AdvanceDanmakuParser.parseAdvanceDanmaku(
-                                    it,
-                                    Size(
-                                        cachePlayer.videoSize.width.toFloat(),
-                                        cachePlayer.videoSize.height.toFloat()
-                                    )
-                                )
-                            }
-                        Log.d(TAG, "onPlaybackStateChanged: $advanceDanmaku")
                     }
 
                     Player.STATE_BUFFERING -> {
@@ -334,7 +307,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
                     httpPlayer.setMediaItem(mediaSource.mediaItem)
                     httpPlayer.playWhenReady = true
                     httpPlayer.prepare()
-                    isVideoControllerVisible = true
+                    //isVideoControllerVisible = true
                     startContinuouslyUpdatingSubtitle()
                 } else {
                     val urlResponse =
@@ -364,7 +337,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
                     httpPlayer.setMediaItem(mergeSource.mediaItem)
                     httpPlayer.playWhenReady = true
                     httpPlayer.prepare()
-                    isVideoControllerVisible = true
+                    //isVideoControllerVisible = true
                 }
             }
             viewModelScope.launch {
@@ -439,7 +412,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
             cachePlayer.setMediaItem(mediaSource.mediaItem)
             cachePlayer.playWhenReady = true
             cachePlayer.prepare()
-            isVideoControllerVisible = true
+            //isVideoControllerVisible = true
             //endregion
             startContinuouslyUpdatingSubtitle()
         }

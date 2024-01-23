@@ -27,5 +27,6 @@ data class DisplayDanmakuItem(
     val isLiked: Boolean,
     val image: ImageBitmap? = null,
     val isGradient: Boolean = false,
-    val weight: Int
+    val weight: Int,
+    val duration: Long
 )

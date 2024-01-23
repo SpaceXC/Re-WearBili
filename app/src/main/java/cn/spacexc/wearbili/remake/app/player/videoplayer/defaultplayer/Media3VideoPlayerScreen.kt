@@ -88,6 +88,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -104,6 +105,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.util.UnstableApi
 import cn.spacexc.wearbili.common.domain.log.TAG
@@ -177,6 +179,9 @@ fun Activity.Media3PlayerScreen(
 ) {
     //region variables
     val localDensity = LocalDensity.current
+    var playerSurfaceSize by remember {
+        mutableStateOf(Size(1f, 1f))
+    }
     val currentSubtitleText by viewModel.currentSubtitleText.collectAsState(initial = null)
     val currentPlayerPosition by viewModel.currentPlayProgress.collectAsState(initial = 0)
     var currentPlayerSurfaceRatio: VideoPlayerSurfaceRatio by remember {
@@ -269,11 +274,22 @@ fun Activity.Media3PlayerScreen(
 
     val danmakuCanvasState = rememberDanmakuCanvasState { currentPlayerPosition }
     val textMeasurer = rememberTextMeasurer()
-    var isDanmakuVisible by remember {
+    var isNormalDanmakuVisible by remember {
+        mutableStateOf(true)
+    }
+    var isAdvanceDanmakuVisible by remember {
         mutableStateOf(true)
     }
     val danmakuButtonColor by animateColorAsState(
-        targetValue = if (isDanmakuVisible) BilibiliPink else Color(
+        targetValue = if (isNormalDanmakuVisible) BilibiliPink else Color(
+            38,
+            38,
+            38,
+            255
+        ), label = ""
+    )
+    val advanceDanmakuButtonColor by animateColorAsState(
+        targetValue = if (isAdvanceDanmakuVisible) BilibiliPink else Color(
             38,
             38,
             38,
@@ -348,6 +364,9 @@ fun Activity.Media3PlayerScreen(
             }
                 .animateContentSize()
                 .align(Alignment.Center)
+                .onSizeChanged {
+                    playerSurfaceSize = it.toSize()
+                }
         ) {
             when (displaySurface) {
                 VideoDisplaySurface.TEXTURE_VIEW -> {
@@ -368,20 +387,21 @@ fun Activity.Media3PlayerScreen(
         //endregion
 
         //region danmaku surface
-        AnimatedVisibility(visible = isDanmakuVisible, enter = fadeIn(), exit = fadeOut()) {
-            DanmakuCanvas(
-                state = danmakuCanvasState,
-                textMeasurer = textMeasurer,
-                playSpeed = playBackSpeed / 100f,
-                videoAspectRatio = viewModel.videoPlayerAspectRatio,
-                displayAreaPercent = danmakuCanvasDisplayPercent,
-                displayFrameRate = true,
-                blockLevel = danmakuBlockLevel,
-                modifier = Modifier.alpha(danmakuCanvasAlpha),
-                textScale = danmakuTextScale,
-                uploaderAvatarUrl = viewModel.videoInfo?.data?.owner?.face ?: ""
-            )
-        }
+        DanmakuCanvas(
+            state = danmakuCanvasState,
+            textMeasurer = textMeasurer,
+            playSpeed = playBackSpeed / 100f,
+            videoAspectRatio = viewModel.videoPlayerAspectRatio,
+            displayAreaPercent = danmakuCanvasDisplayPercent,
+            displayFrameRate = true,
+            blockLevel = danmakuBlockLevel,
+            modifier = Modifier.alpha(danmakuCanvasAlpha),
+            textScale = danmakuTextScale,
+            uploaderAvatarUrl = viewModel.videoInfo?.data?.owner?.face ?: "",
+            isAdvanceDanmakuVisible = isAdvanceDanmakuVisible,
+            isNormalDanmakuVisible = isNormalDanmakuVisible,
+            videoDisplaySurfaceSize = playerSurfaceSize
+        )
 
         //endregion
         Box(
@@ -446,7 +466,12 @@ fun Activity.Media3PlayerScreen(
                                                     }
 
                                                     danmakuCanvasState.pause()
-                                                    danmakuCanvasState.seekTo(draggedProgress)
+                                                    danmakuCanvasState.seekTo(
+                                                        time = draggedProgress,
+                                                        textMeasurer = textMeasurer,
+                                                        displayWidth = playerSurfaceSize.width.toInt(),
+                                                        textScale = danmakuTextScale,
+                                                    )
                                                     viewModel.currentStat = PlayerStats.Buffering
                                                     isDraggingProgress = false
                                                 }
@@ -605,7 +630,12 @@ fun Activity.Media3PlayerScreen(
                                                             )
                                                         }
                                                         danmakuCanvasState.pause()
-                                                        danmakuCanvasState.seekTo(draggedProgress)
+                                                        danmakuCanvasState.seekTo(
+                                                            time = draggedProgress,
+                                                            textMeasurer = textMeasurer,
+                                                            displayWidth = playerSurfaceSize.width.toInt(),
+                                                            textScale = danmakuTextScale,
+                                                        )
                                                         viewModel.currentStat =
                                                             PlayerStats.Buffering
                                                         isDraggingProgress = false
@@ -691,10 +721,27 @@ fun Activity.Media3PlayerScreen(
                                                          */
                                                     }
 
+                                                    PlayerQuickActionButton(
+                                                        onClick = {
+                                                            isAdvanceDanmakuVisible =
+                                                                !isAdvanceDanmakuVisible
+                                                        },
+                                                        color = advanceDanmakuButtonColor
+                                                    ) {
+                                                        Icon(
+                                                            painter = painterResource(id = drawable.icon_advance_danmaku),
+                                                            contentDescription = null,
+                                                            tint = Color.White,
+                                                            modifier = Modifier
+                                                                .size(14.dp)
+                                                        )
+                                                    }
+                                                    Spacer(modifier = Modifier.width(4.dp))
                                                     //region player quick actions
                                                     PlayerQuickActionButton(
                                                         onClick = {
-                                                            isDanmakuVisible = !isDanmakuVisible
+                                                            isNormalDanmakuVisible =
+                                                                !isNormalDanmakuVisible
                                                         },
                                                         color = danmakuButtonColor
                                                     ) {
@@ -805,7 +852,10 @@ fun Activity.Media3PlayerScreen(
                                                                     }
                                                                     danmakuCanvasState.pause()
                                                                     danmakuCanvasState.seekTo(
-                                                                        chapter.third * 1000L
+                                                                        time = chapter.third * 1000L,
+                                                                        textMeasurer = textMeasurer,
+                                                                        displayWidth = playerSurfaceSize.width.toInt(),
+                                                                        textScale = danmakuTextScale,
                                                                     )
                                                                     viewModel.currentStat =
                                                                         PlayerStats.Buffering

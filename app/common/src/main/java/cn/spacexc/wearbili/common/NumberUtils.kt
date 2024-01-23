@@ -9,3 +9,5 @@ package cn.spacexc.wearbili.common
  */
 
 fun Number?.ifNullOrZero(then: () -> Number) = if (this == null || this == 0) then() else this
+
+fun Float.ifNaN(then: () -> Float) = if (this.isNaN()) then() else this
