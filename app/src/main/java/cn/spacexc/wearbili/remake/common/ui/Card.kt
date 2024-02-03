@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.common.ui
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -85,11 +84,11 @@ fun Card(
     ),
     outerPaddingValues: PaddingValues = PaddingValues(vertical = 4.dp),
     fillMaxSize: Boolean = true,
+    contentAlignment: Alignment = Alignment.TopStart,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    val secondColor by animateColorAsState(
+    val secondColor by wearBiliAnimateColorAsState(
         targetValue = if (isGradient) Color.Transparent else borderColor,
-        label = "wearbiliCardSecondColor"
     )
     Box(
         modifier = modifier
@@ -111,6 +110,7 @@ fun Card(
             .background(color = backgroundColor)
             .padding(innerPaddingValues)
             .then(if (fillMaxSize) Modifier.fillMaxWidth() else Modifier),
+        contentAlignment = contentAlignment
     ) {
         content()
     }
@@ -129,33 +129,30 @@ fun Card(
         bottom = 10.dp
     ),
     isHighlighted: Boolean,
+    fillMaxSize: Boolean = true,
+    contentAlignment: Alignment = Alignment.TopStart,
     outerPaddingValues: PaddingValues = PaddingValues(vertical = 4.dp),
     content: @Composable BoxScope.() -> Unit,
 ) {
-    val secondColor by animateColorAsState(
+    val secondColor by wearBiliAnimateColorAsState(
         targetValue = if (isHighlighted) BilibiliPink else Color.Transparent,
-        label = "wearbiliCardSecondColor"
     )
-    val cardBorderColor by animateColorAsState(
+    val cardBorderColor by wearBiliAnimateColorAsState(
         targetValue = if (isHighlighted) BilibiliPink else CardBorderColor,
-        label = "wearbiliVideoFavouriteFoldersScreenBorderColor",
         animationSpec = tween()
     )
-    val cardBackgroundColor by animateColorAsState(
+    val cardBackgroundColor by wearBiliAnimateColorAsState(
         targetValue = if (isHighlighted) Color(
             231,
             86,
             136,
             26
         ) else CardBackgroundColor,
-        label = "wearbiliVideoFavouriteFoldersScreenBackgroundColor",
         animationSpec = tween()
 
     )
-    val width by animateDpAsState(
+    val width by wearBiliAnimateDpAsState(
         targetValue = if (isHighlighted) 2.dp else CardBorderWidth,
-        label = "wearbiliVideoFavouriteFoldersScreenDp",
-        animationSpec = tween()
     )
 
     Box(
@@ -177,7 +174,8 @@ fun Card(
             )
             .background(color = cardBackgroundColor)
             .padding(innerPaddingValues)
-            .fillMaxWidth(),
+            .then(if (fillMaxSize) Modifier.fillMaxWidth() else Modifier),
+        contentAlignment = contentAlignment
     ) {
         content()
     }

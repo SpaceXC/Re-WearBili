@@ -6,11 +6,10 @@ import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 
 /**
  * Created by XC-Qan on 2023/4/16.
@@ -29,9 +28,11 @@ fun WearBiliAnimatedVisibility(
     label: String = "AnimatedVisibility",
     content: @Composable /*AnimatedVisibilityScope.*/() -> Unit
 ) {
-    val isLowPerformance by SettingsManager.isLowPerformance.collectAsState(initial = false)
+    val isLowPerformance = !LocalConfiguration.current.hasAnimation
     if (isLowPerformance) {
-        if (visible) content()
+        if (visible) Box(modifier = modifier) {
+            content()
+        }
     } else {
         androidx.compose.animation.AnimatedVisibility(visible, modifier, enter, exit, label) {
             content()

@@ -2,7 +2,6 @@ package cn.spacexc.wearbili.remake.app.about.ui
 
 import android.app.Activity
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -44,6 +43,7 @@ import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -69,11 +69,11 @@ fun Activity.AboutScreen(
     var isHintTextHighlighting by remember {
         mutableStateOf(false)
     }
-    val hintTextAlpha by animateFloatAsState(
+    val hintTextAlpha by wearBiliAnimateFloatAsState(
         targetValue = if (isHintTextHighlighting) 1f else 0.2f,
         animationSpec = tween(durationMillis = 750)
     )
-    val hintTextSize by animateFloatAsState(
+    val hintTextSize by wearBiliAnimateFloatAsState(
         targetValue = if (isHintTextHighlighting) 1f else .5f,
         animationSpec = tween(durationMillis = 750)
     )

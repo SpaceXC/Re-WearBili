@@ -45,7 +45,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VideoInformationViewModel @Inject constructor(
-    private val ktorNetworkUtils: KtorNetworkUtils,
+    val ktorNetworkUtils: KtorNetworkUtils,
     private val application: Application
 ) : ViewModel() {
     var state by mutableStateOf(
@@ -221,9 +221,9 @@ class VideoInformationViewModel @Inject constructor(
                 val directory = File(application.cacheDir, "/danmakuMask")
                 if (!directory.exists()) directory.mkdir()
                 val maskFile = File(directory, "danmakuMask$videoCid.webmask")
-                VideoInfo.downloadDanmakuWebMask(maskInfo, maskFile) {
+                /*VideoInfo.downloadDanmakuWebMask(maskInfo, maskFile) {
 
-                }
+                }*/
             }
         }
     }

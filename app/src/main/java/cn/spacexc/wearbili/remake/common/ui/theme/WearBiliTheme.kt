@@ -2,7 +2,7 @@ package cn.spacexc.wearbili.remake.common.ui.theme
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.font.FontFamily
+import cn.spacexc.wearbili.remake.app.settings.ProvideConfiguration
 
 /**
  * Created by XC-Qan on 2023/3/21.
@@ -16,9 +16,11 @@ typealias AppTheme = MaterialTheme
 
 @Composable
 fun WearBiliTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        typography = wearbiliTypography
-    ) {
-        content()
+    ProvideConfiguration {
+        MaterialTheme(
+            typography = wearbiliTypography
+        ) {
+            content()
+        }
     }
 }

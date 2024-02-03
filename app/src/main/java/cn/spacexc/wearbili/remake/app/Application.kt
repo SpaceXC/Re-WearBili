@@ -1,7 +1,9 @@
 package cn.spacexc.wearbili.remake.app
 
+import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -16,8 +18,8 @@ import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.crash.ui.CrashActivity
+import cn.spacexc.wearbili.remake.app.crash.ui.PARAM_EXCEPTION_STACKTRACE
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerService
-import com.developer.crashx.config.CrashConfig
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
@@ -33,6 +35,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
+import kotlin.system.exitProcess
 
 
 /**
@@ -69,11 +72,24 @@ class Application : android.app.Application(), Configuration.Provider {
                 EntryPoints.get(this, HiltWorkerFactoryEntryPoint::class.java).workerFactory()
             )
             .setTaskExecutor(Dispatchers.Default.asExecutor())
-            //.setMaxSchedulerLimit(MAX_SCHEDULER_LIMIT)
             .build()
 
+    @SuppressLint("WearRecents")    //懒得弄了...反正国内厂商把东西都阉割得差不多了
     override fun onCreate() {
         super.onCreate()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            Log.e(
+                TAG,
+                "onCreate: I caught an exception at thread ${thread.name}: ${throwable.message}"
+            )
+            throwable.printStackTrace()
+            startActivity(Intent(this, CrashActivity::class.java).apply {
+                putExtra(PARAM_EXCEPTION_STACKTRACE, throwable.stackTraceToString())
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            })
+            exitProcess(2)
+            //throw throwable
+        }
         AppCenter.start(
             this, APP_CENTER_SECRET,
             Analytics::class.java, Crashes::class.java
@@ -84,9 +100,9 @@ class Application : android.app.Application(), Configuration.Provider {
         BilibiliSdkManager.initSdk(
             dataManager = dataStore
         )
-        CrashConfig.Builder.create()
+        /*CrashConfig.Builder.create()
             .errorActivity(CrashActivity::class.java)
-            .apply()
+            .apply()*/
         //VideoPlayerManager.dataManager = dataStore
         logd("mainApplicationContext")
         Log.e(

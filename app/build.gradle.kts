@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.google.devtools.ksp)
     kotlin("kapt")
     id("kotlin-parcelize")
+    alias(libs.plugins.baselineprofile)
 }
 
 android {
@@ -13,13 +14,15 @@ android {
     compileSdk = libs.versions.compileSdk.get().toInt()
     buildToolsVersion = libs.versions.buildTool.get()
 
+    experimentalProperties["android.experimental.r8.dex-startup-optimization"] = true
+
+    val releaseNumber = 1
     defaultConfig {
         applicationId = "cn.spacexc.wearbili.remake"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 24
-        versionName = "Cache 0.11.0"
-
+        versionCode = 25
+        versionName = "Settings"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -63,7 +66,7 @@ android {
     applicationVariants.all {
         outputs.all {
             val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            output.outputFileName = "Re-WearBili - $versionName Rel.${versionCode}.apk"
+            output.outputFileName = "Re-WearBili - $versionName Rel.$releaseNumber.apk"
         }
     }
 
@@ -107,6 +110,8 @@ dependencies {
     implementation(libs.kotlinx.metadata.jvm)
     implementation(project(":app:common"))
 
+    implementation(libs.androidx.datastore.proto)
+    implementation(libs.androidx.datastore.core)
 
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.lifecycle.service)
@@ -114,6 +119,8 @@ dependencies {
 
     implementation(libs.hilt.android)
     implementation(libs.hilt.work)
+    implementation(libs.androidx.profileinstaller)
+    "baselineProfile"(project(":baselineprofile"))
     kapt(libs.hilt.compiler)
     kapt(libs.hilt.work.compiler)
 
@@ -149,7 +156,7 @@ dependencies {
     implementation(libs.androidx.media3.common)
     //implementation(libs.danmaku.flame.master)
 
-    implementation(libs.crashx)
+    //implementation(libs.crashx)
 
 
     // (Java only)

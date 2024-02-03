@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.common.ui
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.animateInt
 import androidx.compose.animation.core.tween
@@ -123,7 +122,7 @@ fun Checkbox(
         }
     }
 
-    val color by animateColorAsState(
+    val color by wearBiliAnimateColorAsState(
         targetValue = if (isChecked) BilibiliPink else Color(
             87,
             87,
@@ -151,7 +150,6 @@ fun Checkbox(
 
         Box(
             modifier = Modifier
-
                 .background(color, shape)
                 .border(
                     border = borderStroke,
@@ -174,20 +172,48 @@ fun Checkbox(
                                 return@apply
                             }
 
-                            moveTo(6.dpForCheckBox(size).toPx(), 12.dpForCheckBox(size).toPx())
+                            moveTo(
+                                6
+                                    .dpForCheckBox(size)
+                                    .toPx(),
+                                12
+                                    .dpForCheckBox(size)
+                                    .toPx()
+                            )
 
                             if (checkmarkProgress < 4) {
                                 val firstStrokeX = checkmarkProgress + 6
                                 val firstStrokeY = checkmarkProgress + 12
-                                lineTo(firstStrokeX.dpForCheckBox(size).toPx(), firstStrokeY.dpForCheckBox(size).toPx())
+                                lineTo(
+                                    firstStrokeX
+                                        .dpForCheckBox(size)
+                                        .toPx(),
+                                    firstStrokeY
+                                        .dpForCheckBox(size)
+                                        .toPx()
+                                )
                             } else {
-                                lineTo(10.dpForCheckBox(size).toPx(), 16.dpForCheckBox(size).toPx())
+                                lineTo(
+                                    10
+                                        .dpForCheckBox(size)
+                                        .toPx(),
+                                    16
+                                        .dpForCheckBox(size)
+                                        .toPx()
+                                )
                             }
 
                             if (checkmarkProgress >= 4) {
                                 val secondStrokeX = checkmarkProgress + 6
                                 val secondStrokeY = 20 - checkmarkProgress
-                                lineTo(secondStrokeX.dpForCheckBox(size).toPx(), secondStrokeY.dpForCheckBox(size).toPx())
+                                lineTo(
+                                    secondStrokeX
+                                        .dpForCheckBox(size)
+                                        .toPx(),
+                                    secondStrokeY
+                                        .dpForCheckBox(size)
+                                        .toPx()
+                                )
                             }
                         }
 

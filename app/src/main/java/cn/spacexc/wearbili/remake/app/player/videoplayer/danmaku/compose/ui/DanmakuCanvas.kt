@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
@@ -54,6 +53,7 @@ import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.co
 import cn.spacexc.wearbili.remake.common.ui.BilibiliBlue
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.DanmakuChip
+import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import kotlinx.coroutines.delay
 
@@ -298,7 +298,7 @@ fun DanmakuCanvas(
                         is SubscribeExtra -> {
                             val position =
                                 getCommandDanmakuPosition(it.extra.posX2, it.extra.posY2, boxSize)
-                            AnimatedVisibility(
+                            WearBiliAnimatedVisibility(
                                 visible = it.isDisplaying,
                                 enter = fadeIn(),
                                 exit = fadeOut(),
@@ -320,7 +320,7 @@ fun DanmakuCanvas(
                                 it.extra.posY2,
                                 boxSize
                             )
-                            AnimatedVisibility(
+                            WearBiliAnimatedVisibility(
                                 visible = it.isDisplaying,
                                 enter = fadeIn(),
                                 exit = fadeOut(),
@@ -339,7 +339,7 @@ fun DanmakuCanvas(
                                 it.extra.posY2,
                                 boxSize
                             )
-                            AnimatedVisibility(
+                            WearBiliAnimatedVisibility(
                                 visible = it.isDisplaying,
                                 enter = fadeIn(),
                                 exit = fadeOut(),
@@ -358,7 +358,7 @@ fun DanmakuCanvas(
                                 it.extra.posY2,
                                 boxSize
                             )
-                            AnimatedVisibility(
+                            WearBiliAnimatedVisibility(
                                 visible = it.isDisplaying,
                                 enter = fadeIn(),
                                 exit = fadeOut(),

@@ -2,17 +2,9 @@ package cn.spacexc.wearbili.remake.app.video.action.favourite.ui
 
 import android.app.Activity
 import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
@@ -24,9 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,24 +24,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import cn.spacexc.wearbili.remake.app.settings.ui.SettingsActivity
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.CardBackgroundColor
 import cn.spacexc.wearbili.remake.common.ui.CardBorderColor
 import cn.spacexc.wearbili.remake.common.ui.CardBorderWidth
 import cn.spacexc.wearbili.remake.common.ui.Checkbox
-import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
+import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateDpAsState
 
 /**
  * Created by XC-Qan on 2023/8/17.
@@ -73,9 +61,8 @@ fun Activity.VideoFavouriteFoldersScreen(
 
     TitleBackground(title = "收藏视频", uiState = viewModel.uiState, onBack = ::finish) {
         Box(modifier = Modifier.fillMaxSize()) {
-            val lazyColumnButtonContentPadding by animateDpAsState(
+            val lazyColumnButtonContentPadding by wearBiliAnimateDpAsState(
                 targetValue = if (viewModel.idsToAdd.isNotEmpty() || viewModel.idsToDelete.isNotEmpty()) confirmButtonHeight else 0.dp,
-                label = "wearbiliVideoFavouriteScreenLazyColumnButtonContentPadding"
             )
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -97,26 +84,22 @@ fun Activity.VideoFavouriteFoldersScreen(
                                 folder.id
                             ))
                         }
-                        val cardBorderColor by animateColorAsState(
+                        val cardBorderColor by wearBiliAnimateColorAsState(
                             targetValue = if (isHighlighted) BilibiliPink else CardBorderColor,
-                            label = "wearbiliVideoFavouriteFoldersScreenBorderColor",
                             animationSpec = tween()
                         )
-                        val cardBackgroundColor by animateColorAsState(
+                        val cardBackgroundColor by wearBiliAnimateColorAsState(
                             targetValue = if (isHighlighted) Color(
                                 231,
                                 86,
                                 136,
                                 26
                             ) else CardBackgroundColor,
-                            label = "wearbiliVideoFavouriteFoldersScreenBackgroundColor",
                             animationSpec = tween()
 
                         )
-                        val width by animateDpAsState(
+                        val width by wearBiliAnimateDpAsState(
                             targetValue = if (isHighlighted) 2.dp else CardBorderWidth,
-                            label = "wearbiliVideoFavouriteFoldersScreenDp",
-                            animationSpec = tween()
                         )
 
                         Card(
@@ -176,7 +159,7 @@ fun Activity.VideoFavouriteFoldersScreen(
                     }
                 }
             }
-            AnimatedVisibility(
+            WearBiliAnimatedVisibility(
                 visible = viewModel.idsToAdd.isNotEmpty() || viewModel.idsToDelete.isNotEmpty(),
                 modifier = Modifier
                     .fillMaxWidth()

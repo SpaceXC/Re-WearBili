@@ -1,7 +1,15 @@
 package cn.spacexc.wearbili.remake.app.settings
 
-import cn.spacexc.bilibilisdk.data.DataManager
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import cn.spacexc.wearbili.remake.app.Application
+import cn.spacexc.wearbili.remake.common.data.appConfigurationDataStore
+import cn.spacexc.wearbili.remake.proto.settings.AppConfiguration
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 /**
  * Created by XC-Qan on 2023/4/6.
@@ -11,19 +19,31 @@ import cn.spacexc.wearbili.remake.app.Application
  * 给！爷！写！注！释！
  */
 
-const val SETTING_RECOMMENDATION_SOURCE = "recommendationSource"
-const val SETTING_IS_DARK_THEME = "isDarkTheme"
-
-//const val SETTING_IS_DEBUG = "isDebug"
-const val SETTING_IS_LOW_PERFORMANCE = "isLowPerformance"
-const val SETTING_CURRENT_PLAYER = "currentPlayer"
-
 object SettingsManager {
-    val dataManager: DataManager = Application.getApplication().dataManager
+    private val context = Application.getApplication()
+    private val configurationDataStore = context.appConfigurationDataStore
 
-    val isDarkTheme = dataManager.getBoolFlow(SETTING_IS_DARK_THEME, false)
-    val recommendSource = dataManager.getStringFlow(SETTING_RECOMMENDATION_SOURCE, "web")
-    const val isDebug = false
-    val isLowPerformance = dataManager.getBoolFlow(SETTING_IS_LOW_PERFORMANCE, false)
-    val currentPlayer = dataManager.getStringFlow(SETTING_CURRENT_PLAYER, "videoPlayer")
+    private fun getConfiguration() = runBlocking { configurationDataStore.data.first() }
+    val configuration
+        @Composable get() = configurationDataStore.data.collectAsState(initial = getConfiguration())
+
+    suspend fun updateConfiguration(newConfiguration: AppConfiguration.() -> AppConfiguration) {
+        configurationDataStore.updateData { currentConfig ->
+            currentConfig.newConfiguration()
+        }
+    }
+}
+
+val LocalConfiguration = staticCompositionLocalOf<AppConfiguration> {
+    error("No AppConfiguration provided")
+}
+
+@Composable
+fun ProvideConfiguration(
+    content: @Composable () -> Unit
+) {
+    val configuration by SettingsManager.configuration
+    CompositionLocalProvider(LocalConfiguration provides configuration) {
+        content()
+    }
 }

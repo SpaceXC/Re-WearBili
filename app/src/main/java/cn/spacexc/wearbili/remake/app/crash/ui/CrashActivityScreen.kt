@@ -2,7 +2,6 @@ package cn.spacexc.wearbili.remake.app.crash.ui
 
 import android.app.Activity
 import android.content.Intent
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,6 +40,7 @@ import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
 import kotlinx.coroutines.delay
 
 /**
@@ -60,7 +60,7 @@ fun Activity.CrashActivityScreen(
     var currentHighlightedButton by remember {
         mutableStateOf("")
     }
-    val copyButtonColor by animateColorAsState(
+    val copyButtonColor by wearBiliAnimateColorAsState(
         targetValue = if (currentHighlightedButton == "copy") BilibiliPink else Color(
             54,
             54,
@@ -68,7 +68,7 @@ fun Activity.CrashActivityScreen(
             255
         )
     )
-    val qrcodeButtonColor by animateColorAsState(
+    val qrcodeButtonColor by wearBiliAnimateColorAsState(
         targetValue = if (currentHighlightedButton == "qrcode") BilibiliPink else Color(
             54,
             54,
@@ -76,7 +76,7 @@ fun Activity.CrashActivityScreen(
             255
         )
     )
-    val restartButtonColor by animateColorAsState(
+    val restartButtonColor by wearBiliAnimateColorAsState(
         targetValue = if (currentHighlightedButton == "restart") BilibiliPink else Color(
             54,
             54,

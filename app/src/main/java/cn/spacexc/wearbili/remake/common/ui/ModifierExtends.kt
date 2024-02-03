@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.common.ui
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -11,7 +10,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -26,7 +24,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import cn.spacexc.wearbili.common.copyToClipboard
 import cn.spacexc.wearbili.remake.app.Application
-import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import com.google.accompanist.placeholder.PlaceholderDefaults
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
@@ -76,7 +74,7 @@ fun Modifier.clickVfx(
     isEnabled: Boolean = true,
     onClick: () -> Unit,
 ): Modifier = composed {
-    val isLowPerformance by SettingsManager.isLowPerformance.collectAsState(initial = false)
+    val isLowPerformance = !LocalConfiguration.current.hasAnimation
     if (isEnabled) {
         if (isLowPerformance) {
             clickable(
@@ -84,7 +82,7 @@ fun Modifier.clickVfx(
             )
         } else {
             val isPressed by interactionSource.collectIsPressedAsState()
-            val sizePercent by animateFloatAsState(
+            val sizePercent by wearBiliAnimateFloatAsState(
                 targetValue = if (isPressed) 0.9f else 1f,
                 animationSpec = tween(durationMillis = 150)
             )
@@ -103,8 +101,8 @@ fun Modifier.clickVfx(
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {}
 ): Modifier = composed {
+    val isLowPerformance = !LocalConfiguration.current.hasAnimation
     if (enabled) {
-        val isLowPerformance by SettingsManager.isLowPerformance.collectAsState(initial = false)
         if (isLowPerformance) {
             pointerInput(Unit) {
                 detectTapGestures(
@@ -116,7 +114,7 @@ fun Modifier.clickVfx(
             }
         } else {
             val isPressed by interactionSource.collectIsPressedAsState()
-            val sizePercent by animateFloatAsState(
+            val sizePercent by wearBiliAnimateFloatAsState(
                 targetValue = if (isPressed) 0.9f else 1f,
                 animationSpec = tween(durationMillis = 150)
             )
@@ -145,14 +143,14 @@ fun Modifier.clickAlpha(
     onClick: () -> Unit,
 ): Modifier = composed {
     if (isEnabled) {
-        val isLowPerformance by SettingsManager.isLowPerformance.collectAsState(initial = false)
+        val isLowPerformance = !LocalConfiguration.current.hasAnimation
         if (isLowPerformance) {
             clickable(
                 indication = null, interactionSource = interactionSource, onClick = onClick
             )
         } else {
             val isPressed by interactionSource.collectIsPressedAsState()
-            val sizePercent by animateFloatAsState(
+            val sizePercent by wearBiliAnimateFloatAsState(
                 targetValue = if (isPressed) 0.8f else 1f,
                 animationSpec = tween(durationMillis = 150)
             )
@@ -172,7 +170,7 @@ fun Modifier.clickAlpha(
     onLongClick: () -> Unit = {}
 ): Modifier = composed {
     if (enabled) {
-        val isLowPerformance by SettingsManager.isLowPerformance.collectAsState(initial = false)
+        val isLowPerformance = !LocalConfiguration.current.hasAnimation
         if (isLowPerformance) {
             pointerInput(Unit) {
                 detectTapGestures(
@@ -184,9 +182,9 @@ fun Modifier.clickAlpha(
             }
         } else {
             val isPressed by interactionSource.collectIsPressedAsState()
-            val sizePercent by animateFloatAsState(
+            val sizePercent by wearBiliAnimateFloatAsState(
                 targetValue = if (isPressed) 0.8f else 1f,
-                animationSpec = tween(durationMillis = 150), label = ""
+                animationSpec = tween(durationMillis = 150)
             )
             scale(sizePercent).pointerInput(Unit) {
                 detectTapGestures(

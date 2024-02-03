@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -39,18 +38,15 @@ import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -69,13 +65,13 @@ import cn.spacexc.wearbili.remake.app.cache.create.ui.CreateNewCacheActivity
 import cn.spacexc.wearbili.remake.app.cache.create.ui.PARAM_VIDEO_BVID
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerActivity
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
-import cn.spacexc.wearbili.remake.app.season.ui.PARAM_AMBIENT_COLOR
+import cn.spacexc.wearbili.remake.app.season.ui.PARAM_AMBIENT_IMAGE
 import cn.spacexc.wearbili.remake.app.season.ui.PARAM_MID
 import cn.spacexc.wearbili.remake.app.season.ui.PARAM_SEASON_ID
 import cn.spacexc.wearbili.remake.app.season.ui.PARAM_SEASON_NAME
 import cn.spacexc.wearbili.remake.app.season.ui.PARAM_UPLOADER_NAME
 import cn.spacexc.wearbili.remake.app.season.ui.SeasonActivity
-import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.PARAM_VIDEO_AID
 import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.VideoFavouriteFoldersActivity
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
@@ -98,6 +94,8 @@ import cn.spacexc.wearbili.remake.common.ui.copyable
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
+import cn.spacexc.wearbili.remake.proto.settings.Player
 
 /**
  * Created by XC-Qan on 2023/4/12.
@@ -118,18 +116,16 @@ data class VideoInformationScreenState(
 fun VideoInformationScreen(
     state: VideoInformationScreenState,
     context: Context,
-    videoInformationViewModel: VideoInformationViewModel,
-    ambientColor: Color
+    videoInformationViewModel: VideoInformationViewModel
 ) {
     val localDensity = LocalDensity.current
 
-    val likeColor by animateColorAsState(targetValue = if (videoInformationViewModel.isLiked) BilibiliPink else Color.White)
-    val coinColor by animateColorAsState(targetValue = if (videoInformationViewModel.isCoined) BilibiliPink else Color.White)
-    val favColor by animateColorAsState(targetValue = if (videoInformationViewModel.isFav) BilibiliPink else Color.White)
+    val likeColor by wearBiliAnimateColorAsState(targetValue = if (videoInformationViewModel.isLiked) BilibiliPink else Color.White)
+    val coinColor by wearBiliAnimateColorAsState(targetValue = if (videoInformationViewModel.isCoined) BilibiliPink else Color.White)
+    val favColor by wearBiliAnimateColorAsState(targetValue = if (videoInformationViewModel.isFav) BilibiliPink else Color.White)
 
-    val scope = rememberCoroutineScope()
-
-    val currentPlayer by SettingsManager.currentPlayer.collectAsState(initial = "videoPlayer")
+    val currentPlayer =
+        LocalConfiguration.current.defaultPlayer //by SettingsManager.currentPlayer.collectAsState(initial = "videoPlayer")
 
     val favouriteRequestActivityLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
@@ -304,7 +300,10 @@ fun VideoInformationScreen(
                                         putExtra(PARAM_SEASON_ID, season.id)
                                         putExtra(PARAM_MID, season.mid)
                                         putExtra(PARAM_UPLOADER_NAME, video.owner.name)
-                                        putExtra(PARAM_AMBIENT_COLOR, ambientColor.toArgb())
+                                        putExtra(
+                                            PARAM_AMBIENT_IMAGE,
+                                            video.pic.replace("http://", "https://")
+                                        )
                                     })
                             }
                         ) {
@@ -380,31 +379,44 @@ fun VideoInformationScreen(
                             },
                             text = "用${
                                 when (currentPlayer) {
-                                    "videoPlayer" -> "视频播放器"
-                                    "audioPlayer" -> "音频播放器"
+                                    Player.VideoPlayer -> "视频播放器"
+                                    Player.AudioPlayer -> "音频播放器"
                                     else -> "???"
                                 }
                             }播放",
                             modifier = Modifier.weight(2f),
                             buttonModifier = Modifier.aspectRatio(2f / 1f),
                             onClick = {
-                                Intent(
-                                    context,
-                                    Media3PlayerActivity::class.java
-                                ).apply {
-                                    putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-                                    putExtra(PARAM_VIDEO_ID, video.bvid)
-                                    putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
-                                    context.startActivity(this)
+                                when (currentPlayer) {
+                                    Player.VideoPlayer -> {
+                                        Intent(
+                                            context,
+                                            Media3PlayerActivity::class.java
+                                        ).apply {
+                                            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
+                                            putExtra(PARAM_VIDEO_ID, video.bvid)
+                                            putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
+                                            context.startActivity(this)
+                                        }
+                                    }
+
+                                    Player.AudioPlayer -> {
+                                        Intent(context, AudioPlayerActivity::class.java).apply {
+                                            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
+                                            putExtra(PARAM_VIDEO_ID, video.bvid)
+                                            putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
+                                            context.startActivity(this)
+                                        }
+                                    }
+
+                                    else -> {
+                                        ToastUtils.showText("你乱改配置文件搞得人家不知道要用什么播放器...")
+                                    }
                                 }
+
                             },
                             onLongClick = {
-                                Intent(context, AudioPlayerActivity::class.java).apply {
-                                    putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-                                    putExtra(PARAM_VIDEO_ID, video.bvid)
-                                    putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
-                                    context.startActivity(this)
-                                }
+                                //TODO 跳转到播放器设置
                             })
                         OutlinedRoundButton(
                             icon = {

@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.FilterQuality
@@ -16,7 +17,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultFilterQ
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter.Companion.DefaultTransform
@@ -54,23 +55,24 @@ fun BiliImage(
     filterQuality: FilterQuality = DefaultFilterQuality,
     placeholderEnabled: Boolean = true
 ) {
-    val size = remember { mutableStateOf(IntSize(0, 0)) }
+    var size by remember { mutableStateOf(Size(0f, 0f)) }
     var isLoading by remember {
         mutableStateOf(true)
     }
 
     Box(modifier = modifier
         .onSizeChanged {
-            size.value = it
+            size = it.toSize()
         }
         .placeholder(
             visible = isLoading && placeholderEnabled,
             highlight = PlaceholderHighlight.shimmer(),
             color = PlaceholderDefaults.color()
-        )) {
-        if (size.value.width != 0) {
+        )
+    ) {
+        if (size.width != 0f) {
             val realUrl = "${url.replace("http://", "https://")}${
-                if (url.contains(".hdslb.com/bfs")) "@${size.value.width}w_${size.value.height}h.webp" else ""
+                if (url.contains(".hdslb.com/bfs")) "@${size.width.toInt()}w_${size.height.toInt()}h.webp" else ""
             }"
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)

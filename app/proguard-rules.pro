@@ -76,6 +76,12 @@
 -keep class com.google.gson.internal.bind.reflectiveTypeAdapterFactory$Adapter$$** {*;}
 -keep class com.google.gson.internal.bind.reflectiveTypeAdapterFactory$BoundField** {*;}
 
+-keepclassmembers class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite {
+    <fields>;
+}
+
+-keepattributes LineNumberTable,SourceFile
+-renamesourcefileattribute SourceFile
 
 -keep class android.** { *; }
 

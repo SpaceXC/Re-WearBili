@@ -7,7 +7,6 @@ import android.content.Intent
 import android.media.AudioManager
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -100,6 +99,7 @@ import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimatedContentSize
 import coil.transform.CustomBlurTransformation
 import kotlinx.coroutines.CoroutineScope
@@ -131,7 +131,7 @@ fun Activity.AudioPlayerActivityScreen(
             service.viewModel.videoInfo?.data?.let { video ->
                 ArrowTitleBackgroundWithCustomBackground(
                     background = {
-                        val alpha by animateFloatAsState(targetValue = if (pagerState.currentPage == 1) 0.8f else 0.3f)
+                        val alpha by wearBiliAnimateFloatAsState(targetValue = if (pagerState.currentPage == 1) 0.8f else 0.3f)
                         BiliImage(
                             url = video.pic,
                             contentDescription = null,
@@ -290,7 +290,7 @@ fun Activity.PlayerPage(
         mutableStateOf(false)
     }
     val currentSubtitleText by service.viewModel.currentSubtitleText.collectAsState(initial = null)
-    val progressBarThumbScale by animateFloatAsState(targetValue = if (isDraggingProgress) 1.5f else 1f)
+    val progressBarThumbScale by wearBiliAnimateFloatAsState(targetValue = if (isDraggingProgress) 1.5f else 1f)
     service.viewModel.let { viewModel ->
         service.viewModel.videoInfo?.data?.let { video ->
             Column(
@@ -344,7 +344,7 @@ fun Activity.PlayerPage(
                         .padding(10.dp)
                     ) {
                         if (viewModel.currentStat == PlayerStats.Buffering) {
-                            //CircularProgressIndicator(color = BilibiliPink/*parseColor("#FFDBE7")*/)
+                            //CircularProgressIndicator(color = parseColor("#FFDBE7"))
                         } else {
                             TextIcon(
                                 icon = if (viewModel.player.isPlaying) "\\uf8ae" else "\\uf5b0",

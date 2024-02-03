@@ -44,7 +44,6 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.datastore.core)
 
-
     api(libs.protobuf.javalite)
     api(libs.protobuf.kotlin.lite)
 

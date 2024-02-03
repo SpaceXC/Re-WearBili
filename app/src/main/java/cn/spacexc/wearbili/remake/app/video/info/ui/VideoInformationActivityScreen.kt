@@ -1,21 +1,11 @@
 package cn.spacexc.wearbili.remake.app.video.info.ui
 
 import android.app.Activity
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.paging.PagingData
-import androidx.palette.graphics.Palette
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentScreen
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentViewModel
@@ -23,7 +13,6 @@ import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationScreen
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationScreenState
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
 import cn.spacexc.wearbili.remake.app.video.info.related.RelatedVideosScreen
-import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import kotlinx.coroutines.flow.Flow
 
@@ -49,33 +38,7 @@ fun VideoInformationActivityScreen(
     oid: Long,
     onBack: () -> Unit
 ) {
-    var currentColor by remember {
-        mutableStateOf(BilibiliPink)
-    }
-    val color by animateColorAsState(
-        targetValue = currentColor,
-        animationSpec = tween(durationMillis = 1000), label = ""
-    )
-    val ambientAlpha by animateFloatAsState(
-        targetValue = if (currentColor == BilibiliPink) 0.6f else 1f,
-        animationSpec = tween(durationMillis = 1000), label = ""
-    )
-    LaunchedEffect(key1 = videoInformationViewModel.imageBitmap, block = {
-        videoInformationViewModel.imageBitmap?.let { bitmap ->
-            val palette = Palette.from(bitmap).generate()
-            //if(newColor < Color(0x10000000).value.toInt())
-            currentColor = Color(palette.getLightMutedColor(BilibiliPink.value.toInt()))
-        }
-    })
-    LaunchedEffect(key1 = videoInformationViewModel.state, block = {
-        videoInformationViewModel.state.videoData?.let { data ->
-            /*videoInformationViewModel.downloadWebMask(
-                videoIdType = VIDEO_TYPE_BVID,
-                videoId = data.view.bvid,
-                videoCid = data.view.cid
-            )*/
-        }
-    })
+
     context.TitleBackground(
         title = when (state.currentPage) {
             0 -> "详情"
@@ -84,8 +47,11 @@ fun VideoInformationActivityScreen(
             else -> ""
         },
         onBack = onBack,
-        themeColor = color,
-        ambientAlpha = ambientAlpha
+        themeImageUrl = videoInformationViewModel.state.videoData?.view?.pic?.replace(
+            "http://",
+            "https://"
+        ) ?: "",
+        networkUtils = videoInformationViewModel.ktorNetworkUtils
         //backgroundColor = color,
     ) {
         HorizontalPager(state = state) {
@@ -93,20 +59,17 @@ fun VideoInformationActivityScreen(
                 0 -> VideoInformationScreen(
                     state = videoInformationScreenState,
                     context,
-                    videoInformationViewModel,
-                    currentColor
+                    videoInformationViewModel
                 )
 
                 1 -> {
-                    if (uploaderMid != 0L && oid != 0L) {
-                        CommentScreen(
-                            viewModel = commentViewModel,
-                            commentDataFlow = commentDataFlow,
-                            oid = oid,
-                            uploaderMid = uploaderMid,
-                            context = context
-                        )
-                    }
+                    CommentScreen(
+                        viewModel = commentViewModel,
+                        commentDataFlow = commentDataFlow,
+                        oid = oid,
+                        uploaderMid = uploaderMid,
+                        context = context
+                    )
                 }
 
                 2 -> RelatedVideosScreen(viewModel = videoInformationViewModel)

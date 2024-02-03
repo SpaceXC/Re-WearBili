@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.VideoCacheCard
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateContentPlacement
 
 /**
  * Created by XC-Qan on 2023/9/9.
@@ -80,7 +81,7 @@ fun Activity.CacheListScreen(
                         item(key = task.videoCid) {
                             VideoCacheCard(
                                 cacheInfo = task,
-                                modifier = Modifier.animateItemPlacement()
+                                modifier = Modifier.wearBiliAnimateContentPlacement(this)
                             )
                         }
                     }
@@ -97,7 +98,7 @@ fun Activity.CacheListScreen(
                         item(key = task.videoCid) {
                             VideoCacheCard(
                                 cacheInfo = task,
-                                modifier = Modifier.animateItemPlacement()
+                                modifier = Modifier.wearBiliAnimateContentPlacement(this)
                             )
                         }
                     }

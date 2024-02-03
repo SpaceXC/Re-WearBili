@@ -2,19 +2,15 @@ package cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.media.AudioManager
 import android.os.Build
 import android.util.Log
 import android.view.SurfaceView
 import android.view.TextureView
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -62,8 +58,10 @@ import androidx.compose.material.Icon
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.BrightnessLow
+import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.FitScreen
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
@@ -112,17 +110,25 @@ import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.R.drawable
+import cn.spacexc.wearbili.remake.app.player.cast.discover.DeviceDiscoverActivity
+import cn.spacexc.wearbili.remake.app.player.cast.discover.PARAM_DLNA_VIDEO_NAME
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.rememberDanmakuCanvasState
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.ui.DanmakuCanvas
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
+import cn.spacexc.wearbili.remake.common.ui.GradientSlider
 import cn.spacexc.wearbili.remake.common.ui.IconText
+import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedContent
+import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
 import cn.spacexc.wearbili.remake.common.ui.clickAlpha
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateDpAsState
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimatedContentSize
 import coil.ImageLoader
 import coil.compose.AsyncImage
@@ -214,7 +220,7 @@ fun Activity.Media3PlayerScreen(
     var isAdjustingVolume by remember {
         mutableStateOf(false)
     }
-    val animatedCurrentVolume by animateFloatAsState(targetValue = dragVolume)
+    val animatedCurrentVolume by wearBiliAnimateFloatAsState(targetValue = dragVolume)
     val volumeDraggableState = rememberDraggableState(onDelta = {
         Log.d(TAG, "adjustVolume: $it")
         val dragValue = -it //下正上负
@@ -239,37 +245,32 @@ fun Activity.Media3PlayerScreen(
             draggedProgress += (it * dragSensibility).toLong()
         }
     })
-    val progressBarThumbScale by animateFloatAsState(
-        targetValue = if (isDraggingProgress) 1.5f else 1f,
-        label = ""
+    val progressBarThumbScale by wearBiliAnimateFloatAsState(
+        targetValue = if (isDraggingProgress) 1.5f else 1f
     )
     val roundScreenControllerAlpha by animateIntAsState(
         targetValue = if (isRound() && viewModel.isVideoControllerVisible) 127/*255/2*/ else 0,
         label = ""
     )
-    val subtitleOffset by animateDpAsState(
+    val subtitleOffset by wearBiliAnimateDpAsState(
         targetValue = if (viewModel.isVideoControllerVisible) controllerProgressColumnHeight - 14.dp else if (viewModel.videoChapters.isNotEmpty()) 18.dp else 6.dp,
-        label = ""
     )  //18:视频章节字幕条高度  6:普通进度条
-    val dragIndicatorOffset by animateDpAsState(
+    val dragIndicatorOffset by wearBiliAnimateDpAsState(
         targetValue = if (viewModel.isVideoControllerVisible) controllerTitleColumnHeight else 8.dp,
-        label = ""
     )
-    val subtitlePadding by animateDpAsState(
+    val subtitlePadding by wearBiliAnimateDpAsState(
         targetValue = if (viewModel.isVideoControllerVisible) 0.dp else 6.dp,
-        label = ""
     )
     var currentPage: VideoPlayerPages by remember {
         mutableStateOf(VideoPlayerPages.Main)
     }
-    val backgroundColor by animateColorAsState(
+    val backgroundColor by wearBiliAnimateColorAsState(
         targetValue = if (currentPage == VideoPlayerPages.Main) Color.Transparent else Color(
             0,
             0,
             0,
             204
-        ),
-        label = ""
+        )
     )
 
     val danmakuCanvasState = rememberDanmakuCanvasState { currentPlayerPosition }
@@ -280,21 +281,21 @@ fun Activity.Media3PlayerScreen(
     var isAdvanceDanmakuVisible by remember {
         mutableStateOf(true)
     }
-    val danmakuButtonColor by animateColorAsState(
+    val danmakuButtonColor by wearBiliAnimateColorAsState(
         targetValue = if (isNormalDanmakuVisible) BilibiliPink else Color(
             38,
             38,
             38,
             255
-        ), label = ""
+        )
     )
-    val advanceDanmakuButtonColor by animateColorAsState(
+    val advanceDanmakuButtonColor by wearBiliAnimateColorAsState(
         targetValue = if (isAdvanceDanmakuVisible) BilibiliPink else Color(
             38,
             38,
             38,
             255
-        ), label = ""
+        )
     )
 
     var danmakuCanvasAlpha by remember {
@@ -409,7 +410,7 @@ fun Activity.Media3PlayerScreen(
                 .fillMaxSize()
                 .background(backgroundColor)
         ) {
-            AnimatedContent(targetState = currentPage, transitionSpec = {
+            WearBiliAnimatedContent(targetState = currentPage, transitionSpec = {
                 if (targetState.weight > initialState.weight) {
                     slideInHorizontally { height -> height } + fadeIn() togetherWith
                             slideOutHorizontally { height -> -height } + fadeOut()
@@ -504,7 +505,7 @@ fun Activity.Media3PlayerScreen(
                                         var titleRowHeight by remember {
                                             mutableStateOf(0.dp)
                                         }
-                                        AnimatedVisibility(
+                                        WearBiliAnimatedVisibility(
                                             visible = viewModel.isVideoControllerVisible,
                                             enter = slideInVertically() + fadeIn(),
                                             exit = slideOutVertically() + fadeOut(),
@@ -572,7 +573,7 @@ fun Activity.Media3PlayerScreen(
                                             modifier = Modifier
                                                 .weight(1f)
                                         )
-                                        AnimatedVisibility(
+                                        WearBiliAnimatedVisibility(
                                             visible = viewModel.isVideoControllerVisible,
                                             enter = slideInVertically { it / 2 } + fadeIn(),
                                             exit = slideOutVertically { it / 2 } + fadeOut(),
@@ -666,6 +667,39 @@ fun Activity.Media3PlayerScreen(
                                                          *
                                                          * (两分钟之后发现根本不需要这个公式，直接2dp的效果就很好...
                                                          */
+                                                        /**
+                                                         * 上面公式的作用：视频开始时offset = 2.dp
+                                                         *              播放到中间时offset = 0.dp
+                                                         *              播放结束时offset = -2.dp
+                                                         * 可以防止thumb过于靠近屏幕边缘
+                                                         * 原始函数解析式：y=-(2n/m)x+n，其中y为offset的值，n是基准offset，m为视频总长，x为当前播放进度
+                                                         * 感谢群U帮助我不太聪明的大脑
+                                                         * *基准offset=2.dp，为视频开始时的offset
+                                                         *
+                                                         * (两分钟之后发现根本不需要这个公式，直接2dp的效果就很好...
+                                                         */
+                                                        /**
+                                                         * 上面公式的作用：视频开始时offset = 2.dp
+                                                         *              播放到中间时offset = 0.dp
+                                                         *              播放结束时offset = -2.dp
+                                                         * 可以防止thumb过于靠近屏幕边缘
+                                                         * 原始函数解析式：y=-(2n/m)x+n，其中y为offset的值，n是基准offset，m为视频总长，x为当前播放进度
+                                                         * 感谢群U帮助我不太聪明的大脑
+                                                         * *基准offset=2.dp，为视频开始时的offset
+                                                         *
+                                                         * (两分钟之后发现根本不需要这个公式，直接2dp的效果就很好...
+                                                         */
+                                                        /**
+                                                         * 上面公式的作用：视频开始时offset = 2.dp
+                                                         *              播放到中间时offset = 0.dp
+                                                         *              播放结束时offset = -2.dp
+                                                         * 可以防止thumb过于靠近屏幕边缘
+                                                         * 原始函数解析式：y=-(2n/m)x+n，其中y为offset的值，n是基准offset，m为视频总长，x为当前播放进度
+                                                         * 感谢群U帮助我不太聪明的大脑
+                                                         * *基准offset=2.dp，为视频开始时的offset
+                                                         *
+                                                         * (两分钟之后发现根本不需要这个公式，直接2dp的效果就很好...
+                                                         */
                                                         /*
                                                             colors = SliderDefaults.colors(
                                                                 thumbColor = Color.White
@@ -716,6 +750,15 @@ fun Activity.Media3PlayerScreen(
 
                                                         )
                                                         Spacer(modifier = Modifier.weight(1f))
+                                                        /**
+                                                         * MARK: 方屏：播放/暂停
+                                                         */
+                                                        /**
+                                                         * MARK: 方屏：播放/暂停
+                                                         */
+                                                        /**
+                                                         * MARK: 方屏：播放/暂停
+                                                         */
                                                         /**
                                                          * MARK: 方屏：播放/暂停
                                                          */
@@ -790,7 +833,7 @@ fun Activity.Media3PlayerScreen(
 
                                     }
 
-                                    AnimatedVisibility(
+                                    WearBiliAnimatedVisibility(
                                         visible = !viewModel.isVideoControllerVisible,
                                         enter = slideInVertically { it / 2 } + fadeIn(),
                                         exit = slideOutVertically { it / 2 } + fadeOut(),
@@ -883,7 +926,7 @@ fun Activity.Media3PlayerScreen(
                                         }
                                     }
                                     if (isRound()) {
-                                        AnimatedVisibility(
+                                        WearBiliAnimatedVisibility(
                                             visible = viewModel.isVideoControllerVisible,
                                             enter = fadeIn(),
                                             exit = fadeOut(),
@@ -915,7 +958,7 @@ fun Activity.Media3PlayerScreen(
                             }
 
                             //region dragging progress indicator
-                            AnimatedVisibility(
+                            WearBiliAnimatedVisibility(
                                 visible = isDraggingProgress,
                                 enter = scaleIn() + fadeIn() + slideInVertically(),
                                 exit = scaleOut() + fadeOut() + slideOutVertically(),
@@ -966,7 +1009,7 @@ fun Activity.Media3PlayerScreen(
                                 }
 
                             }
-                            AnimatedVisibility(
+                            WearBiliAnimatedVisibility(
                                 visible = isAdjustingVolume,
                                 enter = scaleIn() + fadeIn() + slideInVertically(),
                                 exit = scaleOut() + fadeOut() + slideOutVertically(),
@@ -1031,60 +1074,36 @@ fun Activity.Media3PlayerScreen(
                             //endregion
 
                             //region subtitle
-                            if (withSubtitleAnimation) {
-                                AnimatedVisibility(
-                                    visible = currentSubtitleText != null,
-                                    enter = scaleIn() + fadeIn(),
-                                    exit = scaleOut() + fadeOut(),
-                                    modifier = Modifier
+                            WearBiliAnimatedVisibility(
+                                visible = currentSubtitleText != null,
+                                enter = scaleIn() + fadeIn(),
+                                exit = scaleOut() + fadeOut(),
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .offset(y = -subtitleOffset)
+                            ) {
+                                Text(
+                                    text = currentSubtitleText ?: "", modifier = Modifier
+                                        .padding(
+                                            bottom = subtitlePadding,
+                                            start = 8.dp,
+                                            end = 8.dp
+                                        )
+                                        .background(
+                                            color = Color(49, 47, 47, 153),
+                                            shape = RoundedCornerShape(4.dp)
+                                        )
+                                        .padding(6.dp)
                                         .align(Alignment.BottomCenter)
-                                        .offset(y = -subtitleOffset)
-                                ) {
-                                    Text(
-                                        text = currentSubtitleText ?: "", modifier = Modifier
-                                            .padding(
-                                                bottom = subtitlePadding,
-                                                start = 8.dp,
-                                                end = 8.dp
-                                            )
-                                            .background(
-                                                color = Color(49, 47, 47, 153),
-                                                shape = RoundedCornerShape(4.dp)
-                                            )
-                                            .padding(6.dp)
-                                            .align(Alignment.BottomCenter)
-                                            .wearBiliAnimatedContentSize(),
-                                        color = Color.White,
-                                        fontSize = 12.sp,
-                                        fontFamily = wearbiliFontFamily,
-                                        fontWeight = FontWeight.Medium,
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
-                            } else {
-                                currentSubtitleText?.let {
-                                    Text(
-                                        text = currentSubtitleText ?: "", modifier = Modifier
-                                            .padding(
-                                                bottom = subtitlePadding,
-                                                start = 8.dp,
-                                                end = 8.dp
-                                            )
-                                            .background(
-                                                color = Color(49, 47, 47, 153),
-                                                shape = RoundedCornerShape(4.dp)
-                                            )
-                                            .padding(6.dp)
-                                            .align(Alignment.BottomCenter)
-                                            .offset(y = subtitleOffset),
-                                        color = Color.White,
-                                        fontSize = 12.sp,
-                                        fontFamily = wearbiliFontFamily,
-                                        fontWeight = FontWeight.Medium,
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
+                                        .wearBiliAnimatedContentSize(),
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    fontFamily = wearbiliFontFamily,
+                                    fontWeight = FontWeight.Medium,
+                                    textAlign = TextAlign.Center
+                                )
                             }
+
                             //endregion
 
                             //region loading indicator
@@ -1263,7 +1282,7 @@ fun Activity.Media3PlayerScreen(
                                     }
                                 }
                             }
-                            /*PlayerSettingActionItem(
+                            PlayerSettingActionItem(
                                 name = "投屏",
                                 description = "投射视频到DLNA设备",
                                 icon = {
@@ -1277,11 +1296,11 @@ fun Activity.Media3PlayerScreen(
                                 startActivity(
                                     Intent(
                                         this@Media3PlayerScreen,
-                                        DlnaDeviceDiscoverActivity::class.java
+                                        DeviceDiscoverActivity::class.java
                                     ).apply {
                                         putExtra(
                                             cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID,
-                                            *//*videoCid*//*viewModel.videoInfo?.data?.cid
+                                            viewModel.videoInfo?.data?.cid
                                         )
                                         putExtra(
                                             PARAM_DLNA_VIDEO_NAME,
@@ -1290,9 +1309,26 @@ fun Activity.Media3PlayerScreen(
                                         putExtra(PARAM_IS_BANGUMI, isBangumi)
                                     })
                                 finish()
-                            }*/
+                            }
 
-                            Column {
+                            PlayerSliderSetting(
+                                itemIcon = {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Default.VolumeUp,
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(),
+                                        tint = Color.White
+                                    )
+                                },
+                                settingName = "设备音量",
+                                sliderValue = currentVolume,
+                                displayedSliderValue = "${(currentVolume / getMaxVolume().toFloat() * 100).toInt()}%",
+                                sliderValueRange = 0f..getMaxVolume().toFloat()
+                            ) {
+                                context.adjustVolume(it.roundToInt())
+                                currentVolume = it
+                            }
+                            /*Column {
                                 Row {
                                     Text(
                                         text = "设备音量",
@@ -1330,7 +1366,7 @@ fun Activity.Media3PlayerScreen(
                                         )
                                     }
                                 )
-                            }
+                            }*/
                             //endregion
                         }
                     }
@@ -1671,36 +1707,21 @@ fun PlayerSetting(
     settingName: String,
     settingItems: @Composable RowScope.() -> Unit
 ) {
-    val localDensity = LocalDensity.current
     Card(
         innerPaddingValues = PaddingValues(0.dp),
         shape = RoundedCornerShape(10.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            var textHeight by remember {
-                mutableStateOf(0.dp)
-            }
-            Row(
+            IconText(
+                text = settingName, fontFamily = wearbiliFontFamily,
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.spx,
+                color = Color.White,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 14.dp, end = 14.dp, top = 16.dp, bottom = 12.dp),
-                verticalAlignment = CenterVertically
+                    .padding(start = 14.dp, end = 14.dp, top = 16.dp, bottom = 12.dp)
             ) {
-                Box(modifier = Modifier.size(textHeight)) {
-                    itemIcon()
-                }
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = settingName,
-                    fontFamily = wearbiliFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.spx,
-                    color = Color.White,
-                    modifier = Modifier.onSizeChanged {
-                        textHeight = with(localDensity) {
-                            it.height.toDp()
-                        }
-                    })
+                itemIcon()
             }
             FlowRow(
                 modifier = Modifier
@@ -1726,21 +1747,75 @@ fun PlayerSetting(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun PlayerSliderSetting(
+    itemIcon: @Composable () -> Unit,
+    settingName: String,
+    sliderValue: Float,
+    displayedSliderValue: String,
+    sliderValueRange: ClosedFloatingPointRange<Float>,
+    onSliderValueChanged: (Float) -> Unit
+) {
+    Card(
+        innerPaddingValues = PaddingValues(0.dp),
+        shape = RoundedCornerShape(10.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 14.dp, end = 14.dp, top = 16.dp, bottom = 12.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                verticalAlignment = CenterVertically
+            ) {
+
+                IconText(
+                    text = settingName, fontFamily = wearbiliFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.spx,
+                    color = Color.White
+                ) {
+                    itemIcon()
+                }
+                Spacer(modifier = Modifier.width(6.dp))
+
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = displayedSliderValue, fontFamily = wearbiliFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 12.spx,
+                    color = Color.White,
+                    modifier = Modifier.alpha(0.7f)
+                )
+            }
+            GradientSlider(
+                value = sliderValue,
+                range = sliderValueRange,
+                onValueChanged = onSliderValueChanged
+            )
+        }
+    }
+}
+
 @Composable
 fun PlayerSettingItem(
     text: String,
     isSelected: Boolean,
     onSelected: () -> Unit
 ) {
-    val backgroundColor by animateColorAsState(
+    val backgroundColor by wearBiliAnimateColorAsState(
         targetValue = if (isSelected) BilibiliPink else Color(
             41,
             41,
             41,
             255
-        ), label = ""
+        )
     )
-    val textAlpha by animateFloatAsState(targetValue = if (isSelected) 1f else 0.5f, label = "")
+    val textAlpha by wearBiliAnimateFloatAsState(targetValue = if (isSelected) 1f else 0.5f)
     Box(
         modifier = Modifier
             .padding(bottom = 3.dp, top = 3.dp)
@@ -1784,7 +1859,7 @@ fun PlayerSettingActionItem(
             Box(modifier = Modifier.size(textHeight * 0.6f)) {
                 icon()
             }
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(4.dp))
             Column(modifier = Modifier.onSizeChanged {
                 textHeight = with(localDensity) {
                     it.height.toDp()

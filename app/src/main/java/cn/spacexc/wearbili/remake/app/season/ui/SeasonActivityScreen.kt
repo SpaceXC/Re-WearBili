@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.bilibilisdk.sdk.season.remote.list.Archive
+import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
@@ -47,9 +48,10 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun Activity.SeasonActivityScreen(
     pagingData: Flow<PagingData<Archive>>,
+    networkUtils: KtorNetworkUtils,
     seasonName: String,
     uploaderName: String,
-    ambientColor: Int
+    ambientImage: String
 ) {
     val items = pagingData.collectAsLazyPagingItems()
 
@@ -57,7 +59,8 @@ fun Activity.SeasonActivityScreen(
         title = "合集详情",
         uiState = items.loadState.refresh.toUIState(),
         onBack = ::finish,
-        themeColor = Color(ambientColor)
+        themeImageUrl = ambientImage,
+        networkUtils = networkUtils
     ) {
         LazyColumn(
             contentPadding = PaddingValues(

@@ -9,15 +9,13 @@ import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import cn.spacexc.bilibilisdk.sdk.user.webi.WebiSignature
@@ -28,13 +26,9 @@ import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.login.qrcode.web.ui.QrCodeLoginActivity
 import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
-import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_RATE
-import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_SUBSCRIBE
-import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_VIDEO
-import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_VOTE
 import cn.spacexc.wearbili.remake.app.update.ui.UpdateActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
-import cn.spacexc.wearbili.remake.common.ui.DanmakuChip
+import cn.spacexc.wearbili.remake.common.ui.GradientSlider
 import dagger.hilt.android.AndroidEntryPoint
 import io.ktor.client.request.header
 import kotlinx.coroutines.launch
@@ -106,7 +100,7 @@ class SplashScreenActivity : ComponentActivity() {
             value = it
         }, range = 0f..10f)*/
         //ImageWithZoomAndPan(imageUrl = "http://i1.hdslb.com/bfs/archive/7d75542d12b40b96f21d4c691ed2355868a292b6.jpg")
-        Box(
+        /*Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White), contentAlignment = Alignment.Center
@@ -126,15 +120,24 @@ class SplashScreenActivity : ComponentActivity() {
                 }
             }
 
+        }*/
+        var sliderValue by remember {
+            mutableFloatStateOf(0f)
+        }
+        GradientSlider(value = sliderValue, range = 0f..1f, modifier = Modifier.padding(8.dp)) {
+            sliderValue = it
         }
     }
 
     private fun initApp() {
-        /*lifecycleScope.launch {
-            val danmaku = DanmakuGetter(networkUtils).getDanmaku(197407064, 1)
-            Log.d(TAG, "initApp: ${danmaku.elemsList}")
-        }
-        return*/
+        /*startActivity(Intent(this@SplashScreenActivity, ArticleActivity::class.java).apply {
+            putExtra(
+                PARAM_CVID, 3518998L
+            )
+        })
+        finish()
+        return
+*/
         lifecycleScope.launch {
             if (!UserUtils.isUserLoggedIn()) {
                 ToastUtils.showText("你好像还没有登陆诶...")

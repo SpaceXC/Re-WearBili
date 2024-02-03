@@ -24,6 +24,7 @@ import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateContentPlacement
 
 /**
  * Created by XC-Qan on 2023/6/24.
@@ -68,7 +69,7 @@ fun Activity.WatchLaterScreen(
                             state = dismissState,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .animateItemPlacement(),
+                                .wearBiliAnimateContentPlacement(this),
                             directions = setOf(DismissDirection.EndToStart),
                             dismissThresholds = { direction ->
                                 FractionalThreshold(if (direction == DismissDirection.StartToEnd) 0.25f else 0.5f)

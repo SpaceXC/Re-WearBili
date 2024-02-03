@@ -1,8 +1,6 @@
 package cn.spacexc.wearbili.remake.app.cache.create.ui
 
 import android.app.Activity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -30,8 +28,10 @@ import cn.spacexc.bilibilisdk.sdk.video.info.remote.info.web.Page
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
+import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateDpAsState
 import kotlinx.coroutines.launch
 
 /**
@@ -53,9 +53,8 @@ fun Activity.CreateNewCacheScreen(
     var confirmButtonHeight by remember {
         mutableStateOf(0.dp)
     }
-    val lazyColumnButtonContentPadding by animateDpAsState(
-        targetValue = if (selectedPages.isNotEmpty()) confirmButtonHeight else 0.dp,
-        label = "wearbiliVideoFavouriteScreenLazyColumnButtonContentPadding"
+    val lazyColumnButtonContentPadding by wearBiliAnimateDpAsState(
+        targetValue = if (selectedPages.isNotEmpty()) confirmButtonHeight else 0.dp
     )
     TitleBackground(title = "新建缓存", onBack = ::finish, uiState = viewModel.uiState) {
         LazyColumn(
@@ -83,7 +82,7 @@ fun Activity.CreateNewCacheScreen(
             }
         }
 
-        AnimatedVisibility(
+        WearBiliAnimatedVisibility(
             visible = selectedPages.isNotEmpty(),
             modifier = Modifier
                 .fillMaxWidth()

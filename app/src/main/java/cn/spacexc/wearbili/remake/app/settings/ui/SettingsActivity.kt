@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.remake.app.settings.domain.SettingsItem
+import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.QuickToolbarCustomizationActivity
 import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import kotlinx.coroutines.launch
@@ -20,13 +21,16 @@ import kotlinx.coroutines.launch
 
 class SettingsActivity : ComponentActivity() {
     private val settingsItems = listOf(
-        /*SettingsItem(
-            name = "字体大小",
-            description = "设置应用的字体大小",
+        SettingsItem(
+            name = "快捷工具栏",
+            description = "设置首页快捷方式",
             icon = {
 
+            },
+            action = {
+                startActivity(Intent(this, QuickToolbarCustomizationActivity::class.java))
             }
-        )*/
+        ),
         SettingsItem(
             name = "登出",
             description = "登出当前的账号",

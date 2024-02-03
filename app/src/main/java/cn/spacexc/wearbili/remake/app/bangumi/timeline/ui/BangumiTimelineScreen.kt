@@ -1,7 +1,6 @@
 package cn.spacexc.wearbili.remake.app.bangumi.timeline.ui
 
 import android.app.Activity
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,6 +44,7 @@ import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.animateScrollAndCentralizeItem
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
 import kotlinx.coroutines.launch
 
 /**
@@ -98,9 +98,9 @@ fun Activity.BangumiTimelineScreen(
                             viewModel.timelineData.forEachIndexed { index, date ->
                                 val day = date.first
                                 item {
-                                    val color by animateColorAsState(
+                                    val color by wearBiliAnimateColorAsState(
                                         targetValue = if (viewModel.currentDate == day.first) BilibiliPink else Color.Transparent,
-                                        animationSpec = tween(durationMillis = 400), label = ""
+                                        animationSpec = tween(durationMillis = 400)
                                     )
                                     Column(
                                         horizontalAlignment = Alignment.CenterHorizontally,

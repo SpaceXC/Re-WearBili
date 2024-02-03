@@ -2,7 +2,6 @@ package cn.spacexc.wearbili.remake.common.ui
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -285,7 +284,7 @@ fun VideoCacheCard(
     cacheInfo: VideoCacheFileInfo,
     context: Context = Application.getApplication()
 ) {
-    val progress by animateFloatAsState(targetValue = cacheInfo.downloadProgress / 100f, label = "")
+    val progress by wearBiliAnimateFloatAsState(targetValue = cacheInfo.downloadProgress / 100f)
     var isSourceFileExist by remember {
         mutableStateOf(true)
     }

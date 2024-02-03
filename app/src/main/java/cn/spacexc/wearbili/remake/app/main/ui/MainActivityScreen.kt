@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
@@ -12,7 +11,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FileDownload
@@ -57,11 +57,13 @@ import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicViewModel
 import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreen
 import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreenState
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendScreen
-import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendScreenState
+import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendViewModel
 import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
+import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.ui.SettingsActivity
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
+import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -157,14 +159,14 @@ val menuItems = listOf(
 @Composable
 fun MainActivityScreen(
     context: Activity,
-    pagerState: PagerState,
-    recommendScreenState: RecommendScreenState,
-    recommendSource: String,
-    onRecommendRefresh: (isRefresh: Boolean) -> Unit,
+    recommendViewModel: RecommendViewModel,
     dynamicViewModel: DynamicViewModel,
     profileScreenState: ProfileScreenState,
     onProfileRetry: () -> Unit
-    ) {
+) {
+    val pagerState = rememberPagerState {
+        3
+    }
     var isDropdownMenuShowing by remember {
         mutableStateOf(false)
     }
@@ -190,7 +192,11 @@ fun MainActivityScreen(
                 isDropdownMenuShowing = !isDropdownMenuShowing
             }
         ) {
-            AnimatedContent(
+            val recommendSource = LocalConfiguration.current.recommendSource
+            LaunchedEffect(key1 = recommendSource, block = {
+                recommendViewModel.getRecommendVideos(true, recommendSource)
+            })
+            WearBiliAnimatedContent(
                 targetState = isDropdownMenuShowing,
                 transitionSpec = {
                     val tweenFloat = tween<Float>(
@@ -202,19 +208,17 @@ fun MainActivityScreen(
                         easing = CubicBezierEasing(0f, 1f, 0.25f, 1f)
                     )
                     if (!isDropdownMenuShowing) {
-                        slideInVertically(animationSpec = tweenIntOffset) { height -> height } + fadeIn(
+                        (slideInVertically(animationSpec = tweenIntOffset) { height -> height } + fadeIn(
                             animationSpec = tweenFloat
-                        ) with
-                                slideOutVertically(animationSpec = tweenIntOffset) { height -> -height } + fadeOut(
+                        )).togetherWith(slideOutVertically(animationSpec = tweenIntOffset) { height -> -height } + fadeOut(
                             animationSpec = tweenFloat
-                        )
+                        ))
                     } else {
-                        slideInVertically(animationSpec = tweenIntOffset) { height -> -height } + fadeIn(
+                        (slideInVertically(animationSpec = tweenIntOffset) { height -> -height } + fadeIn(
                             animationSpec = tweenFloat
-                        ) with
-                                slideOutVertically(animationSpec = tweenIntOffset) { height -> height } + fadeOut(
+                        )).togetherWith(slideOutVertically(animationSpec = tweenIntOffset) { height -> height } + fadeOut(
                             animationSpec = tweenFloat
-                        )
+                        ))
                     }/*.using(
                         SizeTransform(clip = false)
                     )*/
@@ -274,12 +278,15 @@ fun MainActivityScreen(
                     ) {
                         when (it) {
                             0 -> RecommendScreen(
-                                state = recommendScreenState,
+                                state = recommendViewModel.screenState,
                                 context = context,
-                                recommendSource = recommendSource,
-                                onFetch = onRecommendRefresh
+                                onFetch = { isRefresh ->
+                                    recommendViewModel.getRecommendVideos(
+                                        isRefresh,
+                                        recommendSource
+                                    )
+                                }
                             )
-
                             1 -> DynamicScreen(viewModel = dynamicViewModel, context = context)
                             2 -> ProfileScreen(
                                 state = profileScreenState,

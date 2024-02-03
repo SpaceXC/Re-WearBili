@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.remember
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentViewModel
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,16 +40,12 @@ class VideoInformationActivity : ComponentActivity() {
         if (videoId != null) {
             videoInfoViewModel.getVideoInfo(videoIdType = videoIdType, videoId = videoId, activity = this)
         }
-        val aid = (if (!videoId.isNullOrEmpty()) {
-            if (videoIdType == VIDEO_TYPE_AID) videoId.replace(
-                "av",
-                ""
-            ) else cn.spacexc.wearbili.common.domain.video.VideoUtils.bv2av(
-                videoId
-            ).replace("av", "")
-        } else "0")
-        val commentDataFlow = commentViewModel.commentListFlow(aid)
         setContent {
+            val commentDataFlow = remember(key1 = videoInfoViewModel.state.videoData?.view?.aid) {
+                commentViewModel.commentListFlow(
+                    videoInfoViewModel.state.videoData?.view?.aid?.toString() ?: ""
+                )
+            }
             val pagerState = rememberPagerState {
                 3
             }

@@ -28,7 +28,7 @@ class CommentViewModel @Inject constructor(
     private val commentPagingSources = HashMap<String, Pager<Int, CommentContentData>>()
     private val commentLazyColumnScrollState = HashMap<String, LazyListState>()
     fun commentListFlow(oid: String?): Flow<PagingData<CommentContentData>>? {
-        if(oid == null) return null
+        if (oid.isNullOrEmpty()) return null
         if (commentPagingSources[oid] != null) commentPagingSources[oid]
         else
             commentPagingSources[oid] = Pager(config = PagingConfig(pageSize = 1)) {

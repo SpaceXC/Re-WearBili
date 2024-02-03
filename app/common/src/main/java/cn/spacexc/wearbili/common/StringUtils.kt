@@ -15,3 +15,5 @@ fun String?.ifNullOrEmpty(string: () -> String): String {
         this
     }
 }
+
+fun String.ifEmptyThenNull(): String? = ifEmpty { null }

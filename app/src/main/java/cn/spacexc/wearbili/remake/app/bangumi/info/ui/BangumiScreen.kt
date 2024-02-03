@@ -1,8 +1,6 @@
 package cn.spacexc.wearbili.remake.app.bangumi.info.ui
 
 import android.app.Activity
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.HorizontalPager
@@ -19,6 +17,8 @@ import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentScreen
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentViewModel
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
 
 /**
  * Created by XC-Qan on 2023/7/19.
@@ -39,11 +39,11 @@ fun Activity.BangumiScreen(
     var currentColor by remember {
         mutableStateOf(BilibiliPink)
     }
-    val color by animateColorAsState(
+    val color by wearBiliAnimateColorAsState(
         targetValue = currentColor,
         animationSpec = tween(durationMillis = 1000)
     )
-    val ambientAlpha by animateFloatAsState(
+    val ambientAlpha by wearBiliAnimateFloatAsState(
         targetValue = if (currentColor == BilibiliPink) 0.6f else 1f,
         animationSpec = tween(durationMillis = 1000)
     )

@@ -9,7 +9,6 @@ plugins {
 sourceSets {
     val main by getting
     main.apply {
-
         kotlin.setSrcDirs(listOf("Bilibili-Kotlin-SDK/src/main/kotlin"))
     }
 }
@@ -21,6 +20,8 @@ dependencies {
     api(libs.ktor.client.content.negotiation)
     api(libs.ktor.serialization.gson)
     api(libs.ktor.serialization.kotlinx.protobuf)
+
+    api(libs.jsoup)
 
     api(libs.atomicfu)
 }

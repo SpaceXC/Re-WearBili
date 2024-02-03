@@ -2,7 +2,6 @@ package cn.spacexc.wearbili.remake.common.ui
 
 import android.app.Activity
 import android.content.Intent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.RepeatMode
@@ -10,6 +9,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -38,12 +38,11 @@ import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIos
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -66,10 +66,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.palette.graphics.Palette
+import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.isAudioServiceUp
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerActivity
-import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
+import cn.spacexc.wearbili.remake.app.settings.ProvideConfiguration
 import cn.spacexc.wearbili.remake.common.ToastUtils.toastContent
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
@@ -103,81 +106,102 @@ fun Activity.CirclesBackground(
     onRetry: () -> Unit = {},
     content: @Composable BoxScope.() -> Unit
 ) {
-    val localDensity = LocalDensity.current
-    var boxWidth by remember {
-        mutableStateOf(0.dp)
-    }   //需要获取父容器宽度来计算两个圆圈的宽度, 不直接设置fraction参数是因为大小不太对
-    val isDarkTheme by SettingsManager.isDarkTheme.collectAsState(initial = false)
-    val infiniteTransition = rememberInfiniteTransition(label = "")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0.3f,
-        animationSpec = infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = 1000
-                0.7f at 500
-            },
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
-    //TODO 研究一下换成fraction参数
-    LaunchedEffect(key1 = toastContent, block = {
-        if (toastContent.isNotEmpty()) {
-            delay(2000)
-            toastContent = ""
-        }
-    })
     WearBiliTheme {
-        if (isDarkTheme) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(backgroundColor)
-            ) {
-                LoadableBox(
-                    uiState = uiState,
-                    content = content,
-                    onLongClick = { this@CirclesBackground.finish() },
-                    onRetry = onRetry
-                )
+        val localDensity = LocalDensity.current
+        val configuration = LocalConfiguration.current
+        var boxWidth by remember {
+            mutableStateOf(0.dp)
+        }   //需要获取父容器宽度来计算两个圆圈的宽度, 不直接设置fraction参数是因为大小不太对
+        val theme = configuration.theme
+        val infiniteTransition = rememberInfiniteTransition(label = "")
+        val alpha by infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 0.3f,
+            animationSpec = infiniteRepeatable(
+                animation = keyframes {
+                    durationMillis = 1000
+                    0.7f at 500
+                },
+                repeatMode = RepeatMode.Reverse
+            ), label = ""
+        )
+        //TODO 研究一下换成fraction参数
+        LaunchedEffect(key1 = toastContent, block = {
+            if (toastContent.isNotEmpty()) {
+                delay(2000)
+                toastContent = ""
             }
-        } else {
-            Box(
-                modifier = modifier
-                    .fillMaxSize()
-                    .background(backgroundColor)
-                    .onGloballyPositioned {
-                        boxWidth = with(localDensity) { it.size.width.toDp() }
-                    }) {
-                WearBiliAnimatedVisibility(
-                    visible = isShowing,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Image(
-                            painter = painterResource(id = R.drawable.img_half_circle_white),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .alpha(if (uiState == UIState.Loading) ambientAlpha * alpha else ambientAlpha),
-                            colorFilter = ColorFilter.tint(themeColor),
-                            //contentScale = ContentScale.FillWidth
+        })
 
-                        )
+        when (theme) {
+            cn.spacexc.wearbili.remake.proto.settings.AppTheme.Default -> {
+                Box(
+                    modifier = modifier
+                        .fillMaxSize()
+                        .background(backgroundColor)
+                        .onGloballyPositioned {
+                            boxWidth = with(localDensity) { it.size.width.toDp() }
+                        }) {
+                    WearBiliAnimatedVisibility(
+                        visible = isShowing,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Image(
+                                painter = painterResource(id = R.drawable.img_half_circle_white),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .alpha(if (uiState == UIState.Loading) ambientAlpha * alpha else ambientAlpha),
+                                colorFilter = ColorFilter.tint(themeColor),
+                                //contentScale = ContentScale.FillWidth
+
+                            )
+                        }
+
                     }
-
+                    LoadableBox(
+                        uiState = uiState,
+                        content = content,
+                        onLongClick = { this@CirclesBackground.finish() },
+                        onRetry = onRetry
+                    )
                 }
-                LoadableBox(
-                    uiState = uiState,
-                    content = content,
-                    onLongClick = { this@CirclesBackground.finish() },
-                    onRetry = onRetry
-                )
+            }
+
+            cn.spacexc.wearbili.remake.proto.settings.AppTheme.Dark -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(backgroundColor)
+                ) {
+                    LoadableBox(
+                        uiState = uiState,
+                        content = content,
+                        onLongClick = { this@CirclesBackground.finish() },
+                        onRetry = onRetry
+                    )
+                }
+            }
+
+            cn.spacexc.wearbili.remake.proto.settings.AppTheme.UNRECOGNIZED -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black), contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "说！你是不是乱动配置文件了！现在我真的不知道要用什么主题了啦！！",
+                        fontSize = 15.spx,
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = wearbiliFontFamily
+                    )
+                }
             }
         }
         Box(modifier = Modifier.fillMaxSize()) {
-            AnimatedVisibility(
+            WearBiliAnimatedVisibility(
                 visible = toastContent.isNotEmpty(),
                 enter = scaleIn() + fadeIn() + slideInVertically { it / 2 },
                 exit = scaleOut() + fadeOut() + slideOutVertically { it / 2 },
@@ -306,6 +330,7 @@ fun Activity.TitleBackground(
 ) {
     val timeSource = DefaultTimeSource("HH:mm")
     val timeText = timeSource.currentTime
+
     CirclesBackground(
         modifier = modifier,
         uiState = uiState,
@@ -378,7 +403,7 @@ fun Activity.TitleBackground(
                                 )
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowBackIos,
+                                    imageVector = Icons.AutoMirrored.Default.ArrowBackIos,
                                     contentDescription = null,
                                     tint = Color.White,
                                     modifier = Modifier.fillMaxSize()
@@ -462,9 +487,59 @@ fun Activity.TitleBackground(
 }
 
 @Composable
-fun Wrapper(content: @Composable () -> Unit) {
-    Box {
-        content()
+fun Activity.TitleBackground(
+    modifier: Modifier = Modifier,
+    title: String,
+    isTitleClipToBounds: Boolean = true,
+    onBack: () -> Unit = {},
+    onDropdown: () -> Unit = {},
+    isTitleClickable: Boolean = true,
+    isDropdownTitle: Boolean = false,
+    isBackgroundShowing: Boolean = true,
+    backgroundColor: Color = Color.Black,
+    isDropdown: Boolean = true,
+    uiState: UIState = UIState.Success,
+    networkUtils: KtorNetworkUtils,
+    themeImageUrl: String,
+    onRetry: () -> Unit = {},
+    content: @Composable BoxScope.() -> Unit
+) {
+    ProvideConfiguration {
+        var currentColor by remember {
+            mutableStateOf(BilibiliPink)
+        }
+        val color by wearBiliAnimateColorAsState(
+            targetValue = currentColor,
+            animationSpec = tween(durationMillis = 1000)
+        )
+        val ambientAlpha by wearBiliAnimateFloatAsState(
+            targetValue = if (currentColor == BilibiliPink) 0.6f else 1f,
+            animationSpec = tween(durationMillis = 1000)
+        )
+        LaunchedEffect(key1 = themeImageUrl, block = {
+            currentColor = networkUtils.getImageBitmap(themeImageUrl)?.let {
+                val palette = Palette.from(it.asAndroidBitmap()).generate()
+                Color(palette.getLightMutedColor(BilibiliPink.value.toInt()))
+            } ?: BilibiliPink
+        })
+
+        TitleBackground(
+            modifier,
+            title,
+            isTitleClipToBounds,
+            onBack,
+            onDropdown,
+            isTitleClickable,
+            isDropdownTitle,
+            isBackgroundShowing,
+            backgroundColor,
+            isDropdown,
+            uiState,
+            color,
+            ambientAlpha,
+            onRetry,
+            content
+        )
     }
 }
 
@@ -523,7 +598,7 @@ fun Activity.ArrowTitleBackgroundWithCustomBackground(
                                 )
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowBackIos,
+                                    imageVector = Icons.AutoMirrored.Default.ArrowBackIos,
                                     contentDescription = null,
                                     tint = Color.White,
                                     modifier = Modifier.fillMaxSize()
@@ -554,7 +629,7 @@ fun Activity.ArrowTitleBackgroundWithCustomBackground(
             }
         }
         Box(modifier = Modifier.fillMaxSize()) {
-            AnimatedVisibility(
+            WearBiliAnimatedVisibility(
                 visible = toastContent.isNotEmpty(),
                 enter = scaleIn() + fadeIn() + slideInVertically { it / 2 },
                 exit = scaleOut() + fadeOut() + slideOutVertically { it / 2 },

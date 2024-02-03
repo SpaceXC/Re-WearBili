@@ -2,10 +2,7 @@ package cn.spacexc.wearbili.remake.app.bangumi.info.ui
 
 import android.app.Activity
 import android.content.Intent
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -82,6 +79,9 @@ import cn.spacexc.wearbili.remake.common.ui.clickAlpha
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateDpAsState
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
 import kotlinx.coroutines.launch
 
 /**
@@ -335,13 +335,11 @@ fun Activity.BangumiInfoScreen(
                     ) {
                         bangumi.episodes.forEachIndexed { index, episode ->
                             item {
-                                val cardBorderColor by animateColorAsState(
-                                    targetValue = if (viewModel.currentSelectedEpid == episode.ep_id) BilibiliPink else CardBorderColor,
-                                    label = "cardBorderColor"
+                                val cardBorderColor by wearBiliAnimateColorAsState(
+                                    targetValue = if (viewModel.currentSelectedEpid == episode.ep_id) BilibiliPink else CardBorderColor
                                 )
-                                val cardBorderWidth by animateDpAsState(
+                                val cardBorderWidth by wearBiliAnimateDpAsState(
                                     targetValue = if (viewModel.currentSelectedEpid == episode.ep_id) 1.dp else CardBorderWidth,
-                                    label = "cardBorderColor"
                                 )
                                 Card(
                                     borderColor = cardBorderColor,
@@ -410,13 +408,11 @@ fun Activity.BangumiInfoScreen(
                         ) {
                             section.episodes.forEachIndexed { index, episode ->
                                 item {
-                                    val cardBorderColor by animateColorAsState(
-                                        targetValue = if (viewModel.currentSelectedEpid == episode.ep_id && viewModel.currentSelectedEpid != 0L) BilibiliPink else CardBorderColor,
-                                        label = "cardBorderColor"
+                                    val cardBorderColor by wearBiliAnimateColorAsState(
+                                        targetValue = if (viewModel.currentSelectedEpid == episode.ep_id && viewModel.currentSelectedEpid != 0L) BilibiliPink else CardBorderColor
                                     )
-                                    val cardBorderWidth by animateDpAsState(
+                                    val cardBorderWidth by wearBiliAnimateDpAsState(
                                         targetValue = if (viewModel.currentSelectedEpid == episode.ep_id && viewModel.currentSelectedEpid != 0L) 1.dp else CardBorderWidth,
-                                        label = "cardBorderColor"
                                     )
                                     Card(
                                         borderColor = cardBorderColor,
@@ -461,9 +457,9 @@ fun Activity.BangumiInfoScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            val playButtonAlpha by animateFloatAsState(
-                                targetValue = if (viewModel.currentSelectedEpid != 0L) 1f else 0.3f,
-                                label = ""
+                            val playButtonAlpha by wearBiliAnimateFloatAsState(
+                                targetValue = if (viewModel.currentSelectedEpid != 0L) 1f else 0.3f
+
                             )
                             OutlinedRoundButton(
                                 clickable = viewModel.currentSelectedEpid != 0L,

@@ -6,8 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.Constraints
-import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
@@ -101,9 +99,9 @@ class CreateNewCacheViewModel @Inject constructor(
                         "videoCover" to videoCover
                     )
                 )
-                .setConstraints(
+                /*.setConstraints(
                     Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
-                )
+                )*/
                 .build()
             WorkManager.getInstance(application).enqueue(videoDownloadRequest)
         } catch (e: Exception) {

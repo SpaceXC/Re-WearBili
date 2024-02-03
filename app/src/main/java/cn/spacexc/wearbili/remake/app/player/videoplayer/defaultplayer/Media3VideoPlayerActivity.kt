@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
+import cn.spacexc.wearbili.remake.app.settings.ProvideConfiguration
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -62,14 +63,16 @@ class Media3PlayerActivity : ComponentActivity() {
         }
 
         setContent {
-            Media3PlayerScreen(
-                viewModel = viewModel,
-                displaySurface = VideoDisplaySurface.TEXTURE_VIEW,
-                onBack = ::finish,
-                context = this,
-                isCacheVideo = isCache,
-                isBangumi = isBangumi
-            )
+            ProvideConfiguration {
+                Media3PlayerScreen(
+                    viewModel = viewModel,
+                    displaySurface = VideoDisplaySurface.TEXTURE_VIEW,
+                    onBack = ::finish,
+                    context = this,
+                    isCacheVideo = isCache,
+                    isBangumi = isBangumi
+                )
+            }
         }
     }
 

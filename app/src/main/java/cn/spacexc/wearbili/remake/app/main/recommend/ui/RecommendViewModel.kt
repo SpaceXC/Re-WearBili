@@ -9,6 +9,7 @@ import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.RecommendVideo
 import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.WebRecommendVideo
 import cn.spacexc.wearbili.remake.common.UIState
+import cn.spacexc.wearbili.remake.proto.settings.RecommendSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,14 +31,14 @@ class RecommendViewModel @Inject constructor(
         RecommendScreenState()
     )
 
-    fun getRecommendVideos(isRefresh: Boolean, recommendSource: String) {
+    fun getRecommendVideos(isRefresh: Boolean, recommendSource: RecommendSource) {
         viewModelScope.launch {
             if (screenState.videoList.isEmpty()) {
                 screenState = screenState.copy(uiState = UIState.Loading)
             }
             if (isRefresh) screenState = screenState.copy(isRefreshing = true)
             when (recommendSource) {
-                "app" -> {
+                RecommendSource.App -> {
                     val url =
                         if (!userManager.accessKey().logd("accessKey")
                                 .isNullOrEmpty()
@@ -64,7 +65,8 @@ class RecommendViewModel @Inject constructor(
                         }
                     }
                 }
-                "web" -> {
+
+                RecommendSource.Web -> {
                     val url =
                         "https://api.bilibili.com/x/web-interface/index/top/rcmd?fresh_type=10&version=1&ps=8&fresh_idx=&fresh_idx_1h=&homepage_ver=1"
                     val response = networkUtils.get<WebRecommendVideo>(url)
@@ -87,6 +89,10 @@ class RecommendViewModel @Inject constructor(
                             )
                         }
                     }
+                }
+
+                else -> {
+                    throw IllegalArgumentException("叫你乱改配置文件！")
                 }
             }
         }

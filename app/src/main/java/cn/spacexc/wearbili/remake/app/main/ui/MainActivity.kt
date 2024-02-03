@@ -5,14 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicViewModel
 import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileViewModel
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendViewModel
-import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -34,24 +29,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         profileViewModel.getProfile()
         setContent {
-            val pagerState = rememberPagerState {
-                3
-            }
-            val recommendSource by SettingsManager.recommendSource.collectAsState(initial = "app")
-            LaunchedEffect(key1 = recommendSource, block = {
-                recommendViewModel.getRecommendVideos(true, recommendSource)
-            })
             MainActivityScreen(
                 context = this,
-                pagerState = pagerState,
-                recommendScreenState = recommendViewModel.screenState,
-                recommendSource = recommendSource,
-                onRecommendRefresh = { isRefresh ->
-                    recommendViewModel.getRecommendVideos(
-                        isRefresh,
-                        recommendSource
-                    )
-                },
+                recommendViewModel = recommendViewModel,
                 dynamicViewModel = dynamicViewModel,
                 profileScreenState = profileViewModel.screenState,
                 onProfileRetry = {
