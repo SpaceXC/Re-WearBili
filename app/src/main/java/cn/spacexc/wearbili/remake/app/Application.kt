@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import cn.leancloud.LeanCloud
 import cn.spacexc.bilibilisdk.BilibiliSdkManager
 import cn.spacexc.bilibilisdk.data.DataManager
 import cn.spacexc.wearbili.common.APP_CENTER_SECRET
@@ -93,6 +94,12 @@ class Application : android.app.Application(), Configuration.Provider {
         AppCenter.start(
             this, APP_CENTER_SECRET,
             Analytics::class.java, Crashes::class.java
+        )
+        LeanCloud.initialize(
+            this,
+            "MAE7LopsPz1kgP3deSjzQ67g-gzGzoHsz",
+            "VuirpQYiGiekok2L03M9NX4o",
+            "https://mae7lops.lc-cn-n1-shared.com"
         )
         val cachePath = File(filesDir, "/videoCaches/")
         cachePath.mkdir()

@@ -22,6 +22,12 @@ object AppConfigurationSerializer : Serializer<AppConfiguration> {
         get() = AppConfiguration.getDefaultInstance().copy {
             hasAnimation = true
             recommendSource = RecommendSource.Web
+            danmakuPlayerSettings = danmakuPlayerSettings.copy {
+                alpha = 1f
+                displayArea = 1f
+                fontScale = 1f
+                blockLevel = 0
+            }
         }
 
     override suspend fun readFrom(input: InputStream): AppConfiguration {

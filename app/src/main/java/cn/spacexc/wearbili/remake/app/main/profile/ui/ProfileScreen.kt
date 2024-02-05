@@ -56,7 +56,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import cn.spacexc.bilibilisdk.sdk.user.profile.remote.info.Data
+import cn.spacexc.bilibilisdk.sdk.user.profile.remote.info.current.Data
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.cache.list.CacheListActivity

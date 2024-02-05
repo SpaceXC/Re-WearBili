@@ -13,13 +13,15 @@ import androidx.activity.compose.setContent
  */
 
 const val PARAM_EXCEPTION_STACKTRACE = "exceptionStacktrace"
+const val PARAM_EXCEPTION_DESCRIPTION = "exceptionDescription"
 
 class CrashActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val logs = intent.getStringExtra(PARAM_EXCEPTION_STACKTRACE) ?: ""
+        val description = intent.getStringExtra(PARAM_EXCEPTION_DESCRIPTION) ?: ""
+        val stacktrace = intent.getStringExtra(PARAM_EXCEPTION_STACKTRACE) ?: ""
         setContent {
-            CrashActivityScreen(crashLog = logs)
+            CrashActivityScreen(stacktrace = stacktrace, description = description)
         }
     }
 }

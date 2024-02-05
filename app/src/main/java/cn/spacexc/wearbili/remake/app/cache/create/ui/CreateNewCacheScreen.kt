@@ -46,17 +46,17 @@ import kotlinx.coroutines.launch
 fun Activity.CreateNewCacheScreen(
     viewModel: CreateNewCacheViewModel,
 ) {
-    var selectedPages by remember {
-        mutableStateOf(emptyList<Page>())
-    }
-    val localDensity = LocalDensity.current
-    var confirmButtonHeight by remember {
-        mutableStateOf(0.dp)
-    }
-    val lazyColumnButtonContentPadding by wearBiliAnimateDpAsState(
-        targetValue = if (selectedPages.isNotEmpty()) confirmButtonHeight else 0.dp
-    )
     TitleBackground(title = "新建缓存", onBack = ::finish, uiState = viewModel.uiState) {
+        var selectedPages by remember {
+            mutableStateOf(emptyList<Page>())
+        }
+        val localDensity = LocalDensity.current
+        var confirmButtonHeight by remember {
+            mutableStateOf(0.dp)
+        }
+        val lazyColumnButtonContentPadding by wearBiliAnimateDpAsState(
+            targetValue = if (selectedPages.isNotEmpty()) confirmButtonHeight else 0.dp
+        )
         LazyColumn(
             modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(
                 start = 12.dp,

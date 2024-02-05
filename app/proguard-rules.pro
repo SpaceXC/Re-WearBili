@@ -150,3 +150,33 @@
     java.lang.Object writeReplace();
     java.lang.Object readResolve();
 }
+
+-keepattributes Signature
+-dontwarn com.jcraft.jzlib.**
+-keep class com.jcraft.jzlib.**  { *;}
+-dontwarn sun.misc.**
+-keep class sun.misc.** { *;}
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *;}
+-dontwarn io.reactivex.**
+-keep class io.reactivex.** { *;}
+-dontwarn sun.security.**
+-keep class sun.security.** { *; }
+-dontwarn com.google.**
+-keep class com.google.** { *;}
+-dontwarn cn.leancloud.**
+-keep class cn.leancloud.** { *;}
+-keep public class android.net.http.SslError
+-keep public class android.webkit.WebViewClient
+-dontwarn android.webkit.WebView
+-dontwarn android.net.http.SslError
+-dontwarn android.webkit.WebViewClient
+-dontwarn android.support.**
+-dontwarn org.apache.**
+-keep class org.apache.** { *;}
+-dontwarn okhttp3.**
+-keep class okhttp3.** { *;}
+-keep interface okhttp3.** { *; }
+-dontwarn okio.**
+-keep class okio.** { *;}
+-keepattributes *Annotation*

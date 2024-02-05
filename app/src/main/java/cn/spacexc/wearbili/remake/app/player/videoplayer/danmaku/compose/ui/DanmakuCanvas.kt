@@ -109,7 +109,7 @@ fun DanmakuCanvas(
                         val measuredText = textMeasurer.measure(
                             text = danmaku.content,
                             style = TextStyle(
-                                fontSize = (danmaku.fontSize * 0.5 * textScale).sp,
+                                fontSize = (danmaku.fontSize * 0.4 * textScale).sp,
                                 fontWeight = FontWeight.Medium,
                                 fontFamily = wearbiliFontFamily,
                             ),
@@ -216,7 +216,7 @@ fun DanmakuCanvas(
                     val measuredText = textMeasurer.measure(
                         text = advanceDanmaku.text,
                         style = TextStyle(
-                            fontSize = (advanceDanmaku.textSize * 0.25 * textScale).sp,
+                            fontSize = (advanceDanmaku.textSize * 0.2 * textScale).sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = wearbiliFontFamily
                         ),
@@ -224,7 +224,7 @@ fun DanmakuCanvas(
                         density = this@Canvas,
                     )
                     rotate(
-                        degrees = advanceDanmaku.rotateX,
+                        degrees = advanceDanmaku.rotateZ,
                         pivot = Offset(advanceDanmaku.pivotX, advanceDanmaku.pivotX)
                     ) {
                         translate(

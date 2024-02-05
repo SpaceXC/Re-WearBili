@@ -16,12 +16,12 @@ android {
 
     experimentalProperties["android.experimental.r8.dex-startup-optimization"] = true
 
-    val releaseNumber = 1
+    val releaseNumber = 2
     defaultConfig {
         applicationId = "cn.spacexc.wearbili.remake"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 25
+        versionCode = 26
         versionName = "Settings"
 
         vectorDrawables {
@@ -179,4 +179,7 @@ dependencies {
     implementation(libs.photoView)
 
     implementation(libs.jsoup)
+
+    implementation(libs.leancloud.storage)
+    implementation(libs.rxjava.rxandroid)
 }

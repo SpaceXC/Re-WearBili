@@ -100,7 +100,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
@@ -114,6 +113,8 @@ import cn.spacexc.wearbili.remake.app.player.cast.discover.DeviceDiscoverActivit
 import cn.spacexc.wearbili.remake.app.player.cast.discover.PARAM_DLNA_VIDEO_NAME
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.rememberDanmakuCanvasState
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.ui.DanmakuCanvas
+import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
+import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.GradientSlider
@@ -130,6 +131,7 @@ import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateDpAsState
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimatedContentSize
+import cn.spacexc.wearbili.remake.proto.settings.copy
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.GifDecoder
@@ -184,6 +186,7 @@ fun Activity.Media3PlayerScreen(
     onBack: () -> Unit
 ) {
     //region variables
+    val configuration = LocalConfiguration.current
     val localDensity = LocalDensity.current
     var playerSurfaceSize by remember {
         mutableStateOf(Size(1f, 1f))
@@ -206,7 +209,7 @@ fun Activity.Media3PlayerScreen(
         mutableStateOf(false)
     }
     var dragSensibility by remember {
-        mutableIntStateOf(60)
+        mutableFloatStateOf(60f)
     }
     var playBackSpeed by remember {
         mutableIntStateOf(100)
@@ -299,20 +302,37 @@ fun Activity.Media3PlayerScreen(
     )
 
     var danmakuCanvasAlpha by remember {
-        mutableFloatStateOf(1f)
+        mutableFloatStateOf(configuration.danmakuPlayerSettings.alpha)
     }
     var danmakuCanvasDisplayPercent by remember {
-        mutableFloatStateOf(1f)
+        mutableFloatStateOf(configuration.danmakuPlayerSettings.displayArea)
     }
     var danmakuTextScale by remember {
-        mutableFloatStateOf(1f)
+        mutableFloatStateOf(configuration.danmakuPlayerSettings.fontScale)
     }
     var danmakuBlockLevel by remember {
-        mutableIntStateOf(0)
+        mutableIntStateOf(configuration.danmakuPlayerSettings.blockLevel)
     }
     //endregion
 
-    //region: For Danmaku
+    //region For Danmaku
+    LaunchedEffect(
+        danmakuCanvasAlpha,
+        danmakuCanvasDisplayPercent,
+        danmakuTextScale,
+        danmakuBlockLevel
+    ) {
+        SettingsManager.updateConfiguration {
+            copy {
+                danmakuPlayerSettings = danmakuPlayerSettings.copy {
+                    alpha = danmakuCanvasAlpha
+                    displayArea = danmakuCanvasDisplayPercent
+                    fontScale = danmakuTextScale
+                    blockLevel = blockLevel
+                }
+            }
+        }
+    }
     LaunchedEffect(key1 = viewModel.danmakuList, block = {
         danmakuCanvasState.setDanmakuList(newDanmakuList = viewModel.danmakuList)
     })
@@ -329,7 +349,6 @@ fun Activity.Media3PlayerScreen(
             }
 
             PlayerStats.Playing -> {
-                //danmakuCanvasState.seekTo(currentPlayerPosition)
                 danmakuCanvasState.start()
             }
 
@@ -1265,7 +1284,7 @@ fun Activity.Media3PlayerScreen(
                                 }
                             }
 
-                            PlayerSetting(itemIcon = {
+                            /*PlayerSetting(itemIcon = {
                                 Icon(
                                     imageVector = Icons.Default.BrightnessLow,
                                     contentDescription = null,
@@ -1281,6 +1300,22 @@ fun Activity.Media3PlayerScreen(
                                         dragSensibility = i
                                     }
                                 }
+                            }*/
+                            PlayerSliderSetting(
+                                itemIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.BrightnessLow,
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(),
+                                        tint = Color.White
+                                    )
+                                },
+                                settingName = "滑动灵敏度",
+                                sliderValue = dragSensibility,
+                                displayedSliderValue = dragSensibility.toInt().toString(),
+                                sliderValueRange = 60f..180f
+                            ) {
+                                dragSensibility = it
                             }
                             PlayerSettingActionItem(
                                 name = "投屏",
@@ -1401,203 +1436,44 @@ fun Activity.Media3PlayerScreen(
                                 fontWeight = FontWeight.Bold
                             )
 
-                            Column {
-                                Text(
-                                    text = "不透明度",
-                                    color = Color.White,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier
-                                        .alpha(0.9f)
-                                )
-
-                                Row {
-                                    androidx.compose.material3.Slider(
-                                        value = danmakuCanvasAlpha,
-                                        onValueChange = {
-                                            danmakuCanvasAlpha = it
-                                        },
-                                        valueRange = 0f..1f,
-                                        colors = SliderDefaults.colors(
-                                            activeTrackColor = BilibiliPink,
-                                            thumbColor = Color.White
-                                        ),
-                                        modifier = Modifier
-                                            .offset(y = (-6).dp)
-                                            .weight(1f),
-                                        thumb = {
-                                            SliderDefaults.Thumb(
-                                                interactionSource = rememberMutableInteractionSource(),
-                                                thumbSize = DpSize(12.dp, 12.dp),
-                                                modifier = Modifier
-                                                    .offset(
-                                                        y = 4.dp,
-                                                        x = 2.dp
-                                                    ),
-
-                                                colors = SliderDefaults.colors(
-                                                    thumbColor = Color.White
-                                                )
-                                            )
-                                        }
-                                    )
-                                    Text(
-                                        text = "${danmakuCanvasAlpha.times(100).toInt()}%",
-                                        color = Color.White,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier
-                                            .alpha(0.9f)
-                                    )
-                                }
+                            PlayerSliderSetting(
+                                itemIcon = null,
+                                settingName = "不透明度",
+                                sliderValue = danmakuCanvasAlpha,
+                                displayedSliderValue = "${danmakuCanvasAlpha.times(100).toInt()}%",
+                                sliderValueRange = 0f..1f
+                            ) {
+                                danmakuCanvasAlpha = it
                             }
-
-                            Column {
-                                Text(
-                                    text = "显示区域",
-                                    color = Color.White,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier
-                                        .alpha(0.9f)
-                                )
-
-                                Row {
-                                    androidx.compose.material3.Slider(
-                                        value = danmakuCanvasDisplayPercent,
-                                        onValueChange = {
-                                            danmakuCanvasDisplayPercent = it
-                                        },
-                                        valueRange = 0f..1f,
-                                        colors = SliderDefaults.colors(
-                                            activeTrackColor = BilibiliPink,
-                                            thumbColor = Color.White
-                                        ),
-                                        modifier = Modifier
-                                            .offset(y = (-6).dp)
-                                            .weight(1f),
-                                        thumb = {
-                                            SliderDefaults.Thumb(
-                                                interactionSource = rememberMutableInteractionSource(),
-                                                thumbSize = DpSize(12.dp, 12.dp),
-                                                modifier = Modifier
-                                                    .offset(
-                                                        y = 4.dp,
-                                                        x = 2.dp
-                                                    ),
-
-                                                colors = SliderDefaults.colors(
-                                                    thumbColor = Color.White
-                                                )
-                                            )
-                                        }
-                                    )
-                                    Text(
-                                        text = "${danmakuCanvasDisplayPercent.times(100).toInt()}%",
-                                        color = Color.White,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier
-                                            .alpha(0.9f)
-                                    )
-                                }
+                            PlayerSliderSetting(
+                                itemIcon = null,
+                                settingName = "显示区域",
+                                sliderValue = danmakuCanvasDisplayPercent,
+                                displayedSliderValue = "${
+                                    danmakuCanvasDisplayPercent.times(100).toInt()
+                                }%",
+                                sliderValueRange = 0f..1f
+                            ) {
+                                danmakuCanvasDisplayPercent = it
                             }
-
-                            Column {
-                                Text(
-                                    text = "字体缩放",
-                                    color = Color.White,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier
-                                        .alpha(0.9f)
-                                )
-
-                                Row {
-                                    androidx.compose.material3.Slider(
-                                        value = danmakuTextScale,
-                                        onValueChange = {
-                                            danmakuTextScale = it
-                                        },
-                                        valueRange = 0.5f..2f,
-                                        colors = SliderDefaults.colors(
-                                            activeTrackColor = BilibiliPink,
-                                            thumbColor = Color.White
-                                        ),
-                                        modifier = Modifier
-                                            .offset(y = (-6).dp)
-                                            .weight(1f),
-                                        thumb = {
-                                            SliderDefaults.Thumb(
-                                                interactionSource = rememberMutableInteractionSource(),
-                                                thumbSize = DpSize(12.dp, 12.dp),
-                                                modifier = Modifier
-                                                    .offset(
-                                                        y = 4.dp,
-                                                        x = 2.dp
-                                                    ),
-
-                                                colors = SliderDefaults.colors(
-                                                    thumbColor = Color.White
-                                                )
-                                            )
-                                        }
-                                    )
-                                    Text(
-                                        text = "${danmakuTextScale.times(100).toInt()}%",
-                                        color = Color.White,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier
-                                            .alpha(0.9f)
-                                    )
-                                }
+                            PlayerSliderSetting(
+                                itemIcon = null,
+                                settingName = "字体缩放",
+                                sliderValue = danmakuTextScale,
+                                displayedSliderValue = "${danmakuTextScale.times(100).toInt()}%",
+                                sliderValueRange = 0.5f..2f
+                            ) {
+                                danmakuTextScale = it
                             }
-
-                            Column {
-                                Text(
-                                    text = "屏蔽等级",
-                                    color = Color.White,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier
-                                        .alpha(0.9f)
-                                )
-
-                                Row {
-                                    androidx.compose.material3.Slider(
-                                        value = danmakuBlockLevel.toFloat(),
-                                        onValueChange = {
-                                            danmakuBlockLevel = it.roundToInt()
-                                        },
-                                        valueRange = 0f..10f,
-                                        steps = 10,
-                                        colors = SliderDefaults.colors(
-                                            activeTrackColor = BilibiliPink,
-                                            thumbColor = Color.White
-                                        ),
-                                        modifier = Modifier
-                                            .offset(y = (-6).dp)
-                                            .weight(1f),
-                                        thumb = {
-                                            SliderDefaults.Thumb(
-                                                interactionSource = rememberMutableInteractionSource(),
-                                                thumbSize = DpSize(12.dp, 12.dp),
-                                                modifier = Modifier
-                                                    .offset(
-                                                        y = 4.dp,
-                                                        x = 2.dp
-                                                    ),
-
-                                                colors = SliderDefaults.colors(
-                                                    thumbColor = Color.White
-                                                )
-                                            )
-                                        }
-                                    )
-                                    Text(
-                                        text = "等级${danmakuBlockLevel}",
-                                        color = Color.White,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier
-                                            .alpha(0.9f)
-                                    )
-                                }
+                            PlayerSliderSetting(
+                                itemIcon = null,
+                                settingName = "屏蔽等级",
+                                sliderValue = danmakuBlockLevel.toFloat(),
+                                displayedSliderValue = "等级${danmakuBlockLevel}",
+                                sliderValueRange = 0f..10f
+                            ) {
+                                danmakuBlockLevel = it.roundToInt()
                             }
-
                             //endregion
                         }
                     }
@@ -1750,7 +1626,7 @@ fun PlayerSetting(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PlayerSliderSetting(
-    itemIcon: @Composable () -> Unit,
+    itemIcon: (@Composable () -> Unit)?,
     settingName: String,
     sliderValue: Float,
     displayedSliderValue: String,
@@ -1772,15 +1648,14 @@ fun PlayerSliderSetting(
                     .padding(bottom = 8.dp),
                 verticalAlignment = CenterVertically
             ) {
-
                 IconText(
                     text = settingName, fontFamily = wearbiliFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.spx,
-                    color = Color.White
-                ) {
-                    itemIcon()
-                }
+                    color = Color.White,
+                    spacingWidth = if (itemIcon == null) 0.sp else 2.spx,
+                    icon = itemIcon
+                )
                 Spacer(modifier = Modifier.width(6.dp))
 
                 Spacer(modifier = Modifier.width(4.dp))

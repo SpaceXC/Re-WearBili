@@ -55,41 +55,42 @@ import kotlinx.coroutines.delay
 //TODO implement crash screen buttons
 @Composable
 fun Activity.CrashActivityScreen(
-    crashLog: String
+    stacktrace: String,
+    description: String,
 ) {
-    var currentHighlightedButton by remember {
-        mutableStateOf("")
-    }
-    val copyButtonColor by wearBiliAnimateColorAsState(
-        targetValue = if (currentHighlightedButton == "copy") BilibiliPink else Color(
-            54,
-            54,
-            54,
-            255
-        )
-    )
-    val qrcodeButtonColor by wearBiliAnimateColorAsState(
-        targetValue = if (currentHighlightedButton == "qrcode") BilibiliPink else Color(
-            54,
-            54,
-            54,
-            255
-        )
-    )
-    val restartButtonColor by wearBiliAnimateColorAsState(
-        targetValue = if (currentHighlightedButton == "restart") BilibiliPink else Color(
-            54,
-            54,
-            54,
-            255
-        )
-    )
-
-    LaunchedEffect(key1 = currentHighlightedButton, block = {
-        delay(1000)
-        currentHighlightedButton = ""
-    })
     TitleBackground(title = "", onBack = ::finish) {
+        var currentHighlightedButton by remember {
+            mutableStateOf("")
+        }
+        val copyButtonColor by wearBiliAnimateColorAsState(
+            targetValue = if (currentHighlightedButton == "copy") BilibiliPink else Color(
+                54,
+                54,
+                54,
+                255
+            )
+        )
+        val qrcodeButtonColor by wearBiliAnimateColorAsState(
+            targetValue = if (currentHighlightedButton == "qrcode") BilibiliPink else Color(
+                54,
+                54,
+                54,
+                255
+            )
+        )
+        val restartButtonColor by wearBiliAnimateColorAsState(
+            targetValue = if (currentHighlightedButton == "restart") BilibiliPink else Color(
+                54,
+                54,
+                54,
+                255
+            )
+        )
+
+        LaunchedEffect(key1 = currentHighlightedButton, block = {
+            delay(1000)
+            currentHighlightedButton = ""
+        })
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -120,6 +121,8 @@ fun Activity.CrashActivityScreen(
                     pop()
                 }
                 append("啦！")
+                append("\n")
+                append("生成二维码需要网络连接。")
             }
             ClickableText(
                 text = annotatedString,
@@ -150,7 +153,7 @@ fun Activity.CrashActivityScreen(
                     innerPaddingValues = PaddingValues(14.dp),
                     borderColor = copyButtonColor,
                     onClick = {
-                        crashLog.copyToClipboard(this@CrashActivityScreen)
+                        stacktrace.copyToClipboard(this@CrashActivityScreen)
                     }
                 ) {
                     Icon(
@@ -166,7 +169,10 @@ fun Activity.CrashActivityScreen(
                         .weight(1f)
                         .aspectRatio(1f),
                     innerPaddingValues = PaddingValues(14.dp),
-                    borderColor = qrcodeButtonColor
+                    borderColor = qrcodeButtonColor,
+                    onClick = {
+
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.QrCode,
@@ -202,7 +208,7 @@ fun Activity.CrashActivityScreen(
                 }
             }
             Text(
-                text = crashLog,
+                text = stacktrace,
                 style = AppTheme.typography.h3,
                 fontSize = 9.5.spx,
                 modifier = Modifier.alpha(0.6f)

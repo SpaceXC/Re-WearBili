@@ -51,7 +51,7 @@ fun IconText(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
     isAfterText: Boolean = false,
-    icon: @Composable () -> Unit,
+    icon: (@Composable () -> Unit)?,
 ) {
     val inlineTextContent = mapOf(
         "icon" to InlineTextContent(
@@ -61,7 +61,7 @@ fun IconText(
                 placeholderVerticalAlign = PlaceholderVerticalAlign.Center
             )
         ) {
-            icon()
+            icon?.invoke()
         },
         "spacing" to InlineTextContent(
             placeholder = Placeholder(
@@ -75,11 +75,15 @@ fun IconText(
         buildAnnotatedString {
             if (isAfterText) {
                 append(text)
-                appendInlineContent("spacing")
-                appendInlineContent("icon")
+                if (icon != null) {
+                    appendInlineContent("icon")
+                    appendInlineContent("spacing")
+                }
             } else {
-                appendInlineContent("icon")
-                appendInlineContent("spacing")
+                if (icon != null) {
+                    appendInlineContent("icon")
+                    appendInlineContent("spacing")
+                }
                 append(text)
             }
         },

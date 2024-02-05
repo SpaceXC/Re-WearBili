@@ -123,7 +123,7 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
                                 textMeasurer.measure(
                                     text = AnnotatedString(it.content),
                                     style = TextStyle(
-                                        fontSize = (it.fontsize * 0.5 * textScale).sp,
+                                        fontSize = (it.fontsize * 0.4 * textScale).sp,
                                         fontWeight = FontWeight.Medium
                                     )
                                 ).size.width
@@ -190,7 +190,7 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
                             textMeasurer.measure(
                                 text = AnnotatedString(danmakuItem.content),
                                 style = TextStyle(
-                                    fontSize = (danmakuItem.fontsize * 0.5 * textScale).sp,
+                                    fontSize = (danmakuItem.fontsize * 0.4 * textScale).sp,
                                     fontWeight = FontWeight.Medium
                                 )
                             )

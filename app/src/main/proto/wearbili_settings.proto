@@ -38,6 +38,13 @@ message QuickToolBarConfiguration {
   QuickToolBarFunction functionTwo = 3;
 }
 
+message DanmakuPlayerSettings {
+  float alpha = 1;
+  float displayArea = 2;
+  float fontScale = 3;
+  int32 blockLevel = 4;
+}
+
 message AppConfiguration {
   AppTheme theme = 1;
   QuickToolBarConfiguration toolBarConfiguration = 2;
@@ -45,4 +52,5 @@ message AppConfiguration {
   RecommendSource recommendSource = 4;
   Player defaultPlayer = 5;
   bool haveToolBarTipDisplayed = 6;
+  DanmakuPlayerSettings danmakuPlayerSettings = 7;
 }

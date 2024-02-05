@@ -3,7 +3,6 @@ package cn.spacexc.wearbili.remake.app.splash.ui
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.ComponentActivity
@@ -18,19 +17,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import cn.leancloud.LCObject
+import cn.leancloud.LCQuery
 import cn.spacexc.bilibilisdk.sdk.user.webi.WebiSignature
 import cn.spacexc.bilibilisdk.utils.EncryptUtils
-import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.login.qrcode.web.ui.QrCodeLoginActivity
 import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
-import cn.spacexc.wearbili.remake.app.update.ui.UpdateActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.ui.GradientSlider
 import dagger.hilt.android.AndroidEntryPoint
-import io.ktor.client.request.header
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import javax.inject.Inject
@@ -71,23 +68,14 @@ class SplashScreenActivity : ComponentActivity() {
             SplashScreen()
             //UIPreview()
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            permissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.REQUEST_INSTALL_PACKAGES,
-                    Manifest.permission.INSTALL_PACKAGES,
-                )
+        permissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.REQUEST_INSTALL_PACKAGES,
+                Manifest.permission.INSTALL_PACKAGES,
             )
-        } else {
-            permissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-            )
-        }
+        )
         //initApp()
     }
 
@@ -138,7 +126,7 @@ class SplashScreenActivity : ComponentActivity() {
         finish()
         return
 */
-        lifecycleScope.launch {
+        /*lifecycleScope.launch {
             if (!UserUtils.isUserLoggedIn()) {
                 ToastUtils.showText("你好像还没有登陆诶...")
                 startActivity(Intent(this@SplashScreenActivity, QrCodeLoginActivity::class.java))
@@ -152,20 +140,17 @@ class SplashScreenActivity : ComponentActivity() {
                 return@launch
             }
         }
-        return
-
-
-        val currentTime = System.currentTimeMillis()    //后面leancloud签名用到，别删
+        return*/
         lifecycleScope.launch {
             //VideoInfo.getVideoInfoApp(VIDEO_TYPE_AID, "954781099").logd()
-            networkUtils.get<String>("https://bilibili.com")    // 每次启动获取最新的cookie
+            //networkUtils.get<String>("https://bilibili.com")    // 每次启动获取最新的cookie
             WebiSignature.getWebiSignature()    //保存新的webi签名
 
             if (dataStoreManager.getString("buvid").isNullOrEmpty()) {
                 dataStoreManager.saveString("buvid", EncryptUtils.generateBuvid())
             }
 
-            val appUpdatesResponse =
+            /*val appUpdatesResponse =
                 networkUtils.get<LeanCloudAppUpdatesSearch>("https://mae7lops.lc-cn-n1-shared.com/1.1/classes/AppUpdates") {
                     header("X-LC-Id", cn.spacexc.wearbili.common.LEANCLOUD_APP_ID)
                     header(
@@ -194,40 +179,68 @@ class SplashScreenActivity : ComponentActivity() {
                             return@launch
                         }
                     }
-            }
-            if (userManager.isUserLoggedIn()) {
-                val response = userManager.mid()?.let { uid ->
-                    networkUtils.get<LeanCloudUserSearch>("https://mae7lops.lc-cn-n1-shared.com/1.1/classes/ReActivatedUIDs?where={\"uid\":\"$uid\"}") {
-                        header("X-LC-Id", cn.spacexc.wearbili.common.LEANCLOUD_APP_ID)
-                        header(
-                            "X-LC-Sign",
-                            "${cn.spacexc.wearbili.common.EncryptUtils.md5("$currentTime${cn.spacexc.wearbili.common.LEANCLOUD_APP_KEY}")},$currentTime"
-                        )
-                    }
+            }*/
+            /*val query = LCQuery<LCObject>("Student")
+            query.whereEqualTo("lastName", "Smith")
+            query.findInBackground().subscribe {
+                val versionList = it.firstOrNull { }
+                val latestSkippedVersion =
+                    dataStoreManager.getInt("latestSkippedVersion") ?: 0
+                if (version.versionCode > latestSkippedVersion) {
+                    startActivity(
+                        Intent(
+                            this@SplashScreenActivity,
+                            UpdateActivity::class.java
+                        ).apply {
+                            putExtra("updateInfo", version)
+                        })
+                    finish()
+                    overridePendingTransition(
+                        R.anim.activity_fade_in,
+                        R.anim.activity_fade_out
+                    )
+                    return@launch
                 }
-                response?.data?.results?.let {
-                    if (it.isNotEmpty()) {
+            }*/
+            if (userManager.isUserLoggedIn()) {
+                val query = LCQuery<LCObject>("ReActivatedUIDs")
+                query.whereEqualTo("uid", userManager.mid().toString())
+                query.findInBackground().subscribe { result ->
+                    val isUserActivated = !result.isNullOrEmpty()
+                    if (isUserActivated) {
                         startActivity(Intent(this@SplashScreenActivity, MainActivity::class.java))
                         finish()
                         overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
                     } else {
-                        ToastUtils.showText("这里是内测版吖！然鹅你好像还木有内测资格捏...")
-                        userManager.logout()
-                        startActivity(
-                            Intent(
-                                this@SplashScreenActivity,
-                                QrCodeLoginActivity::class.java
+                        lifecycleScope.launch {
+                            ToastUtils.showText("这里是内测版吖！然鹅你好像还木有内测资格捏...")
+                            userManager.logout()
+                            startActivity(
+                                Intent(
+                                    this@SplashScreenActivity,
+                                    QrCodeLoginActivity::class.java
+                                )
                             )
-                        )
-                        finish()
-                        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
+                            finish()
+                            overridePendingTransition(
+                                R.anim.activity_fade_in,
+                                R.anim.activity_fade_out
+                            )
+                        }
+                    }
+                }
+                /*response?.data?.results?.let {
+                    if (it.isNotEmpty()) {
+
+                    } else {
+
                     }
                     return@launch
                 }
                 ToastUtils.showText("刚刚的内测检查失败噜！可以重新登陆再来一次嘛？（如果你已经登录了账号，也可以直接重启应用的说！）")
                 startActivity(Intent(this@SplashScreenActivity, QrCodeLoginActivity::class.java))
                 finish()
-                overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
+                overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)*/
             } else {
                 ToastUtils.showText("你好像还没有登陆诶...")
                 startActivity(Intent(this@SplashScreenActivity, QrCodeLoginActivity::class.java))
@@ -236,10 +249,6 @@ class SplashScreenActivity : ComponentActivity() {
             }
         }
     }
-
-    data class LeanCloudUserSearch(
-        val results: List<UserResult>?
-    )
 
     @Parcelize
     data class LeanCloudAppUpdatesSearch(
