@@ -39,8 +39,8 @@
 
 ```
 Computer: Apple Macbook Pro 2021 M1 Pro 14 inch, 16GB RAM and 1TB ROM
-Android Studio: Android Studio Giraffe | 2022.3.1
-AGP version: 8.1.0
+Android Studio: Android Studio Iguana | 2023.2.1 Beta 2
+AGP version: 8.2.0
 Gradle version: 8.0
 Java version: openjdk version "17.0.8.1" 2023-08-24
 ```
