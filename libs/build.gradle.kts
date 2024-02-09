@@ -9,7 +9,12 @@ plugins {
 sourceSets {
     val main by getting
     main.apply {
-        kotlin.setSrcDirs(listOf("Bilibili-Kotlin-SDK/src/main/kotlin"))
+        kotlin.setSrcDirs(
+            listOf(
+                "Bilibili-Kotlin-SDK/src/main/kotlin",
+                //"IGSPlayer/main/src/main/java",
+            )
+        )
     }
 }
 dependencies {

@@ -416,6 +416,12 @@ fun VideoInformationScreen(
 
                             },
                             onLongClick = {
+                                Intent(context, AudioPlayerActivity::class.java).apply {
+                                    putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
+                                    putExtra(PARAM_VIDEO_ID, video.bvid)
+                                    putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
+                                    context.startActivity(this)
+                                }
                                 //TODO 跳转到播放器设置
                             })
                         OutlinedRoundButton(

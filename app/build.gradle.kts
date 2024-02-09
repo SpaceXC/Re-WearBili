@@ -109,6 +109,8 @@ dependencies {
 
     implementation(libs.kotlinx.metadata.jvm)
     implementation(project(":app:common"))
+    implementation(project(":ijkplayer-java"))
+    implementation(project(":ijkplayer-so"))
 
     implementation(libs.androidx.datastore.proto)
     implementation(libs.androidx.datastore.core)

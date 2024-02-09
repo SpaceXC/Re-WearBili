@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //throw RuntimeException("这是一个用于测试的异常")
         profileViewModel.getProfile()
         setContent {
             MainActivityScreen(

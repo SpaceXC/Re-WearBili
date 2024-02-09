@@ -58,7 +58,6 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.android.cast.dlna.dmc.DLNACastService" />
         <service
             android:name=".app.player.audio.AudioPlayerService"
             android:exported="false"
@@ -68,6 +67,12 @@
             android:name=".app.update.UpdateReceiver"
             android:exported="false" />
 
+        <activity
+            android:name=".app.welcome.WelcomeActivity"
+            android:exported="true" />
+        <activity
+            android:name=".app.test.UITest"
+            android:exported="true" />
         <activity
             android:name=".app.login.qrcode.tv.ui.TVQrCodeLoginActivity"
             android:exported="false" />

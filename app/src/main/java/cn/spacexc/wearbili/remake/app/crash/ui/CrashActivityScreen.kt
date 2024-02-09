@@ -1,7 +1,6 @@
 package cn.spacexc.wearbili.remake.app.crash.ui
 
 import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,7 +31,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.copyToClipboard
-import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.ClickableText
@@ -57,6 +55,7 @@ import kotlinx.coroutines.delay
 fun Activity.CrashActivityScreen(
     stacktrace: String,
     description: String,
+    viewModel: CrashViewModel
 ) {
     TitleBackground(title = "", onBack = ::finish) {
         var currentHighlightedButton by remember {
@@ -171,7 +170,7 @@ fun Activity.CrashActivityScreen(
                     innerPaddingValues = PaddingValues(14.dp),
                     borderColor = qrcodeButtonColor,
                     onClick = {
-
+                        viewModel.uploadLog(description, stacktrace)
                     }
                 ) {
                     Icon(
@@ -189,12 +188,12 @@ fun Activity.CrashActivityScreen(
                     innerPaddingValues = PaddingValues(14.dp),
                     borderColor = restartButtonColor,
                     onClick = {
-                        startActivity(
+                        /*startActivity(
                             Intent(
                                 this@CrashActivityScreen,
                                 SplashScreenActivity::class.java
                             )
-                        )
+                        )*/
                         finish()
                     }
                 ) {

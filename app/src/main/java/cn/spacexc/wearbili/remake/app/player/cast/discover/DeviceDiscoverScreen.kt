@@ -34,7 +34,7 @@ fun Activity.DeviceDiscoverScreen(
     viewModel: DeviceDiscoverViewModel,
     wifiName: String?
 ) {
-    val devices by viewModel.deviceList.collectAsState()
+    val devices by viewModel.deviceList.collectAsState(emptyList())
 
     LaunchedEffect(key1 = devices) {
         Log.d(TAG, "devices updated: $devices")

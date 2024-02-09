@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,10 +53,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
@@ -148,7 +150,25 @@ fun Activity.CirclesBackground(
                         exit = fadeOut()
                     ) {
                         Box(modifier = Modifier.fillMaxSize()) {
-                            Image(
+                            var circleHeight by remember {
+                                mutableStateOf(0.dp)
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .offset(y = circleHeight * -0.5f)
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                                    .alpha(if (uiState == UIState.Loading) ambientAlpha * alpha * 0.5f else ambientAlpha * 0.5f)
+                                    .background(
+                                        shape = CircleShape, brush = Brush.radialGradient(
+                                            listOf(themeColor, Color.Transparent)
+                                        )
+                                    )
+                                    .onSizeChanged {
+                                        circleHeight = with(localDensity) { it.height.toDp() }
+                                    }
+                            )
+                            /*Image(
                                 painter = painterResource(id = R.drawable.img_half_circle_white),
                                 contentDescription = null,
                                 modifier = Modifier
@@ -157,7 +177,7 @@ fun Activity.CirclesBackground(
                                 colorFilter = ColorFilter.tint(themeColor),
                                 //contentScale = ContentScale.FillWidth
 
-                            )
+                            )*/
                         }
 
                     }
@@ -345,7 +365,7 @@ fun Activity.TitleBackground(
                 modifier = Modifier
                     .padding(
                         horizontal = TitleBackgroundHorizontalPadding,
-                        vertical = if (isAudioServiceUp) 6.5.dp else 8.dp
+                        vertical = if (isAudioServiceUp) 6.dp else 8.dp
                     )
                     .fillMaxWidth()
                     .clickable(
@@ -359,7 +379,6 @@ fun Activity.TitleBackground(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = if (isRound()) Arrangement.Center else Arrangement.Start
             ) {
-
                 if (isDropdownTitle) {
                     Text(
                         text = buildAnnotatedString {
@@ -445,8 +464,15 @@ fun Activity.TitleBackground(
                                 if (isAudioServiceUp) {
                                     Modifier
                                         .clip(CircleShape)
-                                        .background(BilibiliPink)
-                                        .padding(vertical = 1.5.dp, horizontal = 8.dp)
+                                        .background(
+                                            Brush.horizontalGradient(
+                                                colors = listOf(
+                                                    Color(255, 71, 136),
+                                                    Color(255, 0, 89),
+                                                )
+                                            )
+                                        )
+                                        .padding(vertical = 2.5.dp, horizontal = 10.dp)
                                 } else {
                                     Modifier
                                 }
@@ -454,8 +480,8 @@ fun Activity.TitleBackground(
                         inlineContent = mapOf(
                             "playIcon" to InlineTextContent(
                                 placeholder = Placeholder(
-                                    width = AppTheme.typography.h2.fontSize.times(0.8f),
-                                    height = AppTheme.typography.h2.fontSize.times(0.8f),
+                                    width = AppTheme.typography.h2.fontSize.times(0.6f),
+                                    height = AppTheme.typography.h2.fontSize.times(0.6f),
                                     placeholderVerticalAlign = PlaceholderVerticalAlign.Center
                                 )
                             ) {

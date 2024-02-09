@@ -34,7 +34,7 @@ class CrashViewModel @Inject constructor(
         }
     }
 
-    fun convertToShortId(longId: String): String {
+    private fun convertToShortId(longId: String): String {
         val messageDigest = MessageDigest.getInstance("MD5")
         val hashBytes = messageDigest.digest(longId.toByteArray())
 

@@ -25,7 +25,7 @@ fun ErrorLog.toLCObject() = LCObject("ErrorLogReport").apply {
     put("manufacture", manufacture)
     put("brand", brand)
     put("device", device)
-    put("module", model)
+    put("model", model)
     put("versionInt", versionInt)
     put("versionName", versionName)
 }

@@ -11,19 +11,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import cn.leancloud.LCLogger
 import cn.leancloud.LeanCloud
 import cn.spacexc.bilibilisdk.BilibiliSdkManager
 import cn.spacexc.bilibilisdk.data.DataManager
-import cn.spacexc.wearbili.common.APP_CENTER_SECRET
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.crash.ui.CrashActivity
+import cn.spacexc.wearbili.remake.app.crash.ui.PARAM_EXCEPTION_DESCRIPTION
 import cn.spacexc.wearbili.remake.app.crash.ui.PARAM_EXCEPTION_STACKTRACE
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerService
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.analytics.Analytics
-import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.EntryPoint
 import dagger.hilt.EntryPoints
 import dagger.hilt.InstallIn
@@ -86,21 +84,23 @@ class Application : android.app.Application(), Configuration.Provider {
             throwable.printStackTrace()
             startActivity(Intent(this, CrashActivity::class.java).apply {
                 putExtra(PARAM_EXCEPTION_STACKTRACE, throwable.stackTraceToString())
+                putExtra(PARAM_EXCEPTION_DESCRIPTION, throwable.message)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             })
             exitProcess(2)
             //throw throwable
         }
-        AppCenter.start(
+        /*AppCenter.start(
             this, APP_CENTER_SECRET,
             Analytics::class.java, Crashes::class.java
-        )
+        )*/
         LeanCloud.initialize(
             this,
             "MAE7LopsPz1kgP3deSjzQ67g-gzGzoHsz",
             "VuirpQYiGiekok2L03M9NX4o",
             "https://mae7lops.lc-cn-n1-shared.com"
         )
+        LeanCloud.setLogLevel(LCLogger.Level.ALL)
         val cachePath = File(filesDir, "/videoCaches/")
         cachePath.mkdir()
         val dataStore = DataStoreManager(this)

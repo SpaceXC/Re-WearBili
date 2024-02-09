@@ -20,9 +20,7 @@ class DanmakuGetter(
         segment: Int
     ): ByteArray? {
         try {
-            val responseBytes =
-                networkUtils.getBytes("https://api.bilibili.com/x/v2/dm/web/seg.so?type=1&oid=$videoCid&segment_index=$segment")
-            return responseBytes
+            return networkUtils.getBytes("https://api.bilibili.com/x/v2/dm/web/seg.so?type=1&oid=$videoCid&segment_index=$segment")
         } catch (e: Exception) {
             e.printStackTrace()
             throw e
