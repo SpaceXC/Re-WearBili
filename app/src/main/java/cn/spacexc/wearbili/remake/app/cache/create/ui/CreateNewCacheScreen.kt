@@ -1,6 +1,7 @@
 package cn.spacexc.wearbili.remake.app.cache.create.ui
 
 import android.app.Activity
+import android.content.Intent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -11,6 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import cn.spacexc.bilibilisdk.sdk.video.info.remote.info.web.Page
+import cn.spacexc.wearbili.remake.app.cache.list.CacheListActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
@@ -46,7 +51,11 @@ import kotlinx.coroutines.launch
 fun Activity.CreateNewCacheScreen(
     viewModel: CreateNewCacheViewModel,
 ) {
-    TitleBackground(title = "新建缓存", onBack = ::finish, uiState = viewModel.uiState) {
+    TitleBackground(
+        title = "新建缓存",
+        onBack = ::finish,
+        uiState = viewModel.uiState,
+        onRetry = {}) {
         var selectedPages by remember {
             mutableStateOf(emptyList<Page>())
         }
@@ -104,7 +113,18 @@ fun Activity.CreateNewCacheScreen(
                 onClick = {
                     viewModel.viewModelScope.launch {
                         viewModel.cacheVideos(selectedPages)
-                        ToastUtils.showText("缓存任务创建成功！")
+                        ToastUtils.showSnackBar(
+                            "缓存任务创建成功！",
+                            Icons.Default.Check,
+                            Icons.AutoMirrored.Default.ArrowForwardIos
+                        ) {
+                            startActivity(
+                                Intent(
+                                    this@CreateNewCacheScreen,
+                                    CacheListActivity::class.java
+                                )
+                            )
+                        }
                         finish()
                     }
                 }

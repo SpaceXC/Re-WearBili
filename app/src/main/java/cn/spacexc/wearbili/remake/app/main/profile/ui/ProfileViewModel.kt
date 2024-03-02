@@ -31,7 +31,7 @@ class ProfileViewModel : ViewModel() {
         viewModelScope.launch {
             val response = UserProfileInfo.getCurrentUserInfo()
             if (response.code != 0 && response.data?.code != 0) {
-                screenState = screenState.copy(uiState = UIState.Failed)
+                screenState = screenState.copy(uiState = UIState.Failed(response.code))
                 return@launch
             }
             response.data?.data?.let { user ->

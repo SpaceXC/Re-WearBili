@@ -3,9 +3,8 @@ package cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.detail.domai
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import cn.spacexc.bilibilisdk.sdk.user.favorite.info.FavoriteInfo
-import cn.spacexc.bilibilisdk.sdk.user.favorite.info.remote.content.FavoriteFolderContent
 import cn.spacexc.bilibilisdk.sdk.user.favorite.info.remote.content.Media
-import cn.spacexc.wearbili.common.exception.DataLoadFailedException
+import cn.spacexc.wearbili.common.exception.PagingDataLoadFailedException
 
 /**
  * Created by XC-Qan on 2023/8/19.
@@ -24,7 +23,12 @@ class FavoriteFolderDetailPagingSource(private val folderId: Long) : PagingSourc
         val currentKey = params.key ?: 1
         val response = FavoriteInfo.getFavoriteFolderContentById(folderId = folderId, page = currentKey)
         if(response.code != 0) {
-            return LoadResult.Error(DataLoadFailedException())
+            return LoadResult.Error(
+                PagingDataLoadFailedException(
+                    apiUrl = response.apiUrl,
+                    code = response.code
+                )
+            )
         }
         val list = response.data?.data?.medias ?: emptyList()
         return LoadResult.Page(

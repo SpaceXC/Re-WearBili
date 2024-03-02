@@ -86,7 +86,7 @@ fun StartScreen(
                 Card(
                     outerPaddingValues = PaddingValues(horizontal = 0.dp, vertical = 15.dp),
                     innerPaddingValues = PaddingValues(15.dp),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(14.dp),
                     borderWidth = 0.55.dp,
                     onClick = onToNext
                 ) {

@@ -1,11 +1,10 @@
 package cn.spacexc.wearbili.remake.app.bangumi.index.domain.paging
 
-import androidx.paging.Pager
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BangumiInfo
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.index.remote.BangumiFollowItem
-import cn.spacexc.wearbili.common.exception.DataLoadFailedException
+import cn.spacexc.wearbili.common.exception.PagingDataLoadFailedException
 
 /**
  * Created by XC-Qan on 2023/8/8.
@@ -24,7 +23,12 @@ class BangumiFollowIndexPagingSource : PagingSource<Int, BangumiFollowItem>() {
         val currentPage = params.key ?: 1
         val response = BangumiInfo.getBangumiFollowIndex(itemsPerPage = 20, page = currentPage)
         if(response.code != 0 || response.data?.data == null) {
-            return LoadResult.Error(DataLoadFailedException())
+            return LoadResult.Error(
+                PagingDataLoadFailedException(
+                    apiUrl = response.apiUrl,
+                    code = response.code
+                )
+            )
         }
         val list = response.data?.data?.list ?: emptyList()
         return LoadResult.Page(

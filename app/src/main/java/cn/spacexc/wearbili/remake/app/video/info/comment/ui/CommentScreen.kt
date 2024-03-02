@@ -1,6 +1,6 @@
 package cn.spacexc.wearbili.remake.app.video.info.comment.ui
 
-import android.content.Context
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,9 +34,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.wearbili.common.ifNullOrEmpty
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
-import cn.spacexc.wearbili.remake.common.UIState
+import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
+import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
+import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 import kotlinx.coroutines.flow.Flow
 
@@ -55,17 +57,14 @@ fun CommentScreen(
     commentDataFlow: Flow<PagingData<CommentContentData>>?,
     oid: Long,
     uploaderMid: Long,
-    context: Context
+    context: Activity
 ) {
-    if(commentDataFlow != null) {
+    if (commentDataFlow != null) {
         val commentsData = commentDataFlow.collectAsLazyPagingItems()
         LoadableBox(
-            uiState = when (commentsData.loadState.refresh) {
-                is LoadState.Error -> UIState.Failed
-                is LoadState.Loading -> UIState.Loading
-                else -> UIState.Success
-            },
-            modifier = Modifier.fillMaxSize()
+            uiState = commentsData.loadState.refresh.toUIState(),
+            modifier = Modifier.fillMaxSize(),
+            onRetry = commentsData::retry
         ) {
             if (commentsData.itemCount == 0) {
                 Box(
@@ -93,9 +92,11 @@ fun CommentScreen(
                     onRefresh = commentsData::refresh,
                     refreshThreshold = 60.dp
                 )
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .pullRefresh(state = pullToRefreshState)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pullRefresh(state = pullToRefreshState)
+                ) {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
@@ -112,7 +113,7 @@ fun CommentScreen(
                                 )
                             )
                             .background(Color(38, 38, 38, 77)),
-                        contentPadding = PaddingValues(4.dp),
+                        contentPadding = PaddingValues(if (isRound()) TitleBackgroundHorizontalPadding() else 4.dp),
                         state = viewModel.getScrollState(oid.toString()) ?: rememberLazyListState()
                     ) {
                         items(commentsData.itemCount) {
@@ -150,6 +151,7 @@ fun CommentScreen(
                                     context = context,
                                     isClickable = true,
                                     oid = oid,
+                                    noteCvid = comment.note_cvid
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Divider(
@@ -175,8 +177,7 @@ fun CommentScreen(
                 }
             }
         }
-    }
-    else {
+    } else {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center

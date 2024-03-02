@@ -47,7 +47,8 @@ fun Activity.FavouriteFolderDetailScreen(
     TitleBackground(
         title = folderName,
         onBack = ::finish,
-        uiState = lazyPagingItem.loadState.refresh.toUIState()
+        uiState = lazyPagingItem.loadState.refresh.toUIState(),
+        onRetry = lazyPagingItem::retry
     ) {
         Box(
             modifier = Modifier
@@ -72,7 +73,10 @@ fun Activity.FavouriteFolderDetailScreen(
                     }
                 }
                 item {
-                    LoadingTip(lazyPagingItem.loadState.append.toLoadingState())
+                    LoadingTip(
+                        lazyPagingItem.loadState.append.toLoadingState(),
+                        lazyPagingItem::retry
+                    )
                 }
             }
             PullRefreshIndicator(

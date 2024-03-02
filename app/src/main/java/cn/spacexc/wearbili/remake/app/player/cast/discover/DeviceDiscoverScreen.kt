@@ -13,8 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -34,13 +32,11 @@ fun Activity.DeviceDiscoverScreen(
     viewModel: DeviceDiscoverViewModel,
     wifiName: String?
 ) {
-    val devices by viewModel.deviceList.collectAsState(emptyList())
-
-    LaunchedEffect(key1 = devices) {
-        Log.d(TAG, "devices updated: $devices")
+    LaunchedEffect(key1 = viewModel.deviceList) {
+        Log.d(TAG, "devices updated: ${viewModel.deviceList}")
     }
 
-    TitleBackground(title = "", onBack = ::finish) {
+    TitleBackground(title = "", onBack = ::finish, onRetry = {}) {
         if (wifiName == null) {
             Text(
                 text = "需要连接Wi-Fi才能投屏哦",
@@ -82,7 +78,7 @@ fun Activity.DeviceDiscoverScreen(
                     }
 
                 }
-                devices.forEach { device ->
+                viewModel.deviceList.forEach { device ->
                     item {
                         Card(modifier = Modifier.fillMaxWidth(), onClick = {
 

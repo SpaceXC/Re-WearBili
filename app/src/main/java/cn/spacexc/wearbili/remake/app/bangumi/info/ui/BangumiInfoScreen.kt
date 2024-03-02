@@ -25,13 +25,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.SendToMobile
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Sell
-import androidx.compose.material.icons.outlined.SendToMobile
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,6 +60,9 @@ import androidx.lifecycle.viewModelScope
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.link.qrcode.PARAM_QRCODE_CONTENT
+import cn.spacexc.wearbili.remake.app.link.qrcode.PARAM_QRCODE_MESSAGE
+import cn.spacexc.wearbili.remake.app.link.qrcode.QrCodeActivity
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_IS_BANGUMI
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
@@ -96,10 +99,14 @@ import kotlinx.coroutines.launch
 @Composable
         /*@UnstableApi*/
 fun Activity.BangumiInfoScreen(
-    viewModel: BangumiViewModel
+    viewModel: BangumiViewModel,
+    bangumiIdType: String,
+    bangumiId: Long
 ) {
     val localDensity = LocalDensity.current
-    LoadableBox(uiState = viewModel.uiState) {
+    LoadableBox(uiState = viewModel.uiState, onRetry = {
+        viewModel.getBangumiInfo(bangumiIdType, bangumiId)
+    }) {
         viewModel.bangumiInfo?.let { bangumi ->
             LaunchedEffect(key1 = viewModel.currentSelectedEpid, block = {
                 if (viewModel.currentSelectedEpid != 0L) {
@@ -134,7 +141,7 @@ fun Activity.BangumiInfoScreen(
                 item {
                     Column(
                         modifier = Modifier
-                            .padding(horizontal = TitleBackgroundHorizontalPadding - 2.dp),
+                            .padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         var isDescriptionExpand by remember {
@@ -326,11 +333,11 @@ fun Activity.BangumiInfoScreen(
                         text = "选集(${bangumi.episodes.size})",
                         style = AppTheme.typography.h1,
                         modifier = Modifier
-                            .padding(horizontal = TitleBackgroundHorizontalPadding - 2.dp)
+                            .padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp)
                     )
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(horizontal = TitleBackgroundHorizontalPadding - 2.dp),
+                        contentPadding = PaddingValues(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
                         state = viewModel.episodeScrollState
                     ) {
                         bangumi.episodes.forEachIndexed { index, episode ->
@@ -350,7 +357,7 @@ fun Activity.BangumiInfoScreen(
                                     Column {
                                         Row(verticalAlignment = CenterVertically) {
                                             Text(
-                                                text = episode.long_title,
+                                                text = episode.long_title.ifEmpty { episode.title },
                                                 style = AppTheme.typography.h2,
                                                 fontSize = 12.spx
                                             )
@@ -399,11 +406,11 @@ fun Activity.BangumiInfoScreen(
                             text = "${section.title}(${section.episodes.size})",
                             style = AppTheme.typography.h1,
                             modifier = Modifier
-                                .padding(horizontal = TitleBackgroundHorizontalPadding - 2.dp)
+                                .padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp)
                         )
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(horizontal = TitleBackgroundHorizontalPadding - 2.dp),
+                            contentPadding = PaddingValues(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
                             state = viewModel.getSectionScrollState(section.id)
                         ) {
                             section.episodes.forEachIndexed { index, episode ->
@@ -450,7 +457,7 @@ fun Activity.BangumiInfoScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = TitleBackgroundHorizontalPadding - 2.dp),
+                            .padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Row(
@@ -513,7 +520,7 @@ fun Activity.BangumiInfoScreen(
                             OutlinedRoundButton(
                                 icon = {
                                     Icon(
-                                        imageVector = Icons.Outlined.SendToMobile,
+                                        imageVector = Icons.AutoMirrored.Outlined.SendToMobile,
                                         tint = Color.White,
                                         contentDescription = "在手机上播放按钮",
                                         modifier = Modifier.align(Alignment.Center)
@@ -521,7 +528,28 @@ fun Activity.BangumiInfoScreen(
                                 },
                                 text = "手机播放",
                                 modifier = Modifier.weight(1f),
-                                buttonModifier = Modifier.aspectRatio(1f)
+                                buttonModifier = Modifier.aspectRatio(1f),
+                                onClick = {
+                                    startActivity(
+                                        Intent(
+                                            this@BangumiInfoScreen,
+                                            QrCodeActivity::class.java
+                                        ).apply {
+                                            putExtra(PARAM_QRCODE_MESSAGE, "扫码在手机上观看")
+                                            if (viewModel.getCurrentSelectedEpisode() == null) {
+                                                putExtra(
+                                                    PARAM_QRCODE_CONTENT,
+                                                    "https://www.bilibili.com/bangumi/play/ss${bangumi.season_id}"
+                                                )
+                                            } else {
+                                                putExtra(
+                                                    PARAM_QRCODE_CONTENT,
+                                                    "https://www.bilibili.com/bangumi/play/ep${viewModel.getCurrentSelectedEpisode()?.ep_id}"
+                                                )
+
+                                            }
+                                        })
+                                }
                             )
                         }
                         Row(
@@ -557,9 +585,16 @@ fun Activity.BangumiInfoScreen(
                                 text = "缓存",
                                 modifier = Modifier.weight(1f),
                                 buttonModifier = Modifier.aspectRatio(1f),
+                                clickable = viewModel.currentSelectedEpid != 0L,
                                 onClick = {
-                                    viewModel.viewModelScope.launch {
-                                        viewModel.cacheBangumi()
+                                    if (viewModel.currentSelectedEpid != 0L) {
+                                        viewModel.viewModelScope.launch {
+                                            with(this@BangumiInfoScreen) {
+                                                with(viewModel) {
+                                                    cacheBangumi()
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             )

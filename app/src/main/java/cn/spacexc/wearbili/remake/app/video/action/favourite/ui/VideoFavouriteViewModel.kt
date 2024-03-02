@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 
 class VideoFavouriteViewModel : ViewModel() {
     var folders by mutableStateOf(emptyList<Folder>())
-    var uiState by mutableStateOf(UIState.Loading)
+    var uiState: UIState by mutableStateOf(UIState.Loading)
 
     var idsToAdd by mutableStateOf(listOf<Long>())
     var idsToDelete by mutableStateOf(listOf<Long>())
@@ -38,7 +38,7 @@ class VideoFavouriteViewModel : ViewModel() {
         viewModelScope.launch {
             val response = FavoriteInfo.getAllFavoriteFolders(videoAid = videoAid)
             if (response.code != 0) {
-                uiState = UIState.Failed
+                uiState = UIState.Failed(response.code)
                 return@launch
             }
             folders = response.data?.data?.list ?: emptyList()

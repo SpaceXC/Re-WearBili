@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -64,8 +63,7 @@ import cn.spacexc.wearbili.remake.app.settings.ui.SettingsActivity
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedContent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
+import cn.spacexc.wearbili.remake.common.ui.isRound
 import kotlinx.coroutines.launch
 
 /**
@@ -81,7 +79,7 @@ data class MenuItem @OptIn(ExperimentalFoundationApi::class) constructor(
     val icon: ImageVector? = null,
     @DrawableRes val iconResId: Int = 0,
     val customIcon: Boolean = false,
-    val onClick: PagerState.(CoroutineScope, Context) -> Unit,
+    val onClick: suspend PagerState.(Context) -> Unit,
 )
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -89,66 +87,58 @@ val menuItems = listOf(
     MenuItem(
         text = "主页",
         icon = Icons.Outlined.Home,
-        onClick = { scope, _ ->
-            scope.launch {
-                delay(400)
-                animateScrollToPage(0)
-            }
+        onClick = { _ ->
+            scrollToPage(0)
+
         }
     ),
     MenuItem(
         text = "动态",
         customIcon = true,
         iconResId = R.drawable.icon_dynamic,
-        onClick = { scope, _ ->
-            scope.launch {
-                delay(400)
-                animateScrollToPage(1)
-            }
+        onClick = { _ ->
+            scrollToPage(1)
         }
     ),
     MenuItem(
         text = "我的",
         icon = Icons.Outlined.Person,
-        onClick = { scope, _ ->
-            scope.launch {
-                delay(400)
-                animateScrollToPage(2)
-            }
+        onClick = { _ ->
+            scrollToPage(2)
         }
     ),
     MenuItem(
         "搜索",
         icon = Icons.Outlined.Search,
-        onClick = { _, context ->
+        onClick = { context ->
             context.startActivity(Intent(context, SearchActivity::class.java))
         }
     ),
     MenuItem(
         "番剧",
         icon = Icons.Outlined.Movie,
-        onClick = { _, context ->
+        onClick = { context ->
             context.startActivity(Intent(context, BangumiIndexActivity::class.java))
         }
     ),
     MenuItem(
         "缓存",
         icon = Icons.Outlined.FileDownload,
-        onClick = { _, context ->
+        onClick = { context ->
             context.startActivity(Intent(context, CacheListActivity::class.java))
         }
     ),
     MenuItem(
         "设置",
         icon = Icons.Outlined.Settings,
-        onClick = { _, context ->
+        onClick = { context ->
             context.startActivity(Intent(context, SettingsActivity::class.java))
         }
     ),
     MenuItem(
         "关于",
         icon = Icons.Outlined.Info,
-        onClick = { _, context ->
+        onClick = { context ->
             context.startActivity(Intent(context, AboutActivity::class.java))
         }
     )
@@ -190,7 +180,8 @@ fun MainActivityScreen(
             isBackgroundShowing = !isDropdownMenuShowing,
             onDropdown = {
                 isDropdownMenuShowing = !isDropdownMenuShowing
-            }
+            },
+            onRetry = {}
         ) {
             val recommendSource = LocalConfiguration.current.recommendSource
             LaunchedEffect(key1 = recommendSource, block = {
@@ -200,12 +191,12 @@ fun MainActivityScreen(
                 targetState = isDropdownMenuShowing,
                 transitionSpec = {
                     val tweenFloat = tween<Float>(
-                        durationMillis = 500,
-                        easing = CubicBezierEasing(0f, 1f, 0.25f, 1f)
+                        durationMillis = 400,
+                        //easing = CubicBezierEasing(0f, 1f, 0.25f, 1f)
                     )
                     val tweenIntOffset = tween<IntOffset>(
-                        durationMillis = 500,
-                        easing = CubicBezierEasing(0f, 1f, 0.25f, 1f)
+                        durationMillis = 400,
+                        //easing = CubicBezierEasing(0f, 1f, 0.25f, 1f)
                     )
                     if (!isDropdownMenuShowing) {
                         (slideInVertically(animationSpec = tweenIntOffset) { height -> height } + fadeIn(
@@ -219,9 +210,7 @@ fun MainActivityScreen(
                         )).togetherWith(slideOutVertically(animationSpec = tweenIntOffset) { height -> height } + fadeOut(
                             animationSpec = tweenFloat
                         ))
-                    }/*.using(
-                        SizeTransform(clip = false)
-                    )*/
+                    }
                 }, label = "mainActivityMenu"
             ) { isDropdownShowing ->
                 if (isDropdownShowing) {
@@ -230,7 +219,7 @@ fun MainActivityScreen(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(16.dp)
+                        contentPadding = if (isRound()) PaddingValues(24.dp) else PaddingValues(16.dp)
                     ) {
                         items(menuItems) { item ->
                             if (item.icon != null) {
@@ -240,14 +229,22 @@ fun MainActivityScreen(
                                             imageVector = item.icon,
                                             tint = Color.White,
                                             contentDescription = null,
-                                            modifier = Modifier.align(Alignment.Center)
+                                            modifier = Modifier
+                                                .align(Alignment.Center)
+                                                .fillMaxSize(0.4f)
+                                            /*.scale(
+                                                if (isRound()) 1.5f else 1f
+                                            )*/
                                         )
                                     },
                                     text = item.text,
                                     modifier = Modifier/*.weight(1f)*/,
                                     buttonModifier = Modifier.aspectRatio(1f),
                                     onClick = {
-                                        item.onClick(pagerState, coroutineScope, context)
+                                        coroutineScope.launch {
+                                            item.onClick(pagerState, context)
+                                            isDropdownMenuShowing = false
+                                        }
                                     }
                                 )
                             } else if (item.customIcon) {
@@ -257,14 +254,19 @@ fun MainActivityScreen(
                                             painter = painterResource(id = item.iconResId),
                                             tint = Color.White,
                                             contentDescription = null,
-                                            modifier = Modifier.align(Alignment.Center)
+                                            modifier = Modifier
+                                                .align(Alignment.Center)
+                                                .fillMaxSize(0.4f)
                                         )
                                     },
                                     text = item.text,
                                     modifier = Modifier/*.weight(1f)*/,
                                     buttonModifier = Modifier.aspectRatio(1f),
                                     onClick = {
-                                        item.onClick(pagerState, coroutineScope, context)
+                                        coroutineScope.launch {
+                                            item.onClick(pagerState, context)
+                                            isDropdownMenuShowing = false
+                                        }
                                     }
                                 )
                             }
@@ -278,7 +280,7 @@ fun MainActivityScreen(
                     ) {
                         when (it) {
                             0 -> RecommendScreen(
-                                state = recommendViewModel.screenState,
+                                viewModel = recommendViewModel,
                                 context = context,
                                 onFetch = { isRefresh ->
                                     recommendViewModel.getRecommendVideos(
@@ -287,6 +289,7 @@ fun MainActivityScreen(
                                     )
                                 }
                             )
+
                             1 -> DynamicScreen(viewModel = dynamicViewModel, context = context)
                             2 -> ProfileScreen(
                                 state = profileScreenState,

@@ -23,7 +23,7 @@ object SettingsManager {
     private val context = Application.getApplication()
     private val configurationDataStore = context.appConfigurationDataStore
 
-    private fun getConfiguration() = runBlocking { configurationDataStore.data.first() }
+    fun getConfiguration() = runBlocking { configurationDataStore.data.first() }
     val configuration
         @Composable get() = configurationDataStore.data.collectAsState(initial = getConfiguration())
 

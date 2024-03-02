@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app.video.info.comment.ui
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -65,11 +66,15 @@ import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.TAG
+import cn.spacexc.wearbili.remake.app.article.ui.ArticleActivity
+import cn.spacexc.wearbili.remake.app.article.ui.PARAM_CVID
 import cn.spacexc.wearbili.remake.app.image.ImageViewerActivity
 import cn.spacexc.wearbili.remake.app.image.PARAM_IMAGE_URLS
 import cn.spacexc.wearbili.remake.app.image.PARAM_SELECTED_INDEX
 import cn.spacexc.wearbili.remake.app.search.ui.PARAM_DEFAULT_SEARCH_KEYWORD
 import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
+import cn.spacexc.wearbili.remake.app.season.ui.PARAM_MID
+import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceActivity
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.EmoteObject
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
@@ -267,14 +272,14 @@ fun RichText(
                     if (cn.spacexc.wearbili.common.domain.video.VideoUtils.isBV(annotation.item)) {
                         Intent(context, VideoInformationActivity::class.java).apply {
                             putExtra(PARAM_VIDEO_ID, annotation.item)
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            //flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             context.startActivity(this)
                         }
                     } else if (cn.spacexc.wearbili.common.domain.video.VideoUtils.isAV(annotation.item)) {
                         Intent(context, VideoInformationActivity::class.java).apply {
                             putExtra(PARAM_VIDEO_ID, annotation.item)
                             putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_AID)
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            //flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             context.startActivity(this)
                         }
                     } /*else if (annotation.item.startsWith("http")) {
@@ -289,16 +294,15 @@ fun RichText(
                     }*/
                     return@ClickableText
                 }
-            /*annotatedString.getStringAnnotations(tag = "tagUser", start = index, end = index)
+            annotatedString.getStringAnnotations(tag = "tagUser", start = index, end = index)
                 .firstOrNull()?.let { annotation ->
-                    Log.d(TAG, "RichText: tagUser: ${annotation.item}")
-                    context.startActivity(Intent(context, SpaceProfileActivity::class.java).apply {
-                        putExtra("userMid", annotation.item.toLong())
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    //Log.d(TAG, "RichText: tagUser: ${annotation.item}")
+                    context.startActivity(Intent(context, UserSpaceActivity::class.java).apply {
+                        putExtra(PARAM_MID, annotation.item.toLong())
                     })
                     return@ClickableText
                 }
-            annotatedString.getStringAnnotations(tag = "tagUrl", start = index, end = index)
+            /*annotatedString.getStringAnnotations(tag = "tagUrl", start = index, end = index)
                 .firstOrNull()?.let { annotation ->
                     if (VideoUtils.isBV(annotation.item)) {
                         Intent(context, VideoActivity::class.java).apply {
@@ -367,8 +371,9 @@ fun CommentCard(
     isUpLiked: Boolean,
     isTopComment: Boolean,
     uploaderMid: Long,
-    context: Context,
+    context: Activity,
     isClickable: Boolean,
+    noteCvid: Long,
     oid: Long,
 ) {
     var commentInfoItemHeight by remember {
@@ -377,15 +382,21 @@ fun CommentCard(
     Column(
         modifier = Modifier
             .clickVfx(isEnabled = isClickable) {
-                /*if (isClickable) {
-                    Intent(context, CommentRepliesActivity::class.java).apply {
+                if (isClickable) {
+                    if (noteCvid != 0L) {
+                        Intent(context, ArticleActivity::class.java).apply {
+                            putExtra(PARAM_CVID, noteCvid)
+                            context.startActivity(this)
+                        }
+                    }
+                    /*Intent(context, CommentRepliesActivity::class.java).apply {
                         putExtra("oid", oid)
                         putExtra("rootCommentId", commentRpid)
                         putExtra("upMid", uploaderMid)
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         context.startActivity(this)
-                    }
-                }*/
+                    }*/
+                }
             }
             .fillMaxWidth()
             .padding(vertical = 2.dp)
@@ -438,7 +449,9 @@ fun CommentCard(
                     appendInlineContent("uploaderLabel")
                 }
             },
-            inlineContent = uploaderLabelInlineTextContent
+            inlineContent = uploaderLabelInlineTextContent,
+            mid = senderMid,
+            context = context
         )
         Column(Modifier.padding(horizontal = 6.dp)) {
             Spacer(modifier = Modifier.height(4.dp))
@@ -451,6 +464,21 @@ fun CommentCard(
                 fontSize = AppTheme.typography.body1.fontSize * 1.1f,
                 context = context
             ) {
+                if (isClickable) {
+                    if (noteCvid != 0L) {
+                        Intent(context, ArticleActivity::class.java).apply {
+                            putExtra(PARAM_CVID, noteCvid)
+                            context.startActivity(this)
+                        }
+                    }
+                    /*Intent(context, CommentRepliesActivity::class.java).apply {
+                        putExtra("oid", oid)
+                        putExtra("rootCommentId", commentRpid)
+                        putExtra("upMid", uploaderMid)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        context.startActivity(this)
+                    }*/
+                }
                 /*if (isClickable) {
                     Intent(context, CommentRepliesActivity::class.java).apply {
                         putExtra("oid", oid)

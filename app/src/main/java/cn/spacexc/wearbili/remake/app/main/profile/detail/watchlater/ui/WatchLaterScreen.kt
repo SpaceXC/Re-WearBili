@@ -46,7 +46,12 @@ fun Activity.WatchLaterScreen(
             viewModel.getWatchLaterItems()
         }, refreshThreshold = 40.dp
     )
-    TitleBackground(title = "稍后再看", onBack = onBack, uiState = viewModel.uiState) {
+    TitleBackground(
+        title = "稍后再看",
+        onBack = onBack,
+        uiState = viewModel.uiState,
+        onRetry = viewModel::getWatchLaterItems
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -55,7 +60,7 @@ fun Activity.WatchLaterScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
-                    horizontal = TitleBackgroundHorizontalPadding - 4.dp,
+                    horizontal = TitleBackgroundHorizontalPadding() - 4.dp,
                     vertical = 4.dp
                 )
             ) {

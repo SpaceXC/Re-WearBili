@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.spacexc.bilibilisdk.sdk.video.action.VideoAction
 import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
+import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_EPID
@@ -22,11 +23,6 @@ import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID_TYPE
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.readBytes
-import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
@@ -52,27 +48,27 @@ class VideoInformationViewModel @Inject constructor(
         VideoInformationScreenState()
     )
 
-    //TODO 把点赞 收藏 投币 三种状态从state里面分离出来
     var isLiked by mutableStateOf(false)
     var isFav by mutableStateOf(false)
     var isCoined by mutableStateOf(false)
 
-    var imageBitmap: Bitmap? by mutableStateOf(null)
+    var hasCoinedCount by mutableStateOf(0)
 
     fun getVideoInfo(
         videoIdType: String,
         videoId: String?,
         activity: Activity
     ) {
+        state = state.copy(uiState = UIState.Loading)
         viewModelScope.launch {
             if (videoId.isNullOrEmpty()) {
-                state = state.copy(uiState = UIState.Failed)
+                state = state.copy(uiState = UIState.Failed("视频找不到啦啊啊啊"))
                 return@launch
             }
             val response =
                 VideoInfo.getVideoDetailedInfoByIdWeb(videoIdType, videoId)
             if (response.code != 0 || response.data?.data == null || response.data?.code != 0) {
-                state = state.copy(uiState = UIState.Failed)
+                state = state.copy(uiState = UIState.Failed(response.code))
                 return@launch
             }
             response.data?.data?.view?.redirectUrl?.let { url ->
@@ -87,16 +83,7 @@ class VideoInformationViewModel @Inject constructor(
                     activity.finish()
                 }
             }
-            listOf(
-                viewModelScope.async {
-                    getVideoSanLianState(videoIdType, videoId)
-                },
-                viewModelScope.async {
-                    getImageBitmap(
-                        response.data?.data?.view?.pic?.replace("http://", "https://") ?: ""
-                    )
-                }
-            ).awaitAll()
+            getVideoSanLianState(videoIdType, videoId)
             state = state.copy(uiState = UIState.Success, videoData = response.data?.data)
         }
     }
@@ -129,14 +116,18 @@ class VideoInformationViewModel @Inject constructor(
         )
     }
 
-    private suspend fun isCoined(
+    suspend fun isCoined(
         videoIdType: String,
         videoId: String?
     ) {
-        isCoined = VideoInfo.isCoined(
+        val response = VideoInfo.isCoined(
             videoIdType,
             videoId
         )
+        response.data?.data?.let {
+            isCoined = it.multiply != 0
+            hasCoinedCount = it.multiply
+        }
     }
 
     /**
@@ -153,17 +144,54 @@ class VideoInformationViewModel @Inject constructor(
         videoIdType: String,
         videoId: String?
     ) {
-        isLiked = !isLiked
 
+        isLiked = !isLiked
         viewModelScope.launch {
             val response = VideoAction.likeVideo(videoIdType, videoId, !isLiked)
             if (response.code != 0) {
                 isLiked = !isLiked
-
                 ToastUtils.showText("${response.code}: ${response.message}")
             }
-            isLiked(videoIdType, videoId)
+            //isLiked(videoIdType, videoId)
             logd(response)
+        }
+    }
+
+    fun sanlian(
+        videoIdType: String,
+        videoId: String,
+        onFinished: (Boolean, Boolean, Boolean) -> Unit
+    ) {
+        val likeTemp = isLiked
+        val coinTemp = isCoined
+        val favTemp = isFav
+        val coinCountTemp = hasCoinedCount
+        viewModelScope.launch {
+            if (UserUtils.isUserLoggedIn()) {
+                isLiked = true
+                isCoined = true
+                isFav = true
+                hasCoinedCount = 2
+                onFinished(isLiked, isCoined, isFav)
+                val response = VideoAction.sanlian(videoIdType, videoId)
+                if (response.code != 0) {
+                    ToastUtils.showText("${response.message}")
+                    response.data?.data.apply {
+                        if (this != null) {
+                            isLiked = like
+                            isCoined = coin
+                            isFav = fav
+                            hasCoinedCount = multiply
+                        } else {
+                            isLiked = likeTemp
+                            isFav = favTemp
+                            isCoined = coinTemp
+                            hasCoinedCount = coinCountTemp
+                        }
+                        onFinished(isLiked, isCoined, isFav)
+                    }
+                }
+            }
         }
     }
 
@@ -177,34 +205,6 @@ class VideoInformationViewModel @Inject constructor(
                 ToastUtils.showText("添加失败！${response.code}: ${response.message}")
             } else {
                 ToastUtils.showText("添加成功！记得来看我哦～")
-            }
-        }
-    }
-
-    private fun getImageBitmap(url: String) {
-        viewModelScope.launch {
-            try {
-                val response: HttpResponse = ktorNetworkUtils.client.get(url) {
-                    //accept(ContentType.Application.Json)
-                }
-                if (response.status == HttpStatusCode.OK) {
-                    val bytes = response.readBytes()
-                    val bitmap = getBitmapFromBytes(
-                        bytes,
-                        //true
-                    )
-                    if (bitmap != null) {
-                        imageBitmap = bitmap
-                        //Log.d("TAG", "getImageBitmap: $url success")
-                    }
-                } else {
-                    MainScope().launch {
-                        ToastUtils.showText("${response.status.value}")
-                    }
-                }
-            } catch (e: Exception) {
-                //getImageBitmap(url, onSuccess)
-                e.printStackTrace()
             }
         }
     }

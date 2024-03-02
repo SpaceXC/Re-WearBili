@@ -14,5 +14,7 @@ data class SettingsItem(
     val icon: @Composable () -> Unit,
     val name: String,
     val description: String,
-    val action: (() -> Unit)? = null
+    val action: (() -> Unit)? = null,
+    val isOn: (() -> Boolean)? = null,
+    val value: (() -> String)? = null,
 )

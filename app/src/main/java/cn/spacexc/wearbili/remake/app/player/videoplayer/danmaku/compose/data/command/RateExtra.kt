@@ -9,7 +9,7 @@ data class RateExtra(
     val count: Int,
     val duration: Int,
     @SerializedName("grade_id")
-    val gradeId: Int,
+    val gradeid: Long,
     val icon: String,
     @SerializedName("mid_score")
     val midScore: Int,

@@ -15,13 +15,16 @@ import cn.leancloud.LCLogger
 import cn.leancloud.LeanCloud
 import cn.spacexc.bilibilisdk.BilibiliSdkManager
 import cn.spacexc.bilibilisdk.data.DataManager
+import cn.spacexc.wearbili.common.APP_CENTER_SECRET
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
-import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.crash.ui.CrashActivity
 import cn.spacexc.wearbili.remake.app.crash.ui.PARAM_EXCEPTION_DESCRIPTION
 import cn.spacexc.wearbili.remake.app.crash.ui.PARAM_EXCEPTION_STACKTRACE
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerService
+import com.microsoft.appcenter.AppCenter
+import com.microsoft.appcenter.analytics.Analytics
+import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.EntryPoint
 import dagger.hilt.EntryPoints
 import dagger.hilt.InstallIn
@@ -76,6 +79,7 @@ class Application : android.app.Application(), Configuration.Provider {
     @SuppressLint("WearRecents")    //懒得弄了...反正国内厂商把东西都阉割得差不多了
     override fun onCreate() {
         super.onCreate()
+        //System.load()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             Log.e(
                 TAG,
@@ -90,10 +94,10 @@ class Application : android.app.Application(), Configuration.Provider {
             exitProcess(2)
             //throw throwable
         }
-        /*AppCenter.start(
+        AppCenter.start(
             this, APP_CENTER_SECRET,
             Analytics::class.java, Crashes::class.java
-        )*/
+        )
         LeanCloud.initialize(
             this,
             "MAE7LopsPz1kgP3deSjzQ67g-gzGzoHsz",
@@ -107,11 +111,6 @@ class Application : android.app.Application(), Configuration.Provider {
         BilibiliSdkManager.initSdk(
             dataManager = dataStore
         )
-        /*CrashConfig.Builder.create()
-            .errorActivity(CrashActivity::class.java)
-            .apply()*/
-        //VideoPlayerManager.dataManager = dataStore
-        logd("mainApplicationContext")
         Log.e(
             TAG,
             "20230708: 记住，在这里每一处不合理的地方，都有他的合理之处和存在于此的理由 ————XC于00:17有感而发"

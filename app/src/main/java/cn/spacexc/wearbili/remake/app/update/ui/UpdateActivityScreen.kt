@@ -66,7 +66,7 @@ fun Activity.UpdateActivityScreen(
     val downloadTimeLeft by viewModel.downloadTimeLeft.collectAsState()
 
     val scope = rememberCoroutineScope()
-    TitleBackground(title = "更新", onBack = ::finish) {
+    TitleBackground(title = "更新", onBack = ::finish, onRetry = {}) {
         versionInfo?.let {
             val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
             val outputFormat = SimpleDateFormat("yyyy年MM月dd日")
@@ -75,7 +75,7 @@ fun Activity.UpdateActivityScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = TitleBackgroundHorizontalPadding)
+                    .padding(horizontal = TitleBackgroundHorizontalPadding())
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(4.dp)

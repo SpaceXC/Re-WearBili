@@ -33,7 +33,9 @@ import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
         /*@UnstableApi*/
 fun Activity.BangumiScreen(
     bangumiInfoViewModel: BangumiViewModel,
-    bangumiCommentViewModel: CommentViewModel
+    bangumiCommentViewModel: CommentViewModel,
+    bangumiIdType: String,
+    bangumiId: Long,
 ) {
     val pagerState = rememberPagerState(pageCount = { 2 })
     var currentColor by remember {
@@ -62,11 +64,17 @@ fun Activity.BangumiScreen(
         },
         themeColor = color,
         ambientAlpha = ambientAlpha,
-        onBack = ::finish
+        onBack = ::finish,
+        onRetry = {}
     ) {
         HorizontalPager(state = pagerState) { page ->
             when (page) {
-                0 -> BangumiInfoScreen(viewModel = bangumiInfoViewModel)
+                0 -> BangumiInfoScreen(
+                    viewModel = bangumiInfoViewModel,
+                    bangumiIdType = bangumiIdType,
+                    bangumiId = bangumiId
+                )
+
                 1 -> CommentScreen(
                     viewModel = bangumiCommentViewModel,
                     commentDataFlow = bangumiCommentViewModel.commentListFlow(bangumiInfoViewModel.getCurrentSelectedEpisode()?.aid?.toString()),

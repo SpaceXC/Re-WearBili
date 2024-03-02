@@ -6,6 +6,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
 import cn.spacexc.wearbili.remake.proto.settings.AppConfiguration
+import cn.spacexc.wearbili.remake.proto.settings.QuickToolBarFunction
 import cn.spacexc.wearbili.remake.proto.settings.RecommendSource
 import cn.spacexc.wearbili.remake.proto.settings.copy
 import com.google.protobuf.InvalidProtocolBufferException
@@ -27,8 +28,15 @@ object AppConfigurationSerializer : Serializer<AppConfiguration> {
                 displayArea = 1f
                 fontScale = 1f
                 blockLevel = 0
+                isNormalDanmakuEnabled = true
+            }
+            screenDisplayScaleFactor = 1.0f
+            toolBarConfiguration = toolBarConfiguration.copy {
+                functionOne = QuickToolBarFunction.History
+                functionOne = QuickToolBarFunction.Search
             }
         }
+
 
     override suspend fun readFrom(input: InputStream): AppConfiguration {
         try {

@@ -9,9 +9,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import cn.spacexc.wearbili.remake.common.ui.BiliImage
+import androidx.compose.ui.platform.LocalContext
+import cn.spacexc.wearbili.remake.common.ui.ArrowTitleBackgroundWithCustomBackground
+import cn.spacexc.wearbili.remake.common.ui.shimmerPlaceHolder
+import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.request.ImageRequest
+import net.engawapg.lib.zoomable.rememberZoomState
+import net.engawapg.lib.zoomable.zoomable
 
 /**
  * Created by XC-Qan on 2023/11/19.
@@ -32,89 +43,40 @@ class ImageViewerActivity : ComponentActivity() {
         val selectedIndex = intent.getIntExtra(PARAM_SELECTED_INDEX, 0)
         window.requestFeature(Window.FEATURE_CONTENT_TRANSITIONS)
         setContent {
-            /*val pagerState = rememberPagerState {
-                images.size
-            }
-            LaunchedEffect(key1 = Unit, block = {
-                pagerState.scrollToPage(selectedIndex)
-            })
-            Box {
-                HorizontalPager(state = pagerState) { page ->
-                    //ImageWithZoomAndPan(imageUrl = images[page])
-                    var isLoading by remember {
-                        mutableStateOf(true)
-                    }
-                    AndroidView(
-                        factory = { context -> PhotoView(context) },
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .placeholder(
-                                visible = isLoading,
-                                highlight = PlaceholderHighlight.shimmer(),
-                                color = PlaceholderDefaults.color()
-                            )
-                    ) { photoView ->
-                        val imageLoader = ImageLoader.Builder(photoView.context)
-                            .crossfade(true)
-                            .components {
-                                if (SDK_INT >= 28) {
-                                    add(ImageDecoderDecoder.Factory())
-                                } else {
-                                    add(GifDecoder.Factory())
+            ArrowTitleBackgroundWithCustomBackground(background = {
+                val pagerState = rememberPagerState {
+                    images.size
+                }
+                LaunchedEffect(key1 = Unit, block = {
+                    pagerState.scrollToPage(selectedIndex)
+                })
+                Box {
+                    HorizontalPager(state = pagerState) { page ->
+                        var isLoading by remember {
+                            mutableStateOf(true)
+                        }
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(images[page])
+                                .crossfade(true).build(),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .zoomable(rememberZoomState())
+                                .shimmerPlaceHolder(isLoading),
+                            onState = {
+                                isLoading = when (it) {
+                                    is AsyncImagePainter.State.Success -> false
+                                    is AsyncImagePainter.State.Loading -> true
+                                    else -> true
                                 }
                             }
-                            .eventListener(object : EventListener {
-                                override fun onSuccess(
-                                    request: ImageRequest,
-                                    result: SuccessResult
-                                ) {
-                                    super.onSuccess(request, result)
-                                    isLoading = false
-                                }
-                            })
-                            .build()
-                        val request = ImageRequest.Builder(photoView.context)
-                            .data(images[page])
-                            .crossfade(true)
-                            .target(photoView)
-
-                            .build()
-                        imageLoader.enqueue(request)
+                        )
                     }
                 }
-            }*/
+            }, onBack = ::finish) {
 
-            val pagerState = rememberPagerState {
-                images.size
             }
-            LaunchedEffect(key1 = Unit, block = {
-                pagerState.scrollToPage(selectedIndex)
-            })
-            Box {
-                HorizontalPager(state = pagerState) { page ->
-                    //ImageWithZoomAndPan(imageUrl = images[page])
-                    BiliImage(
-                        url = images[page],
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            }
-
-            /*var currentPage by remember {
-                mutableIntStateOf(0)
-            }
-            AndroidView(factory = { context -> ViewPager2(context) }, modifier = Modifier.fillMaxSize()) { viewPager ->
-                viewPager.adapter =
-                    ImageViewerAdapter(viewPager.context).apply { submitList(images.toList()) }
-                //viewPager.setCurrentItem(selectedIndex, false)
-                viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                    override fun onPageSelected(position: Int) {
-                        super.onPageSelected(position)
-                        currentPage = position + 1
-                    }
-                })
-            }*/
         }
     }
 }

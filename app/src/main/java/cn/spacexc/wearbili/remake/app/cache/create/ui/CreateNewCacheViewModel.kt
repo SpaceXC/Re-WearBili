@@ -36,7 +36,7 @@ class CreateNewCacheViewModel @Inject constructor(
     private val repository: VideoCacheRepository
 ) : ViewModel() {
 
-    var uiState by mutableStateOf(UIState.Loading)
+    var uiState: UIState by mutableStateOf(UIState.Loading)
 
     var videoPages by mutableStateOf(emptyList<Page>())
     private var videoInfo: WebVideoInfo? by mutableStateOf(null)
@@ -47,12 +47,12 @@ class CreateNewCacheViewModel @Inject constructor(
         viewModelScope.launch {
             val response = VideoInfo.getVideoInfoByIdWeb(VIDEO_TYPE_BVID, videoBvid)
             if (response.code != 0) {
-                uiState = UIState.Failed
+                uiState = UIState.Failed(response.code)
                 return@launch
             }
             val parts = response.data?.data?.pages
             if (parts == null) {
-                uiState = UIState.Failed
+                uiState = UIState.Failed(errorMessage = "加载失败啦")
                 return@launch
             }
             videoPages = parts

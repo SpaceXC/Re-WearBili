@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import cn.spacexc.bilibilisdk.sdk.season.SeasonInfo
 import cn.spacexc.bilibilisdk.sdk.season.remote.list.Archive
-import cn.spacexc.wearbili.common.exception.DataLoadFailedException
+import cn.spacexc.wearbili.common.exception.PagingDataLoadFailedException
 
 /**
  * Created by XC-Qan on 2023/11/5.
@@ -25,7 +25,12 @@ class SeasonPagingSource(
         val itemsPerPage = 20
         val response = SeasonInfo.getVideosInSeasonById(mid = mid, seasonId = seasonId, page = page)
         if (response.code != 0) {
-            return LoadResult.Error(DataLoadFailedException())
+            return LoadResult.Error(
+                PagingDataLoadFailedException(
+                    apiUrl = response.apiUrl,
+                    code = response.code
+                )
+            )
         }
         val list = response.data?.data?.archives
         val nextKey =

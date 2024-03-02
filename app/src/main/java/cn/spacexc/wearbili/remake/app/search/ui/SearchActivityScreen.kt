@@ -54,7 +54,9 @@ import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
+import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
+import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
@@ -93,7 +95,7 @@ fun SearchActivityScreen(
             hotWordItemHeight = with(localDensity) { it.height.toDp() }
         }
     )  //这个Text是用来获取高度以设置下面LazyStaggeredGrid的高度以及热搜类型图片的高度的，不可或缺，要和下面热搜词的大小同步
-    context.TitleBackground(title = "搜索", onBack = onBack) {
+    context.TitleBackground(title = "搜索", onBack = onBack, onRetry = {}) {
         var searchInputValue by remember {
             mutableStateOf(defaultSearchKeyword)
         }
@@ -103,8 +105,12 @@ fun SearchActivityScreen(
                 .verticalScroll(searchViewModel.scrollState),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Column(modifier = Modifier.padding(horizontal = 8.dp)) {
-                Spacer(modifier = Modifier.height(4.dp))
+            Column(modifier = Modifier.padding(horizontal = TitleBackgroundHorizontalPadding())) {
+                if (isRound()) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                } else {
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
                 Card(
                     innerPaddingValues = PaddingValues(vertical = 10.dp, horizontal = 8.dp),
                     outerPaddingValues = PaddingValues(0.dp),
@@ -169,14 +175,12 @@ fun SearchActivityScreen(
                     }
 
                 }
-
-
             }
             if (searchHistory.isNotEmpty()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
+                        .padding(horizontal = TitleBackgroundHorizontalPadding())
                 ) {
                     IconText(
                         text = "搜索记录",
@@ -213,7 +217,7 @@ fun SearchActivityScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(if (searchHistory.isNotEmpty()) ((hotWordItemHeight + 8.dp) * (if (searchHistory.size > 4) 2 else 1) + 4.dp * ((if (searchHistory.size > 4) 2 else 1) - 1)) else 0.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp)
+                contentPadding = PaddingValues(horizontal = TitleBackgroundHorizontalPadding())
             ) {
                 items(searchHistory) { item ->
                     Card(
@@ -240,7 +244,7 @@ fun SearchActivityScreen(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
+                        .padding(horizontal = TitleBackgroundHorizontalPadding())
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.LocalFireDepartment,
@@ -257,7 +261,7 @@ fun SearchActivityScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height((hotWordItemHeight + 8.dp) * 3 + 8.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp)
+                contentPadding = PaddingValues(horizontal = TitleBackgroundHorizontalPadding())
             ) {
                 items(hotWords) { item ->
                     Card(
@@ -268,7 +272,7 @@ fun SearchActivityScreen(
                             searchViewModel.addSearchHistory(item.keyword)
                             context.startActivity(
                                 Intent(context, SearchResultActivity::class.java).apply {
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    //flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                     putExtra(PARAM_KEYWORD, item.keyword)
                                 }
                             )
@@ -301,6 +305,9 @@ fun SearchActivityScreen(
                     }
 
                 }
+            }
+            if (isRound()) {
+                Spacer(modifier = Modifier.height(10.dp))
             }
             Spacer(modifier = Modifier.height(8.dp))
         }

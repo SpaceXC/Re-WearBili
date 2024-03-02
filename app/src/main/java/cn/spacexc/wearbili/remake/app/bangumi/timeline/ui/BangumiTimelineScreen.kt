@@ -78,7 +78,12 @@ fun Activity.BangumiTimelineScreen(
             //FIXME known-bug: 初始化状态无法居中
         }
     })
-    TitleBackground(title = "新番时间表", onBack = ::finish, uiState = viewModel.uiState) {
+    TitleBackground(
+        title = "新番时间表",
+        onBack = ::finish,
+        uiState = viewModel.uiState,
+        onRetry = viewModel::getBangumiTimeline
+    ) {
         if (viewModel.timelineData.isNotEmpty() && viewModel.currentDate.isNotEmpty()) {
             val currentList =
                 viewModel.timelineData.toList().find { it.first.first == viewModel.currentDate }

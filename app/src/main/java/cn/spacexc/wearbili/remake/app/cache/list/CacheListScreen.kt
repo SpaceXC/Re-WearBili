@@ -17,6 +17,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,7 +45,10 @@ fun Activity.CacheListScreen(
 ) {
     val completedTasks by viewModel.completedTasks.collectAsState(initial = emptyList())
     val unCompletedTasks by viewModel.unCompletedTasks.collectAsState(initial = emptyList())
-    TitleBackground(title = "视频缓存", onBack = ::finish) {
+    TitleBackground(title = "视频缓存", onBack = ::finish, onRetry = {}) {
+        var currentSelectedCache by remember {
+            mutableLongStateOf(0L)
+        }
         if (completedTasks.isEmpty() && unCompletedTasks.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -70,7 +76,7 @@ fun Activity.CacheListScreen(
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 if (unCompletedTasks.isNotEmpty()) {
-                    item(key = "text1") {
+                    stickyHeader(key = "text1") {
                         Text(
                             text = "正在缓存",
                             style = MaterialTheme.typography.h2,
@@ -81,13 +87,24 @@ fun Activity.CacheListScreen(
                         item(key = task.videoCid) {
                             VideoCacheCard(
                                 cacheInfo = task,
-                                modifier = Modifier.wearBiliAnimateContentPlacement(this)
+                                modifier = Modifier.wearBiliAnimateContentPlacement(this),
+                                context = this@CacheListScreen,
+                                onDelete = {
+                                    viewModel.deleteCache(task)
+                                },
+                                onLongClick = {
+                                    currentSelectedCache = task.videoCid
+                                },
+                                onBack = {
+                                    currentSelectedCache = 0L
+                                },
+                                isShowingMenu = currentSelectedCache == task.videoCid
                             )
                         }
                     }
                 }
                 if (completedTasks.isNotEmpty()) {
-                    item(key = "text2") {
+                    stickyHeader(key = "text2") {
                         Text(
                             text = "已缓存",
                             style = MaterialTheme.typography.h2,
@@ -98,7 +115,18 @@ fun Activity.CacheListScreen(
                         item(key = task.videoCid) {
                             VideoCacheCard(
                                 cacheInfo = task,
-                                modifier = Modifier.wearBiliAnimateContentPlacement(this)
+                                modifier = Modifier.wearBiliAnimateContentPlacement(this),
+                                context = this@CacheListScreen,
+                                onDelete = {
+                                    viewModel.deleteCache(task)
+                                },
+                                onLongClick = {
+                                    currentSelectedCache = task.videoCid
+                                },
+                                onBack = {
+                                    currentSelectedCache = 0L
+                                },
+                                isShowingMenu = currentSelectedCache == task.videoCid
                             )
                         }
                     }

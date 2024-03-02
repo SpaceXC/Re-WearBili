@@ -46,7 +46,10 @@ class RecommendViewModel @Inject constructor(
                         else "http://app.bilibili.com/x/v2/feed/index?column=1"
                     val response = networkUtils.get<RecommendVideo>(url)
                     screenState = if (response.code != 0) {
-                        screenState.copy(uiState = UIState.Failed, isRefreshing = false)
+                        screenState.copy(
+                            uiState = UIState.Failed(response.code),
+                            isRefreshing = false
+                        )
                     } else {
                         if (isRefresh) {
                             screenState.copy(
@@ -71,7 +74,7 @@ class RecommendViewModel @Inject constructor(
                         "https://api.bilibili.com/x/web-interface/index/top/rcmd?fresh_type=10&version=1&ps=8&fresh_idx=&fresh_idx_1h=&homepage_ver=1"
                     val response = networkUtils.get<WebRecommendVideo>(url)
                     screenState = if (response.code != 0) {
-                        screenState.copy(uiState = UIState.Failed)
+                        screenState.copy(uiState = UIState.Failed(response.code))
                     } else {
                         if (isRefresh) {
                             screenState.copy(

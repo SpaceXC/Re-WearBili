@@ -4,7 +4,7 @@ package cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.c
 import com.google.gson.annotations.SerializedName
 
 data class VideoExtra(
-    val aid: Int,
+    val aid: Long,
     @SerializedName("arc_duration")
     val arcDuration: Int,
     @SerializedName("arc_pic")

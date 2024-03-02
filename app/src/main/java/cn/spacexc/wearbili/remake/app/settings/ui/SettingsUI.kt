@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,10 +27,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.app.settings.domain.SettingsItem
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
+import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
+import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 
@@ -45,15 +50,21 @@ import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 fun Activity.SettingsActivityScreen(
     items: List<SettingsItem>
 ) {
-    TitleBackground(title = "", onBack = ::finish) {
-        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(8.dp)) {
+    TitleBackground(title = "", onBack = ::finish, onRetry = {}) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(
+                horizontal = TitleBackgroundHorizontalPadding()
+            )
+        ) {
             item {
                 Text(
                     text = "设置",
                     color = Color.White,
                     fontFamily = wearbiliFontFamily,
                     fontSize = 22.spx,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = if (isRound()) TextAlign.Center else TextAlign.Start
                 )
             }
             for (item in items) {
@@ -62,6 +73,7 @@ fun Activity.SettingsActivityScreen(
                     Spacer(modifier = Modifier.height(6.dp))
                 }
             }
+            item { if (isRound()) Spacer(modifier = Modifier.height(30.dp)) }
         }
     }
 }
@@ -76,7 +88,7 @@ fun SettingsItem(
     }
     Card(shape = RoundedCornerShape(15.dp), onClick = {
         item.action?.invoke()
-    }) {
+    }, isHighlighted = item.isOn?.invoke() ?: false) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -109,6 +121,30 @@ fun SettingsItem(
                     modifier = Modifier.alpha(0.7f)
                 )
             }
+            Spacer(modifier = Modifier.weight(1f))
+            if (item.value != null) {
+                Text(
+                    text = item.value.invoke(),
+                    fontFamily = wearbiliFontFamily,
+                    fontSize = 12.sp,
+                    color = Color.White
+                )
+            }
+            /*if (item.isOn != null) {
+                Switch(
+                    checked = item.isOn.invoke(),
+                    onCheckedChange = {
+                        item.action?.invoke()
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedTrackColor = BilibiliPink,
+                        uncheckedBorderColor = Color.White,
+                        uncheckedTrackColor = Color.White
+                    ),
+                    modifier = Modifier.size(2.dp),
+
+                )
+            }*/
         }
     }
 }

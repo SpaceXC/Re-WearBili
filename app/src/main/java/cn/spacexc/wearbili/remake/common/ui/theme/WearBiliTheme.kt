@@ -17,10 +17,12 @@ typealias AppTheme = MaterialTheme
 @Composable
 fun WearBiliTheme(content: @Composable () -> Unit) {
     ProvideConfiguration {
-        MaterialTheme(
-            typography = wearbiliTypography
-        ) {
-            content()
+        ProvideLocalDensity {
+            MaterialTheme(
+                typography = wearbiliTypography
+            ) {
+                content()
+            }
         }
     }
 }

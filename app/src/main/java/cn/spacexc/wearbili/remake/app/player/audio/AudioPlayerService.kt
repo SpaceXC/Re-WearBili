@@ -181,9 +181,9 @@ class AudioPlayerService : LifecycleService() {
 
     fun exitService() {
         //videoCid = 0
-        lifecycleScope.cancel()
-        viewModel.player.stop()
+        //viewModel.player.stop()
         viewModel.player.release()
+        lifecycleScope.cancel()
         stopSelf()
     }
 

@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.article.util
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -9,7 +8,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.ifEmptyThenNull
-import cn.spacexc.wearbili.remake.app.TAG
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
 
@@ -74,7 +72,7 @@ data class HtmlImage(
 )
 
 fun MutableList<HtmlNode>.parseElement(element: Element) {
-    Log.d(TAG, "parseElement: $element")
+    //Log.d(TAG, "parseElement: $element")
     when (element.tag().name) {
         TYPE_PARAGRAPH -> {
             val text = HtmlText(
@@ -169,7 +167,7 @@ fun MutableList<HtmlNode>.parseElement(element: Element) {
 fun Element.buildAnnotatedString(): AnnotatedString {
     return buildAnnotatedString {
         childNodes().forEach {
-            Log.d(TAG, "buildAnnotatedString: $it")
+            //Log.d(TAG, "buildAnnotatedString: $it")
             if (it is TextNode) {
                 append(it.text())
             } else if (it is Element) {

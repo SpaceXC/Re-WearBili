@@ -23,7 +23,7 @@ class VideoFavouriteFoldersActivity : ComponentActivity() {
         val videoAid = intent.getLongExtra(PARAM_VIDEO_AID, 0L)
         viewModel.getFolders(videoAid = videoAid)
         setContent {
-            VideoFavouriteFoldersScreen(viewModel = viewModel)
+            VideoFavouriteFoldersScreen(viewModel = viewModel, videoAid = videoAid)
         }
     }
 }

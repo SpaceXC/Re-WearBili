@@ -59,7 +59,9 @@ class VideoInformationActivity : ComponentActivity() {
                 oid = videoInfoViewModel.state.videoData?.view?.aid ?: 0,
                 onBack = ::finish,
                 commentDataFlow = commentDataFlow,
-                videoInformationViewModel = videoInfoViewModel
+                videoInformationViewModel = videoInfoViewModel,
+                videoIdType = videoIdType,
+                videoId = videoId ?: ""
             )
         }
     }

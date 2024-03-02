@@ -75,6 +75,8 @@ import cn.spacexc.wearbili.remake.app.isAudioServiceUp
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerActivity
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.ProvideConfiguration
+import cn.spacexc.wearbili.remake.common.ToastUtils
+import cn.spacexc.wearbili.remake.common.ToastUtils.snackBarObject
 import cn.spacexc.wearbili.remake.common.ToastUtils.toastContent
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
@@ -134,8 +136,15 @@ fun Activity.CirclesBackground(
                 toastContent = ""
             }
         })
+        LaunchedEffect(key1 = snackBarObject, block = {
+            if (snackBarObject != null) {
+                delay(2000)
+                snackBarObject = null
+            }
+        })
 
         when (theme) {
+            null -> {}
             cn.spacexc.wearbili.remake.proto.settings.AppTheme.Default -> {
                 Box(
                     modifier = modifier
@@ -223,31 +232,23 @@ fun Activity.CirclesBackground(
         Box(modifier = Modifier.fillMaxSize()) {
             WearBiliAnimatedVisibility(
                 visible = toastContent.isNotEmpty(),
-                enter = scaleIn() + fadeIn() + slideInVertically { it / 2 },
-                exit = scaleOut() + fadeOut() + slideOutVertically { it / 2 },
+                enter = fadeIn() + slideInVertically { it / 2 },
+                exit = fadeOut() + slideOutVertically { it / 2 },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
             ) {
-                Text(
-                    text = toastContent, modifier = Modifier
-                        .padding(
-                            bottom = 24.dp,
-                            start = 8.dp,
-                            end = 8.dp
-                        )
-                        .background(
-                            color = Color(0, 0, 0, 153),
-                            shape = CircleShape
-                        )
-                        .padding(8.dp)
-                        .align(Alignment.BottomCenter)
-                        .wearBiliAnimatedContentSize(),
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontFamily = wearbiliFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center
-                )
+                ToastUtils.ToastContent(content = toastContent)
+            }
+            WearBiliAnimatedVisibility(
+                visible = snackBarObject != null,
+                enter = fadeIn() + slideInVertically { it / 2 },
+                exit = fadeOut() + slideOutVertically { it / 2 },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+            ) {
+                snackBarObject?.let {
+                    ToastUtils.SnackBarContent(it)
+                }
             }
         }
 
@@ -259,13 +260,13 @@ fun LoadableBox(
     modifier: Modifier = Modifier,
     uiState: UIState,
     onLongClick: () -> Unit = {},
-    onRetry: () -> Unit = {},
+    onRetry: () -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         Crossfade(targetState = uiState, label = "AppBackgroundLoadableBox") {
             when (it) {
-                UIState.Loading -> {
+                is UIState.Loading -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -284,12 +285,12 @@ fun LoadableBox(
                                 //.aspectRatio(1f)
                             )
                             Spacer(modifier = Modifier.height(6.dp))
-                            Text(text = "玩命加载中")
+                            Text(text = "玩命加载中", textAlign = TextAlign.Center)
                         }
                     }
                 }
 
-                UIState.Success -> {
+                is UIState.Success -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -298,7 +299,7 @@ fun LoadableBox(
                     }
                 }
 
-                UIState.Failed -> {
+                is UIState.Failed -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -319,7 +320,10 @@ fun LoadableBox(
                                 //.aspectRatio(1f)
                             )
                             Spacer(modifier = Modifier.height(6.dp))
-                            Text(text = "加载失败啦")
+                            Text(
+                                text = uiState.errorMessage ?: "加载失败啦",
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
                 }
@@ -328,7 +332,8 @@ fun LoadableBox(
     }
 }
 
-val TitleBackgroundHorizontalPadding = 12.dp
+@Composable
+fun TitleBackgroundHorizontalPadding() = if (isRound()) 24.dp else 12.dp
 
 @Composable
 fun Activity.TitleBackground(
@@ -345,7 +350,7 @@ fun Activity.TitleBackground(
     uiState: UIState = UIState.Success,
     themeColor: Color = BilibiliPink,
     ambientAlpha: Float = 0.6f,
-    onRetry: () -> Unit = {},
+    onRetry: () -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
     val timeSource = DefaultTimeSource("HH:mm")
@@ -364,7 +369,7 @@ fun Activity.TitleBackground(
             Row(
                 modifier = Modifier
                     .padding(
-                        horizontal = TitleBackgroundHorizontalPadding,
+                        horizontal = TitleBackgroundHorizontalPadding(),
                         vertical = if (isAudioServiceUp) 6.dp else 8.dp
                     )
                     .fillMaxWidth()
@@ -432,14 +437,16 @@ fun Activity.TitleBackground(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(1f)
+                            .wearBiliAnimatedContentSize()
+                            //.weight(1f)
                             .wrapContentHeight()
+
                     )
+
                 }
 
                 if (!isRound()) {
-                    //Spacer(modifier = Modifier.weight(1f))
-
+                    Spacer(modifier = Modifier.weight(1f))
                     Text(
                         text = buildAnnotatedString {
                             if (isAudioServiceUp) {
@@ -450,6 +457,7 @@ fun Activity.TitleBackground(
                         },
                         style = AppTheme.typography.h2,
                         modifier = Modifier
+                            .wearBiliAnimatedContentSize()
                             .clickVfx(isEnabled = isAudioServiceUp) {
                                 startActivity(
                                     Intent(
@@ -589,14 +597,15 @@ fun Activity.ArrowTitleBackgroundWithCustomBackground(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.Black)
         ) {
             background()
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
                     modifier = Modifier
                         .padding(
-                            start = TitleBackgroundHorizontalPadding,
-                            end = TitleBackgroundHorizontalPadding,
+                            start = TitleBackgroundHorizontalPadding(),
+                            end = TitleBackgroundHorizontalPadding(),
                             top = 8.dp,
                             bottom = 4.dp
                         )

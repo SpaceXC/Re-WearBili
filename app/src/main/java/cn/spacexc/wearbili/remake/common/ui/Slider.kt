@@ -142,6 +142,38 @@ fun GradientSlider(
         })
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun GradientSlider(
+    value: Float,
+    range: ClosedFloatingPointRange<Float>,
+    modifier: Modifier = Modifier,
+    onValueChanged: (Float) -> Unit,
+    onSlideFinished: () -> Unit
+) {
+    val thumbInteractionSource = rememberMutableInteractionSource()
+    Slider(
+        modifier = modifier,
+        value = value,
+        onValueChange = onValueChanged,
+        valueRange = range,
+        thumb = {
+            SliderDefaults.Thumb(
+                interactionSource = thumbInteractionSource,
+                colors = SliderDefaults.colors(thumbColor = Color.White),
+                thumbSize = DpSize(width = 10.dp, height = 10.dp),
+                modifier = Modifier.offset(x = 4.5.dp, y = 5.dp)
+            )
+        },
+        track = { position ->
+            Track(sliderPositions = position)
+        },
+        onValueChangeFinished = {
+            onSlideFinished()
+        }
+    )
+}
+
 val TrackHeight = 24.dp
 val TickSize = 4.dp
 

@@ -26,7 +26,12 @@ class CommentPagingSource(
             val currentPage = params.key ?: 1
             val response =
                 networkUtils.get<VideoComment>("https://api.bilibili.com/x/v2/reply/main?type=1&sort=1&next=$currentPage&oid=$oid")
-            if (response.code != 0) return LoadResult.Error(cn.spacexc.wearbili.common.exception.DataLoadFailedException())
+            if (response.code != 0) return LoadResult.Error(
+                cn.spacexc.wearbili.common.exception.PagingDataLoadFailedException(
+                    apiUrl = response.apiUrl,
+                    code = response.code
+                )
+            )
             val commentList = response.data?.data?.replies ?: emptyList()
             val topComment = response.data?.data?.top?.upper?.apply { is_top = true }
             val topCommentList = buildList {

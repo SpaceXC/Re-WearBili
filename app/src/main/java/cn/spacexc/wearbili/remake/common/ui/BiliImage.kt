@@ -26,11 +26,6 @@ import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.transform.Transformation
-import com.google.accompanist.placeholder.PlaceholderDefaults
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.material.color
-import com.google.accompanist.placeholder.material.shimmer
-import com.google.accompanist.placeholder.placeholder
 
 /**
  * 获取哔哩哔哩图片时带参请求，限制图片宽高达到节流节能的效果
@@ -59,16 +54,16 @@ fun BiliImage(
     var isLoading by remember {
         mutableStateOf(true)
     }
-
     Box(modifier = modifier
         .onSizeChanged {
             size = it.toSize()
         }
-        .placeholder(
+        .shimmerPlaceHolder(isLoading && placeholderEnabled)
+        /*.placeholder(
             visible = isLoading && placeholderEnabled,
             highlight = PlaceholderHighlight.shimmer(),
             color = PlaceholderDefaults.color()
-        )
+        )*/
     ) {
         if (size.width != 0f) {
             val realUrl = "${url.replace("http://", "https://")}${

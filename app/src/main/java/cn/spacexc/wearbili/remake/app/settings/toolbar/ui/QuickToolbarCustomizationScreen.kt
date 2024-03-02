@@ -52,6 +52,7 @@ import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
+import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
@@ -130,7 +131,7 @@ val QuickToolBarFunction.toFunctionDetail: QuickToolbarFunctionDetail?
 
 @Composable
 fun Activity.QuickToolbarCustomizationScreen() {
-    TitleBackground(title = "编辑功能区", onBack = ::finish) {
+    TitleBackground(title = "编辑功能区", onBack = ::finish, onRetry = {}) {
         val configuration = LocalConfiguration.current
 
         var firstFunction by remember {
@@ -174,7 +175,10 @@ fun Activity.QuickToolbarCustomizationScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = TitleBackgroundHorizontalPadding, vertical = 4.dp),
+                .padding(
+                    horizontal = TitleBackgroundHorizontalPadding(),
+                    vertical = if (isRound()) TitleBackgroundHorizontalPadding() else 4.dp
+                ),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Column(

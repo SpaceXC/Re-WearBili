@@ -45,7 +45,8 @@ fun Activity.HistoryScreen(
     TitleBackground(
         title = "历史记录",
         onBack = onBack,
-        uiState = lazyListItems.loadState.refresh.toUIState()
+        uiState = lazyListItems.loadState.refresh.toUIState(),
+        onRetry = lazyListItems::retry
     ) {
         Box(
             modifier = Modifier
@@ -56,7 +57,7 @@ fun Activity.HistoryScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     vertical = 4.dp,
-                    horizontal = TitleBackgroundHorizontalPadding - 4.dp
+                    horizontal = TitleBackgroundHorizontalPadding() - 4.dp
                 )
             ) {
                 items(lazyListItems.itemCount) {

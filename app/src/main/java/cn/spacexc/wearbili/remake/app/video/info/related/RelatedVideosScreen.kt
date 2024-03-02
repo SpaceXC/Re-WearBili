@@ -24,7 +24,7 @@ import cn.spacexc.wearbili.remake.common.ui.VideoCard
 fun RelatedVideosScreen(
     viewModel: VideoInformationViewModel
 ) {
-    LoadableBox(uiState = viewModel.state.uiState) {
+    LoadableBox(uiState = viewModel.state.uiState, onRetry = {}) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 6.dp, end = 6.dp, bottom = 6.dp, top = 2.dp)

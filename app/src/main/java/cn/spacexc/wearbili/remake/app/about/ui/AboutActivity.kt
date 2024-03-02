@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.lazy.LazyListState
 import cn.spacexc.bilibilisdk.data.DataManager
+import cn.spacexc.wearbili.remake.app.settings.ProvideConfiguration
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -23,6 +24,10 @@ class AboutActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val state = LazyListState()
-        setContent { AboutScreen(onBack = ::finish, state = state) }
+        setContent {
+            ProvideConfiguration {
+                AboutScreen(onBack = ::finish, state = state)
+            }
+        }
     }
 }

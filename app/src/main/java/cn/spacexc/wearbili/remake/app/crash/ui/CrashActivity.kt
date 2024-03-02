@@ -28,7 +28,8 @@ class CrashActivity : ComponentActivity() {
             CrashActivityScreen(
                 stacktrace = stacktrace,
                 description = description,
-                viewModel = viewModel
+                viewModel = viewModel,
+                context = this
             )
         }
     }

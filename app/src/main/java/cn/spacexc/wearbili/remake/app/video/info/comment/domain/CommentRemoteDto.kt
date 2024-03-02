@@ -67,6 +67,7 @@ data class CommentContentData(
     var member: Member?,
     var content: Content?,
     var assist: Int,
+    var note_cvid: Long,
     var folder: Folder,
     var up_action: UpAction,
     var show_follow: Boolean,

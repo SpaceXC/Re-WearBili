@@ -13,7 +13,7 @@ data class AdvertiseExtra(
     val endTime: Int,
     val icon: String,
     @SerializedName("material_id")
-    val materialId: Int,
+    val materialid: Long,
     val posX: Double,
     @SerializedName("posX_2")
     val posX2: Int,

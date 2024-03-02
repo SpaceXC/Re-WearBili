@@ -50,7 +50,8 @@ class FollowingUsersActivity : ComponentActivity() {
             TitleBackground(
                 title = if (followingTags.isEmpty()) "" else followingTags[pagerState.currentPage].name,
                 uiState = viewModel.uiState,
-                onBack = ::finish
+                onBack = ::finish,
+                onRetry = viewModel::getFollowedUserTags
             ) {
                 HorizontalPager(
                     //pageCount = followingTags.size,
@@ -73,7 +74,10 @@ class FollowingUsersActivity : ComponentActivity() {
                         )
                 ) { page ->
                     val items = followingUsersByTags[page].collectAsLazyPagingItems()
-                    LoadableBox(uiState = items.loadState.refresh.toUIState()) {
+                    LoadableBox(
+                        uiState = items.loadState.refresh.toUIState(),
+                        onRetry = items::retry
+                    ) {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(bottom = 8.dp)
@@ -81,11 +85,19 @@ class FollowingUsersActivity : ComponentActivity() {
                             items(items.itemCount) {
                                 val user=  items[it]
                                 user?.let {
-                                    TinyUserCard(avatar = user.face, username = user.uname)
+                                    TinyUserCard(
+                                        avatar = user.face,
+                                        username = user.uname,
+                                        context = this@FollowingUsersActivity,
+                                        mid = user.mid
+                                    )
                                 }
                             }
                             item {
-                                LoadingTip(loadingState = items.loadState.append.toLoadingState())
+                                LoadingTip(
+                                    loadingState = items.loadState.append.toLoadingState(),
+                                    onRetry = items::retry
+                                )
                             }
                         }
                     }

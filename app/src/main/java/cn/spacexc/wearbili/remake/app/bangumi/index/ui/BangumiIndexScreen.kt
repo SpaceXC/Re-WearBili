@@ -12,13 +12,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
@@ -27,14 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.UnstableApi
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
 import cn.spacexc.wearbili.remake.app.bangumi.timeline.ui.BangumiTimelineActivity
-import cn.spacexc.wearbili.remake.app.bangumi.timeline.ui.BangumiTimelineViewModel
-import cn.spacexc.wearbili.remake.app.settings.ui.SettingsActivity
 import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
@@ -67,7 +61,8 @@ fun Activity.BangumiIndexScreen(
     TitleBackground(
         title = "追番索引",
         onBack = ::finish,
-        uiState = lazyItems.loadState.refresh.toUIState()
+        uiState = lazyItems.loadState.refresh.toUIState(),
+        onRetry = lazyItems::retry
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             PullRefreshIndicator(

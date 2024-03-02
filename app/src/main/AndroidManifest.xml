@@ -19,10 +19,13 @@
     <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
     <uses-permission android:name="android.permission.RESTART_PACKAGES" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
 
     <application
         android:name=".app.Application"
         android:allowBackup="true"
+        android:allowNativeHeapPointerTagging="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/img_app_icon"
@@ -175,6 +178,18 @@
             android:exported="false" />
         <activity
             android:name=".app.article.ui.ArticleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.space.ui.UserSpaceActivity"
+            android:exported="true" />
+        <activity
+            android:name=".app.video.action.coin.ui.CoinActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.link.qrcode.QrCodeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.settings.scaling.ScaleAdjustingActivity"
             android:exported="false" />
     </application>
 

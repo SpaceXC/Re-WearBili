@@ -65,6 +65,7 @@ import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
 import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
+import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.lazyRotateInput
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateContentPlacement
@@ -92,10 +93,11 @@ data class RecommendScreenState(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun RecommendScreen(
-    state: RecommendScreenState,
+    viewModel: RecommendViewModel,
     context: Activity,
     onFetch: (isRefresh: Boolean) -> Unit
 ) {
+    val state = viewModel.screenState
     val focusRequester = remember { FocusRequester() }
     val pullRefreshState =
         rememberPullRefreshState(refreshing = state.isRefreshing, onRefresh = {
@@ -106,29 +108,33 @@ fun RecommendScreen(
     LoadableBox(
         uiState = state.uiState, modifier = Modifier
             .fillMaxSize()
-            .pullRefresh(pullRefreshState)
+            .pullRefresh(pullRefreshState),
+        onRetry = {
+            viewModel.getRecommendVideos(true, configuration.recommendSource)
+        }
     ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .lazyRotateInput(focusRequester, state.scrollState),
             contentPadding = PaddingValues(
-                start = TitleBackgroundHorizontalPadding,
-                end = TitleBackgroundHorizontalPadding,
-                bottom = 6.dp
+                start = TitleBackgroundHorizontalPadding(),
+                end = TitleBackgroundHorizontalPadding(),
+                bottom = 6.dp,
+                top = if (isRound()) 8.dp else 0.dp
             ),
             state = state.scrollState
         ) {
-            if (configuration.toolBarConfiguration.slotCount != QuickToolBarSlotCount.Zero) {
-                item(key = "quickToolBar") {
-                    QuickToolBar(
-                        configuration = configuration,
-                        context = context,
-                        density = localDensity,
-                        lazyListState = state.scrollState
-                    )
-                }
+            //if (configuration.toolBarConfiguration.slotCount != QuickToolBarSlotCount.Zero) {
+            item(key = "quickToolBar") {
+                QuickToolBar(
+                    configuration = configuration,
+                    context = context,
+                    density = localDensity,
+                    lazyListState = state.scrollState
+                )
             }
+            //}
 
             when (configuration.recommendSource) {
                 null -> {}
@@ -186,7 +192,9 @@ fun RecommendScreen(
                 }
             }
             item {
-                LoadingTip()
+                LoadingTip(onRetry = {
+                    viewModel.getRecommendVideos(false, configuration.recommendSource)
+                })
                 LaunchedEffect(key1 = Unit) {
                     onFetch(false)
                 }

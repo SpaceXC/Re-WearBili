@@ -29,21 +29,19 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.LocalContentColor
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.outlined.OndemandVideo
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.material.icons.outlined.Subtitles
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -51,6 +49,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -62,19 +61,15 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
+import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R
@@ -84,6 +79,7 @@ import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3Pla
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerSetting
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerSettingActionItem
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerSettingItem
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerSliderSetting
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.adjustVolume
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.getCurrentVolume
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.getMaxVolume
@@ -94,9 +90,9 @@ import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ui.ArrowTitleBackgroundWithCustomBackground
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
+import cn.spacexc.wearbili.remake.common.ui.HorizontalPagerIndicator
 import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
-import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
@@ -105,9 +101,7 @@ import coil.transform.CustomBlurTransformation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
-import kotlin.math.sign
 
 /**
  * Created by XC-Qan on 2023/10/15.
@@ -150,7 +144,7 @@ fun Activity.AudioPlayerActivityScreen(
                             pagerState = pagerState,
                             modifier = Modifier
                                 .align(Alignment.End)
-                                .padding(end = TitleBackgroundHorizontalPadding + 2.dp),
+                                .padding(end = TitleBackgroundHorizontalPadding() + 2.dp),
                             activeColor = Color(255, 255, 255),
                             inactiveColor = Color(
                                 255,
@@ -183,72 +177,6 @@ fun Activity.AudioPlayerActivityScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun HorizontalPagerIndicator(
-    pagerState: PagerState,
-    modifier: Modifier = Modifier,
-    pageCount: Int = pagerState.pageCount,
-    pageIndexMapping: (Int) -> Int = { it },
-    activeColor: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
-    inactiveColor: Color = activeColor.copy(ContentAlpha.disabled),
-    indicatorWidth: Dp = 8.dp,
-    indicatorHeight: Dp = indicatorWidth,
-    spacing: Dp = indicatorWidth,
-    indicatorShape: Shape = CircleShape,
-) {
-
-    val indicatorWidthPx = LocalDensity.current.run { indicatorWidth.roundToPx() }
-    val spacingPx = LocalDensity.current.run { spacing.roundToPx() }
-
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(spacing),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            val indicatorModifier = Modifier
-                .size(width = indicatorWidth, height = indicatorHeight)
-                .background(color = inactiveColor, shape = indicatorShape)
-
-            repeat(pageCount) {
-                Box(indicatorModifier)
-            }
-        }
-
-        Box(
-            Modifier
-                .offset {
-                    val position = pageIndexMapping(pagerState.currentPage)
-                    val offset = pagerState.currentPageOffsetFraction
-                    val next = pageIndexMapping(pagerState.currentPage + offset.sign.toInt())
-                    val scrollPosition = ((next - position) * offset.absoluteValue + position)
-                        .coerceIn(
-                            0f,
-                            (pageCount - 1)
-                                .coerceAtLeast(0)
-                                .toFloat()
-                        )
-
-                    IntOffset(
-                        x = ((spacingPx + indicatorWidthPx) * scrollPosition).toInt(),
-                        y = 0
-                    )
-                }
-                .size(width = indicatorWidth, height = indicatorHeight)
-                .then(
-                    if (pageCount > 0) Modifier.background(
-                        color = activeColor,
-                        shape = indicatorShape,
-                    )
-                    else Modifier
-                )
-        )
-    }
-}
-
 @Composable
 fun SubtitlePage(
     viewModel: Media3AudioPlayerViewModel
@@ -259,7 +187,7 @@ fun SubtitlePage(
     }
     LaunchedEffect(key1 = currentSubtitle, block = {
         val index =
-            viewModel.subtitleList[viewModel.currentSubtitleLanguage]?.currentSubtitleIndex ?: 0
+            viewModel.subtitleList[viewModel.currentSubtitleLanguage]?.currentSubtitleIndex ?: -1
         //state.animateScrollToItem(index)
         currentIndex = index
     })
@@ -272,7 +200,7 @@ fun SubtitlePage(
             contentColor = Color.White,
             contentPadding = PaddingValues(horizontal = 3.dp, vertical = 8.dp)
         ) {
-            viewModel.player.seekTo((it.from * 1000).toLong())
+            viewModel.player.seekTo(((it.from) * 1000).toLong())
         }
     }
 }
@@ -335,7 +263,7 @@ fun Activity.PlayerPage(
                         .clickVfx { adjustVolume(false, viewModel, service.lifecycleScope) })
                     Box(modifier = Modifier
                         .clickVfx(isEnabled = viewModel.isReady) {
-                            if (viewModel.player.isPlaying) viewModel.player.pause() else viewModel.player.play()
+                            if (viewModel.player.isPlaying) viewModel.player.pause() else viewModel.player.start()
                         }
                         .weight(1f)
                         .clip(CircleShape)
@@ -344,7 +272,7 @@ fun Activity.PlayerPage(
                         .padding(10.dp)
                     ) {
                         if (viewModel.currentStat == PlayerStats.Buffering) {
-                            //CircularProgressIndicator(color = parseColor("#FFDBE7"))
+                            CircularProgressIndicator(color = parseColor("#FFDBE7"))
                         } else {
                             TextIcon(
                                 icon = if (viewModel.player.isPlaying) "\\uf8ae" else "\\uf5b0",
@@ -534,7 +462,7 @@ fun Activity.SettingsPage(
         mutableIntStateOf(100)
     }
     var currentVolume by remember {
-        mutableIntStateOf(getCurrentVolume())
+        mutableFloatStateOf(getCurrentVolume().toFloat())
     }
     service.viewModel.let { viewModel ->
         Column(
@@ -570,7 +498,6 @@ fun Activity.SettingsPage(
                             putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
                             putExtra(PARAM_VIDEO_ID, video.bvid)
                             putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
-                            startActivity(this)
                         }
                     )
                     service.exitService()
@@ -607,7 +534,7 @@ fun Activity.SettingsPage(
                         text = i.toFloat().div(100).toString() + "x",
                         isSelected = playBackSpeed == i
                     ) {
-                        viewModel.player.setPlaybackSpeed(
+                        viewModel.player.setSpeed(
                             i.toFloat().div(100)
                         )
                         playBackSpeed = i
@@ -618,7 +545,7 @@ fun Activity.SettingsPage(
                         text = i.toFloat().div(100).toString() + "x",
                         isSelected = playBackSpeed == i
                     ) {
-                        viewModel.player.setPlaybackSpeed(
+                        viewModel.player.setSpeed(
                             i.toFloat().div(100)
                         )
                         playBackSpeed = i
@@ -675,44 +602,22 @@ fun Activity.SettingsPage(
                 finish()
             }*/
 
-            Column {
-                Row {
-                    androidx.compose.material.Text(
-                        text = "设备音量",
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        modifier = Modifier
-                            .alpha(0.9f)
+            PlayerSliderSetting(
+                itemIcon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.VolumeUp,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        tint = Color.White
                     )
-                }
-                androidx.compose.material3.Slider(
-                    value = currentVolume.toFloat(),
-                    onValueChange = {
-                        adjustVolume(it.roundToInt())
-                        currentVolume = it.roundToInt()
-                    },
-                    valueRange = 0.toFloat()..getMaxVolume().toFloat(),
-                    colors = SliderDefaults.colors(
-                        activeTrackColor = BilibiliPink,
-                        thumbColor = Color.White
-                    ),
-                    modifier = Modifier.offset(y = (-6).dp),
-                    thumb = {
-                        SliderDefaults.Thumb(
-                            interactionSource = rememberMutableInteractionSource(),
-                            thumbSize = DpSize(12.dp, 12.dp),
-                            modifier = Modifier
-                                .offset(
-                                    y = 4.dp,
-                                    x = 2.dp
-                                ),
-
-                            colors = SliderDefaults.colors(
-                                thumbColor = Color.White
-                            )
-                        )
-                    }
-                )
+                },
+                settingName = "设备音量",
+                sliderValue = currentVolume,
+                displayedSliderValue = "${(currentVolume / getMaxVolume().toFloat() * 100).toInt()}%",
+                sliderValueRange = 0f..getMaxVolume().toFloat()
+            ) {
+                this@SettingsPage.adjustVolume(it.roundToInt())
+                currentVolume = it
             }
         }
     }

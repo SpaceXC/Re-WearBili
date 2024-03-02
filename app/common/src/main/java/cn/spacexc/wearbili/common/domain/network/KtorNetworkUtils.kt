@@ -97,14 +97,27 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
             }
             response.request.headers.logd("request headers for $url")
             return if (response.status == HttpStatusCode.OK) {
-                NetworkResponse.Success(response.body())
+                val body = response.body<BasicResponseDto>()
+                if (body.code == 0) {
+                    NetworkResponse.Success(data = response.body(), apiUrl = url)
+                } else {
+                    NetworkResponse.Failed(message = body.message, apiUrl = url, code = body.code)
+                }
             } else {
                 val body = response.body<BasicResponseDto>()
-                NetworkResponse.Failed(code = body.code, message = body.message, null)
+                NetworkResponse.Failed(
+                    code = body.code, message = body.message,
+                    data = null,
+                    apiUrl = url
+                )
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+            NetworkResponse.Failed(
+                code = -1, message = e.message ?: "Unknown error",
+                data = null,
+                apiUrl = url
+            )
         }
     }
 
@@ -157,14 +170,22 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
             }
             response.request.headers.logd("request headers for $url")
             return if (response.status == HttpStatusCode.OK) {
-                NetworkResponse.Success(response.body())
+                NetworkResponse.Success(data = response.body(), apiUrl = url)
             } else {
                 val body = response.body<BasicResponseDto>()
-                NetworkResponse.Failed(code = body.code, message = body.message, null)
+                NetworkResponse.Failed(
+                    code = body.code, message = body.message,
+                    data = null,
+                    apiUrl = url
+                )
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+            NetworkResponse.Failed(
+                code = -1, message = e.message ?: "Unknown error",
+                data = null,
+                apiUrl = url
+            )
         }
     }
 
@@ -183,10 +204,14 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
                 header("Referer", BASE_URL)
             }
             return if (response.status == HttpStatusCode.OK) {
-                NetworkResponse.Success(response.body())
+                NetworkResponse.Success(data = response.body(), apiUrl = url)
             } else {
                 val body = response.body<BasicResponseDto>()
-                NetworkResponse.Failed(code = body.code, message = body.message, null)
+                NetworkResponse.Failed(
+                    code = body.code, message = body.message,
+                    data = null,
+                    apiUrl = url
+                )
             }
         } /*catch (e: SocketException) {
             NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
@@ -198,17 +223,22 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
             NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
         }*/ catch (e: Exception) {
             e.printStackTrace()
-            NetworkResponse.Failed(code = -1, message = e.message ?: "Unknown error", null)
+            NetworkResponse.Failed(
+                code = -1, message = e.message ?: "Unknown error",
+                data = null,
+                apiUrl = url
+            )
         }
     }
 
     /**
+     * @param onProgressUpdate 进度更新回调，如果在外部调用的时候返回false会取消下载
      * @param onDownloadFinished 其实这个回调只是为了传回一个结果而已，毕竟lambda内不能直接return嘛，，，
      */
     suspend fun downloadFile(
         url: String,
         file: File,
-        onProgressUpdate: suspend (Float) -> Unit,
+        onProgressUpdate: suspend (Float) -> Boolean,
         onDownloadFinished: suspend (Boolean) -> Unit
     ) {
         runBlocking {
@@ -224,7 +254,7 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
                         while (!packet.isEmpty) {
                             val bytes = packet.readBytes()
                             file.appendBytes(bytes)
-                            onProgressUpdate(
+                            val shouldContinue = onProgressUpdate(
                                 file.length().toFloat() / (httpResponse.contentLength()
                                     ?: 1).toInt()
                             )

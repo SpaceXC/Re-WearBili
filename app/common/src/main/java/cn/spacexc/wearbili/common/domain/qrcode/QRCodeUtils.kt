@@ -22,7 +22,7 @@ const val ERROR_CORRECTION_L = "L"
 const val ERROR_CORRECTION_M = "M"
 const val ERROR_CORRECTION_H = "H"
 
-class QRCodeUtil {
+object QRCodeUtil {
     /**
      * 创建二维码位图 (支持自定义配置和自定义样式)
      *

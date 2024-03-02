@@ -2,6 +2,7 @@ package cn.spacexc.wearbili.remake.common.ui
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,14 +19,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.Icon
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.ArrowBackIosNew
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.VideoLibrary
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,13 +43,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.Application
@@ -116,8 +117,9 @@ fun VideoCard(
 fun VideoCardWithNoBorder(
     modifier: Modifier = Modifier,
     videoName: String,
-    uploader: String,
-    views: String,
+    uploader: String = "",
+    views: String = "",
+    danmaku: String = "",
     badge: String? = "",
     coverUrl: String,
     videoId: String? = null,
@@ -141,7 +143,8 @@ fun VideoCardWithNoBorder(
             uploader = uploader,
             views = views,
             coverUrl = coverUrl,
-            badge = badge
+            badge = badge,
+            danmakus = danmaku
         )
     }
 }
@@ -150,8 +153,9 @@ fun VideoCardWithNoBorder(
 @Composable
 fun VideoCardContent(
     videoName: String,
-    uploader: String,
-    views: String,
+    uploader: String = "",
+    views: String = "",
+    danmakus: String = "",
     badge: String? = "",
     coverUrl: String
 ) {
@@ -173,7 +177,7 @@ fun VideoCardContent(
                     modifier = Modifier
                         .aspectRatio(16f / 10f)
                         .clip(RoundedCornerShape(6.dp)),
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.Crop
                 )
                 if (!badge.isNullOrEmpty()) {
                     Box(
@@ -210,7 +214,7 @@ fun VideoCardContent(
 
         FlowRow {
             if (views.isNotEmpty()) {
-                val inlineTextContent = mapOf("viewCountIcon" to InlineTextContent(
+                /*val inlineTextContent = mapOf("viewCountIcon" to InlineTextContent(
                     placeholder = Placeholder(
                         width = 12.spx,
                         height = 12.spx,
@@ -239,11 +243,48 @@ fun VideoCardContent(
                     inlineContent = inlineTextContent,
                     //maxLines = 1,
                     overflow = TextOverflow.Ellipsis
-                )
+                )*/
+                IconText(
+                    text = views,
+                    fontSize = 9.spx,
+                    fontFamily = wearbiliFontFamily,
+                    color = Color.White,
+                    modifier = Modifier.alpha(0.7f),
+                    overflow = TextOverflow.Ellipsis,
+                    spacingWidth = 1.spx
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_view_count),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(end = 2.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.width(4.dp))
             }
             if (uploader.isNotEmpty()) {
-                val inlineTextContent = mapOf("uploaderIcon" to InlineTextContent(
+                IconText(
+                    text = uploader,
+                    fontSize = 9.spx,
+                    fontFamily = wearbiliFontFamily,
+                    color = Color.White,
+                    modifier = Modifier.alpha(0.7f),
+                    overflow = TextOverflow.Ellipsis,
+                    spacingWidth = 1.spx
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_uploader),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(end = 2.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                /*val inlineTextContent = mapOf("uploaderIcon" to InlineTextContent(
                     placeholder = Placeholder(
                         width = 12.spx,
                         height = 12.spx,
@@ -272,7 +313,57 @@ fun VideoCardContent(
                     inlineContent = inlineTextContent,
                     //maxLines = 1,
                     overflow = TextOverflow.Ellipsis
-                )
+                )*/
+            }
+            if (danmakus.isNotEmpty()) {
+                IconText(
+                    text = danmakus,
+                    fontSize = 9.spx,
+                    fontFamily = wearbiliFontFamily,
+                    color = Color.White,
+                    modifier = Modifier.alpha(0.7f),
+                    overflow = TextOverflow.Ellipsis,
+                    spacingWidth = 1.spx
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_danmaku),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(end = 2.dp)
+                    )
+                }
+                /*val inlineTextContent = mapOf("danmakuIcon" to InlineTextContent(
+                    placeholder = Placeholder(
+                        width = 12.spx,
+                        height = 12.spx,
+                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_danmaku),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(end = 2.dp)
+                    )
+                })
+                Text(
+                    text = buildAnnotatedString {
+                        if (uploader.isNotEmpty()) {
+                            appendInlineContent("danmakuIcon")
+                            append(danmakus)
+                        }
+                    },
+                    fontSize = 9.spx,
+                    modifier = Modifier.alpha(0.7f),
+                    color = Color.White,
+                    inlineContent = inlineTextContent,
+                    //maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )*/
             }
         }
     }
@@ -282,14 +373,18 @@ fun VideoCardContent(
 fun VideoCacheCard(
     modifier: Modifier = Modifier,
     cacheInfo: VideoCacheFileInfo,
-    context: Context = Application.getApplication()
+    isShowingMenu: Boolean = false,
+    onDelete: () -> Unit,
+    onLongClick: () -> Unit,
+    onBack: () -> Unit,
+    context: Context
 ) {
     val progress by wearBiliAnimateFloatAsState(targetValue = cacheInfo.downloadProgress / 100f)
     var isSourceFileExist by remember {
         mutableStateOf(true)
     }
     val scope = rememberCoroutineScope()
-    Card(modifier = modifier, onClick = {
+    Card(modifier = modifier.wearBiliAnimatedContentSize(), onClick = {
         if (cacheInfo.state == STATE_COMPLETED) {
             val videoFile =
                 File(
@@ -301,119 +396,199 @@ fun VideoCacheCard(
                 context.startActivity(Intent(context, Media3PlayerActivity::class.java).apply {
                     putExtra(PARAM_IS_CACHE, true)
                     putExtra(PARAM_VIDEO_CID, cacheInfo.videoCid)
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 })
             } else {
                 isSourceFileExist = false
             }
         }
-    }) {
+    }, onLongClick = onLongClick) {
         if (isSourceFileExist) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 2.dp, horizontal = 2.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Box(modifier = Modifier.weight(6f)) {
-                        if (cacheInfo.state == STATE_COMPLETED) {
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current).data(
-                                    File(
-                                        context.filesDir,
-                                        "videoCaches/${cacheInfo.videoCid}/${cacheInfo.videoCid}.cover.png"
-                                    ).path.logd("image path")
-                                ).crossfade(true).build(),
-                                contentDescription = "${cacheInfo.videoName} 封面",
-                                modifier = Modifier
-                                    .aspectRatio(4f / 3f)
-                                    .clip(RoundedCornerShape(6.dp)),
-                                contentScale = ContentScale.FillHeight
-                            )
-                        } else {
-                            BiliImage(
-                                url = cacheInfo.videoCover,
-                                contentDescription = "${cacheInfo.videoName} 封面",
-                                modifier = Modifier
-                                    .aspectRatio(4f / 3f)
-                                    .clip(RoundedCornerShape(6.dp)),
-                                contentScale = ContentScale.FillHeight
-                            )
-                        }
-                    }
-                    Column(modifier = Modifier.weight(7f)) {
-                        Text(
-                            text = cacheInfo.videoName,
-                            style = AppTheme.typography.h3,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        IconText(
-                            text = cacheInfo.videoUploaderName,
-                            modifier = Modifier.alpha(0.7f),
-                            maxLines = 1,
-                            fontSize = 9.spx
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.icon_uploader),
-                                contentDescription = null,
-                                modifier = Modifier.fillMaxSize(),
-                                tint = Color.White
-                            )
-                        }
-                        IconText(
-                            text = cacheInfo.videoPartName,
-                            modifier = Modifier.alpha(0.7f),
-                            maxLines = 1,
-                            fontSize = 9.spx
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.VideoLibrary,
-                                contentDescription = null,
-                                modifier = Modifier.fillMaxSize(),
-                                tint = Color.White
-                            )
-                        }
-                        IconText(
-                            text = cacheInfo.downloadFileSize,
-                            modifier = Modifier.alpha(0.7f),
-                            maxLines = 1,
-                            fontSize = 9.spx
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.FileCopy,
-                                contentDescription = null,
-                                modifier = Modifier.fillMaxSize(),
-                                tint = Color.White
-                            )
-                        }
-                    }
-                }
-                if (cacheInfo.state != STATE_COMPLETED) {
-                    Text(
-                        text = when (cacheInfo.state) {
-                            STATE_IDLE -> "等待中..."
-                            STATE_FETCHING -> "获取缓存信息中"
-                            STATE_DOWNLOADING -> "正在下载 ${cacheInfo.downloadProgress}%"
-                            STATE_FAILED -> "下载失败了！"
-                            else -> "${cacheInfo.downloadProgress}%"
-                        },
-                        style = AppTheme.typography.body1,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    LinearProgressIndicator(
-                        progress = progress, modifier = Modifier
+            Crossfade(targetState = isShowingMenu, label = "") {
+                if (it) {
+                    Column(
+                        modifier = Modifier
                             .fillMaxWidth()
-                            .clip(
-                                CircleShape
-                            ), color = BilibiliPink
-                    )
+                            .padding(vertical = 6.dp, horizontal = 6.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        IconText(
+                            text = "跳转视频详情",
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 15.sp,
+                            modifier = Modifier.clickVfx(onClick = {
+                                with(context) {
+                                    startActivity(
+                                        Intent(
+                                            this,
+                                            VideoInformationActivity::class.java
+                                        ).apply {
+                                            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
+                                            putExtra(PARAM_VIDEO_ID, cacheInfo.videoBvid)
+                                        }
+                                    )
+                                }
+                                onBack()
+                            })
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        }
+                        IconText(
+                            text = "删除缓存",
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 15.sp,
+                            modifier = Modifier.clickVfx(onClick = {
+                                onDelete()
+                            }),
+                            color = Color(230, 67, 67, 255)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = null,
+                                tint = Color(230, 67, 67, 255)
+                            )
+                        }
+                        IconText(
+                            text = "返回",
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 15.sp,
+                            modifier = Modifier.clickVfx(onClick = {
+                                onBack()
+                            }),
+                            color = Color.White
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.ArrowBackIosNew,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        }
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp, horizontal = 2.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Box(modifier = Modifier.weight(6f)) {
+                                if (cacheInfo.state == STATE_COMPLETED) {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current).data(
+                                            File(
+                                                context.filesDir,
+                                                "videoCaches/${cacheInfo.videoCid}/${cacheInfo.videoCid}.cover.png"
+                                            ).path.logd("image path")
+                                        ).crossfade(true).build(),
+                                        contentDescription = "${cacheInfo.videoName} 封面",
+                                        modifier = Modifier
+                                            .aspectRatio(4f / 3f)
+                                            .clip(RoundedCornerShape(6.dp)),
+                                        contentScale = ContentScale.FillHeight
+                                    )
+                                } else {
+                                    BiliImage(
+                                        url = cacheInfo.videoCover,
+                                        contentDescription = "${cacheInfo.videoName} 封面",
+                                        modifier = Modifier
+                                            .aspectRatio(4f / 3f)
+                                            .clip(RoundedCornerShape(6.dp)),
+                                        contentScale = ContentScale.FillHeight
+                                    )
+                                }
+                            }
+                            Column(modifier = Modifier.weight(7f)) {
+                                Text(
+                                    text = cacheInfo.videoName,
+                                    style = AppTheme.typography.h3,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                IconText(
+                                    text = cacheInfo.videoUploaderName,
+                                    modifier = Modifier.alpha(0.7f),
+                                    maxLines = 1,
+                                    fontSize = 9.spx
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.icon_uploader),
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(),
+                                        tint = Color.White
+                                    )
+                                }
+                                IconText(
+                                    text = cacheInfo.videoPartName,
+                                    modifier = Modifier.alpha(0.7f),
+                                    maxLines = 1,
+                                    fontSize = 9.spx
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.VideoLibrary,
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(),
+                                        tint = Color.White
+                                    )
+                                }
+                                IconText(
+                                    text = cacheInfo.downloadFileSize,
+                                    modifier = Modifier.alpha(0.7f),
+                                    maxLines = 1,
+                                    fontSize = 9.spx
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.FileCopy,
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(),
+                                        tint = Color.White
+                                    )
+                                }
+                            }
+                        }
+                        if (cacheInfo.warnings.isNotEmpty()) {
+                            IconText(
+                                text = cacheInfo.warnings,
+                                style = AppTheme.typography.body1,
+                                color = Color.White,
+                                modifier = Modifier.alpha(0.7f)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.WarningAmber,
+                                    contentDescription = null,
+                                    tint = Color.White
+                                )
+                            }
+                        }
+                        if (cacheInfo.state != STATE_COMPLETED) {
+                            Text(
+                                text = when (cacheInfo.state) {
+                                    STATE_IDLE -> "等待中..."
+                                    STATE_FETCHING -> "获取缓存信息中"
+                                    STATE_DOWNLOADING -> "正在下载 ${cacheInfo.downloadProgress}%"
+                                    STATE_FAILED -> "下载失败了！"
+                                    else -> "${cacheInfo.downloadProgress}%"
+                                },
+                                style = AppTheme.typography.body1,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            LinearProgressIndicator(
+                                progress = progress, modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(
+                                        CircleShape
+                                    ), color = BilibiliPink
+                            )
+                        }
+                    }
                 }
             }
         } else {
@@ -458,7 +633,7 @@ fun VideoCacheCard(
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         })
                     }) {
-                    Text(text = "跳转详情")
+                    Text(text = "跳转视频")
                 }
             }
         }

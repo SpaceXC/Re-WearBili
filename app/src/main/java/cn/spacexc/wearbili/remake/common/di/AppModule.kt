@@ -47,7 +47,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesQrcodeUtils(): QRCodeUtil = QRCodeUtil()
+    fun providesQrcodeUtils(): QRCodeUtil = QRCodeUtil
 
     @Provides
     @Singleton

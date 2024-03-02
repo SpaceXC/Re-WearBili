@@ -6,6 +6,8 @@ import com.google.gson.annotations.SerializedName
 data class Major(
     @SerializedName("archive")
     val archive: Archive?,
+    @SerializedName("article")
+    val article: Article?,
     @SerializedName("pgc")
     val pgc: PgcMajor,
     @SerializedName("draw")

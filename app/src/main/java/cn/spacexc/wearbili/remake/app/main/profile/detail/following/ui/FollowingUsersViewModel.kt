@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
  */
 
 class FollowingUsersViewModel : ViewModel() {
-    var uiState by mutableStateOf(UIState.Loading)
+    var uiState: UIState by mutableStateOf(UIState.Loading)
     var followedUserTags = MutableStateFlow<List<FollowedUserTag>>(emptyList())
 
     var followedUsers = followedUserTags.map { list ->
@@ -44,7 +44,7 @@ class FollowingUsersViewModel : ViewModel() {
         viewModelScope.launch {
             val response = FollowedUserInfo.getFollowedUserTags()
             if (response.code != 0) {
-                uiState = UIState.Failed
+                uiState = UIState.Failed(response.code)
                 return@launch
             }
             followedUserTags.value = response.data?.data ?: emptyList()

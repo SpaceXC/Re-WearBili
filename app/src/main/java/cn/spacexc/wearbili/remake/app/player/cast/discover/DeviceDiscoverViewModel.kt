@@ -1,5 +1,8 @@
 package cn.spacexc.wearbili.remake.app.player.cast.discover
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -8,8 +11,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import java.net.DatagramPacket
@@ -27,11 +28,11 @@ class DeviceDiscoverViewModel : ViewModel() {
         val isBilibiliDevice: Boolean
     )
 
-    private val _deviceList = MutableStateFlow(emptyList<Device>())
-    val deviceList = _deviceList.asStateFlow()
+    var deviceList by mutableStateOf(emptyList<Device>())
+        private set
 
     suspend fun discoverDevices() {
-        val tempDevices = _deviceList.value.toMutableList()
+        val tempDevices = deviceList.toMutableList()
         withContext(Dispatchers.IO) {
             val searchMessage = buildSSDPSearchMessage()
 
@@ -85,7 +86,7 @@ class DeviceDiscoverViewModel : ViewModel() {
 
                     // Check for offline devices
                     val offlineDevices = buildList {
-                        _deviceList.value.forEach { device ->
+                        deviceList.forEach { device ->
                             if (!device.isOnline(client)) {
                                 add(device)
                             }
@@ -94,9 +95,9 @@ class DeviceDiscoverViewModel : ViewModel() {
 
                     tempDevices.removeAll(offlineDevices)
 
-                    _deviceList.value = tempDevices
+                    deviceList = tempDevices
 
-                    _deviceList.value.forEach {
+                    deviceList.forEach {
                         println(it.descriptionLocation)
                     }
                     println()

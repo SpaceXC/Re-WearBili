@@ -76,6 +76,22 @@
 -keep class com.google.gson.internal.bind.reflectiveTypeAdapterFactory$Adapter$$** {*;}
 -keep class com.google.gson.internal.bind.reflectiveTypeAdapterFactory$BoundField** {*;}
 
+-keep class tv.*
+-keep class tv.**
+-keep class tv*
+-keep class tv**
+
+-keep class tv.danmaku.ijk.media.player.* { }
+-keep class tv.danmaku.ijk.media.player.IjkMediaPlayer{ }
+-keep class tv.danmaku.ijk.media.player.ffmpeg.FFmpegApi{ }
+
+-keepclasseswithmembers,allowshrinking class * {
+    native <methods>;
+}
+-keep class tv.danmaku.ijk.media.player.** {
+    *;
+}
+
 -keepclassmembers class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite {
     <fields>;
 }

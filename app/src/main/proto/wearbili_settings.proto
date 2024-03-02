@@ -43,6 +43,13 @@ message DanmakuPlayerSettings {
   float displayArea = 2;
   float fontScale = 3;
   int32 blockLevel = 4;
+  bool isNormalDanmakuEnabled = 5;
+  bool isAdvanceDanmakuEnabled = 6;
+}
+
+enum VideoDecoder {
+  Hardware = 0;
+  Software = 1;
 }
 
 message AppConfiguration {
@@ -53,4 +60,7 @@ message AppConfiguration {
   Player defaultPlayer = 5;
   bool haveToolBarTipDisplayed = 6;
   DanmakuPlayerSettings danmakuPlayerSettings = 7;
+  float screenDisplayScaleFactor = 8;
+  VideoDecoder videoDecoder = 9;
+  bool isVideoLowPerformance = 10;
 }

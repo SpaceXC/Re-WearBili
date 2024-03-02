@@ -1,5 +1,7 @@
 package cn.spacexc.wearbili.remake.common.ui
 
+import android.app.Activity
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,7 +42,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import cn.spacexc.wearbili.common.ifNullOrEmpty
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.season.ui.PARAM_MID
+import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceActivity
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 
@@ -146,7 +151,7 @@ fun UserAvatar(
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .size(avatarBoxSize * (if (pendant.isNullOrEmpty()) .35f else .25f))
+                        .size(avatarBoxSize * (if (pendant.isNullOrEmpty()) .25f else .25f))
                     //.padding(start = 16.dp, bottom = 16.dp)
                 )
             }
@@ -156,7 +161,7 @@ fun UserAvatar(
 
 
 @Composable
-fun LargeUserCard(
+fun Activity.LargeUserCard(
     modifier: Modifier = Modifier,
     avatar: String,
     pendant: String? = null,
@@ -177,7 +182,12 @@ fun LargeUserCard(
             bottom = 8.dp,
             start = 8.dp,
             end = 12.dp
-        )
+        ),
+        onClick = {
+            startActivity(Intent(this, UserSpaceActivity::class.java).apply {
+                putExtra(PARAM_MID, mid)
+            })
+        }
     ) {
         val localDensity = LocalDensity.current
         var avatarHeight by remember {
@@ -245,6 +255,9 @@ fun LargeUserCard(
     }
 }
 
+/**
+ * @param mid 设置为0 -> 不可点击
+ */
 @Composable
 fun SmallUserCard(
     modifier: Modifier = Modifier,
@@ -256,18 +269,29 @@ fun SmallUserCard(
     usernameColor: String? = null,
     userInfo: String? = null,
     userLabel: AnnotatedString = buildAnnotatedString { },
-    inlineContent: Map<String, InlineTextContent> = mapOf()
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
+    context: Activity,
+    mid: Long
 ) {
     val localDensity = LocalDensity.current
     var avatarHeight by remember {
         mutableStateOf(0.dp)
     }
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier.clickVfx(enabled = mid != 0L, onClick = {
+            if (mid != 0L) {
+                context.startActivity(Intent(context, UserSpaceActivity::class.java).apply {
+                    putExtra(PARAM_MID, mid)
+                })
+            }
+        })
+    ) {
         UserAvatar(
             avatar = avatar,
             pendant = pendant,
             officialVerify = officialVerify,
-            modifier = Modifier.size(avatarHeight.times(1.1f)),
+            modifier = Modifier.size(avatarHeight.times(1.2f)),
             size = DpSize.Unspecified
         )
         Spacer(modifier = Modifier.width(2.dp))
@@ -280,7 +304,7 @@ fun SmallUserCard(
                     withStyle(
                         style = SpanStyle(
                             color = cn.spacexc.wearbili.common.domain.color.parseColor(
-                                usernameColor ?: "#FFFFFF"
+                                usernameColor.ifNullOrEmpty { "#FFFFFF" }
                             ),
                             fontWeight = FontWeight.Medium
                         )
@@ -316,7 +340,9 @@ fun SmallUserCard(
 @Composable
 fun TinyUserCard(
     avatar: String,
-    username: String
+    username: String,
+    mid: Long,
+    context: Activity
 ) {
     val localDensity = LocalDensity.current
     var textHeight by remember {
@@ -325,7 +351,12 @@ fun TinyUserCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 6.dp),
+            .padding(horizontal = 8.dp, vertical = 6.dp)
+            .clickVfx {
+                context.startActivity(Intent(context, UserSpaceActivity::class.java).apply {
+                    putExtra(PARAM_MID, mid)
+                })
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         BiliImage(

@@ -217,14 +217,9 @@ fun Modifier.shimmerPlaceHolder(isLoading: Boolean, shape: Shape? = null) = comp
         shape = shape,
         highlight = PlaceholderHighlight.shimmer(
             highlightColor = PlaceholderDefaults.shimmerHighlightColor(
-                backgroundColor = Color(
-                    0,
-                    0,
-                    0,
-                    200
-                )
+                backgroundColor = Color.DarkGray
             )
         ),
-        color = Color(0, 0, 0, 200)
+        color = Color(34, 34, 34, 179)
     )
 }

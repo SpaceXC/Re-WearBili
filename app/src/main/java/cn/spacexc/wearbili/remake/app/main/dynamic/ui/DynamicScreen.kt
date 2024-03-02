@@ -1,6 +1,7 @@
 package cn.spacexc.wearbili.remake.app.main.dynamic.ui
 
-import android.content.Context
+import android.app.Activity
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,8 +19,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import cn.spacexc.wearbili.remake.common.UIState
+import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
+import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.lazyRotateInput
 
 /**
@@ -30,11 +32,11 @@ import cn.spacexc.wearbili.remake.common.ui.lazyRotateInput
  * 给！爷！写！注！释！
  */
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun DynamicScreen(
     viewModel: DynamicViewModel,
-    context: Context
+    context: Activity
 ) {
     val focusRequester = remember {
         FocusRequester()
@@ -46,11 +48,7 @@ fun DynamicScreen(
         refreshThreshold = 40.dp
     )
     LoadableBox(
-        uiState = when (dynamicListData.loadState.refresh) {
-            is LoadState.Error -> UIState.Failed
-            is LoadState.Loading -> UIState.Loading
-            else -> UIState.Success
-        }, modifier = Modifier.fillMaxSize(),
+        uiState = dynamicListData.loadState.refresh.toUIState(), modifier = Modifier.fillMaxSize(),
         onRetry = dynamicListData::retry
     ) {
         Box(
@@ -65,7 +63,7 @@ fun DynamicScreen(
                     .lazyRotateInput(focusRequester, viewModel.scrollState),
                 contentPadding = PaddingValues(
                     vertical = 4.dp,
-                    horizontal = /*TitleBackgroundHorizontalPadding*/ 8.dp
+                    horizontal = TitleBackgroundHorizontalPadding() - 3.dp
                 )
             ) {
                 items(dynamicListData.itemCount) {

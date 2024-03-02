@@ -1,7 +1,7 @@
 package cn.spacexc.wearbili.remake.app.article.ui
 
 import android.app.Activity
-import androidx.compose.animation.core.tween
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,11 +16,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -30,55 +25,42 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.palette.graphics.Palette
 import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.remake.app.article.util.TYPE_QUOTE
-import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
+import cn.spacexc.wearbili.remake.app.image.ImageViewerActivity
+import cn.spacexc.wearbili.remake.app.image.PARAM_IMAGE_URLS
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
+import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
-import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
-import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 
 @Composable
 fun Activity.ArticleScreen(
-    viewModel: ArticleViewModel
+    viewModel: ArticleViewModel,
+    cvid: Long
 ) {
-    var currentColor by remember {
-        mutableStateOf(BilibiliPink)
-    }
-    val color by wearBiliAnimateColorAsState(
-        targetValue = currentColor,
-        animationSpec = tween(durationMillis = 1000)
-    )
-    val ambientAlpha by wearBiliAnimateFloatAsState(
-        targetValue = if (currentColor == BilibiliPink) 0.6f else 1f,
-        animationSpec = tween(durationMillis = 1000)
-    )
-    LaunchedEffect(key1 = viewModel.imageBitmap, block = {
-        viewModel.imageBitmap?.let { bitmap ->
-            val palette = Palette.from(bitmap).generate()
-            //if(newColor < Color(0x10000000).value.toInt())
-            currentColor = Color(palette.getLightMutedColor(BilibiliPink.value.toInt()))
-        }
-    })
     TitleBackground(
         title = "",
         uiState = viewModel.uiState,
-        ambientAlpha = ambientAlpha,
-        themeColor = color
+        themeImageUrl = viewModel.articleInfo?.readInfo?.bannerUrl ?: "",
+        networkUtils = viewModel.ktorNetworkUtils,
+        onRetry = { viewModel.getArticle(cvid) },
+        onBack = ::finish
     ) {
+        /**
+        颜色参考
+         */
         /*Column(
             modifier = Modifier
                 .verticalScroll(viewModel.readerScrollState)
                 .fillMaxSize()
                 .padding(
                     PaddingValues(
-                        horizontal = TitleBackgroundHorizontalPadding, vertical = 6.dp
+                        horizontal = TitleBackgroundHorizontalPadding(), vertical = 6.dp
                     )
                 ), verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -92,7 +74,7 @@ fun Activity.ArticleScreen(
                 .fillMaxSize()
                 .padding(
                     PaddingValues(
-                        horizontal = TitleBackgroundHorizontalPadding, vertical = 6.dp
+                        horizontal = TitleBackgroundHorizontalPadding(), vertical = 6.dp
                     )
                 ), verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -210,6 +192,15 @@ fun Activity.ArticleScreen(
                                 if (it.image.width != 0f && it.image.height != 0f) {
                                     aspectRatio(it.image.width / it.image.height)
                                 }
+                            }
+                            .clickVfx {
+                                startActivity(
+                                    Intent(
+                                        this@ArticleScreen,
+                                        ImageViewerActivity::class.java
+                                    ).apply {
+                                        putExtra(PARAM_IMAGE_URLS, arrayOf(it.image.imageUrl))
+                                    })
                             }
                     )
                     if (it.image.imageCaption.isNotEmpty()) {

@@ -203,7 +203,6 @@ fun DanmakuCanvas(
                 state.updateNormalDanmaku(
                     textMeasurer = textMeasurer,
                     drawScope = this,
-                    playSpeed = playSpeed,
                     blockLevel = blockLevel,
                     textScale = textScale
                 )

@@ -32,5 +32,6 @@ data class VideoCacheFileInfo(
     @ColumnInfo(name = "file_size") val downloadFileSize: String = "0B",
     @ColumnInfo(name = "duration") val videoDurationMillis: Long = 0L,
     @ColumnInfo(name = "download_progress") val downloadProgress: Int = 0,
-    @ColumnInfo(name = "subtitle_filenames") val downloadedSubtitleFileNames: Map<String, String> = emptyMap()
+    @ColumnInfo(name = "subtitle_filenames") val downloadedSubtitleFileNames: Map<String, String> = emptyMap(),
+    @ColumnInfo(name = "warnings") val warnings: String = ""
 )

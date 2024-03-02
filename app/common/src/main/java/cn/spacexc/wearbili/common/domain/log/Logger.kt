@@ -10,9 +10,13 @@ import android.util.Log
  * 给！爷！写！注！释！
  */
 const val TAG = "Re:WearBiliTag"
-fun logd(content: String?) = Log.d(TAG, "$content")
+fun logd(content: String?) {
+    Log.d(TAG, "$content")
+}
 
-fun logd(content: Any?) = Log.d(TAG, "$content")
+fun logd(content: Any?) {
+    Log.d(TAG, "$content")
+}
 
 fun <T> T?.logd(content: String? = ""): T? {
     if(content.isNullOrEmpty()) {

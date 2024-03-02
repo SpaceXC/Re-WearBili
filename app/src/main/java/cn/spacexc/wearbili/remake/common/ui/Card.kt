@@ -39,15 +39,21 @@ fun Card(
     isClickEnabled: Boolean = true,
     shape: Shape = RoundedCornerShape(10.dp),
     onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
     borderColor: Color = Color(54, 54, 54, 255),
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(
         modifier = modifier
             .padding(/*horizontal = 8.dp, */vertical = 4.dp)
-            .clickVfx(isEnabled = isClickEnabled && onClick != null) {
-                onClick?.invoke()
-            }
+            .clickVfx(
+                enabled = isClickEnabled && (onClick != null || onLongClick != null),
+                onClick = {
+                    onClick?.invoke()
+                },
+                onLongClick = {
+                    onLongClick?.invoke()
+                })
             .clip(shape)
             .border(
                 width = 0.3f.dp,

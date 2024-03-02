@@ -32,7 +32,7 @@ class QrCodeLoginActivity : ComponentActivity() {
             }
         }
         setContent {
-            TitleBackground(title = "登录", onBack = ::finish) {
+            TitleBackground(title = "登录", onBack = ::finish, onRetry = {}) {
                 LoginScreen(viewModel.screenState) {
                     loginJob.cancel()
                     loginJob = lifecycleScope.launch {

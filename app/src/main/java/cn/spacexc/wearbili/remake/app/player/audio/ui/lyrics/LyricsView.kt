@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.ripple
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -124,12 +124,11 @@ fun LyricsView(
     }
 
     fun getAnimationItemsRange(currentIndex: Int): IntRange {
-        val lines = subtitles
         val currItemInfo = itemsInfo[currentIndex] ?: return -1..-1
         val scrollY = scrollState.value
         var start = -1
         var end = -1
-        for (i in lines.indices) {
+        for (i in subtitles.indices) {
             val itemInfo = itemsInfo[i] ?: continue
 
             val itemTop = itemInfo.offsetY
@@ -244,12 +243,17 @@ private fun LyricsViewLine(
     inactiveScale: Float = 1f,
     activeAlpha: Float = 1f,
     inactiveAlpha: Float = 0.35f,
+    activeShadow: Float = 1f,
+    inactiveShadow: Float = 0f
 ) {
     var scale by remember { mutableStateOf(if (isActive) activeScale else inactiveScale) }
     var alpha by remember { mutableStateOf(if (isActive) activeAlpha else inactiveAlpha) }
+    var shadow by remember { mutableStateOf(if (isActive) activeShadow else inactiveShadow) }
 
     val interactionSource = rememberMutableInteractionSource()
-    val indication = rememberRipple(color = contentColor)
+
+    val indication = ripple(color = contentColor)//rememberRipple(color = contentColor)
+
 
     LaunchedEffect(isActive) {
         launch {

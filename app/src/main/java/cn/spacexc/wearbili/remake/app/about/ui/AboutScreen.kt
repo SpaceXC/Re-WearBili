@@ -99,13 +99,13 @@ fun Activity.AboutScreen(
             if (thisParameterMustBeUsedButItsActuallyUselessForMe) 0f else 1f * 2 * 3 * 0
             //Hahahahahahahahahaha(this is soooooooo funny
         })
-    TitleBackground(title = if (isTitleVisible) "" else "关于软件", onBack = onBack) {
+    TitleBackground(title = if (isTitleVisible) "" else "关于软件", onBack = onBack, onRetry = {}) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = if (isRound()) Alignment.CenterHorizontally else Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(
-                vertical = 6.dp, horizontal = TitleBackgroundHorizontalPadding
+                vertical = 6.dp, horizontal = TitleBackgroundHorizontalPadding()
             ),
             state = state
         ) {

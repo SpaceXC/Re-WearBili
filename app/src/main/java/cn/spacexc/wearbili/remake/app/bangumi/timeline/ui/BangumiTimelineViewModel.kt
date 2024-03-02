@@ -6,11 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BangumiInfo
-import cn.spacexc.bilibilisdk.sdk.bangumi.info.timeline.BangumiTimeline
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.timeline.Episode
-import cn.spacexc.bilibilisdk.sdk.bangumi.info.timeline.Result
 import cn.spacexc.wearbili.remake.common.UIState
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -22,7 +19,7 @@ import kotlinx.coroutines.launch
  */
 
 class BangumiTimelineViewModel : ViewModel() {
-    var uiState by mutableStateOf(UIState.Loading)
+    var uiState: UIState by mutableStateOf(UIState.Loading)
     var timelineData: List<Pair<Pair<String, Int>, Map<String, List<Episode>>>> by mutableStateOf(
         emptyList()
     )
@@ -33,7 +30,7 @@ class BangumiTimelineViewModel : ViewModel() {
         viewModelScope.launch {
             val response = BangumiInfo.getBangumiTimeline()
             if (response.code != 0) {
-                uiState = UIState.Failed
+                uiState = UIState.Failed(response.code)
                 return@launch
             }
             response.data?.result?.let { results ->
@@ -51,7 +48,7 @@ class BangumiTimelineViewModel : ViewModel() {
                 uiState = UIState.Success
                 return@launch
             }
-            uiState = UIState.Failed
+            uiState = UIState.Failed(response.code)
             return@launch
         }
     }

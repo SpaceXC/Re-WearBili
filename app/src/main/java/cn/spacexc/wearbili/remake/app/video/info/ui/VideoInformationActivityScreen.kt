@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.Flow
 @OptIn(ExperimentalFoundationApi::class)
 /*@UnstableApi*/
 @Composable
-fun VideoInformationActivityScreen(
+fun Activity.VideoInformationActivityScreen(
     context: Activity,
     state: PagerState,
     videoInformationScreenState: VideoInformationScreenState,
@@ -36,6 +36,8 @@ fun VideoInformationActivityScreen(
     commentDataFlow: Flow<PagingData<CommentContentData>>?,
     uploaderMid: Long,
     oid: Long,
+    videoIdType: String,
+    videoId: String,
     onBack: () -> Unit
 ) {
 
@@ -58,8 +60,9 @@ fun VideoInformationActivityScreen(
             when (it) {
                 0 -> VideoInformationScreen(
                     state = videoInformationScreenState,
-                    context,
-                    videoInformationViewModel
+                    context = context,
+                    videoInformationViewModel = videoInformationViewModel,
+                    videoIdType = videoIdType, videoId = videoId
                 )
 
                 1 -> {

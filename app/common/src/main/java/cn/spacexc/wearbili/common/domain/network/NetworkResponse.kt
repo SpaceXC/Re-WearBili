@@ -8,7 +8,15 @@ package cn.spacexc.wearbili.common.domain.network
  * 给！爷！写！注！释！
  */
 
-sealed class NetworkResponse<T>(val code: Int = 0, val message: String? = null, val data: T? = null) {
-    class Success<T>(data: T): NetworkResponse<T>(code = 0, message = null, data = data)
-    class Failed<T>(code: Int, message: String, data: T? = null): NetworkResponse<T>(code = code, message = message, data = data)
+sealed class NetworkResponse<T>(
+    val apiUrl: String,
+    val code: Int = 0,
+    val message: String? = null,
+    val data: T? = null
+) {
+    class Success<T>(data: T, apiUrl: String) :
+        NetworkResponse<T>(code = 0, message = null, data = data, apiUrl = apiUrl)
+
+    class Failed<T>(code: Int, message: String, data: T? = null, apiUrl: String) :
+        NetworkResponse<T>(code = code, message = message, data = data, apiUrl = apiUrl)
 }

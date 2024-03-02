@@ -165,7 +165,6 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
     fun updateNormalDanmaku(
         textMeasurer: TextMeasurer,
         drawScope: DrawScope,
-        playSpeed: Float,
         blockLevel: Int,
         textScale: Float
     ) {

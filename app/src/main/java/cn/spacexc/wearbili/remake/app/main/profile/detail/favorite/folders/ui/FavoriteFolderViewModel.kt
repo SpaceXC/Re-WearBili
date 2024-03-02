@@ -6,13 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.spacexc.bilibilisdk.sdk.user.favorite.info.FavoriteInfo
-import cn.spacexc.bilibilisdk.sdk.user.favorite.info.remote.list.Folder
 import cn.spacexc.bilibilisdk.sdk.user.favorite.info.remote.metadata.FavoriteFolderMetaData
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.common.UIState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 /**
@@ -24,14 +22,14 @@ import kotlinx.coroutines.launch
  */
 
 class FavoriteFolderViewModel : ViewModel() {
-    var uiState by mutableStateOf(UIState.Loading)
+    var uiState: UIState by mutableStateOf(UIState.Loading)
     var folders by mutableStateOf(emptyList<FavoriteFolderMetaData?>())
 
     fun getFolders() {
         viewModelScope.launch {
             val response = FavoriteInfo.getAllFavoriteFolders()
             if (response.code != 0 || response.data?.data?.list.isNullOrEmpty()) {
-                uiState = UIState.Failed
+                uiState = UIState.Failed(response.code)
                 return@launch
             }
             val list = (response.data?.data?.list ?: emptyList())

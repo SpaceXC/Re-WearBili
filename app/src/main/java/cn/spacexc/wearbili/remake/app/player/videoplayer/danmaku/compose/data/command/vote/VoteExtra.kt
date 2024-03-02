@@ -26,5 +26,5 @@ data class VoteExtra(
     @SerializedName("shrink_title")
     val shrinkTitle: String,
     @SerializedName("vote_id")
-    val voteId: Int
+    val voteid: Long
 )

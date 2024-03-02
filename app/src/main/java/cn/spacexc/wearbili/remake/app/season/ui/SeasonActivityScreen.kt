@@ -64,9 +64,9 @@ fun Activity.SeasonActivityScreen(
     ) {
         LazyColumn(
             contentPadding = PaddingValues(
-                start = TitleBackgroundHorizontalPadding - 2.dp,
-                end = TitleBackgroundHorizontalPadding - 2.dp,
-                bottom = TitleBackgroundHorizontalPadding - 2.dp,
+                start = TitleBackgroundHorizontalPadding() - 2.dp,
+                end = TitleBackgroundHorizontalPadding() - 2.dp,
+                bottom = TitleBackgroundHorizontalPadding() - 2.dp,
                 top = 2.dp
             ),
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -114,7 +114,10 @@ fun Activity.SeasonActivityScreen(
                 }
             }
             item {
-                LoadingTip(loadingState = items.loadState.append.toLoadingState())
+                LoadingTip(
+                    loadingState = items.loadState.append.toLoadingState(),
+                    onRetry = items::retry
+                )
             }
         }
     }

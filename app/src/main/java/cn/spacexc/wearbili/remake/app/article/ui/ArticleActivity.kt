@@ -19,7 +19,7 @@ class ArticleActivity : ComponentActivity() {
             viewModel.getArticle(cvid)
         }
         setContent {
-            ArticleScreen(viewModel = viewModel)
+            ArticleScreen(viewModel = viewModel, cvid = cvid)
         }
     }
 }

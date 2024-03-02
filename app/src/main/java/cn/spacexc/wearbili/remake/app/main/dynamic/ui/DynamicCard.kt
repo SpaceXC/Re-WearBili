@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app.main.dynamic.ui
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.background
@@ -54,8 +55,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.article.ui.ArticleActivity
+import cn.spacexc.wearbili.remake.app.article.ui.PARAM_CVID
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_EPID
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiActivity
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID
@@ -67,6 +71,8 @@ import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicIte
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.ItemRichTextNode
 import cn.spacexc.wearbili.remake.app.search.ui.PARAM_DEFAULT_SEARCH_KEYWORD
 import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
+import cn.spacexc.wearbili.remake.app.season.ui.PARAM_MID
+import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceActivity
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
@@ -89,8 +95,13 @@ import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
  * 给！爷！写！注！释！
  */
 
-val supportedDynamicTypes =
-    listOf("DYNAMIC_TYPE_FORWARD", "DYNAMIC_TYPE_DRAW", "DYNAMIC_TYPE_WORD", "DYNAMIC_TYPE_AV")
+val supportedDynamicTypes = listOf(
+    "DYNAMIC_TYPE_FORWARD",
+    "DYNAMIC_TYPE_DRAW",
+    "DYNAMIC_TYPE_WORD",
+    "DYNAMIC_TYPE_AV",
+    "DYNAMIC_TYPE_ARTICLE"
+)
 
 @Composable
 fun DynamicRichText(
@@ -101,45 +112,41 @@ fun DynamicRichText(
     leadingIcon: (@Composable () -> Unit)? = null,
     onGloballyClicked: () -> Unit
 ) {
-    val inlineContentMap = hashMapOf(
-        "leadingIcon" to InlineTextContent(
-            Placeholder(
-                width = textStyle.fontSize,
-                height = textStyle.fontSize,
-                placeholderVerticalAlign = PlaceholderVerticalAlign.Center
-            )
-        ) {
-            leadingIcon?.invoke()
-        },
-        "webLinkIcon" to InlineTextContent(
-            Placeholder(
-                width = textStyle.fontSize,
-                height = textStyle.fontSize,
-                placeholderVerticalAlign = PlaceholderVerticalAlign.TextBottom
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Link,
-                contentDescription = null,
-                tint = cn.spacexc.wearbili.common.domain.color.parseColor("#178bcf"),
-                modifier = Modifier.fillMaxSize()
-            )
-        },
-        "lotteryIcon" to InlineTextContent(
-            Placeholder(
-                width = textStyle.fontSize,
-                height = textStyle.fontSize,
-                placeholderVerticalAlign = PlaceholderVerticalAlign.Center
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Redeem,
-                contentDescription = null,
-                tint = cn.spacexc.wearbili.common.domain.color.parseColor("#178bcf"),
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-    )
+    val inlineContentMap = hashMapOf("leadingIcon" to InlineTextContent(
+        Placeholder(
+            width = textStyle.fontSize,
+            height = textStyle.fontSize,
+            placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+        )
+    ) {
+        leadingIcon?.invoke()
+    }, "webLinkIcon" to InlineTextContent(
+        Placeholder(
+            width = textStyle.fontSize,
+            height = textStyle.fontSize,
+            placeholderVerticalAlign = PlaceholderVerticalAlign.TextBottom
+        )
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Link,
+            contentDescription = null,
+            tint = cn.spacexc.wearbili.common.domain.color.parseColor("#178bcf"),
+            modifier = Modifier.fillMaxSize()
+        )
+    }, "lotteryIcon" to InlineTextContent(
+        Placeholder(
+            width = textStyle.fontSize,
+            height = textStyle.fontSize,
+            placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+        )
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Redeem,
+            contentDescription = null,
+            tint = cn.spacexc.wearbili.common.domain.color.parseColor("#178bcf"),
+            modifier = Modifier.fillMaxSize()
+        )
+    })
     val annotatedString = buildAnnotatedString {
         leadingIcon?.let {
             appendInlineContent("leadingIcon")
@@ -237,23 +244,20 @@ fun DynamicRichText(
         style = textStyle,
         modifier = modifier
     ) { index ->
-        /*annotatedString.getStringAnnotations(tag = "tagUser", start = index, end = index)
+        annotatedString.getStringAnnotations(tag = "tagUser", start = index, end = index)
             .firstOrNull()?.let { annotation ->
-                context.startActivity(Intent(context, SpaceProfileActivity::class.java).apply {
-                    putExtra("userMid", annotation.item.toLong())
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(Intent(context, UserSpaceActivity::class.java).apply {
+                    putExtra(PARAM_MID, annotation.item.toLong())
                 })
                 return@ClickableText
-            }*/
+            }
         annotatedString.getStringAnnotations(tag = "tagSearch", start = index, end = index)
             .firstOrNull()?.let { annotation ->
                 val intent = Intent(context, SearchActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 intent.putExtra(PARAM_DEFAULT_SEARCH_KEYWORD, annotation.item)
                 context.startActivity(intent)
                 return@ClickableText
-            }
-        /*annotatedString.getStringAnnotations(tag = "tagUrl", start = index, end = index)
+            }/*annotatedString.getStringAnnotations(tag = "tagUrl", start = index, end = index)
             .firstOrNull()?.let { annotation ->
                 context.startActivity(Intent(context, LinkProcessActivity::class.java).apply {
                     putExtra("url", annotation.item)
@@ -270,7 +274,7 @@ fun DynamicRichText(
 fun DynamicContent(
     item: DynamicItem,
     textSizeScale: Float = 1.0f,
-    context: Context/*?*/   //for compose preview   //f*** **u compose preview!
+    context: Activity/*?*/   //for compose preview   //f*** **u compose preview!
 ) {
     val localDensity = LocalDensity.current
     Column(modifier = Modifier.padding(4.dp)) {
@@ -319,8 +323,7 @@ fun DynamicContent(
                     ) {
                         imageList.forEachIndexed { index, image ->
                             item {
-                                BiliImage(
-                                    url = image.src,
+                                BiliImage(url = image.src,
                                     contentDescription = null,
                                     modifier = when (imageList.size) {
                                         1 -> Modifier
@@ -332,8 +335,7 @@ fun DynamicContent(
                                                     .map { it.src }
                                                     .toTypedArray()
                                                 intent.putExtra(
-                                                    PARAM_IMAGE_URLS,
-                                                    urls
+                                                    PARAM_IMAGE_URLS, urls
                                                 )
                                                 intent.putExtra(PARAM_SELECTED_INDEX, index)
                                                 context.startActivity(intent)
@@ -353,8 +355,7 @@ fun DynamicContent(
                                                     .map { it.src }
                                                     .toTypedArray()
                                                 intent.putExtra(
-                                                    PARAM_IMAGE_URLS,
-                                                    urls
+                                                    PARAM_IMAGE_URLS, urls
                                                 )
                                                 intent.putExtra(PARAM_SELECTED_INDEX, index)
                                                 context.startActivity(intent)
@@ -363,8 +364,7 @@ fun DynamicContent(
                                                 RoundedCornerShape(6.dp)
                                             )
                                     },
-                                    contentScale = if (imageList.size == 1) ContentScale.FillBounds else ContentScale.Crop
-                                )
+                                    contentScale = if (imageList.size == 1) ContentScale.FillBounds else ContentScale.Crop)
                             }
                         }
                     }
@@ -380,21 +380,19 @@ fun DynamicContent(
                     mutableStateOf(0.dp)
                 }
 
-                Box(
-                    modifier = Modifier
-                        .clickVfx {
-                            context.startActivity(
-                                Intent(context, VideoInformationActivity::class.java).apply {
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    putExtra(
-                                        PARAM_VIDEO_ID,
-                                        item.modules.moduleDynamic.major?.archive?.bvid
-                                    )
-                                }
+                Box(modifier = Modifier
+                    .clickVfx {
+                        context.startActivity(Intent(
+                            context, VideoInformationActivity::class.java
+                        ).apply {
+                            //flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            putExtra(
+                                PARAM_VIDEO_ID,
+                                item.modules.moduleDynamic.major?.archive?.bvid
                             )
-                        }
-                        .clip(RoundedCornerShape(6.dp))
-                ) {
+                        })
+                    }
+                    .clip(RoundedCornerShape(6.dp))) {
                     BiliImage(
                         url = item.modules.moduleDynamic.major?.archive?.cover ?: "",
                         contentDescription = null,
@@ -409,8 +407,7 @@ fun DynamicContent(
                             .background(
                                 Brush.verticalGradient(
                                     listOf(
-                                        Color.Transparent,
-                                        Color(0, 0, 0, 204)
+                                        Color.Transparent, Color(0, 0, 0, 204)
                                     )
                                 )
                             )
@@ -418,16 +415,14 @@ fun DynamicContent(
                             .height(infoHeight)
                             .align(Alignment.BottomCenter),
                     )   //阴影
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .onGloballyPositioned {
-                                infoHeight = with(localDensity) {
-                                    it.size.height
-                                        .toDp()
-                                }
+                    Column(modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .onGloballyPositioned {
+                            infoHeight = with(localDensity) {
+                                it.size.height.toDp()
                             }
-                            .padding(6.dp)) {
+                        }
+                        .padding(6.dp)) {
                         Text(
                             text = item.modules.moduleDynamic.major?.archive?.title ?: "",
                             color = Color.White,
@@ -471,8 +466,7 @@ fun DynamicContent(
                 }
             }
 
-            "DYNAMIC_TYPE_PGC", "DYNAMIC_TYPE_PGC_UNION" -> {
-                /*Text(
+            "DYNAMIC_TYPE_PGC", "DYNAMIC_TYPE_PGC_UNION" -> {/*Text(
                     text = "${item.modules.moduleDynamic.major?.pgc?.title} 更新了",
                     fontFamily = puhuiFamily,
                     color = Color.White,
@@ -480,8 +474,7 @@ fun DynamicContent(
                 )*/
                 Column(modifier = Modifier.clickVfx {
                     Intent(
-                        context,
-                        BangumiActivity::class.java
+                        context, BangumiActivity::class.java
                     ).apply {
                         putExtra(PARAM_BANGUMI_ID, item.modules.moduleDynamic.major?.pgc?.epid)
                         putExtra(PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_EPID)
@@ -493,8 +486,7 @@ fun DynamicContent(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
+                        modifier = Modifier.clip(RoundedCornerShape(6.dp))
                     ) {
                         BiliImage(
                             url = item.modules.moduleDynamic.major?.pgc?.cover ?: "",
@@ -510,8 +502,7 @@ fun DynamicContent(
                                 .background(
                                     Brush.verticalGradient(
                                         listOf(
-                                            Color.Transparent,
-                                            Color(0, 0, 0, 204)
+                                            Color.Transparent, Color(0, 0, 0, 204)
                                         )
                                     )
                                 )
@@ -519,16 +510,14 @@ fun DynamicContent(
                                 .height(infoHeight)
                                 .align(Alignment.BottomCenter),
                         )   //阴影
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .onGloballyPositioned {
-                                    infoHeight = with(localDensity) {
-                                        it.size.height
-                                            .toDp()
-                                    }
+                        Column(modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .onGloballyPositioned {
+                                infoHeight = with(localDensity) {
+                                    it.size.height.toDp()
                                 }
-                                .padding(6.dp)) {
+                            }
+                            .padding(6.dp)) {
                             Text(
                                 text = item.modules.moduleDynamic.major?.pgc?.title ?: "",
                                 color = Color.White,
@@ -555,14 +544,39 @@ fun DynamicContent(
                                     fontWeight = FontWeight.Medium,
                                     modifier = Modifier.onGloballyPositioned {
                                         with(localDensity) {
-                                            textHeight =
-                                                it.size.height.toDp()
+                                            textHeight = it.size.height.toDp()
                                         }
                                     })
                             }
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+
+            "DYNAMIC_TYPE_ARTICLE" -> {
+                Card(onClick = {
+                    context.startActivity(Intent(context, ArticleActivity::class.java).apply {
+                        putExtra(PARAM_CVID, item.modules.moduleDynamic.major?.article?.id)
+                    })
+                }) {
+                    Column {
+                        item.modules.moduleDynamic.major?.article?.let { article ->
+                            Text(
+                                text = article.title,
+                                color = Color.White,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 14.sp
+                            )
+                            Text(
+                                text = article.desc,
+                                color = Color.White,
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 12.sp,
+                                modifier = Modifier.alpha(0.7f)
+                            )
+                        }
+                    }
                 }
             }
 
@@ -579,12 +593,9 @@ fun DynamicContent(
 
         item.modules.moduleInteraction?.items?.forEach { item ->
             Spacer(modifier = Modifier.height(6.dp))
-            DynamicRichText(
-                textNodes = item.desc.richTextNodes,
+            DynamicRichText(textNodes = item.desc.richTextNodes,
                 textStyle = TextStyle(
-                    fontSize = 9.spx,
-                    color = Color.White,
-                    fontFamily = wearbiliFontFamily
+                    fontSize = 9.spx, color = Color.White, fontFamily = wearbiliFontFamily
                 ),
                 context = context,
                 modifier = Modifier
@@ -611,16 +622,15 @@ fun DynamicContent(
                         }
                     }
                 },
-                onGloballyClicked = {}
-            )
-            /*IconText(text = item.desc.text, fontSize = 9.spx, modifier = Modifier.alpha(0.5f)) {
+                onGloballyClicked = {})/*IconText(text = item.desc.text, fontSize = 9.spx, modifier = Modifier.alpha(0.5f)) {
 
             }*/
         }
         item.modules.moduleStat?.let {
             Spacer(modifier = Modifier.height(6.dp))
             Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp)
             ) {
@@ -667,16 +677,11 @@ fun DynamicContent(
 
 @Composable
 fun DynamicCard(
-    item: DynamicItem,
-    context: Context,
-    textSizeScale: Float = 1.0f
+    item: DynamicItem, context: Activity, textSizeScale: Float = 1.0f
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        innerPaddingValues = PaddingValues(
-            top = 6.dp, bottom = 4.dp,
-            start = 4.dp, end = 4.dp
+        modifier = Modifier.fillMaxWidth(), innerPaddingValues = PaddingValues(
+            top = 6.dp, bottom = 4.dp, start = 4.dp, end = 4.dp
         )
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -692,7 +697,9 @@ fun DynamicCard(
                     },
                     usernameColor = author.vip?.nicknameColor,
                     textSizeScale = textSizeScale,
-                    officialVerify = (author.officialVerify?.type ?: -1).toOfficialVerify()
+                    officialVerify = (author.officialVerify?.type ?: -1).toOfficialVerify(),
+                    context = context,
+                    mid = author.mid
                 )
             }
             DynamicContent(item = item, context = context, textSizeScale = textSizeScale)

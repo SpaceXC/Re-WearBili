@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import cn.spacexc.wearbili.remake.app.player.audio.ui.AudioPlayerActivityScreen
+import cn.spacexc.wearbili.remake.app.settings.ProvideConfiguration
+import cn.spacexc.wearbili.remake.common.ui.theme.ProvideLocalDensity
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -72,18 +74,22 @@ class AudioPlayerActivity : ComponentActivity() {
 
     @Composable
     fun LoadingScreen() {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(70, 70, 70, 100)),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "音频播放器正在加载哦...",
-                color = Color(255, 255, 255, 128),
-                fontFamily = wearbiliFontFamily,
-                fontWeight = FontWeight.Medium
-            )
+        ProvideConfiguration {
+            ProvideLocalDensity {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(70, 70, 70, 100)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "音频播放器正在加载哦...",
+                        color = Color(255, 255, 255, 128),
+                        fontFamily = wearbiliFontFamily,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
         }
     }
 }

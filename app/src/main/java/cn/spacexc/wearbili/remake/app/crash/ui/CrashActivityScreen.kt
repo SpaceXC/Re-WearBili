@@ -1,6 +1,10 @@
 package cn.spacexc.wearbili.remake.app.crash.ui
 
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.os.Process
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +35,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.copyToClipboard
+import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.ClickableText
@@ -40,6 +45,7 @@ import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
 import kotlinx.coroutines.delay
+
 
 /**
  * Created by XC-Qan on 2023/7/13.
@@ -55,9 +61,10 @@ import kotlinx.coroutines.delay
 fun Activity.CrashActivityScreen(
     stacktrace: String,
     description: String,
-    viewModel: CrashViewModel
+    viewModel: CrashViewModel,
+    context: Context
 ) {
-    TitleBackground(title = "", onBack = ::finish) {
+    TitleBackground(title = "", onBack = ::finish, onRetry = {}, uiState = viewModel.uiState) {
         var currentHighlightedButton by remember {
             mutableStateOf("")
         }
@@ -94,7 +101,7 @@ fun Activity.CrashActivityScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(TitleBackgroundHorizontalPadding - 4.dp),
+                .padding(TitleBackgroundHorizontalPadding() - 4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(text = "呜啊＞︿＜!", fontSize = 18.spx, style = AppTheme.typography.h1)
@@ -170,7 +177,7 @@ fun Activity.CrashActivityScreen(
                     innerPaddingValues = PaddingValues(14.dp),
                     borderColor = qrcodeButtonColor,
                     onClick = {
-                        viewModel.uploadLog(description, stacktrace)
+                        viewModel.uploadLog(description, stacktrace, this@CrashActivityScreen)
                     }
                 ) {
                     Icon(
@@ -194,7 +201,13 @@ fun Activity.CrashActivityScreen(
                                 SplashScreenActivity::class.java
                             )
                         )*/
+                        //finish()
+                        //exitProcess(0)
                         finish()
+                        val intent = Intent(context, SplashScreenActivity::class.java)
+                        intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(intent)
+                        Process.killProcess(Process.myPid())
                     }
                 ) {
                     Icon(

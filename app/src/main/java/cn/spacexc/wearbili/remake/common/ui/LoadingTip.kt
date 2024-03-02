@@ -35,7 +35,7 @@ enum class LoadingState {
 @Composable
 fun LoadingTip(
     loadingState: LoadingState = LoadingState.Loading,
-    onRetry: () -> Unit = {}
+    onRetry: () -> Unit// = {}
 ) = Text(
     text = buildAnnotatedString {
         if (loadingState == LoadingState.Loading) {
@@ -56,7 +56,9 @@ fun LoadingTip(
         .fillMaxWidth()
         .padding(4.dp)
         .clickVfx {
-            onRetry()
+            if (loadingState == LoadingState.Failed) {
+                onRetry()
+            }
         },
     textAlign = TextAlign.Center,
     inlineContent = mapOf(

@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import cn.spacexc.bilibilisdk.sdk.user.history.HistoryInfo
 import cn.spacexc.bilibilisdk.sdk.user.history.remote.HistoryItem
-import cn.spacexc.wearbili.common.exception.DataLoadFailedException
+import cn.spacexc.wearbili.common.exception.PagingDataLoadFailedException
 
 /**
  * Created by XC-Qan on 2023/6/24.
@@ -21,11 +21,21 @@ class HistoryPagingSource : PagingSource<Long, HistoryItem>() {
         val currentTimeStamp = params.key ?: 0L
         val response = HistoryInfo.getHistoryByPage(currentTimeStamp)
         if (response.code != 0) {
-            return LoadResult.Error(DataLoadFailedException())
+            return LoadResult.Error(
+                PagingDataLoadFailedException(
+                    apiUrl = response.apiUrl,
+                    code = response.code
+                )
+            )
         }
         val list = response.data?.data?.list ?: emptyList()
         if (list.isEmpty()) {
-            return LoadResult.Error(DataLoadFailedException())
+            return LoadResult.Error(
+                PagingDataLoadFailedException(
+                    apiUrl = response.apiUrl,
+                    code = response.code
+                )
+            )
         }
         val nextTimeStamp = list.last().view_at
         return LoadResult.Page(

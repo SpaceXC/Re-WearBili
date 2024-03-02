@@ -6,8 +6,8 @@ import androidx.compose.ui.graphics.Color
 import bilibili.community.service.dm.v1.DanmakuElem
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.MAX_ALPHA
-import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlin.math.abs
 import kotlin.math.sqrt
 

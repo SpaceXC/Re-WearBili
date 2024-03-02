@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import cn.spacexc.bilibilisdk.sdk.user.follow.following.FollowedUserInfo
 import cn.spacexc.bilibilisdk.sdk.user.follow.following.remote.user.Data
-import cn.spacexc.wearbili.common.exception.DataLoadFailedException
+import cn.spacexc.wearbili.common.exception.PagingDataLoadFailedException
 
 /**
  * Created by XC-Qan on 2023/7/7.
@@ -28,7 +28,12 @@ class FollowingPagingSource(private val tagId: Long) : PagingSource<Int, Data>()
             tagId = tagId
         )
         if (response.code != 0 || response.data?.data == null) {
-            return LoadResult.Error(DataLoadFailedException())
+            return LoadResult.Error(
+                PagingDataLoadFailedException(
+                    apiUrl = response.apiUrl,
+                    code = response.code
+                )
+            )
         }
         val list = response.data?.data ?: emptyList()
 

@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
  */
 
 class WatchLaterViewModel : ViewModel() {
-    var uiState by mutableStateOf(UIState.Loading)
+    var uiState: UIState by mutableStateOf(UIState.Loading)
     var watchLaterList by mutableStateOf(listOf<WatchLaterItem>())
     var isRefreshing by mutableStateOf(false)
 
@@ -30,7 +30,7 @@ class WatchLaterViewModel : ViewModel() {
         viewModelScope.launch {
             val response = WatchLaterInfo.getAllWatchLater()
             if (response.code != 0) {
-                uiState = UIState.Failed
+                uiState = UIState.Failed(response.code)
                 return@launch
             }
             watchLaterList = response.data?.data?.list ?: emptyList()

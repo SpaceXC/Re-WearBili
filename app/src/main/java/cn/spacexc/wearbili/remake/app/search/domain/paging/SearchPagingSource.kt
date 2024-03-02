@@ -2,7 +2,7 @@ package cn.spacexc.wearbili.remake.app.search.domain.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import cn.spacexc.wearbili.common.exception.DataLoadFailedException
+import cn.spacexc.wearbili.common.exception.PagingDataLoadFailedException
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.Search
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.mediaft.SearchedMediaFt
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.user.SearchedUser
@@ -38,7 +38,12 @@ class SearchPagingSource(
                 }
             } "
         val response = networkUtils.get<Search>(url)
-        if (response.code != 0) return LoadResult.Error(DataLoadFailedException())
+        if (response.code != 0) return LoadResult.Error(
+            PagingDataLoadFailedException(
+                apiUrl = response.apiUrl,
+                code = response.code
+            )
+        )
         val result = response.data?.data?.result ?: emptyList()
         if (page == 1) {
             val userList = result.find { it.resultType == "bili_user" }

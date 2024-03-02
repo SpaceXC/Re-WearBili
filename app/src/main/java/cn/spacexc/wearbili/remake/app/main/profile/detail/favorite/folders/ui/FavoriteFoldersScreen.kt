@@ -53,7 +53,12 @@ fun Activity.FavoriteFoldersScreen(
 ) {
     val defaultFolder = viewModel.folders.find { it?.data?.title == "默认收藏夹" }
     val otherFolders = viewModel.folders.filter { it?.data?.title != "默认收藏夹" }
-    TitleBackground(title = "个人收藏", onBack = onBack, uiState = viewModel.uiState) {
+    TitleBackground(
+        title = "个人收藏",
+        onBack = onBack,
+        uiState = viewModel.uiState,
+        onRetry = viewModel::getFolders
+    ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),

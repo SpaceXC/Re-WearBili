@@ -23,12 +23,14 @@ import cn.spacexc.wearbili.remake.app.search.domain.remote.result.mediaft.Search
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.user.SearchedUser
 import cn.spacexc.wearbili.remake.app.search.domain.remote.result.video.SearchedVideo
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
-import cn.spacexc.wearbili.remake.common.UIState
+import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.LargeBangumiCard
 import cn.spacexc.wearbili.remake.common.ui.LargeUserCard
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
+import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
+import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
 import kotlinx.coroutines.flow.Flow
@@ -55,11 +57,10 @@ fun Activity.SearchResultScreen(
         refreshThreshold = 60.dp
     )
     TitleBackground(
-        title = "搜索结果", onBack = onBack, uiState = when (searchResult.loadState.refresh) {
-            is LoadState.Error -> UIState.Failed
-            is LoadState.Loading -> UIState.Loading
-            else -> UIState.Success
-        }
+        title = "搜索结果",
+        onBack = onBack,
+        uiState = searchResult.loadState.refresh.toUIState(),
+        onRetry = searchResult::retry
     ) {
         Box(
             modifier = Modifier
@@ -68,7 +69,10 @@ fun Activity.SearchResultScreen(
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = 4.dp, horizontal = 8.dp)
+                contentPadding = PaddingValues(
+                    vertical = if (isRound()) 10.dp else 4.dp,
+                    horizontal = TitleBackgroundHorizontalPadding()
+                )
             ) {
                 items(searchResult.itemCount) {
                     searchResult[it]?.let { searchObject ->

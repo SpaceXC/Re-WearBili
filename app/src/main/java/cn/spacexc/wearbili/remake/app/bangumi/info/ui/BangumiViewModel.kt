@@ -1,22 +1,32 @@
 package cn.spacexc.wearbili.remake.app.bangumi.info.ui
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BangumiInfo
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.remote.Episode
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.remote.Result
 import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
-import cn.spacexc.bilibilisdk.sdk.video.info.remote.playerinfo.Subtitle
 import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.Application
+import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
+import cn.spacexc.wearbili.remake.app.cache.domain.worker.VideoDownloadWorker
+import cn.spacexc.wearbili.remake.app.cache.list.CacheListActivity
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.UIState
@@ -47,7 +57,7 @@ class BangumiViewModel @Inject constructor(
     private val repository: VideoCacheRepository
 ) : ViewModel() {
     var bangumiInfo: Result? by mutableStateOf(null)
-    var uiState by mutableStateOf(UIState.Loading)
+    var uiState: UIState by mutableStateOf(UIState.Loading)
     var imageBitmap: Bitmap? by mutableStateOf(null)
 
     val bangumiInfoScreenScrollState = LazyListState()
@@ -77,7 +87,7 @@ class BangumiViewModel @Inject constructor(
         viewModelScope.launch {
             val response = BangumiInfo.getBangumiInfo(bangumiIdType, bangumiId)
             if (response.code != 0) {
-                uiState = UIState.Failed
+                uiState = UIState.Failed(response.code)
                 return@launch
             }
             bangumiInfo = response.data?.result
@@ -122,31 +132,57 @@ class BangumiViewModel @Inject constructor(
         getCurrentSelectedEpisode()?.cid ?: 0,
     ).data?.data?.subtitle?.subtitles
 
-    suspend fun cacheBangumi(
-    )/*: List<Pair<Pair<String, Long>, String?>>*/ {
-        uiState = UIState.Loading
+    suspend fun Activity.cacheBangumi() {
         val videoBvid = getCurrentSelectedEpisode()?.bvid ?: ""
-        val response =
-            BangumiInfo.getBangumiPlaybackUrl(BANGUMI_ID_TYPE_EPID, currentSelectedEpid)
-        if (response.code != 0) {
-            ToastUtils.showText("缓存任务创建失败!")
-            return
+        val videoCid = getCurrentSelectedEpisode()?.cid ?: 0
+        val episodeName = getCurrentSelectedEpisode()?.long_title?.ifEmpty {
+            getCurrentSelectedEpisode()?.title ?: ""
+        } ?: ""
+        val coverUrl = getCurrentSelectedEpisode()?.cover ?: ""
+        queryDownload(videoBvid, videoCid, bangumiInfo?.title ?: "", episodeName, coverUrl)
+        ToastUtils.showSnackBar(
+            "缓存任务创建成功！",
+            Icons.Default.Check,
+            Icons.AutoMirrored.Default.ArrowForwardIos
+        ) {
+            startActivity(Intent(this@cacheBangumi, CacheListActivity::class.java))
         }
-        val url = response.data?.result?.durl?.firstOrNull()?.url
-        if (url == null) {
-            ToastUtils.showText("下载失败了！原因：下载链接获取失败")
-            return
-        }
-        queryDownload(url, videoBvid, getSubtitles() ?: emptyList())
-        //return tasks.awaitAll()
     }
 
     private suspend fun queryDownload(
-        url: String,
-        videoBvid: String,
-        subtitles: List<Subtitle>
+        bvid: String,
+        cid: Long,
+        bangumiName: String,
+        episodeName: String,
+        coverUrl: String
     ) {
-
+        val downloadCacheInfo = VideoCacheFileInfo(
+            videoBvid = bvid,
+            videoName = episodeName,
+            videoPartName = bangumiName,    //大标题为ep标题，小标题为番剧名
+            videoCover = coverUrl,
+            videoUploaderName = "番剧",
+            videoCid = cid,
+        )
+        try {
+            repository.insertNewTasks(downloadCacheInfo)
+            val videoDownloadRequest = OneTimeWorkRequestBuilder<VideoDownloadWorker>()
+                .setInputData(
+                    workDataOf(
+                        "videoCid" to cid,
+                        "videoBvid" to bvid,
+                        "videoCover" to coverUrl,
+                        "isBangumi" to true
+                    )
+                )
+                /*.setConstraints(
+                    Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+                )*/
+                .build()
+            WorkManager.getInstance(application).enqueue(videoDownloadRequest)
+        } catch (e: Exception) {
+            uiState = UIState.Success
+            ToastUtils.showText("下载失败了！${e.message}")
+        }
     }
-
 }

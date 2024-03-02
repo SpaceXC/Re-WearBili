@@ -16,17 +16,18 @@ android {
 
     experimentalProperties["android.experimental.r8.dex-startup-optimization"] = true
 
-    val releaseNumber = 2
+    val releaseNumber = 5
     defaultConfig {
         applicationId = "cn.spacexc.wearbili.remake"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 26
-        versionName = "Settings"
+        versionCode = 37
+        versionName = "Glaciaxia 冰封"
 
         vectorDrawables {
             useSupportLibrary = true
         }
+
     }
     buildTypes {
         release {
@@ -36,6 +37,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
         }
     }
     compileOptions {
@@ -66,7 +68,8 @@ android {
     applicationVariants.all {
         outputs.all {
             val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            output.outputFileName = "Re-WearBili - $versionName Rel.$releaseNumber.apk"
+            output.outputFileName =
+                "Re-WearBili - $versionName Ver.$releaseNumber Rel.$versionCode.apk"
         }
     }
 
@@ -142,7 +145,7 @@ dependencies {
     implementation(libs.appcenter.crashes)
 
 
-    // For media playback using ExoPlayer
+    /*// For media playback using ExoPlayer
     implementation(libs.androidx.media3.exoplayer)
     // For DASH playback support with ExoPlayer
     implementation(libs.androidx.media3.exoplayer.dash)
@@ -155,7 +158,7 @@ dependencies {
     // Common functionality for loading data
     implementation(libs.androidx.media3.datasource)
     // Common functionality used across multiple media libraries
-    implementation(libs.androidx.media3.common)
+    implementation(libs.androidx.media3.common)*/
     //implementation(libs.danmaku.flame.master)
 
     //implementation(libs.crashx)
@@ -179,6 +182,8 @@ dependencies {
 
 
     implementation(libs.photoView)
+
+    implementation(libs.zoomable)
 
     implementation(libs.jsoup)
 

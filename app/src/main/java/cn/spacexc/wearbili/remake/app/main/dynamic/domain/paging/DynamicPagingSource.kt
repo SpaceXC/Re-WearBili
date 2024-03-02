@@ -3,6 +3,8 @@ package cn.spacexc.wearbili.remake.app.main.dynamic.domain.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import cn.spacexc.wearbili.common.domain.log.logd
+import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.common.exception.PagingDataLoadFailedException
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicItem
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicList
 
@@ -15,7 +17,7 @@ import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicLis
  */
 
 class DynamicPagingSource(
-    private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+    private val networkUtils: KtorNetworkUtils
 ) : PagingSource<Pair<Int, String?>, DynamicItem>() {
     private val requestedDynamicList = HashMap<Int, String?>()
 
@@ -34,7 +36,7 @@ class DynamicPagingSource(
                 )!!
             val response = networkUtils.get<DynamicList>(url)
             if (response.code != 0 || response.data?.data?.items.isNullOrEmpty()) return LoadResult.Error(
-                cn.spacexc.wearbili.common.exception.DataLoadFailedException()
+                PagingDataLoadFailedException(apiUrl = response.apiUrl, code = response.code)
             )
             val dynamicList = response.data?.data?.items ?: emptyList()
             return LoadResult.Page(

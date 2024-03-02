@@ -52,14 +52,17 @@ import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateDpAsState
 
 @Composable
 fun Activity.VideoFavouriteFoldersScreen(
-    viewModel: VideoFavouriteViewModel
+    viewModel: VideoFavouriteViewModel,
+    videoAid: Long
 ) {
     val localDensity = LocalDensity.current
     var confirmButtonHeight by remember {
         mutableStateOf(0.dp)
     }
 
-    TitleBackground(title = "收藏视频", uiState = viewModel.uiState, onBack = ::finish) {
+    TitleBackground(title = "收藏视频", uiState = viewModel.uiState, onBack = ::finish, onRetry = {
+        viewModel.getFolders(videoAid)
+    }) {
         Box(modifier = Modifier.fillMaxSize()) {
             val lazyColumnButtonContentPadding by wearBiliAnimateDpAsState(
                 targetValue = if (viewModel.idsToAdd.isNotEmpty() || viewModel.idsToDelete.isNotEmpty()) confirmButtonHeight else 0.dp,
