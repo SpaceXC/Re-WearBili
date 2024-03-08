@@ -140,11 +140,6 @@ class Application : android.app.Application(), Configuration.Provider {
             .find { it.service.className == serviceClass.name } != null
     }
 
-
-    override fun onTerminate() {
-        super.onTerminate()
-    }
-
     init {
         mApplication = this
     }

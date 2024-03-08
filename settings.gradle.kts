@@ -33,7 +33,6 @@ dependencyResolutionManagement {
 rootProject.name = "WearBili"
 include(":app")
 include(":app:common")
-include(":libs")
 include(":live_stream_player")
 include(":ijkplayer-java")
 include(":ijkplayer-so")
