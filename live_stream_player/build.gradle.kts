@@ -48,7 +48,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
-    implementation("com.github.SpaceXC:Bilibili-Kotlin-SDK:9b6680844e")
+    implementation(libs.bilibili.sdk)
 
 
     // For media playback using ExoPlayer

@@ -38,7 +38,7 @@ dependencies {
     api(libs.material)
     api(libs.androidx.ui.graphics)
 
-    api("com.github.SpaceXC:Bilibili-Kotlin-SDK:9b6680844e")
+    api(libs.bilibili.sdk)
     api(libs.hilt.android)
 
     implementation(libs.androidx.datastore.preferences)
@@ -50,7 +50,6 @@ dependencies {
     api(libs.gson)
 
     implementation(libs.zxing.core)
-    implementation(libs.ktor)
 
     kapt(libs.hilt.compiler)
 }
