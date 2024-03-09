@@ -11,15 +11,18 @@ import androidx.compose.material.icons.automirrored.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.Animation
 import androidx.compose.material.icons.outlined.FormatSize
 import androidx.compose.material.icons.outlined.Handyman
+import androidx.compose.material.icons.outlined.PeopleOutline
 import androidx.compose.material.icons.outlined.VideoSettings
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import cn.spacexc.bilibilisdk.utils.UserUtils
+import cn.spacexc.wearbili.remake.app.login.qrcode.web.ui.QrCodeLoginActivity
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.app.settings.domain.SettingsItem
 import cn.spacexc.wearbili.remake.app.settings.scaling.ScaleAdjustingActivity
 import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.QuickToolbarCustomizationActivity
+import cn.spacexc.wearbili.remake.app.settings.user.SwitchUserActivity
 import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.proto.settings.VideoDecoder
@@ -131,6 +134,36 @@ class SettingsActivity : ComponentActivity() {
                     VideoDecoder.Software -> "软解码"
                     else -> ""
                 }
+            }
+        ),
+        SettingsItem(
+            name = "添加账号",
+            description = "添加一个账号",
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.PeopleOutline,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.fillMaxSize()
+                )
+            },
+            action = {
+                startActivity(Intent(this, QrCodeLoginActivity::class.java))
+            }
+        ),
+        SettingsItem(
+            name = "切换账号",
+            description = "切换到另一个账号",
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.PeopleOutline,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.fillMaxSize()
+                )
+            },
+            action = {
+                startActivity(Intent(this, SwitchUserActivity::class.java))
             }
         ),
         SettingsItem(

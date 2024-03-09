@@ -1,4 +1,4 @@
-package cn.spacexc.wearbili.remake.livestreamplayer
+﻿package cn.spacexc.wearbili.remake.livestreamplayer
 
 import android.app.Application
 import cn.spacexc.bilibilisdk.BilibiliSdkManager

@@ -3,11 +3,11 @@ package cn.spacexc.wearbili.common.domain.network
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import cn.spacexc.bilibilisdk.data.CookiesManager
 import cn.spacexc.bilibilisdk.network.APP_KEY
 import cn.spacexc.bilibilisdk.network.APP_SEC
 import cn.spacexc.wearbili.common.EncryptUtils
 import cn.spacexc.wearbili.common.domain.log.logd
-import cn.spacexc.wearbili.common.domain.network.cookie.KtorCookiesManager
 import cn.spacexc.wearbili.common.domain.network.dto.BasicResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -41,7 +41,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.File
 import java.net.URLEncoder
 import java.util.TreeMap
-import javax.inject.Inject
 
 
 /**
@@ -56,7 +55,7 @@ const val USER_AGENT =
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
 const val BASE_URL = "https://www.bilibili.com" //Referer必须符合^https?://(\S+).bilibili.com
 
-class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCookiesManager) {
+class KtorNetworkUtils(private val cookiesManager: CookiesManager) {
     @OptIn(ExperimentalSerializationApi::class)
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {

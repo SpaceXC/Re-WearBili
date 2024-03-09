@@ -8,7 +8,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.SliderPositions
+import androidx.compose.material3.SliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -16,11 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -137,8 +136,8 @@ fun GradientSlider(
                 modifier = Modifier.offset(x = 4.5.dp, y = 5.dp)
             )
         },
-        track = { position ->
-            Track(sliderPositions = position)
+        track = { state ->
+            Track(sliderState = state)
         })
 }
 
@@ -165,8 +164,8 @@ fun GradientSlider(
                 modifier = Modifier.offset(x = 4.5.dp, y = 5.dp)
             )
         },
-        track = { position ->
-            Track(sliderPositions = position)
+        track = { state ->
+            Track(sliderState = state)
         },
         onValueChangeFinished = {
             onSlideFinished()
@@ -177,75 +176,72 @@ fun GradientSlider(
 val TrackHeight = 24.dp
 val TickSize = 4.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Track(
-    sliderPositions: SliderPositions,
+    sliderState: SliderState,
     modifier: Modifier = Modifier,
 ) {
+
     Canvas(
         modifier
             .fillMaxWidth()
             .height(TrackHeight)
     ) {
-        val isRtl = layoutDirection == LayoutDirection.Rtl
-        val sliderLeft = Offset(0f, center.y)
-        val sliderRight = Offset(size.width, center.y)
-        val sliderStart = if (isRtl) sliderRight else sliderLeft
-        val sliderEnd = if (isRtl) sliderLeft else sliderRight
-        val tickSize = TickSize.toPx()
-        val trackStrokeWidth = TrackHeight.toPx()
-        drawLine(
-            Color(38, 38, 38, 128),
-            sliderStart,
-            sliderEnd,
-            trackStrokeWidth,
-            StrokeCap.Round
-        )
-
-        val sliderValueEnd = Offset(
-            sliderStart.x +
-                    (sliderEnd.x - sliderStart.x) * sliderPositions.activeRange.endInclusive,
-            center.y
-        )
-
-        val sliderValueStart = Offset(
-            sliderStart.x +
-                    (sliderEnd.x - sliderStart.x) * sliderPositions.activeRange.start,
-            center.y
-        )
-
-        drawLine(
-            Brush.horizontalGradient(listOf(Color(50, 25, 33), BilibiliPink)),
-            sliderValueStart,
-            sliderValueEnd,
-            trackStrokeWidth,
-            StrokeCap.Round
-        )
-
-        sliderPositions.tickFractions.groupBy {
-            it > sliderPositions.activeRange.endInclusive ||
-                    it < sliderPositions.activeRange.start
-        }.forEach { (outsideFraction, list) ->
-            drawPoints(
-                list.map {
-                    Offset(lerp(sliderStart, sliderEnd, it).x, center.y)
-                },
-                PointMode.Points,
-                (if (outsideFraction) Brush.horizontalGradient(
-                    listOf(
-                        Color(
-                            38,
-                            38,
-                            38,
-                            128
-                        )
-                    )
-                ) else Brush.horizontalGradient(listOf(Color(50, 25, 33), BilibiliPink))),
-                tickSize,
-                StrokeCap.Round
+        val coercedValueAsFraction = with(sliderState) {
+            calcFraction(
+                valueRange.start,
+                valueRange.endInclusive,
+                value.coerceIn(valueRange.start, valueRange.endInclusive)
             )
         }
+        drawTrack(
+            0f,
+            coercedValueAsFraction,
+        )
     }
+}
+
+fun calcFraction(a: Float, b: Float, pos: Float) =
+    (if (b - a == 0f) 0f else (pos - a) / (b - a)).coerceIn(0f, 1f)
+
+fun DrawScope.drawTrack(
+    activeRangeStart: Float,
+    activeRangeEnd: Float
+) {
+    val isRtl = layoutDirection == LayoutDirection.Rtl
+    val sliderLeft = Offset(0f, center.y)
+    val sliderRight = Offset(size.width, center.y)
+    val sliderStart = if (isRtl) sliderRight else sliderLeft
+    val sliderEnd = if (isRtl) sliderLeft else sliderRight
+    val tickSize = TickSize.toPx()
+    val trackStrokeWidth = TrackHeight.toPx()
+    drawLine(
+        Color(38, 38, 38, 128),
+        sliderStart,
+        sliderEnd,
+        trackStrokeWidth,
+        StrokeCap.Round
+    )
+    val sliderValueEnd = Offset(
+        sliderStart.x +
+                (sliderEnd.x - sliderStart.x) * activeRangeEnd,
+        center.y
+    )
+
+    val sliderValueStart = Offset(
+        sliderStart.x +
+                (sliderEnd.x - sliderStart.x) * activeRangeStart,
+        center.y
+    )
+
+    drawLine(
+        Brush.horizontalGradient(listOf(Color(50, 25, 33), BilibiliPink)),
+        sliderValueStart,
+        sliderValueEnd,
+        trackStrokeWidth,
+        StrokeCap.Round
+    )
 }
 
 @Preview
