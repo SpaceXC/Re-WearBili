@@ -46,10 +46,6 @@ Java version: openjdk version "17.0.8.1" 2023-08-24
 
 见[行为准则](https://github.com/SpaceXC/Re-WearBili/blob/main/.github/files/CodeOfConduct.md)
 
-### :develop:开发日志
-
-[点我跳转](https://github.com/SpaceXC/Re-WearBili/blob/main/.github/files/DevLogs.md)
-
 ## :page_facing_up:开源协议
 
 - 这个项目使用GNU General Public License v3.0协议开源，详见[LICENSE.md](https://github.com/SpaceXC/Re-WearBili/blob/main/LICENSE)
