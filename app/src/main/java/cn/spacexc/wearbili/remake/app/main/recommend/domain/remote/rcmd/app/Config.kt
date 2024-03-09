@@ -14,7 +14,7 @@ data class Config(
     val inline_sound: Int,
     val is_back_to_homepage: Boolean,
     val show_inline_danmaku: Int,
-    val toast: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.Toast,
+    val toast: Toast,
     val trigger_loadmore_left_line_num: Int,
     val visible_area: Int
 )

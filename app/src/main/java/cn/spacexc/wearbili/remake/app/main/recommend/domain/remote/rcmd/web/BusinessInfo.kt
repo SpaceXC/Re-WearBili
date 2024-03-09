@@ -19,7 +19,7 @@ data class BusinessInfo(
     @SerializedName("asg_id")
     val asgid: Long,
     @SerializedName("business_mark")
-    val businessMark: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.BusinessMark,
+    val businessMark: BusinessMark,
     @SerializedName("card_type")
     val cardType: Int,
     @SerializedName("cm_mark")
@@ -35,7 +35,7 @@ data class BusinessInfo(
     @SerializedName("id")
     val id: Long,
     @SerializedName("inline")
-    val `inline`: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.Inline,
+    val `inline`: Inline,
     @SerializedName("intro")
     val intro: String,
     @SerializedName("is_ad")

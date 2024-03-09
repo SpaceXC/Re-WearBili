@@ -241,7 +241,7 @@ fun Activity.BangumiInfoScreen(
                                             top = 5.dp,
                                             bottom = 5.dp
                                         ),
-                                    verticalAlignment = Alignment.CenterVertically
+                                    verticalAlignment = CenterVertically
                                 ) {
                                     IconText(
                                         text = "追番",

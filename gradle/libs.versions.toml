@@ -5,11 +5,10 @@ accompanistPlaceholderMaterial = "0.31.0-alpha"
 activityVersion = "1.8.2"
 appCenterSdkVersion = "5.0.4"
 appcompat = "1.6.1"
-appcompatV7 = "27.1.1"
+appcompatV7 = "28.0.0"
 atomicfu = "0.22.0"
-bilibiliKotlinSdk = "9b6680844e"
 coilCompose = "2.5.0"
-compose = "1.7.0-alpha02"
+compose = "1.7.0-alpha04"
 zoomable = "1.6.0"
 compose-compiler = "1.5.4"
 
@@ -22,7 +21,7 @@ datastore = "1.0.0"
 espressoCoreVersion = "3.0.2"
 gson = "2.10.1"
 hiltAndroid = "2.50"
-hiltWork = "1.1.0"
+hiltWork = "1.2.0"
 jsoup = "1.15.4"
 runner = "1.0.2"
 junitVersion = "4.12"
@@ -32,13 +31,12 @@ kotlinxMetadataJvm = "0.7.0"
 ktorClientCore = "2.3.7"
 lifecycleRuntimeKtx = "2.7.0"
 material = "1.11.0"
-material3WindowSizeClass = "1.1.2"
+material3WindowSizeClass = "1.2.1"
 
 
-media3Exoplayer = "1.2.1"
+media3Exoplayer = "1.3.0"
 pagingCompose = "3.2.1"
 paletteKtx = "1.0.0"
-
 
 
 compileSdk = "34"
@@ -58,7 +56,7 @@ workRuntime = "2.9.0"
 ksp = "1.9.22-1.0.16"
 junit = "1.1.5"
 espressoCore = "3.5.1"
-uiautomator = "2.2.0"
+uiautomator = "2.3.0"
 benchmarkMacroJunit4 = "1.2.3"
 baselineprofile = "1.2.3"
 profileinstaller = "1.3.1"
@@ -67,7 +65,7 @@ leancloud = "8.2.19"
 rxjava = "2.1.1"
 
 ijkplayer = "0.8.8"
-bilibili-sdk = "b6680844e"
+bilibili-sdk = "9b6680844e"
 
 [libraries]
 accompanist-placeholder-material = { module = "com.google.accompanist:accompanist-placeholder-material", version.ref = "accompanistPlaceholderMaterial" }
@@ -105,7 +103,6 @@ androidx-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 androidx-ui-graphics = { module = "androidx.compose.ui:ui-graphics", version.ref = "compose" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 
-Bilibili-Kotlin-SDK-v9b6680844e = { module = "com.github.SpaceXC:Bilibili-Kotlin-SDK", version.ref = "bilibiliKotlinSdk" }
 ijkplayer-java = { module = "tv.danmaku.ijk.media:ijkplayer-java", version.ref = "ijkplayer" }
 ijkplayer-armv7a = { module = "tv.danmaku.ijk.media:ijkplayer-armv7a", version.ref = "ijkplayer" }
 ijkplayer-armv5 = { module = "tv.danmaku.ijk.media:ijkplayer-armv5", version.ref = "ijkplayer" }

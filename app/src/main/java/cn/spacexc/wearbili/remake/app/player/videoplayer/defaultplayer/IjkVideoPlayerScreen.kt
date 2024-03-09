@@ -67,7 +67,6 @@ import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Subtitles
-import androidx.compose.material.icons.outlined.VolumeUp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
@@ -778,7 +777,7 @@ fun Activity.Media3PlayerScreen(
                                                             )
                                                         )*/
                                                         Image(
-                                                            painter = painterResource(id = R.drawable.img_progress_bar_thumb_little_tv),
+                                                            painter = painterResource(id = drawable.img_progress_bar_thumb_little_tv),
                                                             contentDescription = null,
                                                             modifier = Modifier
                                                                 .offset(
@@ -1116,7 +1115,7 @@ fun Activity.Media3PlayerScreen(
                                             textAlign = Center,
                                             icon = {
                                                 Icon(
-                                                    imageVector = Icons.Outlined.VolumeUp,
+                                                    imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
                                                     contentDescription = null, tint = Color.White
                                                 )
                                             }

@@ -364,7 +364,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
 
             //region load video
             val videoFile = File(downloadPath, "$videoCid.video.mp4")
-            cachePlayer.setDataSource(videoFile.absolutePath)
+            cachePlayer.dataSource = videoFile.absolutePath
 
 
             cachePlayer.prepareAsync()

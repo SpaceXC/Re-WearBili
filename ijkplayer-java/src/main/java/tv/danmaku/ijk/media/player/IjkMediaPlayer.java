@@ -117,7 +117,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     public static final int FFP_PROP_INT64_BIT_RATE = 20100;
     public static final int FFP_PROP_INT64_TCP_SPEED = 20200;
     public static final int FFP_PROP_INT64_LATEST_SEEK_LOAD_DURATION = 20300;
-    protected static final int MEDIA_SET_VIDEO_SAR = 10001;
+    private static final int MEDIA_SET_VIDEO_SAR = 10001;
     private final static String TAG = IjkMediaPlayer.class.getName();
     private static final int MEDIA_NOP = 0; // interface test message
     private static final int MEDIA_PREPARED = 1;
@@ -264,26 +264,23 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
         if (listener != null && listener.onNativeInvoke(what, args))
             return true;
 
-        switch (what) {
-            case OnNativeInvokeListener.CTRL_WILL_CONCAT_RESOLVE_SEGMENT: {
-                OnControlMessageListener onControlMessageListener = player.mOnControlMessageListener;
-                if (onControlMessageListener == null)
-                    return false;
-
-                int segmentIndex = args.getInt(OnNativeInvokeListener.ARG_SEGMENT_INDEX, -1);
-                if (segmentIndex < 0)
-                    throw new InvalidParameterException("onNativeInvoke(invalid segment index)");
-
-                String newUrl = onControlMessageListener.onControlResolveSegmentUrl(segmentIndex);
-                if (newUrl == null)
-                    throw new RuntimeException(new IOException("onNativeInvoke() = <NULL newUrl>"));
-
-                args.putString(OnNativeInvokeListener.ARG_URL, newUrl);
-                return true;
-            }
-            default:
+        if (what == OnNativeInvokeListener.CTRL_WILL_CONCAT_RESOLVE_SEGMENT) {
+            OnControlMessageListener onControlMessageListener = player.mOnControlMessageListener;
+            if (onControlMessageListener == null)
                 return false;
+
+            int segmentIndex = args.getInt(OnNativeInvokeListener.ARG_SEGMENT_INDEX, -1);
+            if (segmentIndex < 0)
+                throw new InvalidParameterException("onNativeInvoke(invalid segment index)");
+
+            String newUrl = onControlMessageListener.onControlResolveSegmentUrl(segmentIndex);
+            if (newUrl == null)
+                throw new RuntimeException(new IOException("onNativeInvoke() = <NULL newUrl>"));
+
+            args.putString(OnNativeInvokeListener.ARG_URL, newUrl);
+            return true;
         }
+        return false;
     }
 
     @CalledByNative
@@ -940,7 +937,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
 
         String videoCodecInfo = _getVideoCodecInfo();
         if (!TextUtils.isEmpty(videoCodecInfo)) {
-            String nodes[] = videoCodecInfo.split(",");
+            String[] nodes = videoCodecInfo.split(",");
             if (nodes.length >= 2) {
                 mediaInfo.mVideoDecoder = nodes[0];
                 mediaInfo.mVideoDecoderImpl = nodes[1];
@@ -952,7 +949,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
 
         String audioCodecInfo = _getAudioCodecInfo();
         if (!TextUtils.isEmpty(audioCodecInfo)) {
-            String nodes[] = audioCodecInfo.split(",");
+            String[] nodes = audioCodecInfo.split(",");
             if (nodes.length >= 2) {
                 mediaInfo.mAudioDecoder = nodes[0];
                 mediaInfo.mAudioDecoderImpl = nodes[1];
@@ -1160,10 +1157,8 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
                     return;
 
                 case MEDIA_INFO:
-                    switch (msg.arg1) {
-                        case MEDIA_INFO_VIDEO_RENDERING_START:
-                            DebugLog.i(TAG, "Info: MEDIA_INFO_VIDEO_RENDERING_START\n");
-                            break;
+                    if (msg.arg1 == MEDIA_INFO_VIDEO_RENDERING_START) {
+                        DebugLog.i(TAG, "Info: MEDIA_INFO_VIDEO_RENDERING_START\n");
                     }
                     player.notifyOnInfo(msg.arg1, msg.arg2);
                     // No real default action so far.

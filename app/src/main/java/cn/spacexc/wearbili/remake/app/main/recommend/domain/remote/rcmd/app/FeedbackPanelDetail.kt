@@ -5,7 +5,7 @@ data class FeedbackPanelDetail(
     val jump_type: Int,
     val jump_url: String,
     val module_id: Long,
-    val secondary_panel: List<cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.SecondaryPanel>?,
+    val secondary_panel: List<SecondaryPanel>?,
     val sub_text: String,
     val text: String
 )

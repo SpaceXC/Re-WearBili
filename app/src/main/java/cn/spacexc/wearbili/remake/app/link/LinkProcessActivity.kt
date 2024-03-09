@@ -29,11 +29,6 @@ class LinkProcessActivity : ComponentActivity() {
 
     val state = MutableLiveData(0)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
     fun processUrl() {
         lifecycleScope.launch {
             val uri = getUrl()

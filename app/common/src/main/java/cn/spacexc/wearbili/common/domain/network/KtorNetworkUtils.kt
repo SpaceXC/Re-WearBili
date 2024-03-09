@@ -153,7 +153,7 @@ class KtorNetworkUtils @Inject constructor(private val cookiesManager: KtorCooki
         return get(url = "$host?$param", builder = builder)
     }
 
-    suspend fun getRedirectUrl(url: String): String? {
+    suspend fun getRedirectUrl(url: String): String {
         //if(response.status != HttpStatusCode.Found) return null
         return noRedirectClient.get(url).headers["location"]
     }
