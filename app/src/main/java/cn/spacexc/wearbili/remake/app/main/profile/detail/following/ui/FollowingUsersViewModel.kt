@@ -29,8 +29,8 @@ class FollowingUsersViewModel : ViewModel() {
     var followedUserTags = MutableStateFlow<List<FollowedUserTag>>(emptyList())
 
     var followedUsers = followedUserTags.map { list ->
-        list.map {
-            FollowingPagingSource(0)
+        list.map { tag ->
+            FollowingPagingSource(tag.tagid)
         }.map {
             Pager(config = PagingConfig(pageSize = 1)) {
                 it
