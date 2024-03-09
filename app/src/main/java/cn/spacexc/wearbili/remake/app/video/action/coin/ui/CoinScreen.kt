@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,7 +38,7 @@ fun Activity.CoinScreen(uiState: UIState, onClick: (Int) -> Unit) {
         uiState = uiState
     ) {
         var coinCount by remember {
-            mutableStateOf(1)
+            mutableIntStateOf(1)
         }
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp),

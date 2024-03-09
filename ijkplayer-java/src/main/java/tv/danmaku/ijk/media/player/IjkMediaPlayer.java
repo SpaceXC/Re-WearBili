@@ -133,12 +133,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
      * Default library loader
      * Load them by yourself, if your libraries are not installed at default place.
      */
-    private static final IjkLibLoader sLocalLibLoader = new IjkLibLoader() {
-        @Override
-        public void loadLibrary(String libName) throws UnsatisfiedLinkError, SecurityException {
-            System.loadLibrary(libName);
-        }
-    };
+    private static final IjkLibLoader sLocalLibLoader = libName -> System.loadLibrary(libName);
     private static volatile boolean mIsLibLoaded = false;
     private static volatile boolean mIsNativeInitialized = false;
     @AccessedByNative
@@ -324,7 +319,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
          * Native setup requires a weak reference to our object. It's easier to
          * create it here than in C++.
          */
-        native_setup(new WeakReference<IjkMediaPlayer>(this));
+        native_setup(new WeakReference<>(this));
     }
 
     /*
@@ -562,7 +557,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     public void setDataSource(FileDescriptor fd)
             throws IOException, IllegalArgumentException, IllegalStateException {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB_MR1) {
-            int native_fd = -1;
+            int native_fd;
             try {
                 Field f = fd.getClass().getDeclaredField("descriptor"); //NoSuchFieldException
                 f.setAccessible(true);
@@ -574,11 +569,8 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
             }
             _setDataSourceFd(native_fd);
         } else {
-            ParcelFileDescriptor pfd = ParcelFileDescriptor.dup(fd);
-            try {
+            try (ParcelFileDescriptor pfd = ParcelFileDescriptor.dup(fd)) {
                 _setDataSourceFd(pfd.getFd());
-            } finally {
-                pfd.close();
             }
         }
     }
@@ -682,7 +674,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
         if (mediaMeta == null || mediaMeta.mStreams == null)
             return null;
 
-        ArrayList<IjkTrackInfo> trackInfos = new ArrayList<IjkTrackInfo>();
+        ArrayList<IjkTrackInfo> trackInfos = new ArrayList<>();
         for (IjkMediaMeta.IjkStreamMeta streamMeta : mediaMeta.mStreams) {
             IjkTrackInfo trackInfo = new IjkTrackInfo(streamMeta);
             if (streamMeta.mType.equalsIgnoreCase(IjkMediaMeta.IJKM_VAL_TYPE__VIDEO)) {
@@ -1096,7 +1088,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
 
         public EventHandler(IjkMediaPlayer mp, Looper looper) {
             super(looper);
-            mWeakPlayer = new WeakReference<IjkMediaPlayer>(mp);
+            mWeakPlayer = new WeakReference<>(mp);
         }
 
         @Override
@@ -1200,7 +1192,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
                 return null;
 
             Log.i(TAG, String.format(Locale.US, "onSelectCodec: mime=%s, profile=%d, level=%d", mimeType, profile, level));
-            ArrayList<IjkMediaCodecInfo> candidateCodecList = new ArrayList<IjkMediaCodecInfo>();
+            ArrayList<IjkMediaCodecInfo> candidateCodecList = new ArrayList<>();
             int numCodecs = MediaCodecList.getCodecCount();
             for (int i = 0; i < numCodecs; i++) {
                 MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(i);

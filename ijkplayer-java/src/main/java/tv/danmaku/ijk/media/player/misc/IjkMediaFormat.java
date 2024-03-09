@@ -45,7 +45,7 @@ public class IjkMediaFormat implements IMediaFormat {
 
     // Codec
     public static final String CODEC_NAME_H264 = "h264";
-    private static final Map<String, Formatter> sFormatterMap = new HashMap<String, Formatter>();
+    private static final Map<String, Formatter> sFormatterMap = new HashMap<>();
     public final IjkMediaMeta.IjkStreamMeta mMediaFormat;
 
     {

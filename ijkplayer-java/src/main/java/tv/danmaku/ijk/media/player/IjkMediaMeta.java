@@ -128,7 +128,7 @@ public class IjkMediaMeta {
     public static final int FF_PROFILE_H264_HIGH_444_PREDICTIVE = 244;
     public static final int FF_PROFILE_H264_HIGH_444_INTRA = (244 | FF_PROFILE_H264_INTRA);
     public static final int FF_PROFILE_H264_CAVLC_444 = 44;
-    public final ArrayList<IjkStreamMeta> mStreams = new ArrayList<IjkStreamMeta>();
+    public final ArrayList<IjkStreamMeta> mStreams = new ArrayList<>();
     public Bundle mMediaMeta;
     public String mFormat;
     public long mDurationUS;
