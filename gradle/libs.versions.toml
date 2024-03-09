@@ -49,11 +49,11 @@ targetSdk = "34"
 buildTool = "34.0.0"
 minSdk = "21"
 
-agp = "8.2.2"
+agp = "8.3.0"
 
 kotlin = "1.9.23"
 workRuntime = "2.9.0"
-ksp = "1.9.22-1.0.16"
+ksp = "1.9.23-1.0.19"
 junit = "1.1.5"
 espressoCore = "3.5.1"
 uiautomator = "2.3.0"

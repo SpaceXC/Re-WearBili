@@ -44,6 +44,16 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.datastore.core)
 
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.serialization.gson)
+    implementation(libs.ktor.serialization.kotlinx.protobuf)
+
+    implementation(libs.atomicfu)
+
     api(libs.protobuf.javalite)
     api(libs.protobuf.kotlin.lite)
 
