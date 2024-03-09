@@ -74,7 +74,7 @@ import kotlinx.coroutines.launch
  * 给！爷！写！注！释！
  */
 
-data class MenuItem @OptIn(ExperimentalFoundationApi::class) constructor(
+data class MenuItem(
     val text: String,
     val icon: ImageVector? = null,
     @DrawableRes val iconResId: Int = 0,
@@ -82,7 +82,6 @@ data class MenuItem @OptIn(ExperimentalFoundationApi::class) constructor(
     val onClick: suspend PagerState.(Context) -> Unit,
 )
 
-@OptIn(ExperimentalFoundationApi::class)
 val menuItems = listOf(
     MenuItem(
         text = "主页",
@@ -145,7 +144,6 @@ val menuItems = listOf(
 )
 
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun MainActivityScreen(
     context: Activity,

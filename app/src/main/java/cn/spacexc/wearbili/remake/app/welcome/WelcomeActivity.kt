@@ -5,12 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import cn.spacexc.wearbili.remake.common.ui.theme.WearBiliTheme
 
 class WelcomeActivity : ComponentActivity() {
-    var currentScreenIndex by mutableStateOf(0)
+    var currentScreenIndex by mutableIntStateOf(0)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

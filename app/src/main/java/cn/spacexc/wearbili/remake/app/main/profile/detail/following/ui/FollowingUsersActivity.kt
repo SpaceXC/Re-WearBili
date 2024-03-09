@@ -38,7 +38,6 @@ import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 class FollowingUsersActivity : ComponentActivity() {
     private val viewModel by viewModels<FollowingUsersViewModel>()
 
-    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.getFollowedUserTags()
