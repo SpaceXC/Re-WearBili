@@ -25,15 +25,12 @@
 - 你也可以自行clone该仓库并构建此项目。
 
 
-
 ##  :hammer_and_wrench: 构建
 
-1. 该项目依赖于[`Bilibili-Kotlin-SDK`](https://github.com/SpaceXC/Bilibili-Kotlin-SDK)，~~clone此项目前，请先clone该项目~~
-
-2. 使用 `git submodule update`，等待下载完成后就可以正常开发
-
-3. 在Android Studio中删除位于`cn.spacexc.wearbili.remake.app.splash.ui.SplashScreen.kt`中有关更新检测以及内测资格检查的相关代码。
-4. 开始构建或二次开发！
+1. clone 本项目, 用你的 terminal 环境打开项目根目录
+2. 输入 ```./gradlew build```
+3. 在目录下的 ```build/libs/Re-WearBili - $versionName Ver.$releaseNumber Rel.$versionCode.apk``` 找到apk文件
+4. 导入IDEA进行二次开发，或者将apk导入到你的手表使用
 
 ### :computer:我的构建环境：
 
@@ -47,7 +44,11 @@ Java version: openjdk version "17.0.8.1" 2023-08-24
 
 ## :book:行为准则
 
-见[行为准则](https://github.com/SpaceXC/Re-WearBili/blob/main/CodeOfConduct.md)
+见[行为准则](https://github.com/SpaceXC/Re-WearBili/blob/main/.github/files/CodeOfConduct.md)
+
+### :develop:开发日志
+
+[点我跳转](https://github.com/SpaceXC/Re-WearBili/blob/main/.github/files/DevLogs.md)
 
 ## :page_facing_up:开源协议
 
