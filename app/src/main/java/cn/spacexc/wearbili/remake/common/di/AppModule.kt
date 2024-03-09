@@ -1,6 +1,7 @@
 package cn.spacexc.wearbili.remake.common.di
 
 import cn.spacexc.bilibilisdk.data.DataManager
+import cn.spacexc.wearbili.common.CryptoManager
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.common.domain.network.cookie.KtorCookiesManager
@@ -9,6 +10,8 @@ import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.DanmakuGetter
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.common.networking.CookiesManager
+import cn.spacexc.wearbili.remake.common.networking.db.CookiesRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -42,7 +45,22 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesNetworkUtils(cookiesManager: KtorCookiesManager): KtorNetworkUtils =
+    fun providesCryptoManager() = CryptoManager()
+
+    @Provides
+    @Singleton
+    fun providesDbCookiesManager(
+        repository: CookiesRepository,
+        cryptoManager: CryptoManager
+    ): CookiesManager = CookiesManager(repository, cryptoManager)
+
+    @Provides
+    @Singleton
+    fun providesCookiesRepository(application: Application) = CookiesRepository(application)
+
+    @Provides
+    @Singleton
+    fun providesNetworkUtils(cookiesManager: CookiesManager): KtorNetworkUtils =
         KtorNetworkUtils(cookiesManager)
 
     @Provides

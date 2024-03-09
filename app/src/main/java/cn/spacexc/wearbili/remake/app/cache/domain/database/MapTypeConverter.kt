@@ -33,3 +33,24 @@ class MapTypeConverter {
         return gson.toJson(map)
     }
 }
+
+class MapNullableTypeConverter {
+    private val gson = Gson()
+
+    @TypeConverter
+    fun fromString(value: String?): Map<String, String?>? {
+        if (value == null) {
+            return null
+        }
+        val type = object : TypeToken<Map<String, String?>>() {}.type
+        return gson.fromJson(value, type)
+    }
+
+    @TypeConverter
+    fun toString(map: Map<String, String?>?): String? {
+        if (map == null) {
+            return null
+        }
+        return gson.toJson(map)
+    }
+}

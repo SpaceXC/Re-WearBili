@@ -22,6 +22,7 @@ import cn.spacexc.wearbili.remake.app.crash.ui.CrashActivity
 import cn.spacexc.wearbili.remake.app.crash.ui.PARAM_EXCEPTION_DESCRIPTION
 import cn.spacexc.wearbili.remake.app.crash.ui.PARAM_EXCEPTION_STACKTRACE
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerService
+import cn.spacexc.wearbili.remake.common.networking.CookiesManager
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
@@ -58,6 +59,9 @@ var Context.isAudioServiceUp by mutableStateOf(false)
 class Application : android.app.Application(), Configuration.Provider {
     @Inject
     lateinit var dataManager: DataManager   //TODO 别在application下放这种对象啊喂！（虽然是迫不得已的啦，不过还是找个时间研究一下拿走罢（20230711
+    @Inject
+    lateinit var cookiesManager: CookiesManager
+
     @Inject
     lateinit var repository: VideoCacheRepository
 
@@ -107,9 +111,19 @@ class Application : android.app.Application(), Configuration.Provider {
         LeanCloud.setLogLevel(LCLogger.Level.ALL)
         val cachePath = File(filesDir, "/videoCaches/")
         cachePath.mkdir()
+        val videoFile = File(filesDir, "video_silk_background.mp4")
+        if (!videoFile.exists()) {
+            videoFile.createNewFile()
+            resources.openRawResource(cn.spacexc.wearbili.remake.R.raw.video_silk_background)
+                .copyTo(videoFile.outputStream())
+            /*val videoPath = "android.resource://$packageName/raw/video_silk_background.mp4"
+            val rawVideoFile = File(videoPath)
+            rawVideoFile.copyTo(videoFile)*/
+        }
         val dataStore = DataStoreManager(this)
         BilibiliSdkManager.initSdk(
-            dataManager = dataStore
+            dataManager = dataStore,
+            cookiesManager = cookiesManager
         )
         Log.e(
             TAG,

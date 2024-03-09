@@ -2,7 +2,6 @@ package cn.spacexc.wearbili.remake.app.search.ui
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.ScrollState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +9,8 @@ import cn.spacexc.bilibilisdk.data.DataManager
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.common.domain.video.VideoUtils
+import cn.spacexc.wearbili.remake.app.player.livestream.ui.LiveStreamActivity
+import cn.spacexc.wearbili.remake.app.player.livestream.ui.PARAM_ROOM_ID
 import cn.spacexc.wearbili.remake.app.search.domain.SearchHistory
 import cn.spacexc.wearbili.remake.app.search.domain.remote.hot.TrendingWord
 import cn.spacexc.wearbili.remake.app.search.domain.remote.hot.TrendingWordList
@@ -18,7 +19,6 @@ import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
-import cn.spacexc.wearbili.remake.common.ToastUtils
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -92,20 +92,9 @@ class SearchViewModel @Inject constructor(
     fun searchByKeyword(context: Context, keyword: String) {
         keyword.logd("search keyword")
         if (keyword.matches(liveRoomIdRegex)) {
-            val data = Uri.parse("wearbili-live://player")
-            val intent = Intent(Intent.ACTION_VIEW, data).apply {
-                putExtra("liveStreamRoomId", keyword.replace("live", "").toLong())
-            }
-            //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            try {
-                context.startActivity(intent)
-            } catch (e: java.lang.Exception) {
-                e.printStackTrace()
-                ToastUtils.showText("没有安装直播播放器哦")
-            }
-            /*context.startActivity(Intent(context, LiveStreamPlayerActivity::class.java).apply {
-                putExtra(PARAM_LIVE_ROOM_ID, keyword.replace("live", "").toLong())
-            })*/
+            context.startActivity(Intent(context, LiveStreamActivity::class.java).apply {
+                putExtra(PARAM_ROOM_ID, keyword.replace("live", "").toLong())
+            })
             return
         }
         if (VideoUtils.isAV(keyword)) {

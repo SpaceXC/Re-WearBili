@@ -55,8 +55,12 @@ class DataStoreManager(application: Context) : DataManager {
             it[stringPreferencesKey(name)] ?: defVal ?: ""
         }
 
-    override suspend fun saveString(name: String, value: String) {
-        dataStore.edit { it[stringPreferencesKey(name)] = value }
+    override suspend fun saveString(name: String, value: String?) {
+        if (value == null) {
+            dataStore.edit { it.remove(stringPreferencesKey(name)) }
+        } else {
+            dataStore.edit { it[stringPreferencesKey(name)] = value }
+        }
     }
 
     override suspend fun saveInt(name: String, value: Int) {
@@ -65,6 +69,10 @@ class DataStoreManager(application: Context) : DataManager {
 
     override suspend fun saveBool(name: String, value: Boolean) {
         dataStore.edit { it[booleanPreferencesKey(name)] = value }
+    }
+
+    override suspend fun deleteString(name: String) {
+        dataStore.edit { it.remove(stringPreferencesKey(name)) }
     }
 
     override suspend fun getString(name: String, defVal: String?): String? {

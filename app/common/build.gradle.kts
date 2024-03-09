@@ -20,6 +20,10 @@ android {
         release {
             isMinifyEnabled = false
         }
+        create("benchmarkRelease") {
+        }
+        create("nonMinifiedRelease") {
+        }
     }
 
     compileOptions {

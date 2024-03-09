@@ -113,7 +113,10 @@ fun CommentScreen(
                                 )
                             )
                             .background(Color(38, 38, 38, 77)),
-                        contentPadding = PaddingValues(if (isRound()) TitleBackgroundHorizontalPadding() else 4.dp),
+                        contentPadding = PaddingValues(
+                            horizontal = if (isRound()) TitleBackgroundHorizontalPadding() else 4.dp,
+                            vertical = 4.dp
+                        ),
                         state = viewModel.getScrollState(oid.toString()) ?: rememberLazyListState()
                     ) {
                         items(commentsData.itemCount) {

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import cn.spacexc.bilibilisdk.data.DataManager
+import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.common.domain.network.NetworkResponse
@@ -57,6 +58,7 @@ class QrCodeLoginViewModel @Inject constructor(
             currentLoginStatus = QrCodeLoginStatus.Pending
         )
         while (true) {
+            UserUtils.setCurrentUid(null)
             val authState =
                 networkUtils.get<QrCodeScanState>("https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key=$qrCodeKey")
 

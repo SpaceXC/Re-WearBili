@@ -139,6 +139,7 @@ fun SearchActivityScreen(
                             BasicTextField(
                                 value = searchInputValue,
                                 onValueChange = { searchInputValue = it },
+                                //lineLimits = TextFieldLineLimits.SingleLine,
                                 singleLine = true,
                                 textStyle = TextStyle(
                                     fontSize = 14.spx,

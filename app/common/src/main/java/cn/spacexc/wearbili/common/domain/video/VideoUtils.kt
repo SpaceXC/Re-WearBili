@@ -121,3 +121,6 @@ object VideoUtils {
     }
 }
 
+fun main() {
+    println(VideoUtils.bv2av("BV1kS421N7Jp"))
+}

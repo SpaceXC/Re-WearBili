@@ -191,6 +191,12 @@
         <activity
             android:name=".app.settings.scaling.ScaleAdjustingActivity"
             android:exported="false" />
+        <activity
+            android:name=".app.player.livestream.ui.LiveStreamActivity"
+            android:exported="true" />
+        <activity
+            android:name=".app.settings.user.SwitchUserActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -596,7 +596,8 @@ fun Activity.Media3PlayerScreen(
                                                         indication = null,
                                                         onClick = onBack
                                                     ),
-                                                verticalAlignment = CenterVertically
+                                                verticalAlignment = CenterVertically,
+                                                horizontalArrangement = if (isRound()) Arrangement.Center else Arrangement.Start
                                             ) {
                                                 if (!isRound()) {
                                                     Icon(
@@ -1567,7 +1568,7 @@ fun Activity.Media3PlayerScreen(
     }
 }
 
-private fun Activity.rotateScreen() {
+fun Activity.rotateScreen() {
     when (requestedOrientation) {
         ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
             requestedOrientation =
