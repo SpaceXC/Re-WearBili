@@ -1,22 +1,22 @@
 package cn.spacexc.wearbili.remake.app.video.info.info.remote
 
 data class Rights(
-    val arc_pay: Int,
+    val arcPay: Int,
     val autoplay: Int,
     val bp: Int,
-    val clean_mode: Int,
+    val cleanMode: Int,
     val download: Int,
     val elec: Int,
-    val free_watch: Int,
+    val freeWatch: Int,
     val hd5: Int,
-    val is_360: Int,
-    val is_cooperation: Int,
-    val is_stein_gate: Int,
+    val is360: Int,
+    val isCooperation: Int,
+    val isSteinGate: Int,
     val movie: Int,
-    val no_background: Int,
-    val no_reprint: Int,
-    val no_share: Int,
+    val noBackground: Int,
+    val noReprint: Int,
+    val noShare: Int,
     val pay: Int,
-    val ugc_pay: Int,
-    val ugc_pay_preview: Int
+    val ugcPay: Int,
+    val ugcPayPreview: Int
 )

@@ -44,6 +44,7 @@ import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -158,7 +159,7 @@ fun Activity.VideoInformationScreen(
     ) {
         mutableStateOf(videoInformationViewModel.isLiked && videoInformationViewModel.isCoined && videoInformationViewModel.isFav)
     }
-    var sanlianHitProgress by remember { mutableStateOf(0f) }
+    var sanlianHitProgress by remember { mutableFloatStateOf(0f) }
     var sanlianHitJob by remember { mutableStateOf<Job?>(null) }
     val sanlianInteractionSource = rememberMutableInteractionSource()
     val isSanlianPressed by sanlianInteractionSource.collectIsPressedAsState()

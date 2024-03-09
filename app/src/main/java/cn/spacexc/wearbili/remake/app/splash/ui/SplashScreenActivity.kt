@@ -54,10 +54,10 @@ class SplashScreenActivity : ComponentActivity() {
     lateinit var userManager: cn.spacexc.wearbili.common.domain.user.UserManager
 
     private val permissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
-            if (granted.all { it.value }) {
-                //initApp()
-            }
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { _ ->
+//            if (granted.all { it.value }) {
+//                initApp()
+//            }
             initApp()
         }
 

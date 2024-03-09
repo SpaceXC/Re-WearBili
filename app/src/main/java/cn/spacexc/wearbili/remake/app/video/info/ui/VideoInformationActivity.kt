@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.remember
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentViewModel
@@ -32,7 +31,6 @@ class VideoInformationActivity : ComponentActivity() {
     private val commentViewModel by viewModels<CommentViewModel>()
 
     /*@UnstableApi*/
-    @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val videoIdType = intent.getStringExtra(PARAM_VIDEO_ID_TYPE) ?: VIDEO_TYPE_BVID

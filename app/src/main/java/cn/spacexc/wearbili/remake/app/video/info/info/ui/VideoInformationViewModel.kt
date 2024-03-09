@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -52,7 +53,7 @@ class VideoInformationViewModel @Inject constructor(
     var isFav by mutableStateOf(false)
     var isCoined by mutableStateOf(false)
 
-    var hasCoinedCount by mutableStateOf(0)
+    var hasCoinedCount by mutableIntStateOf(0)
 
     fun getVideoInfo(
         videoIdType: String,

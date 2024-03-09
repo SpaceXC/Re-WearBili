@@ -4,7 +4,7 @@ data class Page(
     val cid: Long,
     val dimension: Dimension,
     val duration: Int,
-    val first_frame: String,
+    val firstFrame: String,
     val from: String,
     val page: Int,
     val part: String,
