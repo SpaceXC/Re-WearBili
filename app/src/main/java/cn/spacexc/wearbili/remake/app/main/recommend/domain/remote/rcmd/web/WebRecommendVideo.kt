@@ -7,7 +7,7 @@ data class WebRecommendVideo(
     @SerializedName("code")
     val code: Int,
     @SerializedName("data")
-    val `data`: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.Data,
+    val `data`: Data,
     @SerializedName("message")
     val message: String,
     @SerializedName("ttl")

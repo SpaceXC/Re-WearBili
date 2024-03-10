@@ -100,9 +100,7 @@ fun Activity.DetailInformationScreen(
             }
 
             if (user.sign.isNotEmpty()) {
-                Row(
-                    //verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_info),
                         contentDescription = null,
@@ -124,9 +122,7 @@ fun Activity.DetailInformationScreen(
             }
 
             if (user.official?.type?.toOfficialVerify() != OfficialVerify.NONE) {
-                Row(
-                    //verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row {
                     Image(
                         painter = painterResource(
                             id = when (user.official?.type?.toOfficialVerify()) {

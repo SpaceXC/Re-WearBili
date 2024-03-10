@@ -6,7 +6,7 @@ data class Extra(
     val appstore_priority: Int,
     val appstore_url: String,
     val bg_img: String,
-    val card: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.Card,
+    val card: Card,
     val click_area: Int,
     val click_urls: List<Any>,
     val download_whitelist: List<Any>,

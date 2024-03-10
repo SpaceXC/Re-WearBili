@@ -7,9 +7,9 @@ data class Data(
     @SerializedName("business_card")
     val businessCard: Any?,
     @SerializedName("floor_info")
-    val floorInfo: List<cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.FloorInfo>,
+    val floorInfo: List<FloorInfo>,
     @SerializedName("item")
-    val item: List<cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.Item>,
+    val item: List<Item>,
     @SerializedName("mid")
     val mid: Long,
     @SerializedName("preload_expose_pct")

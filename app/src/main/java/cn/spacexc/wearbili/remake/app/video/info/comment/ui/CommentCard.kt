@@ -29,7 +29,7 @@ import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.Composable
@@ -642,7 +642,7 @@ fun CommentCard(
                             )
                             Spacer(modifier = Modifier.width(2.dp))
                             Icon(
-                                imageVector = Icons.Default.ArrowForwardIos,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                                 contentDescription = null,
                                 modifier = Modifier
                                     .size(textHeight - 4.dp)

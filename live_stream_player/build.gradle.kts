@@ -38,8 +38,6 @@ android {
 }
 
 dependencies {
-
-
     // Kotlin
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.core.ktx)
@@ -50,7 +48,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
-    implementation(project(path = ":libs"))
+    implementation(libs.bilibili.sdk)
 
 
     // For media playback using ExoPlayer

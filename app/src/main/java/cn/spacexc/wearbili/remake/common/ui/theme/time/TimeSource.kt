@@ -49,7 +49,7 @@ interface TimeSource {
         @Composable get
 }
 
-class DefaultTimeSource constructor(timeFormat: String) : TimeSource {
+class DefaultTimeSource(timeFormat: String) : TimeSource {
     private val _timeFormat = timeFormat
 
     override val currentTime: String

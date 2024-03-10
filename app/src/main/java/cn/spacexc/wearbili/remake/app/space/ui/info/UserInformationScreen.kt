@@ -7,7 +7,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Activity.UserInformationScreen(
     viewModel: UserSpaceViewModel

@@ -31,19 +31,20 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.outlined.SendToMobile
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.MonetizationOn
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.PlayCircle
-import androidx.compose.material.icons.outlined.SendToMobile
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -158,7 +159,7 @@ fun Activity.VideoInformationScreen(
     ) {
         mutableStateOf(videoInformationViewModel.isLiked && videoInformationViewModel.isCoined && videoInformationViewModel.isFav)
     }
-    var sanlianHitProgress by remember { mutableStateOf(0f) }
+    var sanlianHitProgress by remember { mutableFloatStateOf(0f) }
     var sanlianHitJob by remember { mutableStateOf<Job?>(null) }
     val sanlianInteractionSource = rememberMutableInteractionSource()
     val isSanlianPressed by sanlianInteractionSource.collectIsPressedAsState()
@@ -447,7 +448,7 @@ fun Activity.VideoInformationScreen(
                                 }
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Icon(
-                                    imageVector = Icons.Default.ArrowForwardIos,
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                                     contentDescription = null,
                                     tint = Color.White,
                                     modifier = Modifier.size(textHeight * 0.9f)
@@ -636,7 +637,7 @@ fun Activity.VideoInformationScreen(
                         OutlinedRoundButton(
                             icon = {
                                 Icon(
-                                    imageVector = Icons.Outlined.SendToMobile,
+                                    imageVector = Icons.AutoMirrored.Outlined.SendToMobile,
                                     tint = Color.White,
                                     contentDescription = null,
                                     modifier = Modifier.align(Alignment.Center)

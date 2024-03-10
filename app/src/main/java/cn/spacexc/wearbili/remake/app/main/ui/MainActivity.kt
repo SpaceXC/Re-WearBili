@@ -24,7 +24,6 @@ class MainActivity : ComponentActivity() {
     private val dynamicViewModel by viewModels<DynamicViewModel>()
     private val profileViewModel by viewModels<ProfileViewModel>()
 
-    @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //throw RuntimeException("这是一个用于测试异常的异常")

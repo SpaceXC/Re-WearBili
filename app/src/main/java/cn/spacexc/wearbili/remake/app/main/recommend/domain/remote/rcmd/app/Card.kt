@@ -2,8 +2,8 @@ package cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app
 
 data class Card(
     val ad_tag: String,
-    val ad_tag_style: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.AdTagStyle,
-    val adver: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.Adver,
+    val ad_tag_style: AdTagStyle,
+    val adver: Adver,
     val adver_account_id: Long,
     val adver_logo: String,
     val adver_mid: Long,
@@ -11,14 +11,14 @@ data class Card(
     val adver_page_url: String,
     val callup_url: String,
     val card_type: Int,
-    val covers: List<cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.Cover>,
+    val covers: List<Cover>,
     val desc: String,
     val duration: String,
     val dynamic_text: String,
     val extra_desc: String,
     val extreme_team_icon: String,
     val extreme_team_status: Boolean,
-    val feedback_panel: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.FeedbackPanel,
+    val feedback_panel: FeedbackPanel,
     val fold_time: Int,
     val goods_cur_price: String,
     val goods_ori_price: String,
@@ -45,5 +45,5 @@ data class Card(
     val under_player_interaction_style: Int,
     val universal_app: String,
     val use_multi_cover: Boolean,
-    val video: cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.Video
+    val video: Video
 )

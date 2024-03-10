@@ -36,7 +36,6 @@ const val PARAM_IMAGE_URLS = "imageUrls"
 const val PARAM_SELECTED_INDEX = "selectedIndex"
 
 class ImageViewerActivity : ComponentActivity() {
-    @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val images = intent.getStringArrayExtra(PARAM_IMAGE_URLS) ?: emptyArray()

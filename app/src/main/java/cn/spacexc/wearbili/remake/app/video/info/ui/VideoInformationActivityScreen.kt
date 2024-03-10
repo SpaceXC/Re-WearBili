@@ -1,7 +1,6 @@
 package cn.spacexc.wearbili.remake.app.video.info.ui
 
 import android.app.Activity
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
@@ -24,7 +23,6 @@ import kotlinx.coroutines.flow.Flow
  * 给！爷！写！注！释！
  */
 
-@OptIn(ExperimentalFoundationApi::class)
 /*@UnstableApi*/
 @Composable
 fun Activity.VideoInformationActivityScreen(

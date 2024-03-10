@@ -22,7 +22,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        jcenter()
         maven("https://jitpack.io")
         maven("http://4thline.org/m2"){
             isAllowInsecureProtocol = true
@@ -33,6 +32,5 @@ dependencyResolutionManagement {
 rootProject.name = "WearBili"
 include(":app")
 include(":app:common")
-include(":libs")
 include(":ijkplayer-java")
 include(":ijkplayer-so")
