@@ -1,15 +1,15 @@
 package cn.spacexc.wearbili.remake.app.video.info.info.remote
 
 data class Subtitle(
-    val aiStatus: Int,
-    val aiType: Int,
+    val ai_status: Int,
+    val ai_type: Int,
     val author: Author,
-    val authorMid: Long,
+    val author_mid: Long,
     val id: Long,
-    val idStr: String,
-    val isLock: Boolean,
+    val id_str: String,
+    val is_lock: Boolean,
     val lan: String,
-    val lanDoc: String,
-    val subtitleUrl: String,
+    val lan_doc: String,
+    val subtitle_url: String,
     val type: Int
 )

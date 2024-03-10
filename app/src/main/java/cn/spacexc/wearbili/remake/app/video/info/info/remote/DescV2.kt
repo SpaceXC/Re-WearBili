@@ -1,7 +1,7 @@
 package cn.spacexc.wearbili.remake.app.video.info.info.remote
 
 data class DescV2(
-    val bizId: Long,
-    val rawText: String,
+    val biz_id: Long,
+    val raw_text: String,
     val type: Int
 )
