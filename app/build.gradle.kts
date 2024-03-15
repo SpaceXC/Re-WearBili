@@ -131,6 +131,8 @@ dependencies {
     kapt(libs.hilt.compiler)
     kapt(libs.hilt.work.compiler)
 
+    // TODO: 使用fastutil获得更好的性能
+    // implementation(libs.fastutil)
 
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)

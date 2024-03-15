@@ -1,5 +1,7 @@
 package cn.spacexc.wearbili.remake.common.di
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import cn.spacexc.bilibilisdk.data.DataManager
 import cn.spacexc.wearbili.common.CryptoManager
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
@@ -43,6 +45,7 @@ object AppModule {
     fun providesCookiesManager(dataManager: DataManager): KtorCookiesManager =
         KtorCookiesManager(dataManager)
 
+    @RequiresApi(Build.VERSION_CODES.M)
     @Provides
     @Singleton
     fun providesCryptoManager() = CryptoManager()

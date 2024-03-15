@@ -13,8 +13,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
     <uses-permission android:name="android.permission.RESTART_PACKAGES" />
@@ -76,9 +74,6 @@
         <activity
             android:name=".app.test.UITest"
             android:exported="true" />
-        <activity
-            android:name=".app.login.qrcode.tv.ui.TVQrCodeLoginActivity"
-            android:exported="false" />
         <activity
             android:name=".app.main.ui.MainActivity"
             android:exported="false" />
@@ -164,9 +159,6 @@
         <!--<activity
             android:name=".app.player.videoplayer.mirroring.dlna.controller.ui.DlnaControllerActivity"
             android:exported="false" />-->
-        <activity
-            android:name=".app.login.password.ui.PasswordLoginActivity"
-            android:exported="false" />
         <activity
             android:name=".app.login.qrcode.web.ui.QrCodeLoginActivity"
             android:exported="false" />
