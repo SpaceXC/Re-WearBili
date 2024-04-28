@@ -5,13 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -57,11 +57,11 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
@@ -75,6 +75,9 @@ import cn.spacexc.wearbili.remake.app.search.ui.PARAM_DEFAULT_SEARCH_KEYWORD
 import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
 import cn.spacexc.wearbili.remake.app.season.ui.PARAM_MID
 import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceActivity
+import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.PARAM_VIDEO_AID
+import cn.spacexc.wearbili.remake.app.video.info.comment.detail.CommentDetailActivity
+import cn.spacexc.wearbili.remake.app.video.info.comment.detail.PARAM_ROOT_COMMENT_RPID
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.EmoteObject
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
@@ -87,7 +90,6 @@ import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.ClickableText
 import cn.spacexc.wearbili.remake.common.ui.SmallUserCard
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
@@ -388,6 +390,16 @@ fun CommentCard(
                             putExtra(PARAM_CVID, noteCvid)
                             context.startActivity(this)
                         }
+                    } else {
+                        context.startActivity(
+                            Intent(
+                                context,
+                                CommentDetailActivity::class.java
+                            ).apply {
+                                putExtra(PARAM_VIDEO_AID, oid)
+                                putExtra(PARAM_ROOT_COMMENT_RPID, commentRpid)
+                                putExtra(PARAM_MID, uploaderMid)
+                            })
                     }
                     /*Intent(context, CommentRepliesActivity::class.java).apply {
                         putExtra("oid", oid)
@@ -405,29 +417,15 @@ fun CommentCard(
         val uploaderLabelInlineTextContent = mapOf(
             "uploaderLabel" to InlineTextContent(
                 placeholder = Placeholder(
-                    width = 18.spx,
-                    height = 12.5.spx,
+                    width = 18.sp,
+                    height = 12.5.sp,
                     placeholderVerticalAlign = PlaceholderVerticalAlign.Center
                 ),
             ) {
-                Text(
-                    text = "UP",
-                    fontSize = 8.spx,
-                    fontFamily = wearbiliFontFamily,
-                    color = Color.White,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(3.dp))
-                        .background(BilibiliPink)
-                        .fillMaxSize()
-                        .offset(y = (1).dp)
-                    /*.padding(
-                        start = 11.dp,
-                        end = 10.5.dp,
-                        top = 4.dp,
-                        bottom = 4.dp
-                    )*/,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center
+                Image(
+                    painter = painterResource(id = R.drawable.icon_comment_uploader),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxHeight()
                 )
             }
         )
@@ -470,24 +468,18 @@ fun CommentCard(
                             putExtra(PARAM_CVID, noteCvid)
                             context.startActivity(this)
                         }
+                    } else {
+                        context.startActivity(
+                            Intent(
+                                context,
+                                CommentDetailActivity::class.java
+                            ).apply {
+                                putExtra(PARAM_VIDEO_AID, oid)
+                                putExtra(PARAM_ROOT_COMMENT_RPID, commentRpid)
+                                putExtra(PARAM_MID, uploaderMid)
+                            })
                     }
-                    /*Intent(context, CommentRepliesActivity::class.java).apply {
-                        putExtra("oid", oid)
-                        putExtra("rootCommentId", commentRpid)
-                        putExtra("upMid", uploaderMid)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        context.startActivity(this)
-                    }*/
                 }
-                /*if (isClickable) {
-                    Intent(context, CommentRepliesActivity::class.java).apply {
-                        putExtra("oid", oid)
-                        putExtra("rootCommentId", commentRpid)
-                        putExtra("upMid", uploaderMid)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        context.startActivity(this)
-                    }
-                }*/
             }
             commentImagesList?.let {
                 Spacer(modifier = Modifier.height(4.dp))
@@ -681,7 +673,7 @@ fun CommentInfoItem(
         )
         Spacer(modifier = Modifier.width(2.dp))
         Text(text = content,
-            fontSize = 10.spx,
+            fontSize = 10.sp,
             fontFamily = wearbiliFontFamily,
             color = Color.White,
             modifier = Modifier
@@ -719,7 +711,7 @@ fun CommentInfoItem(
         Spacer(modifier = Modifier.width(2.dp))
         Text(
             text = content,
-            fontSize = 10.spx,
+            fontSize = 10.sp,
             fontFamily = wearbiliFontFamily,
             color = Color.White,
             modifier = Modifier

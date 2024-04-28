@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.detail.ui.FavouriteFolderDetailActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.detail.ui.PARAM_FAVOURITE_FOLDER_ID
 import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.detail.ui.PARAM_FAVOURITE_FOLDER_NAME
@@ -35,7 +36,6 @@ import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 
 /**
@@ -93,14 +93,14 @@ fun Activity.FavoriteFoldersScreen(
                                 text = defaultFolder.data.title,
                                 fontFamily = wearbiliFontFamily,
                                 color = Color.White,
-                                fontSize = 13.spx,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             IconText(
                                 text = "${defaultFolder.data.media_count}",
                                 modifier = Modifier.alpha(0.7f),
-                                fontSize = 11.spx
+                                fontSize = 11.sp
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.VideoLibrary,
@@ -150,7 +150,7 @@ fun Activity.FavoriteFoldersScreen(
                                         text = folder.data.title,
                                         fontFamily = wearbiliFontFamily,
                                         color = Color.White,
-                                        fontSize = 12.spx,
+                                        fontSize = 12.sp,
                                         fontWeight = FontWeight.Medium,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
@@ -159,7 +159,7 @@ fun Activity.FavoriteFoldersScreen(
                                     IconText(
                                         text = "${folder.data.media_count}",
                                         modifier = Modifier.alpha(0.7f),
-                                        fontSize = 10.spx
+                                        fontSize = 10.sp
                                     ) {
                                         Icon(
                                             imageVector = Icons.Outlined.VideoLibrary,

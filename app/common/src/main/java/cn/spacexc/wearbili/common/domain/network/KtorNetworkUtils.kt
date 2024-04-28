@@ -76,7 +76,7 @@ class KtorNetworkUtils(private val cookiesManager: CookiesManager) {
 
     }
 
-    val downloadClient = HttpClient(CIO) {
+    private val downloadClient = HttpClient(CIO) {
         install(HttpTimeout)
         engine {
             requestTimeout = 0

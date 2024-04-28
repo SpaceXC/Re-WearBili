@@ -25,16 +25,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.remake.app.article.util.TYPE_QUOTE
 import cn.spacexc.wearbili.remake.app.image.ImageViewerActivity
 import cn.spacexc.wearbili.remake.app.image.PARAM_IMAGE_URLS
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 
@@ -74,7 +74,7 @@ fun Activity.ArticleScreen(
                 .fillMaxSize()
                 .padding(
                     PaddingValues(
-                        horizontal = TitleBackgroundHorizontalPadding(), vertical = 6.dp
+                        horizontal = titleBackgroundHorizontalPadding(), vertical = 6.dp
                     )
                 ), verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -83,12 +83,12 @@ fun Activity.ArticleScreen(
                     text = info.readInfo.title,
                     fontFamily = wearbiliFontFamily,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.spx
+                    fontSize = 16.sp
                 )
                 Text(
                     text = "${info.readInfo.publishTime.times(1000).toDateStr()}发布",
                     fontFamily = wearbiliFontFamily,
-                    fontSize = 11.spx,
+                    fontSize = 11.sp,
                     modifier = Modifier.alpha(0.7f)
                 )
                 if (info.readInfo.bannerUrl.isNotEmpty()) {
@@ -141,7 +141,7 @@ fun Activity.ArticleScreen(
                                         .fillMaxWidth()
                                         .alpha(0.7f),
                                     fontFamily = wearbiliFontFamily,
-                                    fontSize = 20.spx
+                                    fontSize = 20.sp
                                 )
                                 Text(
                                     text = it.text.content,
@@ -162,7 +162,7 @@ fun Activity.ArticleScreen(
                                         .alpha(0.7f)
                                         .offset(y = 14.dp),
                                     fontFamily = wearbiliFontFamily,
-                                    fontSize = 20.spx,
+                                    fontSize = 20.sp,
                                     textAlign = TextAlign.End
                                 )
                             }
@@ -206,7 +206,7 @@ fun Activity.ArticleScreen(
                     if (it.image.imageCaption.isNotEmpty()) {
                         Text(
                             text = it.image.imageCaption,
-                            fontSize = 9.spx,
+                            fontSize = 9.sp,
                             color = Color.White,
                             modifier = Modifier
                                 .fillMaxWidth()

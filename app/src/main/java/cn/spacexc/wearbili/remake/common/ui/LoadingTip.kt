@@ -16,6 +16,7 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.paging.LoadState
 
 /**
@@ -49,7 +50,7 @@ fun LoadingTip(
             }
         )
     },
-    fontSize = 9.5.spx,
+    fontSize = 9.5.sp,
     color = Color.White,
     modifier = Modifier
         .alpha(0.6f)
@@ -64,8 +65,8 @@ fun LoadingTip(
     inlineContent = mapOf(
         "loadingIndicator" to InlineTextContent(
             placeholder = Placeholder(
-                width = 11.spx,
-                height = 11.spx,
+                width = 11.sp,
+                height = 11.sp,
                 placeholderVerticalAlign = PlaceholderVerticalAlign.Center
             )
         ) {

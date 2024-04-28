@@ -25,7 +25,7 @@ data class CookieEntity(
     val extensions: Map<String, String?> = emptyMap(),
     val uid: Long?,
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0
+    val id: Long = 0
 )
 
 suspend fun Cookie.toCookieEntity(cryptoManager: CryptoManager) = CookieEntity(

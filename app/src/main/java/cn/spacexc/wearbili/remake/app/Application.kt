@@ -15,7 +15,9 @@ import cn.leancloud.LCLogger
 import cn.leancloud.LeanCloud
 import cn.spacexc.bilibilisdk.BilibiliSdkManager
 import cn.spacexc.bilibilisdk.data.DataManager
+import cn.spacexc.bilibilisdk.sdk.user.profile.UserProfileInfo
 import cn.spacexc.wearbili.common.APP_CENTER_SECRET
+import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.crash.ui.CrashActivity
@@ -23,6 +25,7 @@ import cn.spacexc.wearbili.remake.app.crash.ui.PARAM_EXCEPTION_DESCRIPTION
 import cn.spacexc.wearbili.remake.app.crash.ui.PARAM_EXCEPTION_STACKTRACE
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerService
 import cn.spacexc.wearbili.remake.common.networking.CookiesManager
+import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
@@ -134,6 +137,7 @@ class Application : android.app.Application(), Configuration.Provider {
             "20231104: 妥协不可耻还有用 ————XC于23:17有感而发"
         )
         checkIfAudioServiceIsUp()
+        getThemeColor()
     }
 
     private fun checkIfAudioServiceIsUp() {
@@ -146,6 +150,18 @@ class Application : android.app.Application(), Configuration.Provider {
         }
     }
 
+    private fun getThemeColor() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                UserProfileInfo.getUserInfoByMid(208259).data?.data?.vip?.let { //笑点解析：
+                    BilibiliPink = parseColor(it.nicknameColor)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                getThemeColor()
+            }
+        }
+    }
 
     private fun isForegroundServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager

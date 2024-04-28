@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 
 /**
@@ -40,7 +41,7 @@ fun IconText(
     fontFamily: FontFamily = wearbiliFontFamily,
     letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
-    spacingWidth: TextUnit = 2.spx,
+    spacingWidth: TextUnit = 2.sp,
     textAlign: TextAlign? = null,
     lineHeight: TextUnit = TextUnit.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
@@ -56,8 +57,8 @@ fun IconText(
     val inlineTextContent = mapOf(
         "icon" to InlineTextContent(
             placeholder = Placeholder(
-                width = fontSize.toSpx().value.plus(4).spx,
-                height = fontSize.toSpx().value.plus(4).spx,
+                width = fontSize.toSpx().value.plus(4).sp,
+                height = fontSize.toSpx().value.plus(4).sp,
                 placeholderVerticalAlign = PlaceholderVerticalAlign.Center
             )
         ) {

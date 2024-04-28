@@ -29,6 +29,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.CardBackgroundColor
@@ -37,7 +38,6 @@ import cn.spacexc.wearbili.remake.common.ui.CardBorderWidth
 import cn.spacexc.wearbili.remake.common.ui.Checkbox
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateDpAsState
@@ -153,7 +153,7 @@ fun Activity.VideoFavouriteFoldersScreen(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = folder.title,
-                                    fontSize = 13.spx,
+                                    fontSize = 13.sp,
                                     fontFamily = wearbiliFontFamily,
                                     color = Color.White
                                 )
@@ -192,7 +192,7 @@ fun Activity.VideoFavouriteFoldersScreen(
                 ) {
                     Text(
                         text = "确定",
-                        fontSize = 13.spx,
+                        fontSize = 13.sp,
                         fontFamily = wearbiliFontFamily,
                         color = Color.White,
                         modifier = Modifier.fillMaxWidth(),

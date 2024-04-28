@@ -28,9 +28,9 @@ import cn.spacexc.wearbili.remake.common.ui.LargeBangumiCard
 import cn.spacexc.wearbili.remake.common.ui.LargeUserCard
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
 import cn.spacexc.wearbili.remake.common.ui.isRound
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
 import kotlinx.coroutines.flow.Flow
@@ -71,7 +71,7 @@ fun Activity.SearchResultScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     vertical = if (isRound()) 10.dp else 4.dp,
-                    horizontal = TitleBackgroundHorizontalPadding()
+                    horizontal = titleBackgroundHorizontalPadding()
                 )
             ) {
                 items(searchResult.itemCount) {

@@ -20,12 +20,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceViewModel
 import cn.spacexc.wearbili.remake.common.ui.UserAvatar
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.shimmerPlaceHolder
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
 
@@ -54,7 +54,7 @@ fun BasicInformationScreen(
             )
             Text(
                 text = user.name,
-                fontSize = 14.spx,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = wearbiliFontFamily,
                 color = Color.White
@@ -73,7 +73,7 @@ fun BasicInformationScreen(
                 ) {
                     androidx.compose.material.Text(
                         text = viewModel.stat?.follower?.toShortChinese() ?: "null",
-                        fontSize = 12.spx,
+                        fontSize = 12.sp,
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.shimmerPlaceHolder(viewModel.stat == null)
@@ -81,7 +81,7 @@ fun BasicInformationScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     androidx.compose.material.Text(
                         text = "粉丝",
-                        fontSize = 11.spx,
+                        fontSize = 11.sp,
                         color = Color.White,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.alpha(0.8f)
@@ -100,7 +100,7 @@ fun BasicInformationScreen(
                 ) {
                     androidx.compose.material.Text(
                         text = viewModel.stat?.following?.toShortChinese() ?: "null",
-                        fontSize = 12.spx,
+                        fontSize = 12.sp,
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.shimmerPlaceHolder(viewModel.stat == null)
@@ -108,7 +108,7 @@ fun BasicInformationScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     androidx.compose.material.Text(
                         text = "关注",
-                        fontSize = 11.spx,
+                        fontSize = 11.sp,
                         color = Color.White,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.alpha(0.8f)

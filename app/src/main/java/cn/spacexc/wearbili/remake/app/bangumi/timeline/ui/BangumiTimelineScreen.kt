@@ -5,15 +5,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -30,11 +29,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BANGUMI_ID_TYPE_EPID
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
@@ -43,8 +40,11 @@ import cn.spacexc.wearbili.remake.common.ui.SmallBangumiCard
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.animateScrollAndCentralizeItem
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
+import cn.spacexc.wearbili.remake.common.ui.scrollAndCentralizeItem
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -72,12 +72,6 @@ fun Activity.BangumiTimelineScreen(
     val localDensity = LocalDensity.current
     val calendarRowState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    LaunchedEffect(key1 = Unit, block = {
-        coroutineScope.launch {
-            calendarRowState.animateScrollToItem(6) //因为在请求数据时设置了before=after=6（前后6天），所以这里想要居中第一个元素就可以直接这样子
-            //FIXME known-bug: 初始化状态无法居中
-        }
-    })
     TitleBackground(
         title = "新番时间表",
         onBack = ::finish,
@@ -88,17 +82,27 @@ fun Activity.BangumiTimelineScreen(
             val currentList =
                 viewModel.timelineData.toList().find { it.first.first == viewModel.currentDate }
             currentList?.let { episodes ->
+                LaunchedEffect(key1 = Unit, block = {
+                    for (index in 0..6) {
+                        calendarRowState.scrollAndCentralizeItem(index)
+                        delay(10)
+                    }   //不太优雅。。。但是这个scrollAndCentralizeItem的实现只能计算visible的item所以这么一个一个滑已经是我心目中的最优了
+                })
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    contentPadding = PaddingValues(
+                        vertical = 8.dp,
+                        horizontal = titleBackgroundHorizontalPadding()
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    item {
+                    item(key = "calendar") {
                         LazyRow(
                             modifier = Modifier
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            state = calendarRowState
+                            state = calendarRowState,
+                            //contentPadding = PaddingValues(horizontal = 10.dp)
                         ) {
                             viewModel.timelineData.forEachIndexed { index, date ->
                                 val day = date.first
@@ -122,27 +126,28 @@ fun Activity.BangumiTimelineScreen(
                                         }
                                         Text(text = day.first, style = AppTheme.typography.h3)
                                         Spacer(modifier = Modifier.height(2.dp))
-                                        Text(
-                                            text = CHINESE_NUMBERS[day.second] ?: "空",
-                                            style = AppTheme.typography.h2,
+                                        Box(
                                             modifier = Modifier
-                                                .onSizeChanged {
-                                                    textSize =
-                                                        with(localDensity) { it.height.toDp() }
-                                                }
-                                                .width(textSize)
-                                                .clip(CircleShape)
-                                                .background(color)
-                                                .aspectRatio(1f)
-                                                .padding(6.dp)
-                                                .apply {
-                                                    if (index == 6/*同上*/) border(
-                                                        width = 0.3.dp,
-                                                        color = BilibiliPink
-                                                    )
-                                                },
-                                            textAlign = TextAlign.Center
-                                        )
+                                                .background(color, CircleShape)
+                                                .size(textSize + 12.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = CHINESE_NUMBERS[day.second] ?: "空",
+                                                style = AppTheme.typography.h2,
+                                                modifier = Modifier
+                                                    .onSizeChanged {
+                                                        textSize =
+                                                            with(localDensity) { it.height.toDp() }
+                                                    }
+                                                    .apply {
+                                                        if (index == 6 /*同上*/) border(
+                                                            width = 0.3.dp,
+                                                            color = BilibiliPink
+                                                        )
+                                                    }
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -154,29 +159,26 @@ fun Activity.BangumiTimelineScreen(
                         )
                     }
                     episodes.second.entries.forEach { entry ->
-                        item {
-                            Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.padding(horizontal = 8.dp)) {
-                                Column {
-                                    Text(
-                                        text = entry.key,
-                                        style = AppTheme.typography.h3,
-                                        color = Color.White
-                                    )
-                                }
-                                for (episode in entry.value) {
-                                    val updated =
-                                        episode.delay_reason.isEmpty() && System.currentTimeMillis() > episode.pub_ts
-                                    SmallBangumiCard(
-                                        title = episode.title,
-                                        cover = episode.square_cover,
-                                        epName = episode.delay_reason.ifEmpty { episode.pub_index },
-                                        bangumiId = if (updated) episode.episode_id else episode.season_id,
-                                        bangumiIdType = if (updated) BANGUMI_ID_TYPE_EPID else BANGUMI_ID_TYPE_SSID,
-                                        context = this@BangumiTimelineScreen,
-                                        modifier = Modifier.alpha(if (episode.delay_reason.isEmpty()) 1f else 0.6f)
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(2.dp))
+                        item(key = entry.key) {
+                            Text(
+                                text = entry.key,
+                                style = AppTheme.typography.h3,
+                                color = Color.White,
+                            )
+                        }
+                        entry.value.forEach { episode ->
+                            item(episode.episode_id) {
+                                val published = episode.published == 1
+                                SmallBangumiCard(
+                                    title = episode.title,
+                                    cover = episode.square_cover,
+                                    epName = episode.delay_reason.ifEmpty { episode.pub_index },
+                                    bangumiId = if (published) episode.episode_id else episode.season_id,
+                                    bangumiIdType = if (published) BANGUMI_ID_TYPE_EPID else BANGUMI_ID_TYPE_SSID,
+                                    context = this@BangumiTimelineScreen,
+                                    modifier = Modifier
+                                        .alpha(if (episode.delay_reason.isEmpty()) 1f else 0.6f)
+                                )
                             }
                         }
                     }

@@ -16,13 +16,13 @@ android {
 
     experimentalProperties["android.experimental.r8.dex-startup-optimization"] = true
 
-    val releaseNumber = 5
+    val releaseNumber = 3
     defaultConfig {
         applicationId = "cn.spacexc.wearbili.remake"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 37
-        versionName = "Glaciaxia 冰封"
+        versionCode = 45
+        versionName = "Neon 霓虹"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -114,6 +114,7 @@ dependencies {
     implementation(project(":app:common"))
     implementation(project(":ijkplayer-java"))
     implementation(project(":ijkplayer-so"))
+    implementation(project(":libs"))
 
     implementation(libs.androidx.datastore.proto)
     implementation(libs.androidx.datastore.core)

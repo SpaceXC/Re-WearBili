@@ -32,6 +32,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,14 +48,19 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.Item
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.app.settings.experimantal.EXPERIMENTAL_LARGE_VIDEO_CARD
+import cn.spacexc.wearbili.remake.app.settings.experimantal.getActivatedExperimentalFunctions
 import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.QuickToolbarCustomizationActivity
 import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.StaticFunctionSlot
 import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.functionList
 import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.toFunctionDetail
+import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
+import cn.spacexc.wearbili.remake.app.update.ui.UpdateCard
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.UIState
@@ -63,11 +69,10 @@ import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.lazyRotateInput
-import cn.spacexc.wearbili.remake.common.ui.spx
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateContentPlacement
 import cn.spacexc.wearbili.remake.proto.settings.AppConfiguration
 import cn.spacexc.wearbili.remake.proto.settings.QuickToolBarFunction
@@ -95,6 +100,7 @@ data class RecommendScreenState(
 fun RecommendScreen(
     viewModel: RecommendViewModel,
     context: Activity,
+    updatesResult: SplashScreenActivity.AppUpdatesResult?,
     onFetch: (isRefresh: Boolean) -> Unit
 ) {
     val state = viewModel.screenState
@@ -105,6 +111,12 @@ fun RecommendScreen(
         }, refreshThreshold = 40.dp)
     val localDensity = LocalDensity.current
     val configuration = LocalConfiguration.current
+    val isLargeCard by remember {
+        derivedStateOf {
+            configuration.getActivatedExperimentalFunctions()
+                .contains(EXPERIMENTAL_LARGE_VIDEO_CARD)
+        }
+    }
     LoadableBox(
         uiState = state.uiState, modifier = Modifier
             .fillMaxSize()
@@ -118,8 +130,8 @@ fun RecommendScreen(
                 .fillMaxSize()
                 .lazyRotateInput(focusRequester, state.scrollState),
             contentPadding = PaddingValues(
-                start = TitleBackgroundHorizontalPadding(),
-                end = TitleBackgroundHorizontalPadding(),
+                start = titleBackgroundHorizontalPadding(),
+                end = titleBackgroundHorizontalPadding(),
                 bottom = 6.dp,
                 top = if (isRound()) 8.dp else 0.dp
             ),
@@ -135,6 +147,11 @@ fun RecommendScreen(
                 )
             }
             //}
+            updatesResult?.let {
+                item {
+                    UpdateCard(updateInfo = updatesResult, clickable = true, context = context)
+                }
+            }
 
             when (configuration.recommendSource) {
                 null -> {}
@@ -151,7 +168,8 @@ fun RecommendScreen(
                                         context = context,
                                         videoIdType = if (it.bvid.isNullOrEmpty()) VIDEO_TYPE_AID else VIDEO_TYPE_BVID,
                                         videoId = it.bvid ?: it.param,
-                                        modifier = Modifier.wearBiliAnimateContentPlacement(this)
+                                        modifier = Modifier.wearBiliAnimateContentPlacement(this),
+                                        isLarge = isLargeCard
                                     )
                                 }
                             } catch (e: IllegalArgumentException) {
@@ -175,7 +193,8 @@ fun RecommendScreen(
                                         context = context,
                                         videoId = it.bvid,
                                         videoIdType = VIDEO_TYPE_BVID,
-                                        modifier = Modifier.wearBiliAnimateContentPlacement(this)
+                                        modifier = Modifier.wearBiliAnimateContentPlacement(this),
+                                        isLarge = isLargeCard
                                     )
                                 }
                             } catch (e: IllegalArgumentException) {
@@ -287,12 +306,12 @@ fun LazyItemScope.QuickToolBar(
                             Text(
                                 text = "快捷功能区",
                                 //fontFamily = wearbiliFontFamily,
-                                style = MaterialTheme.typography.h1.copy(fontSize = 12.spx)
+                                style = MaterialTheme.typography.h1.copy(fontSize = 12.sp)
                             )
                             AutoResizedText(
                                 text = "点击设置快捷入口\n左划以隐藏此卡片\n可在“设置”中重新设置",
                                 //fontFamily = wearbiliFontFamily,
-                                style = MaterialTheme.typography.body1.copy(fontSize = 11.spx),
+                                style = MaterialTheme.typography.body1.copy(fontSize = 11.sp),
                                 maxLines = 3,
                                 modifier = Modifier.alpha(0.6f)
                             )

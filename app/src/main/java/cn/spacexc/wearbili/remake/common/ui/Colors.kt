@@ -1,5 +1,8 @@
 package cn.spacexc.wearbili.remake.common.ui
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 
 /*
@@ -10,5 +13,5 @@ import androidx.compose.ui.graphics.Color
  * 给！爷！写！注！释！
  */
 
-val BilibiliPink = Color(254, 103, 154)
+var BilibiliPink by mutableStateOf(Color(254, 103, 154))
 val BilibiliBlue = Color(0, 161, 214)

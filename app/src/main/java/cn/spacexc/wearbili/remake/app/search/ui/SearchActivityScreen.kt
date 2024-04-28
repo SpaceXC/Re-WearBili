@@ -49,17 +49,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.common.ui.AutoResizedText
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.isRound
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.GifDecoder
@@ -105,7 +105,7 @@ fun SearchActivityScreen(
                 .verticalScroll(searchViewModel.scrollState),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Column(modifier = Modifier.padding(horizontal = TitleBackgroundHorizontalPadding())) {
+            Column(modifier = Modifier.padding(horizontal = titleBackgroundHorizontalPadding())) {
                 if (isRound()) {
                     Spacer(modifier = Modifier.height(10.dp))
                 } else {
@@ -127,7 +127,7 @@ fun SearchActivityScreen(
                                 AutoResizedText(
                                     text = "搜些什么ヾ(≧▽≦*)o",
                                     style = TextStyle(
-                                        fontSize = 14.spx,
+                                        fontSize = 14.sp,
                                         fontFamily = wearbiliFontFamily,
                                         color = Color.White
                                     ),
@@ -142,7 +142,7 @@ fun SearchActivityScreen(
                                 //lineLimits = TextFieldLineLimits.SingleLine,
                                 singleLine = true,
                                 textStyle = TextStyle(
-                                    fontSize = 14.spx,
+                                    fontSize = 14.sp,
                                     fontFamily = wearbiliFontFamily,
                                     color = Color.White
                                 ),
@@ -181,11 +181,11 @@ fun SearchActivityScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = TitleBackgroundHorizontalPadding())
+                        .padding(horizontal = titleBackgroundHorizontalPadding())
                 ) {
                     IconText(
                         text = "搜索记录",
-                        fontSize = 14.spx,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                     ) {
@@ -198,7 +198,7 @@ fun SearchActivityScreen(
                     }
                     Spacer(modifier = Modifier.weight(1f))
                     IconText(
-                        text = "清空", fontSize = 12.spx, modifier = Modifier
+                        text = "清空", fontSize = 12.sp, modifier = Modifier
                             .alpha(0.8f)
                             .clickVfx(onClick = searchViewModel::deleteAllSearchHistory)
                     ) {
@@ -218,7 +218,7 @@ fun SearchActivityScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(if (searchHistory.isNotEmpty()) ((hotWordItemHeight + 8.dp) * (if (searchHistory.size > 4) 2 else 1) + 4.dp * ((if (searchHistory.size > 4) 2 else 1) - 1)) else 0.dp),
-                contentPadding = PaddingValues(horizontal = TitleBackgroundHorizontalPadding())
+                contentPadding = PaddingValues(horizontal = titleBackgroundHorizontalPadding())
             ) {
                 items(searchHistory) { item ->
                     Card(
@@ -241,11 +241,11 @@ fun SearchActivityScreen(
             if (hotWords.isNotEmpty()) {
                 IconText(
                     text = "bilibili热搜",
-                    fontSize = 14.spx,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = TitleBackgroundHorizontalPadding())
+                        .padding(horizontal = titleBackgroundHorizontalPadding())
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.LocalFireDepartment,
@@ -262,7 +262,7 @@ fun SearchActivityScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height((hotWordItemHeight + 8.dp) * 3 + 8.dp),
-                contentPadding = PaddingValues(horizontal = TitleBackgroundHorizontalPadding())
+                contentPadding = PaddingValues(horizontal = titleBackgroundHorizontalPadding())
             ) {
                 items(hotWords) { item ->
                     Card(

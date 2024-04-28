@@ -14,7 +14,14 @@ data class SettingsItem(
     val icon: @Composable () -> Unit,
     val name: String,
     val description: String,
-    val action: (() -> Unit)? = null,
+    val action: ((Option?) -> Unit)? = null,
     val isOn: (() -> Boolean)? = null,
-    val value: (() -> String)? = null,
-)
+    val displayedValue: (() -> String)? = null,
+    val currentValue: (() -> Any)? = null,
+    val options: List<Option>? = null
+) {
+    data class Option(
+        val option: Any,
+        val displayedValue: String,
+    )
+}

@@ -1,7 +1,10 @@
 package cn.spacexc.wearbili.remake.app.bangumi.info.ui
 
+import BiliTextIcon
 import android.app.Activity
 import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -56,10 +59,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.bangumi.info.episodes.BangumiEpisodeListActivity
+import cn.spacexc.wearbili.remake.app.bangumi.info.episodes.PARAM_BANGUMI_EPISODE_SECTION_INDEX
 import cn.spacexc.wearbili.remake.app.link.qrcode.PARAM_QRCODE_CONTENT
 import cn.spacexc.wearbili.remake.app.link.qrcode.PARAM_QRCODE_MESSAGE
 import cn.spacexc.wearbili.remake.app.link.qrcode.QrCodeActivity
@@ -77,11 +83,10 @@ import cn.spacexc.wearbili.remake.common.ui.CardBorderWidth
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.clickAlpha
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateDpAsState
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
@@ -104,6 +109,11 @@ fun Activity.BangumiInfoScreen(
     bangumiId: Long
 ) {
     val localDensity = LocalDensity.current
+    val episodeDetailLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
+            val epid = result.data?.getLongExtra(PARAM_BANGUMI_ID, 0L)
+            viewModel.currentSelectedEpid = epid ?: viewModel.currentSelectedEpid
+        }
     LoadableBox(uiState = viewModel.uiState, onRetry = {
         viewModel.getBangumiInfo(bangumiIdType, bangumiId)
     }) {
@@ -141,7 +151,7 @@ fun Activity.BangumiInfoScreen(
                 item {
                     Column(
                         modifier = Modifier
-                            .padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
+                            .padding(horizontal = titleBackgroundHorizontalPadding() - 2.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         var isDescriptionExpand by remember {
@@ -174,7 +184,7 @@ fun Activity.BangumiInfoScreen(
                                                 style = SpanStyle(
                                                     color = Color(249, 157, 87, 255),
                                                     fontFamily = wearbiliFontFamily,
-                                                    fontSize = 10.spx
+                                                    fontSize = 10.sp
                                                 )
                                             ) {
                                                 append(bangumi.rating?.score.toString())
@@ -183,14 +193,14 @@ fun Activity.BangumiInfoScreen(
                                                 style = SpanStyle(
                                                     color = Color(249, 157, 87, 255),
                                                     fontFamily = wearbiliFontFamily,
-                                                    fontSize = 8.spx
+                                                    fontSize = 8.sp
                                                 )
                                             ) {
                                                 append("分")
                                             }
                                         },
                                         color = Color.White,
-                                        fontSize = 7.spx,
+                                        fontSize = 7.sp,
                                         fontFamily = wearbiliFontFamily,
                                         fontWeight = FontWeight.Medium,
                                         modifier = Modifier
@@ -246,7 +256,7 @@ fun Activity.BangumiInfoScreen(
                                     IconText(
                                         text = "追番",
                                         color = Color.White,
-                                        fontSize = 11.spx,
+                                        fontSize = 11.sp,
                                         fontWeight = FontWeight.Medium,
                                         fontFamily = wearbiliFontFamily
                                     ) {
@@ -262,7 +272,7 @@ fun Activity.BangumiInfoScreen(
                         Text(
                             text = bangumi.evaluate,
                             style = AppTheme.typography.body1,
-                            fontSize = 10.spx,
+                            fontSize = 10.sp,
                             modifier = Modifier
                                 .clickAlpha { isDescriptionExpand = !isDescriptionExpand }
                                 .animateContentSize(animationSpec = tween(durationMillis = 400)),
@@ -275,7 +285,7 @@ fun Activity.BangumiInfoScreen(
                             IconText(
                                 text = "${currentSeasonStat?.views?.toShortChinese()}观看",
                                 modifier = Modifier.alpha(0.7f),
-                                fontSize = 11.spx
+                                fontSize = 11.sp
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.icon_view_count),
@@ -287,7 +297,7 @@ fun Activity.BangumiInfoScreen(
                             IconText(
                                 text = "${currentSeasonStat?.series_follow?.toShortChinese()}系列追番",
                                 modifier = Modifier.alpha(0.7f),
-                                fontSize = 11.spx
+                                fontSize = 11.sp
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.CheckCircle,
@@ -299,7 +309,7 @@ fun Activity.BangumiInfoScreen(
                             IconText(
                                 text = bangumi.styles.joinToString(separator = "/"),
                                 modifier = Modifier.alpha(0.7f),
-                                fontSize = 11.spx
+                                fontSize = 11.sp
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.Sell,
@@ -313,7 +323,7 @@ fun Activity.BangumiInfoScreen(
                             IconText(
                                 text = "${bangumi.stat.danmakus.toShortChinese()}弹幕",
                                 modifier = Modifier.alpha(0.7f),
-                                fontSize = 11.spx
+                                fontSize = 11.sp
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.icon_danmaku),
@@ -329,15 +339,32 @@ fun Activity.BangumiInfoScreen(
                 }
 
                 item {
-                    Text(
-                        text = "选集(${bangumi.episodes.size})",
-                        style = AppTheme.typography.h1,
+                    Row(
                         modifier = Modifier
-                            .padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp)
-                    )
+                            .padding(horizontal = titleBackgroundHorizontalPadding() - 2.dp)
+                            .clickAlpha {
+                                episodeDetailLauncher.launch(
+                                    Intent(
+                                        this@BangumiInfoScreen,
+                                        BangumiEpisodeListActivity::class.java
+                                    ).apply {
+                                        putExtra(PARAM_BANGUMI_EPISODE_SECTION_INDEX, 0)
+                                        putExtra(PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_SSID)
+                                        putExtra(PARAM_BANGUMI_ID, bangumi.season_id)
+                                    }
+                                )
+                            }
+                    ) {
+                        Text(
+                            text = "选集(${bangumi.episodes.size})",
+                            style = AppTheme.typography.h1
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        BiliTextIcon(icon = "ea1c", size = AppTheme.typography.h1.fontSize)
+                    }
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
+                        contentPadding = PaddingValues(horizontal = titleBackgroundHorizontalPadding() - 2.dp),
                         state = viewModel.episodeScrollState
                     ) {
                         bangumi.episodes.forEachIndexed { index, episode ->
@@ -359,7 +386,7 @@ fun Activity.BangumiInfoScreen(
                                             Text(
                                                 text = episode.long_title.ifEmpty { episode.title },
                                                 style = AppTheme.typography.h2,
-                                                fontSize = 12.spx
+                                                fontSize = 12.sp
                                             )
                                             if (!episode.badge.isNullOrEmpty()) {
                                                 Box(
@@ -376,7 +403,7 @@ fun Activity.BangumiInfoScreen(
                                                 ) {
                                                     Text(
                                                         text = episode.badge ?: "",
-                                                        fontSize = 8.spx,
+                                                        fontSize = 8.sp,
                                                         fontFamily = wearbiliFontFamily,
                                                         color = Color.White,
                                                         fontWeight = FontWeight.Medium,
@@ -391,7 +418,7 @@ fun Activity.BangumiInfoScreen(
                                         Text(
                                             text = "EP${index.plus(1)}",
                                             style = AppTheme.typography.h3,
-                                            fontSize = 9.spx,
+                                            fontSize = 9.sp,
                                             modifier = Modifier.alpha(0.8f)
                                         )
                                     }
@@ -400,17 +427,34 @@ fun Activity.BangumiInfoScreen(
                         }
                     }
                 }
-                bangumi.section?.forEach { section ->
+                bangumi.section?.forEachIndexed { index, section ->
                     item {
-                        Text(
-                            text = "${section.title}(${section.episodes.size})",
-                            style = AppTheme.typography.h1,
+                        Row(
                             modifier = Modifier
-                                .padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp)
-                        )
+                                .padding(horizontal = titleBackgroundHorizontalPadding() - 2.dp)
+                                .clickAlpha {
+                                    episodeDetailLauncher.launch(
+                                        Intent(
+                                            this@BangumiInfoScreen,
+                                            BangumiEpisodeListActivity::class.java
+                                        ).apply {
+                                            putExtra(PARAM_BANGUMI_EPISODE_SECTION_INDEX, index + 1)
+                                            putExtra(PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_SSID)
+                                            putExtra(PARAM_BANGUMI_ID, bangumi.season_id)
+                                        }
+                                    )
+                                }
+                        ) {
+                            Text(
+                                text = "${section.title}(${section.episodes.size})",
+                                style = AppTheme.typography.h1
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            BiliTextIcon(icon = "ea1c", size = AppTheme.typography.h1.fontSize)
+                        }
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
+                            contentPadding = PaddingValues(horizontal = titleBackgroundHorizontalPadding() - 2.dp),
                             state = viewModel.getSectionScrollState(section.id)
                         ) {
                             section.episodes.forEachIndexed { index, episode ->
@@ -437,13 +481,13 @@ fun Activity.BangumiInfoScreen(
                                             Text(
                                                 text = "${episode.title} ${episode.long_title}",
                                                 style = AppTheme.typography.h2,
-                                                fontSize = 12.spx
+                                                fontSize = 12.sp
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
                                             Text(
                                                 text = "EP${index.plus(1)}",
                                                 style = AppTheme.typography.h3,
-                                                fontSize = 9.spx,
+                                                fontSize = 9.sp,
                                                 modifier = Modifier.alpha(0.8f)
                                             )
                                         }
@@ -457,7 +501,7 @@ fun Activity.BangumiInfoScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
+                            .padding(horizontal = titleBackgroundHorizontalPadding() - 2.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Row(

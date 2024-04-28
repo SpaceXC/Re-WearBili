@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_RATE
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.COMMAND_SUBSCRIBE
@@ -106,7 +107,7 @@ fun DanmakuChip(
             text = text,
             color = Color.White,
             fontFamily = wearbiliFontFamily,
-            fontSize = 10.spx,
+            fontSize = 10.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.onSizeChanged {
                 textHeight = with(localDensity) { it.height.toDp() }

@@ -25,10 +25,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 
 /**
  * Created by XC-Qan on 2023/4/13.
@@ -66,7 +66,7 @@ object ToastUtils {
     fun ToastContent(content: String) {
         Box(
             modifier = Modifier
-                .padding(TitleBackgroundHorizontalPadding() - 4.dp)
+                .padding(titleBackgroundHorizontalPadding() - 4.dp)
                 .fillMaxWidth()
                 .border(
                     width = 0.3f.dp,
@@ -94,7 +94,7 @@ object ToastUtils {
             Text(
                 text = content,
                 fontFamily = wearbiliFontFamily,
-                fontSize = 12.spx,
+                fontSize = 12.sp,
                 color = Color.White,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
                 fontWeight = FontWeight.Medium
@@ -113,7 +113,7 @@ object ToastUtils {
                     snackBarObject.onClick()
                     this.snackBarObject = null
                 }
-                .padding(TitleBackgroundHorizontalPadding() - 4.dp)
+                .padding(titleBackgroundHorizontalPadding() - 4.dp)
                 .fillMaxWidth()
                 .border(
                     width = 0.3f.dp,
@@ -144,14 +144,14 @@ object ToastUtils {
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(
-                    with(localDensity) { 15.spx.toDp() }
+                    with(localDensity) { 15.sp.toDp() }
                 )
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = snackBarObject.text,
                 fontFamily = wearbiliFontFamily,
-                fontSize = 12.spx,
+                fontSize = 12.sp,
                 color = Color.White,
                 modifier = Modifier.weight(1f),
                 fontWeight = FontWeight.Medium
@@ -160,7 +160,7 @@ object ToastUtils {
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(
-                    with(localDensity) { 13.spx.toDp() }
+                    with(localDensity) { 13.sp.toDp() }
                 )
             )
         }

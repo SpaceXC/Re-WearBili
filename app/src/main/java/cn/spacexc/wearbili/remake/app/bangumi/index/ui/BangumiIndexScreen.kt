@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
@@ -35,7 +36,6 @@ import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.LargeBangumiCard
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 
 /**
@@ -95,7 +95,7 @@ fun Activity.BangumiIndexScreen(
                         ) {
                             IconText(
                                 text = "新番时间表",
-                                fontSize = 13.spx,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
                                 modifier = Modifier.align(
                                     Alignment.Center

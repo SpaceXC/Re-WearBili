@@ -18,6 +18,7 @@ import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
+import cn.spacexc.wearbili.remake.app.player.audio.AudioSubtitleManager
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.proto.settings.VideoDecoder
 import kotlinx.coroutines.CoroutineScope
@@ -98,7 +99,6 @@ class Media3AudioPlayerViewModel /*@Inject constructor*/(
     var cacheVideoInfo: VideoCacheFileInfo? by mutableStateOf(
         null
     )
-
 
     val currentPlayProgress = flow {
         while (true) {
@@ -211,6 +211,7 @@ class Media3AudioPlayerViewModel /*@Inject constructor*/(
             } else {
                 getVideoInfo(videoIdType, videoId)
                 onDataFetched(videoInfo?.data?.title ?: "未知视频")
+                AudioSubtitleManager.currentVideo = videoInfo?.data?.title ?: "未知视频"
                 loadSubtitle()
                 appendLoadMessage("加载音频url...")
                 val urlResponse =
@@ -302,7 +303,7 @@ class Media3AudioPlayerViewModel /*@Inject constructor*/(
                     //Log.d(TAG, "initSubtitle2: result for $subtitles")
                     val temp = subtitleList
                     temp[subtitle.lan] = SubtitleConfig(
-                        subtitleList = subtitles,
+                        subtitleList = subtitles.processSubtitleBlanks(),
                         subtitleLanguageCode = subtitle.lan,
                         subtitleLanguage = subtitle.lan_doc
                     )
@@ -313,6 +314,37 @@ class Media3AudioPlayerViewModel /*@Inject constructor*/(
         }
         tasks.awaitAll()
         appendLoadMessage("字幕加载完成")
+    }
+
+    private fun List<Subtitle>.processSubtitleBlanks(): List<Subtitle> {
+        return buildList {
+            if (this@processSubtitleBlanks.first().from >= 4) {
+                add(
+                    Subtitle(
+                        "[BLANK_SUSPEND]",
+                        from = 0.0,
+                        to = this@processSubtitleBlanks.first().from,
+                        location = 0
+                    )
+                )
+            }
+            this@processSubtitleBlanks.forEachIndexed { index, subtitle ->
+                add(subtitle)
+                (if (index + 1 == this@processSubtitleBlanks.size) null else this@processSubtitleBlanks[index + 1])?.let { nextSubtitle ->
+                    val blankTime = nextSubtitle.from - subtitle.to
+                    if (blankTime >= 4) {
+                        add(
+                            Subtitle(
+                                "[BLANK_SUSPEND]",
+                                from = subtitle.to,
+                                to = nextSubtitle.from - 0.3,
+                                location = 0
+                            )
+                        )
+                    }
+                }
+            }
+        }
     }
 
     private suspend fun getVideoInfo(

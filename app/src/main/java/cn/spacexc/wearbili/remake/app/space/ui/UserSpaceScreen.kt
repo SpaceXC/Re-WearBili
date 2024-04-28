@@ -21,8 +21,8 @@ import cn.spacexc.wearbili.remake.app.space.ui.info.UserInformationScreen
 import cn.spacexc.wearbili.remake.app.space.ui.videos.ui.UserSpaceVideosScreen
 import cn.spacexc.wearbili.remake.common.ui.HorizontalPagerIndicator
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.isRound
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -88,7 +88,7 @@ fun Activity.UserSpaceScreen(
                 pagerState = pagerState,
                 modifier = Modifier
                     .align(if (isRound()) Alignment.TopCenter else Alignment.TopEnd)
-                    .padding(end = if (isRound()) 0.dp else TitleBackgroundHorizontalPadding() + 2.dp),
+                    .padding(end = if (isRound()) 0.dp else titleBackgroundHorizontalPadding() + 2.dp),
                 activeColor = Color(255, 255, 255),
                 inactiveColor = Color(
                     255,

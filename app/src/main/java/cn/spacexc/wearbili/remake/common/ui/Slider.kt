@@ -1,12 +1,15 @@
 package cn.spacexc.wearbili.remake.common.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
@@ -118,6 +121,8 @@ fun GradientSlider(
 fun GradientSlider(
     value: Float,
     range: ClosedFloatingPointRange<Float>,
+    brush: Brush = Brush.horizontalGradient(listOf(Color(50, 25, 33), BilibiliPink)),
+    trackHeight: Dp = TrackHeight,
     modifier: Modifier = Modifier,
     onValueChanged: (Float) -> Unit
 ) {
@@ -128,15 +133,15 @@ fun GradientSlider(
         onValueChange = onValueChanged,
         valueRange = range,
         thumb = {
-            SliderDefaults.Thumb(
-                interactionSource = thumbInteractionSource,
-                colors = SliderDefaults.colors(thumbColor = Color.White),
-                thumbSize = DpSize(width = 10.dp, height = 10.dp),
-                modifier = Modifier.offset(x = 4.5.dp, y = 5.dp)
+            Box(
+                modifier = Modifier
+                    .size(10.dp)
+                    .offset(x = 4.5.dp, y = 5.dp)
+                    .background(Color.White, CircleShape)
             )
         },
         track = { state ->
-            Track(sliderState = state)
+            Track(sliderState = state, brush = brush, height = trackHeight)
         })
 }
 
@@ -146,6 +151,8 @@ fun GradientSlider(
     value: Float,
     range: ClosedFloatingPointRange<Float>,
     modifier: Modifier = Modifier,
+    brush: Brush = Brush.horizontalGradient(listOf(Color(50, 25, 33), BilibiliPink)),
+    trackHeight: Dp = TrackHeight,
     onValueChanged: (Float) -> Unit,
     onSlideFinished: () -> Unit
 ) {
@@ -156,15 +163,21 @@ fun GradientSlider(
         onValueChange = onValueChanged,
         valueRange = range,
         thumb = {
-            SliderDefaults.Thumb(
+            /*SliderDefaults.Thumb(
                 interactionSource = thumbInteractionSource,
                 colors = SliderDefaults.colors(thumbColor = Color.White),
                 thumbSize = DpSize(width = 10.dp, height = 10.dp),
                 modifier = Modifier.offset(x = 4.5.dp, y = 5.dp)
+            )*/
+            Box(
+                modifier = Modifier
+                    .size(10.dp)
+                    .offset(x = 4.5.dp, y = 5.dp)
+                    .background(Color.White, CircleShape)
             )
         },
         track = { state ->
-            Track(sliderState = state)
+            Track(sliderState = state, brush = brush, height = trackHeight)
         },
         onValueChangeFinished = {
             onSlideFinished()
@@ -173,19 +186,20 @@ fun GradientSlider(
 }
 
 val TrackHeight = 24.dp
-val TickSize = 4.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Track(
     sliderState: SliderState,
     modifier: Modifier = Modifier,
+    height: Dp = TrackHeight,
+    brush: Brush = Brush.horizontalGradient(listOf(Color(50, 25, 33), BilibiliPink))
 ) {
 
     Canvas(
         modifier
             .fillMaxWidth()
-            .height(TrackHeight)
+            .height(height)
     ) {
         val coercedValueAsFraction = with(sliderState) {
             calcFraction(
@@ -196,7 +210,9 @@ private fun Track(
         }
         drawTrack(
             0f,
+            height,
             coercedValueAsFraction,
+            brush
         )
     }
 }
@@ -206,15 +222,16 @@ fun calcFraction(a: Float, b: Float, pos: Float) =
 
 fun DrawScope.drawTrack(
     activeRangeStart: Float,
-    activeRangeEnd: Float
+    height: Dp,
+    activeRangeEnd: Float,
+    brush: Brush = Brush.horizontalGradient(listOf(Color(50, 25, 33), BilibiliPink))
 ) {
     val isRtl = layoutDirection == LayoutDirection.Rtl
     val sliderLeft = Offset(0f, center.y)
     val sliderRight = Offset(size.width, center.y)
     val sliderStart = if (isRtl) sliderRight else sliderLeft
     val sliderEnd = if (isRtl) sliderLeft else sliderRight
-    val tickSize = TickSize.toPx()
-    val trackStrokeWidth = TrackHeight.toPx()
+    val trackStrokeWidth = height.toPx()
     drawLine(
         Color(38, 38, 38, 128),
         sliderStart,
@@ -235,7 +252,7 @@ fun DrawScope.drawTrack(
     )
 
     drawLine(
-        Brush.horizontalGradient(listOf(Color(50, 25, 33), BilibiliPink)),
+        brush,
         sliderValueStart,
         sliderValueEnd,
         trackStrokeWidth,

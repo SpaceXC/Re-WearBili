@@ -55,7 +55,9 @@ import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.DanmakuChip
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Created by XC-Qan on 2023/12/10.
@@ -69,6 +71,7 @@ import kotlinx.coroutines.delay
 fun DanmakuCanvas(
     modifier: Modifier = Modifier,
     state: DanmakuCanvasState,
+    scope: CoroutineScope,
     textMeasurer: TextMeasurer,
     playSpeed: Float = 1f,
     videoAspectRatio: Float,
@@ -105,7 +108,7 @@ fun DanmakuCanvas(
         if (isNormalDanmakuVisible) {
             Canvas(modifier = modifier.fillMaxSize()) {
                 state.displayingDanmakus.forEach { danmaku ->
-                    if (danmaku.y + danmaku.textHeight <= size.height * displayAreaPercent && danmaku.y >= 0 && danmaku.weight >= blockLevel) {
+                    if (danmaku.y + danmaku.textHeight <= size.height * displayAreaPercent && danmaku.y >= 0 && danmaku.weight >= blockLevel /*&& DANMAKU_TYPE_NORM.isEqualTo(danmaku.type)*/) {
                         val measuredText = textMeasurer.measure(
                             text = danmaku.content,
                             style = TextStyle(
@@ -200,12 +203,15 @@ fun DanmakuCanvas(
                         }
                     }
                 }
-                state.updateNormalDanmaku(
-                    textMeasurer = textMeasurer,
-                    drawScope = this,
-                    blockLevel = blockLevel,
-                    textScale = textScale
-                )
+                scope.launch {
+                    state.updateNormalDanmaku(
+                        textMeasurer = textMeasurer,
+                        drawScope = this@Canvas,
+                        blockLevel = blockLevel,
+                        textScale = textScale,
+                        scope = scope
+                    )
+                }
             }
         }
 
