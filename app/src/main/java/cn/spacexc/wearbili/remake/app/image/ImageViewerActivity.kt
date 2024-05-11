@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.Window
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
@@ -21,6 +20,7 @@ import cn.spacexc.wearbili.remake.common.ui.shimmerPlaceHolder
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.request.ImageRequest
+import coil.size.Size
 import net.engawapg.lib.zoomable.rememberZoomState
 import net.engawapg.lib.zoomable.zoomable
 
@@ -56,6 +56,7 @@ class ImageViewerActivity : ComponentActivity() {
                         }
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
+                                .size(Size.ORIGINAL)
                                 .data(images[page])
                                 .crossfade(true).build(),
                             contentDescription = null,

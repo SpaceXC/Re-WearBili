@@ -29,10 +29,10 @@ import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.GradientSlider
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.proto.settings.copy
 import kotlinx.coroutines.launch
 
@@ -53,8 +53,8 @@ class ScaleAdjustingActivity : ComponentActivity() {
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                         .padding(
-                            horizontal = TitleBackgroundHorizontalPadding(),
-                            vertical = TitleBackgroundHorizontalPadding()
+                            horizontal = titleBackgroundHorizontalPadding(),
+                            vertical = titleBackgroundHorizontalPadding()
                         )
                 ) {
                     Text(

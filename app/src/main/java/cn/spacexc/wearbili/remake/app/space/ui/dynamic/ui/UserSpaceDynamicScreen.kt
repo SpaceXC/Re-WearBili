@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicItem
@@ -23,10 +24,9 @@ import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceViewModel
 import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.isRound
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 import kotlinx.coroutines.flow.Flow
 
@@ -42,7 +42,7 @@ fun Activity.UserSpaceDynamicScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
                 vertical = 6.dp,
-                horizontal = TitleBackgroundHorizontalPadding() - 3.dp
+                horizontal = titleBackgroundHorizontalPadding() - 3.dp
             ),
             verticalArrangement = Arrangement.spacedBy(6.dp),
             state = listState
@@ -52,7 +52,7 @@ fun Activity.UserSpaceDynamicScreen(
                     Text(
                         text = "${user.name}的",
                         fontFamily = wearbiliFontFamily,
-                        fontSize = 14.spx,
+                        fontSize = 14.sp,
                         color = Color.White,
                         modifier = Modifier
                             .alpha(0.7f)
@@ -64,7 +64,7 @@ fun Activity.UserSpaceDynamicScreen(
                         text = "动态",
                         color = Color.White,
                         fontFamily = wearbiliFontFamily,
-                        fontSize = 22.spx,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = if (isRound()) TextAlign.Center else TextAlign.Start

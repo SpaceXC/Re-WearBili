@@ -1,6 +1,7 @@
 package cn.spacexc.wearbili.remake.app.welcome.screens
 
 import android.app.Activity
+import android.content.Intent
 import android.view.SurfaceView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseInOutCubic
@@ -36,12 +37,12 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,19 +56,27 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import cn.spacexc.bilibilisdk.utils.UserUtils
+import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.login.qrcode.web.ui.QrCodeLoginActivity
+import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
+import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.app.welcome.WelcomeViewModel
 import cn.spacexc.wearbili.remake.app.welcome.components.CirclePosition
 import cn.spacexc.wearbili.remake.app.welcome.components.PinkCircle
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
+import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.time.DefaultTimeSource
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.proto.settings.copy
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun DeprecatedStartScreen(
@@ -89,7 +98,7 @@ fun DeprecatedStartScreen(
                     text = timeText,
                     fontFamily = wearbiliFontFamily,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 14.spx
+                    fontSize = 14.sp
                 )
             }
             Column(
@@ -99,7 +108,7 @@ fun DeprecatedStartScreen(
             ) {
                 Text(
                     text = "欢迎使用",
-                    fontSize = 17.spx,
+                    fontSize = 17.sp,
                     fontFamily = wearbiliFontFamily,
                     fontWeight = FontWeight.Medium,
                     color = Color(
@@ -112,7 +121,7 @@ fun DeprecatedStartScreen(
                 Row(verticalAlignment = Alignment.Top) {
                     Text(
                         text = "WearBili",
-                        fontSize = 24.spx,
+                        fontSize = 24.sp,
                         fontFamily = wearbiliFontFamily,
                         color = Color.White,
                         fontWeight = FontWeight.Bold
@@ -131,7 +140,7 @@ fun DeprecatedStartScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "开始使用", fontFamily = wearbiliFontFamily, fontSize = 13.spx)
+                        Text(text = "开始使用", fontFamily = wearbiliFontFamily, fontSize = 13.sp)
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowForwardIos,
@@ -165,7 +174,7 @@ fun Activity.StartScreen(viewModel: WelcomeViewModel, onToNext: () -> Unit) {
     var isWelcomeAnimationPerformed by remember {
         mutableStateOf(false)
     }
-
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = Unit) {
         //delay(1000)
@@ -174,11 +183,27 @@ fun Activity.StartScreen(viewModel: WelcomeViewModel, onToNext: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clickable(
-                interactionSource = rememberMutableInteractionSource(),
-                indication = ripple()
-            ) {
-
+            .clickable(interactionSource = rememberMutableInteractionSource(), indication = null) {
+                scope.launch {
+                    SettingsManager.updateConfiguration {
+                        copy {
+                            initialized = true
+                        }
+                    }
+                    if (UserUtils.isUserLoggedIn()) {
+                        startActivity(Intent(this@StartScreen, MainActivity::class.java))
+                        finish()
+                        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
+                    } else {
+                        startActivity(
+                            Intent(
+                                this@StartScreen, QrCodeLoginActivity::class.java
+                            )
+                        )
+                        finish()
+                        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
+                    }
+                }
             }
 
     ) {
@@ -189,46 +214,20 @@ fun Activity.StartScreen(viewModel: WelcomeViewModel, onToNext: () -> Unit) {
             viewModel.player.setDisplay(surfaceView.holder)
         }
         Row(modifier = Modifier.padding(12.dp)) {
+            //if(!isRound()) {
             Spacer(modifier = Modifier.weight(1f))
+            //}
             Text(
                 text = timeText,
                 fontFamily = wearbiliFontFamily,
                 fontWeight = FontWeight.Medium,
-                fontSize = 14.spx
+                fontSize = 14.sp
             )
+            if (isRound()) {
+                Spacer(modifier = Modifier.weight(1f))
+            }
         }
-        Text(
-            text = buildAnnotatedString {
-                withStyle(
-                    SpanStyle(
-                        brush = Brush.horizontalGradient(
-                            listOf(
-                                Color(213, 77, 121),
-                                Color(165, 59, 94)
-                            )
-                        )
-                    )
-                ) {
-                    append("Re:")
-                }
-                withStyle(
-                    SpanStyle(
-                        brush = Brush.horizontalGradient(
-                            listOf(
-                                Color(215, 215, 215),
-                                Color(249, 249, 249)
-                            )
-                        )
-                    )
-                ) {
-                    append("WearBili")
-                }
-            },
-            modifier = Modifier.align(Alignment.Center),
-            fontFamily = wearbiliFontFamily,
-            fontWeight = FontWeight.Bold,
-            fontSize = 22.sp
-        )
+        ReWearBiliText(modifier = Modifier.align(Alignment.Center))
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.weight(3f))
             AnimatedVisibility(
@@ -330,6 +329,42 @@ fun ReBadge() {
             ),
         fontFamily = wearbiliFontFamily,
         fontWeight = FontWeight.Medium,
-        fontSize = 8.spx
+        fontSize = 8.sp
+    )
+}
+
+@Composable
+fun ReWearBiliText(modifier: Modifier = Modifier, fontSize: TextUnit = 22.sp) {
+    Text(
+        text = buildAnnotatedString {
+            withStyle(
+                SpanStyle(
+                    brush = Brush.horizontalGradient(
+                        listOf(
+                            Color(213, 77, 121),
+                            Color(165, 59, 94)
+                        )
+                    )
+                )
+            ) {
+                append("Re:")
+            }
+            withStyle(
+                SpanStyle(
+                    brush = Brush.horizontalGradient(
+                        listOf(
+                            Color(215, 215, 215),
+                            Color(249, 249, 249)
+                        )
+                    )
+                )
+            ) {
+                append("WearBili")
+            }
+        },
+        modifier = modifier,
+        fontFamily = wearbiliFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = fontSize
     )
 }

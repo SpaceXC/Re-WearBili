@@ -4,11 +4,14 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.graphics.SurfaceTexture
 import android.media.AudioManager
 import android.os.Build
 import android.util.Log
+import android.view.Surface
 import android.view.SurfaceView
 import android.view.TextureView
+import android.view.TextureView.SurfaceTextureListener
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateIntAsState
@@ -106,9 +109,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewModelScope
 import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.time.secondToTime
-import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.R.drawable
 import cn.spacexc.wearbili.remake.app.player.cast.discover.DeviceDiscoverActivity
 import cn.spacexc.wearbili.remake.app.player.cast.discover.PARAM_DLNA_VIDEO_NAME
@@ -120,15 +123,14 @@ import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.GradientSlider
 import cn.spacexc.wearbili.remake.common.ui.IconText
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedContent
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
 import cn.spacexc.wearbili.remake.common.ui.clickAlpha
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateDpAsState
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
@@ -416,6 +418,35 @@ fun Activity.Media3PlayerScreen(
             when (displaySurface) {
                 VideoDisplaySurface.TEXTURE_VIEW -> {
                     AndroidView(factory = { TextureView(it) }) { textureView ->
+                        textureView.surfaceTextureListener = object : SurfaceTextureListener {
+                            override fun onSurfaceTextureAvailable(
+                                texture: SurfaceTexture,
+                                p1: Int,
+                                p2: Int
+                            ) {
+                                viewModel.httpPlayer.setSurface(Surface(texture))
+                            }
+
+                            override fun onSurfaceTextureSizeChanged(
+                                texture: SurfaceTexture,
+                                p1: Int,
+                                p2: Int
+                            ) {
+                                viewModel.httpPlayer.setSurface(Surface(texture))
+                            }
+
+                            override fun onSurfaceTextureDestroyed(p0: SurfaceTexture): Boolean {
+                                return false
+                            }
+
+                            override fun onSurfaceTextureUpdated(p0: SurfaceTexture) {
+
+                            }
+
+                        }
+
+                        //TextureMediaPlayer
+                        //textureView.surfaceTexture
                         //viewModel.httpPlayer.setDisplay(textureView.surfaceTexture.h)
                         //viewModel.cachePlayer.setVideoTextureView(textureView)
                     }
@@ -461,7 +492,8 @@ fun Activity.Media3PlayerScreen(
             isNormalDanmakuVisible = isNormalDanmakuVisible,
             videoDisplaySurfaceSize = playerSurfaceSize,
             isDebug = false,
-            displayFrameRate = false
+            displayFrameRate = false,
+            scope = viewModel.viewModelScope
         )
 
         //endregion
@@ -625,7 +657,7 @@ fun Activity.Media3PlayerScreen(
                                                         //overflow = TextOverflow.Ellipsis,
                                                         modifier = Modifier
                                                             .basicMarquee()
-                                                            .padding(horizontal = if (isRound()) TitleBackgroundHorizontalPadding() else 0.dp)
+                                                            .padding(horizontal = if (isRound()) titleBackgroundHorizontalPadding() else 0.dp)
                                                     )
                                                     Text(
                                                         text = if (isCacheVideo) "来自缓存的视频" else "${viewModel.onlineCount}人在看",
@@ -794,7 +826,7 @@ fun Activity.Media3PlayerScreen(
                                                         .fillMaxWidth()
                                                         .scale(1.05f)
                                                         .offset(y = (9).dp)
-                                                        .padding(horizontal = if (isRound()) TitleBackgroundHorizontalPadding() else 0.dp)
+                                                        .padding(horizontal = if (isRound()) titleBackgroundHorizontalPadding() else 0.dp)
                                                 )
                                                 Row(
                                                     modifier = Modifier
@@ -980,7 +1012,7 @@ fun Activity.Media3PlayerScreen(
                                                                     viewModel.currentStat =
                                                                         PlayerStats.Buffering
                                                                 },
-                                                            fontSize = 7.spx,
+                                                            fontSize = 7.sp,
                                                             textAlign = Center,
                                                             fontFamily = wearbiliFontFamily,
                                                             maxLines = if (isAtCurrentChapter) 1 else 2,
@@ -1165,8 +1197,8 @@ fun Activity.Media3PlayerScreen(
                                     text = currentSubtitleText ?: "", modifier = Modifier
                                         .padding(
                                             bottom = subtitlePadding,
-                                            start = TitleBackgroundHorizontalPadding() - 3.dp,
-                                            end = TitleBackgroundHorizontalPadding() - 3.dp
+                                            start = titleBackgroundHorizontalPadding() - 3.dp,
+                                            end = titleBackgroundHorizontalPadding() - 3.dp
                                         )
                                         .background(
                                             color = Color(49, 47, 47, 153),
@@ -1224,7 +1256,7 @@ fun Activity.Media3PlayerScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .verticalScroll(rememberScrollState())
-                                .padding(TitleBackgroundHorizontalPadding()),
+                                .padding(titleBackgroundHorizontalPadding()),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             //region setting items
@@ -1250,7 +1282,7 @@ fun Activity.Media3PlayerScreen(
                                     text = "播放选项",
                                     color = Color.White,
                                     fontFamily = wearbiliFontFamily,
-                                    fontSize = 20.spx,
+                                    fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
                                 )
                             }
@@ -1473,7 +1505,7 @@ fun Activity.Media3PlayerScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .verticalScroll(rememberScrollState())
-                                .padding(TitleBackgroundHorizontalPadding()),
+                                .padding(titleBackgroundHorizontalPadding()),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             //region setting items
@@ -1499,7 +1531,7 @@ fun Activity.Media3PlayerScreen(
                                     text = "弹幕选项",
                                     color = Color.White,
                                     fontFamily = wearbiliFontFamily,
-                                    fontSize = 20.spx,
+                                    fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -1660,7 +1692,7 @@ fun PlayerSetting(
             IconText(
                 text = settingName, fontFamily = wearbiliFontFamily,
                 fontWeight = FontWeight.Medium,
-                fontSize = 14.spx,
+                fontSize = 14.sp,
                 color = Color.White,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1720,9 +1752,9 @@ fun PlayerSliderSetting(
                 IconText(
                     text = settingName, fontFamily = wearbiliFontFamily,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 14.spx,
+                    fontSize = 14.sp,
                     color = Color.White,
-                    spacingWidth = if (itemIcon == null) 0.sp else 2.spx,
+                    spacingWidth = if (itemIcon == null) 0.sp else 2.sp,
                     icon = itemIcon
                 )
                 Spacer(modifier = Modifier.width(6.dp))
@@ -1731,7 +1763,7 @@ fun PlayerSliderSetting(
                 Text(
                     text = displayedSliderValue, fontFamily = wearbiliFontFamily,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 12.spx,
+                    fontSize = 12.sp,
                     color = Color.White,
                     modifier = Modifier.alpha(0.7f)
                 )
@@ -1773,7 +1805,7 @@ fun PlayerSettingItem(
     ) {
         Text(
             text = text,
-            fontSize = 11.spx,
+            fontSize = 11.sp,
             fontFamily = wearbiliFontFamily,
             color = Color.White,
             fontWeight = FontWeight.Medium,
@@ -1813,7 +1845,7 @@ fun PlayerSettingActionItem(
                     text = name,
                     color = Color.White,
                     fontFamily = wearbiliFontFamily,
-                    fontSize = 13.spx,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(2.dp))
@@ -1821,7 +1853,7 @@ fun PlayerSettingActionItem(
                     text = description,
                     color = Color.White,
                     fontFamily = wearbiliFontFamily,
-                    fontSize = 10.spx,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.alpha(0.7f)
                 )

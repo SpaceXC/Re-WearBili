@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://repository-images.githubusercontent.com/625249285/2494a768-0911-4380-98a4-a3395c0e637f">
+    <img src="https://repository-images.githubusercontent.com/625249285/2ce9fdfe-9ad8-46ec-9442-bfa69f268be1">
 </p>
 
 
@@ -21,7 +21,7 @@
 
 ## :rocket:下载
 
-- **持有内测资格**的用户请申请加入QQ群组`912493736`后在群文件处下载安装包。加入后请仔细阅读群公告中的内容。
+- 加入QQ群组`912493736`后在群文件处下载安装包。加入后请仔细阅读群公告中的内容。
 - 你也可以自行clone该仓库并构建此项目。
 
 

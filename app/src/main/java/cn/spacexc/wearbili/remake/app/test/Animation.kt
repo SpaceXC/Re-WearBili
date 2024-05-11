@@ -44,8 +44,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import kotlinx.coroutines.delay
 
@@ -143,7 +143,7 @@ fun AnimationDemo() {
                                 append("播放器")
                             },
                             fontFamily = wearbiliFontFamily,
-                            fontSize = 18.spx,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.White
                         )
@@ -154,7 +154,7 @@ fun AnimationDemo() {
                     Text(
                         text = "方寸之间 大千世界",
                         fontFamily = wearbiliFontFamily,
-                        fontSize = 14.spx,
+                        fontSize = 14.sp,
                         color = Color.White
                     )
 
@@ -184,7 +184,7 @@ fun AnimationDemo() {
                         text = "轻触开始",
                         fontFamily = wearbiliFontFamily,
                         fontWeight = FontWeight.Medium,
-                        fontSize = 14.spx,
+                        fontSize = 14.sp,
                         color = Color.White
                     )
                     Spacer(modifier = Modifier.width(spacing))
@@ -219,6 +219,6 @@ fun AlphaBadge() {
             ),
         fontFamily = wearbiliFontFamily,
         fontWeight = FontWeight.Medium,
-        fontSize = 8.spx
+        fontSize = 8.sp
     )
 }

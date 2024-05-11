@@ -24,14 +24,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceViewModel
 import cn.spacexc.wearbili.remake.common.ui.OfficialVerify
 import cn.spacexc.wearbili.remake.common.ui.SmallUserCard
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.isRound
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
 
 @Composable
@@ -44,7 +44,7 @@ fun Activity.DetailInformationScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(TitleBackgroundHorizontalPadding() - 3.dp),
+                .padding(titleBackgroundHorizontalPadding() - 3.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             SmallUserCard(
@@ -58,7 +58,7 @@ fun Activity.DetailInformationScreen(
                 text = "详情",
                 color = Color.White,
                 fontFamily = wearbiliFontFamily,
-                fontSize = 22.spx,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
             )
             val levelCardResourceId = when (user.level) {
@@ -77,7 +77,7 @@ fun Activity.DetailInformationScreen(
             Image(painter = painterResource(id = levelCardResourceId),
                 contentDescription = null,
                 modifier = Modifier.height(
-                    with(localDensity) { 16.spx.toDp() }
+                    with(localDensity) { 16.sp.toDp() }
                 )
             )
             //Spacer(modifier = Modifier.height(2.dp))
@@ -86,14 +86,14 @@ fun Activity.DetailInformationScreen(
                     painter = painterResource(id = R.drawable.icon_uploader),
                     contentDescription = null,
                     modifier = Modifier.height(
-                        with(localDensity) { 14.spx.toDp() }
+                        with(localDensity) { 14.sp.toDp() }
                     ),
                     tint = Color.White
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = user.mid.toString(),
-                    fontSize = 12.spx,
+                    fontSize = 12.sp,
                     color = Color.White,
                     fontFamily = wearbiliFontFamily
                 )
@@ -106,7 +106,7 @@ fun Activity.DetailInformationScreen(
                         contentDescription = null,
                         modifier = Modifier
                             .height(
-                                with(localDensity) { 12.spx.toDp() }
+                                with(localDensity) { 12.sp.toDp() }
                             )
                             .offset(y = 3.dp),
                         tint = Color.White
@@ -114,7 +114,7 @@ fun Activity.DetailInformationScreen(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = user.sign,
-                        fontSize = 12.spx,
+                        fontSize = 12.sp,
                         color = Color.White,
                         fontFamily = wearbiliFontFamily
                     )
@@ -135,14 +135,14 @@ fun Activity.DetailInformationScreen(
                         contentDescription = null,
                         modifier = Modifier
                             .height(
-                                with(localDensity) { 14.spx.toDp() }
+                                with(localDensity) { 14.sp.toDp() }
                             )
                             .offset(y = 3.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = user.official?.title ?: "",
-                        fontSize = 12.spx,
+                        fontSize = 12.sp,
                         color = Color.White,
                         fontFamily = wearbiliFontFamily
                     )

@@ -21,6 +21,7 @@ import javax.inject.Inject
 class AboutActivity : ComponentActivity() {
     @Inject
     lateinit var dataManager: DataManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val state = LazyListState()

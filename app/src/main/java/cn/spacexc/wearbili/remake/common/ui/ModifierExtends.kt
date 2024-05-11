@@ -10,6 +10,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -69,8 +70,9 @@ fun Modifier.rotateInput(
         .focusable()
 }
 
+@Composable
 fun Modifier.clickVfx(
-    interactionSource: MutableInteractionSource = MutableInteractionSource(),
+    interactionSource: MutableInteractionSource = rememberMutableInteractionSource(),
     isEnabled: Boolean = true,
     onClick: () -> Unit,
 ): Modifier = composed {
@@ -95,8 +97,9 @@ fun Modifier.clickVfx(
     }
 }
 
+@Composable
 fun Modifier.clickVfx(
-    interactionSource: MutableInteractionSource = MutableInteractionSource(),
+    interactionSource: MutableInteractionSource = rememberMutableInteractionSource(),
     enabled: Boolean = true,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {}
@@ -137,8 +140,9 @@ fun Modifier.clickVfx(
     }
 }
 
+@Composable
 fun Modifier.clickAlpha(
-    interactionSource: MutableInteractionSource = MutableInteractionSource(),
+    interactionSource: MutableInteractionSource = rememberMutableInteractionSource(),
     isEnabled: Boolean = true,
     onClick: () -> Unit,
 ): Modifier = composed {
@@ -163,8 +167,9 @@ fun Modifier.clickAlpha(
     }
 }
 
+@Composable
 fun Modifier.clickAlpha(
-    interactionSource: MutableInteractionSource = MutableInteractionSource(),
+    interactionSource: MutableInteractionSource = rememberMutableInteractionSource(),
     enabled: Boolean = true,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {}
@@ -205,6 +210,7 @@ fun Modifier.clickAlpha(
     }
 }
 
+@Composable
 fun Modifier.copyable(content: String, label: String = ""): Modifier {
     return clickVfx(onLongClick = {
         content.copyToClipboard(Application.getApplication(), "")

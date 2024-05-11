@@ -16,6 +16,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -73,6 +74,7 @@ import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.isAudioServiceUp
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerActivity
+import cn.spacexc.wearbili.remake.app.player.audio.AudioSubtitleManager
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.ProvideConfiguration
 import cn.spacexc.wearbili.remake.common.ToastUtils
@@ -99,7 +101,10 @@ import kotlinx.coroutines.delay
  * 已包含全局主题
  */
 @Composable
-@OptIn(ExperimentalAnimationApi::class) //DON'T DELETE THIS!!!!!!!!!!!!!!!!(DELETING CAUSES BUILD TIME EXCEPTION "This is an experimental animation API.")
+@OptIn(
+    ExperimentalAnimationApi::class,
+    ExperimentalFoundationApi::class
+) //DON'T DELETE THIS!!!!!!!!!!!!!!!!(DELETING CAUSES BUILD TIME EXCEPTION "This is an experimental animation API.")
 fun Activity.CirclesBackground(
     modifier: Modifier = Modifier,
     uiState: UIState = UIState.Success,
@@ -222,7 +227,7 @@ fun Activity.CirclesBackground(
                 ) {
                     Text(
                         text = "说！你是不是乱动配置文件了！现在我真的不知道要用什么主题了啦！！",
-                        fontSize = 15.spx,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Medium,
                         fontFamily = wearbiliFontFamily
                     )
@@ -251,7 +256,11 @@ fun Activity.CirclesBackground(
                 }
             }
         }
-
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (AudioSubtitleManager.isSubtitleOn) {
+                AudioSubtitleManager.LyricContent()
+            }
+        }
     }
 }
 
@@ -333,7 +342,7 @@ fun LoadableBox(
 }
 
 @Composable
-fun TitleBackgroundHorizontalPadding() = if (isRound()) 24.dp else 12.dp
+fun titleBackgroundHorizontalPadding() = if (isRound()) 24.dp else 12.dp
 
 @Composable
 fun Activity.TitleBackground(
@@ -369,7 +378,7 @@ fun Activity.TitleBackground(
             Row(
                 modifier = Modifier
                     .padding(
-                        horizontal = TitleBackgroundHorizontalPadding(),
+                        horizontal = titleBackgroundHorizontalPadding(),
                         vertical = if (isAudioServiceUp) 6.dp else 8.dp
                     )
                     .fillMaxWidth()
@@ -438,15 +447,14 @@ fun Activity.TitleBackground(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
                             .wearBiliAnimatedContentSize()
-                            //.weight(1f)
-                            .wrapContentHeight()
-
+                            .weight(1f)
+                            .wrapContentHeight(),
                     )
 
                 }
 
                 if (!isRound()) {
-                    Spacer(modifier = Modifier.weight(1f))
+                    /*Spacer(modifier = Modifier.weight(1f))*/
                     Text(
                         text = buildAnnotatedString {
                             if (isAudioServiceUp) {
@@ -604,8 +612,8 @@ fun Activity.ArrowTitleBackgroundWithCustomBackground(
                 Row(
                     modifier = Modifier
                         .padding(
-                            start = TitleBackgroundHorizontalPadding(),
-                            end = TitleBackgroundHorizontalPadding(),
+                            start = titleBackgroundHorizontalPadding(),
+                            end = titleBackgroundHorizontalPadding(),
                             top = 8.dp,
                             bottom = 4.dp
                         )

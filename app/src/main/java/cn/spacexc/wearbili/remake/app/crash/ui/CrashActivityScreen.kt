@@ -34,15 +34,15 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.common.copyToClipboard
 import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.ClickableText
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
 import kotlinx.coroutines.delay
 
@@ -101,10 +101,10 @@ fun Activity.CrashActivityScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(TitleBackgroundHorizontalPadding() - 4.dp),
+                .padding(titleBackgroundHorizontalPadding() - 4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(text = "呜啊＞︿＜!", fontSize = 18.spx, style = AppTheme.typography.h1)
+            Text(text = "呜啊＞︿＜!", fontSize = 18.sp, style = AppTheme.typography.h1)
             Text(text = "Sorry...  ごめんなさい...", style = AppTheme.typography.h1)
             val annotatedString = buildAnnotatedString {
                 append("对不起！Re:WearBili刚刚出错了！\n")
@@ -222,7 +222,7 @@ fun Activity.CrashActivityScreen(
             Text(
                 text = stacktrace,
                 style = AppTheme.typography.h3,
-                fontSize = 9.5.spx,
+                fontSize = 9.5.sp,
                 modifier = Modifier.alpha(0.6f)
             )
         }

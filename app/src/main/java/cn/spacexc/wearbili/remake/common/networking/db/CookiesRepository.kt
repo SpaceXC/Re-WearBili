@@ -8,7 +8,8 @@ class CookiesRepository(application: Application) {
         context = application,
         klass = CookiesDatabase::class.java,
         name = "wearbili_cookies"
-    ).fallbackToDestructiveMigration().build()
+    ).fallbackToDestructiveMigration()
+        .build()
 
     val dao = database.dao()
 }

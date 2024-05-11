@@ -66,11 +66,11 @@ import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.VideoPlay
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.adjustVolume
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.getCurrentVolume
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.getMaxVolume
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 
 @Composable
 fun Activity.LiveStreamScreen(
@@ -240,7 +240,7 @@ fun Activity.LiveStreamScreen(
                                 //overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier
                                     .basicMarquee()
-                                    .padding(horizontal = if (isRound()) TitleBackgroundHorizontalPadding() else 0.dp)
+                                    .padding(horizontal = if (isRound()) titleBackgroundHorizontalPadding() else 0.dp)
                             )
                             Text(
                                 text = "-人在看",

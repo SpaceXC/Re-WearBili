@@ -91,6 +91,7 @@ fun CheckBox(
 fun Checkbox(
     modifier: Modifier = Modifier,
     isChecked: Boolean,
+    indication: Boolean = false,
     size: Dp = 16.dp,
     radiusPercentage: Int = 30,
     checkmarkColor: Color = Color.White,
@@ -142,8 +143,10 @@ fun Checkbox(
     Box(
         modifier = modifier
             .size(size)
-            .clickAlpha {
-                onCheckedChanged(!isChecked)
+            .clickAlpha(enabled = !indication) {
+                if (!indication) {
+                    onCheckedChanged(!isChecked)
+                }
             }
     ) {
         val transition = updateTransition(isChecked, label = "wearbiliCheckBoxAnimationTransition")

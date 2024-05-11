@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 
 /**
@@ -60,7 +61,7 @@ fun BorderTextField(
                     AutoResizedText(
                         text = placeholder,
                         style = TextStyle(
-                            fontSize = 14.spx,
+                            fontSize = 14.sp,
                             fontFamily = wearbiliFontFamily,
                             color = Color.White
                         ),
@@ -74,7 +75,7 @@ fun BorderTextField(
                     onValueChange = onValueChanged,
                     singleLine = true,
                     textStyle = TextStyle(
-                        fontSize = 14.spx,
+                        fontSize = 14.sp,
                         fontFamily = wearbiliFontFamily,
                         color = Color.White
                     ),

@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.bilibilisdk.sdk.season.remote.list.Archive
@@ -30,10 +31,9 @@ import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.VideoCardWithNoBorder
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 import kotlinx.coroutines.flow.Flow
 
@@ -64,9 +64,9 @@ fun Activity.SeasonActivityScreen(
     ) {
         LazyColumn(
             contentPadding = PaddingValues(
-                start = TitleBackgroundHorizontalPadding() - 2.dp,
-                end = TitleBackgroundHorizontalPadding() - 2.dp,
-                bottom = TitleBackgroundHorizontalPadding() - 2.dp,
+                start = titleBackgroundHorizontalPadding() - 2.dp,
+                end = titleBackgroundHorizontalPadding() - 2.dp,
+                bottom = titleBackgroundHorizontalPadding() - 2.dp,
                 top = 2.dp
             ),
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -81,7 +81,7 @@ fun Activity.SeasonActivityScreen(
                         text = seasonName,
                         color = Color.White,
                         fontFamily = wearbiliFontFamily,
-                        fontSize = 14.spx,
+                        fontSize = 14.sp,
                         maxLines = 2,
                         fontWeight = FontWeight.Bold,
                         overflow = TextOverflow.Ellipsis,
@@ -89,7 +89,7 @@ fun Activity.SeasonActivityScreen(
                     )
                     IconText(
                         text = uploaderName,
-                        fontSize = 9.spx,
+                        fontSize = 9.sp,
                         modifier = Modifier.alpha(0.7f)
                     ) {
                         Icon(

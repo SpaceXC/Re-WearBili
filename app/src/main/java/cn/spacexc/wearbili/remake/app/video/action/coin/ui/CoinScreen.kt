@@ -14,7 +14,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -22,12 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 
 @Composable
 fun Activity.CoinScreen(uiState: UIState, onClick: (Int) -> Unit) {
@@ -44,13 +43,13 @@ fun Activity.CoinScreen(uiState: UIState, onClick: (Int) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(
-                horizontal = TitleBackgroundHorizontalPadding()
+                horizontal = titleBackgroundHorizontalPadding()
             )
         ) {
             Text(
                 text = "给UP主投${coinCount}枚硬币",
                 fontFamily = wearbiliFontFamily,
-                fontSize = 14.spx,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
             Row(Modifier.weight(1f)) {
@@ -89,7 +88,7 @@ fun Activity.CoinScreen(uiState: UIState, onClick: (Int) -> Unit) {
                 Text(
                     text = "确定",
                     fontFamily = wearbiliFontFamily,
-                    fontSize = 13.spx,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Medium
                 )
             }

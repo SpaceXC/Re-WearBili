@@ -82,7 +82,6 @@ import cn.spacexc.wearbili.remake.common.ui.ClickableText
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.SmallUserCard
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
@@ -430,13 +429,13 @@ fun DynamicContent(
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier,
-                            fontSize = 10.spx * textSizeScale
+                            fontSize = 10.sp * textSizeScale
                         )
                         Row(modifier = Modifier.alpha(0.6f)) {
                             IconText(
                                 text = item.modules.moduleDynamic.major?.archive?.stat?.play ?: "",
                                 color = Color.White,
-                                fontSize = 9.spx * textSizeScale,
+                                fontSize = 9.sp * textSizeScale,
                                 fontWeight = FontWeight.Medium,
                             ) {
                                 Icon(
@@ -451,7 +450,7 @@ fun DynamicContent(
                                 text = item.modules.moduleDynamic.major?.archive?.stat?.danmaku
                                     ?: "",
                                 color = Color.White,
-                                fontSize = 9.spx * textSizeScale,
+                                fontSize = 9.sp * textSizeScale,
                                 fontWeight = FontWeight.Medium,
                             ) {
                                 Icon(
@@ -470,7 +469,7 @@ fun DynamicContent(
                     text = "${item.modules.moduleDynamic.major?.pgc?.title} 更新了",
                     fontFamily = puhuiFamily,
                     color = Color.White,
-                    fontSize = 10.spx
+                    fontSize = 10.sp
                 )*/
                 Column(modifier = Modifier.clickVfx {
                     Intent(
@@ -525,7 +524,7 @@ fun DynamicContent(
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier,
-                                fontSize = 10.spx * textSizeScale
+                                fontSize = 10.sp * textSizeScale
                             )
                             Row {
                                 var textHeight by remember {
@@ -540,7 +539,7 @@ fun DynamicContent(
                                 Text(
                                     text = item.modules.moduleDynamic.major?.pgc?.stat?.play ?: "",
                                     color = Color.White,
-                                    fontSize = 9.spx * textSizeScale,
+                                    fontSize = 9.sp * textSizeScale,
                                     fontWeight = FontWeight.Medium,
                                     modifier = Modifier.onGloballyPositioned {
                                         with(localDensity) {
@@ -584,7 +583,7 @@ fun DynamicContent(
                 Text(
                     text = "不支持的动态类型",
                     color = BilibiliPink,
-                    fontSize = 11.spx,
+                    fontSize = 11.sp,
                     modifier = Modifier.alpha(0.7f),
                     fontWeight = FontWeight.Bold
                 )
@@ -595,7 +594,7 @@ fun DynamicContent(
             Spacer(modifier = Modifier.height(6.dp))
             DynamicRichText(textNodes = item.desc.richTextNodes,
                 textStyle = TextStyle(
-                    fontSize = 9.spx, color = Color.White, fontFamily = wearbiliFontFamily
+                    fontSize = 9.sp, color = Color.White, fontFamily = wearbiliFontFamily
                 ),
                 context = context,
                 modifier = Modifier
@@ -622,7 +621,7 @@ fun DynamicContent(
                         }
                     }
                 },
-                onGloballyClicked = {})/*IconText(text = item.desc.text, fontSize = 9.spx, modifier = Modifier.alpha(0.5f)) {
+                onGloballyClicked = {})/*IconText(text = item.desc.text, fontSize = 9.sp, modifier = Modifier.alpha(0.5f)) {
 
             }*/
         }
@@ -636,7 +635,7 @@ fun DynamicContent(
             ) {
                 IconText(
                     text = it.like?.count?.toShortChinese() ?: "null",
-                    fontSize = 9.spx,
+                    fontSize = 9.sp,
                     fontFamily = wearbiliFontFamily
                 ) {
                     Icon(
@@ -648,7 +647,7 @@ fun DynamicContent(
                 Spacer(modifier = Modifier.weight(1f))
                 IconText(
                     text = it.forward?.count?.toShortChinese() ?: "null",
-                    fontSize = 9.spx,
+                    fontSize = 9.sp,
                     fontFamily = wearbiliFontFamily
                 ) {
                     Icon(
@@ -660,7 +659,7 @@ fun DynamicContent(
                 Spacer(modifier = Modifier.weight(1f))
                 IconText(
                     text = it.comment?.count?.toShortChinese() ?: "null",
-                    fontSize = 9.spx,
+                    fontSize = 9.sp,
                     fontFamily = wearbiliFontFamily
                 ) {
                     Icon(

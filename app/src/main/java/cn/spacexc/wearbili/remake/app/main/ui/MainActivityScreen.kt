@@ -4,14 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -60,6 +58,7 @@ import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendViewModel
 import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.ui.SettingsActivity
+import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedContent
@@ -150,6 +149,7 @@ fun MainActivityScreen(
     recommendViewModel: RecommendViewModel,
     dynamicViewModel: DynamicViewModel,
     profileScreenState: ProfileScreenState,
+    updateInfo: SplashScreenActivity.AppUpdatesResult?,
     onProfileRetry: () -> Unit
 ) {
     val pagerState = rememberPagerState {
@@ -280,6 +280,7 @@ fun MainActivityScreen(
                             0 -> RecommendScreen(
                                 viewModel = recommendViewModel,
                                 context = context,
+                                updatesResult = updateInfo,
                                 onFetch = { isRefresh ->
                                     recommendViewModel.getRecommendVideos(
                                         isRefresh,

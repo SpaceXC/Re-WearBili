@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
+import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.ProvideConfiguration
 import cn.spacexc.wearbili.remake.common.ui.theme.ProvideLocalDensity
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,9 +71,18 @@ class Media3PlayerActivity : ComponentActivity() {
         setContent {
             ProvideConfiguration {
                 ProvideLocalDensity {
+                    val configuration = LocalConfiguration.current
+
+                    val videoDisplaySurface = when (configuration.videoDisplaySurface) {
+                        cn.spacexc.wearbili.remake.proto.settings.VideoDisplaySurface.TextureView -> VideoDisplaySurface.TEXTURE_VIEW
+                        cn.spacexc.wearbili.remake.proto.settings.VideoDisplaySurface.SurfaceView -> VideoDisplaySurface.SURFACE_VIEW
+                        null -> VideoDisplaySurface.TEXTURE_VIEW
+                        else -> VideoDisplaySurface.TEXTURE_VIEW
+                    }
+
                     Media3PlayerScreen(
                         viewModel = viewModel,
-                        displaySurface = VideoDisplaySurface.SURFACE_VIEW,
+                        displaySurface = videoDisplaySurface,
                         onBack = ::finish,
                         context = this,
                         isCacheVideo = isCache,

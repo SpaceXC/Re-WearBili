@@ -21,8 +21,8 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.lazyRotateInput
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 
 /**
  * Created by XC-Qan on 2023/4/27.
@@ -63,7 +63,7 @@ fun DynamicScreen(
                     .lazyRotateInput(focusRequester, viewModel.scrollState),
                 contentPadding = PaddingValues(
                     vertical = 4.dp,
-                    horizontal = TitleBackgroundHorizontalPadding() - 3.dp
+                    horizontal = titleBackgroundHorizontalPadding() - 3.dp
                 )
             ) {
                 items(dynamicListData.itemCount) {

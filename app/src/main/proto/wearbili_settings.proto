@@ -22,8 +22,9 @@ enum QuickToolBarFunction {
   History = 0;
   Search = 1;
   Cache = 2;
-  Favourite = 3;
-  None = 4;
+  Message = 3;
+  Favourite = 4;
+  None = 5;
 }
 
 enum QuickToolBarSlotCount {
@@ -52,6 +53,11 @@ enum VideoDecoder {
   Software = 1;
 }
 
+enum VideoDisplaySurface {
+  SurfaceView = 0;
+  TextureView = 1;
+}
+
 message AppConfiguration {
   AppTheme theme = 1;
   QuickToolBarConfiguration toolBarConfiguration = 2;
@@ -63,4 +69,7 @@ message AppConfiguration {
   float screenDisplayScaleFactor = 8;
   VideoDecoder videoDecoder = 9;
   bool isVideoLowPerformance = 10;
+  bool initialized = 11;
+  string activatedExperimentFunctions = 12;
+  VideoDisplaySurface videoDisplaySurface = 13;
 }

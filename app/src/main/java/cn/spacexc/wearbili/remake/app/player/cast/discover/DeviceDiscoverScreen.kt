@@ -20,12 +20,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.spx
 
 @Composable
 fun Activity.DeviceDiscoverScreen(
@@ -40,7 +40,7 @@ fun Activity.DeviceDiscoverScreen(
         if (wifiName == null) {
             Text(
                 text = "需要连接Wi-Fi才能投屏哦",
-                fontSize = 16.spx,
+                fontSize = 16.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.Center)
@@ -51,7 +51,7 @@ fun Activity.DeviceDiscoverScreen(
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(
                             text = "选择设备",
-                            fontSize = 22.spx,
+                            fontSize = 22.sp,
                             color = Color.White,
                             fontWeight = FontWeight.Bold
                         )
@@ -60,7 +60,7 @@ fun Activity.DeviceDiscoverScreen(
                             color = Color.White,
                             modifier = Modifier.alpha(0.8f),
                             fontWeight = FontWeight.Medium,
-                            fontSize = 13.spx
+                            fontSize = 13.sp
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Wifi,
@@ -71,7 +71,7 @@ fun Activity.DeviceDiscoverScreen(
                         Text(
                             text = "选择与您手表网络相同的设备并开始投射视频内容",
                             color = Color.White,
-                            fontSize = 12.spx,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.alpha(0.7f)
                         )
@@ -87,7 +87,7 @@ fun Activity.DeviceDiscoverScreen(
                             IconText(
                                 text = device.friendlyName,
                                 color = Color.White,
-                                fontSize = 14.spx,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium
                             ) {
                                 Icon(

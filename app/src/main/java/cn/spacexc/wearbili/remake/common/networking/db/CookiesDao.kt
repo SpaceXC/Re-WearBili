@@ -17,8 +17,8 @@ interface CookiesDao {
     @Query("select * from cookieentity where uid=:uid")
     suspend fun getCookieByUid(uid: Long?): List<CookieEntity>
 
-    @Query("select * from cookieentity where name=:name")
-    suspend fun getCookieByName(name: String): CookieEntity?
+    @Query("select * from cookieentity where name=:name and uid=:uid")
+    suspend fun getCookieByName(name: String, uid: Long?): CookieEntity?
 
     @Query("select * from cookieentity where uid is null")
     suspend fun getCookiesWithNoUid(): List<CookieEntity>

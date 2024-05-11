@@ -37,8 +37,8 @@ import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentDa
 import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.isRound
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 import kotlinx.coroutines.flow.Flow
 
@@ -114,7 +114,7 @@ fun CommentScreen(
                             )
                             .background(Color(38, 38, 38, 77)),
                         contentPadding = PaddingValues(
-                            horizontal = if (isRound()) TitleBackgroundHorizontalPadding() else 4.dp,
+                            horizontal = if (isRound()) titleBackgroundHorizontalPadding() else 4.dp,
                             vertical = 4.dp
                         ),
                         state = viewModel.getScrollState(oid.toString()) ?: rememberLazyListState()

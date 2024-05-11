@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.common.ifNullOrEmpty
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.season.ui.PARAM_MID
@@ -224,7 +225,7 @@ fun Activity.LargeUserCard(
                         AutoResizedText(
                             text = userInfo,
                             style = TextStyle(
-                                fontSize = 9.spx * textSizeScale,
+                                fontSize = 9.sp * textSizeScale,
                                 fontWeight = FontWeight.Medium,
                                 fontFamily = wearbiliFontFamily
                             ),
@@ -237,7 +238,7 @@ fun Activity.LargeUserCard(
                         Text(
                             text = userInfo,
                             style = TextStyle(
-                                fontSize = 9.spx * textSizeScale,
+                                fontSize = 9.sp * textSizeScale,
                                 fontWeight = FontWeight.Medium,
                                 fontFamily = wearbiliFontFamily
                             ),
@@ -314,7 +315,7 @@ fun SmallUserCard(
                 },
                 //color = parseColor(usernameColor ?: "#FFFFFF"),
                 style = TextStyle(
-                    fontSize = 12.5.spx * textSizeScale,
+                    fontSize = 12.5.sp * textSizeScale,
                     fontWeight = FontWeight.Medium,
                     fontFamily = wearbiliFontFamily
                 ),
@@ -325,7 +326,7 @@ fun SmallUserCard(
                 AutoResizedText(
                     text = userInfo,
                     style = TextStyle(
-                        fontSize = 10.5.spx * textSizeScale,
+                        fontSize = 10.5.sp * textSizeScale,
                         fontWeight = FontWeight.Medium,
                         fontFamily = wearbiliFontFamily
                     ),
@@ -375,7 +376,7 @@ fun TinyUserCard(
             modifier = Modifier.onSizeChanged {
                 textHeight = with(localDensity) { it.height.toDp() }
             },
-            fontSize = 12.5.spx
+            fontSize = 12.5.sp
         )
     }
 }

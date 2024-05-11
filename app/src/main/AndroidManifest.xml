@@ -31,6 +31,7 @@
         android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.WearBili"
+        tools:ignore="WearRecents"
         tools:targetApi="31">
 
         <provider
@@ -70,7 +71,7 @@
 
         <activity
             android:name=".app.welcome.WelcomeActivity"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".app.test.UITest"
             android:exported="true" />
@@ -79,7 +80,7 @@
             android:exported="false" />
         <activity
             android:name=".app.video.info.ui.VideoInformationActivity"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".app.about.ui.AboutActivity"
             android:exported="false" />
@@ -155,7 +156,7 @@
             android:exported="false" />
         <activity
             android:name=".app.player.audio.AudioPlayerActivity"
-            android:exported="true" />
+            android:exported="false" />
         <!--<activity
             android:name=".app.player.videoplayer.mirroring.dlna.controller.ui.DlnaControllerActivity"
             android:exported="false" />-->
@@ -164,7 +165,7 @@
             android:exported="false" />
         <activity
             android:name=".app.season.ui.SeasonActivity"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".app.image.ImageViewerActivity"
             android:exported="false" />
@@ -173,7 +174,7 @@
             android:exported="false" />
         <activity
             android:name=".app.space.ui.UserSpaceActivity"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".app.video.action.coin.ui.CoinActivity"
             android:exported="false" />
@@ -185,10 +186,26 @@
             android:exported="false" />
         <activity
             android:name=".app.player.livestream.ui.LiveStreamActivity"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".app.settings.user.SwitchUserActivity"
             android:exported="false" />
+        <activity
+            android:name=".app.bangumi.info.episodes.BangumiEpisodeListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.settings.experimantal.ExperimentalFunctionsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.message.system.SystemMessageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.message.MessageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.video.info.comment.detail.CommentDetailActivity"
+            android:exported="false" />
     </application>
+
 
 </manifest>

@@ -17,7 +17,7 @@ class CookiesManager(
 ) : CookiesManager {
     private val mutex = Mutex()
     override suspend fun getCookieByName(name: String): Cookie? {
-        return repository.dao.getCookieByName(name)?.toKtorCookie(cryptoManager)
+        return repository.dao.getCookieByName(name, UserUtils.mid())?.toKtorCookie(cryptoManager)
     }
 
     override suspend fun deleteAllCookies() {

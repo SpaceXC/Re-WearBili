@@ -91,7 +91,8 @@ fun VideoCard(
     coverUrl: String,
     videoId: String? = null,
     videoIdType: String? = null,
-    context: Context = Application.getApplication()
+    context: Context = Application.getApplication(),
+    isLarge: Boolean = false
 ) {
     Card(modifier = modifier, onClick = {
         if (!videoId.isNullOrEmpty() && !videoIdType.isNullOrEmpty()) {
@@ -108,7 +109,8 @@ fun VideoCard(
             uploader = uploader,
             views = views,
             coverUrl = coverUrl,
-            badge = badge
+            badge = badge,
+            isLarge = isLarge
         )
     }
 }
@@ -124,7 +126,8 @@ fun VideoCardWithNoBorder(
     coverUrl: String,
     videoId: String? = null,
     videoIdType: String? = null,
-    context: Context = Application.getApplication()
+    context: Context = Application.getApplication(),
+    isLarge: Boolean = false
 ) {
     Box(modifier = modifier
         .padding(vertical = 2.dp)
@@ -144,7 +147,8 @@ fun VideoCardWithNoBorder(
             views = views,
             coverUrl = coverUrl,
             badge = badge,
-            danmakus = danmaku
+            danmakus = danmaku,
+            isLarge = isLarge
         )
     }
 }
@@ -157,20 +161,17 @@ fun VideoCardContent(
     views: String = "",
     danmakus: String = "",
     badge: String? = "",
-    coverUrl: String
+    coverUrl: String,
+    isLarge: Boolean = false
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp, horizontal = 2.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+    if (isLarge) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp, horizontal = 2.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Box(modifier = Modifier.weight(6f)) {
+            Box(modifier = Modifier.fillMaxWidth()) {
                 BiliImage(
                     url = coverUrl,
                     contentDescription = "$videoName 封面",
@@ -193,7 +194,7 @@ fun VideoCardContent(
                     ) {
                         Text(
                             text = badge,
-                            fontSize = 8.spx,
+                            fontSize = 8.sp,
                             fontFamily = wearbiliFontFamily,
                             color = Color.White,
                             fontWeight = FontWeight.Medium,
@@ -207,163 +208,281 @@ fun VideoCardContent(
                 text = videoName,
                 style = AppTheme.typography.h3,
                 maxLines = 3,
-                modifier = Modifier.weight(7f),
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
             )
+            FlowRow {
+                if (views.isNotEmpty()) {
+                    IconText(
+                        text = views,
+                        fontSize = 9.sp,
+                        fontFamily = wearbiliFontFamily,
+                        color = Color.White,
+                        modifier = Modifier.alpha(0.7f),
+                        overflow = TextOverflow.Ellipsis,
+                        spacingWidth = 1.sp
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_view_count),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = 2.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
+                if (uploader.isNotEmpty()) {
+                    IconText(
+                        text = uploader,
+                        fontSize = 9.sp,
+                        fontFamily = wearbiliFontFamily,
+                        color = Color.White,
+                        modifier = Modifier.alpha(0.7f),
+                        overflow = TextOverflow.Ellipsis,
+                        spacingWidth = 1.sp
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_uploader),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = 2.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
+                if (danmakus.isNotEmpty()) {
+                    IconText(
+                        text = danmakus,
+                        fontSize = 9.sp,
+                        fontFamily = wearbiliFontFamily,
+                        color = Color.White,
+                        modifier = Modifier.alpha(0.7f),
+                        overflow = TextOverflow.Ellipsis,
+                        spacingWidth = 1.sp
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_danmaku),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = 2.dp)
+                        )
+                    }
+                }
+            }
         }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp, horizontal = 2.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Box(modifier = Modifier.weight(6f)) {
+                    BiliImage(
+                        url = coverUrl,
+                        contentDescription = "$videoName 封面",
+                        modifier = Modifier
+                            .aspectRatio(16f / 10f)
+                            .clip(RoundedCornerShape(6.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                    if (!badge.isNullOrEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .padding(2.dp)
+                                .clip(RoundedCornerShape(3.dp))
+                                .background(BilibiliPink)
+                                .padding(2.dp)
+                                .align(Alignment.TopEnd),
+                            //.fillMaxSize()
+                            //.offset(y = (1).dp)
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = badge,
+                                fontSize = 8.sp,
+                                fontFamily = wearbiliFontFamily,
+                                color = Color.White,
+                                fontWeight = FontWeight.Medium,
+                                textAlign = TextAlign.Center
+                            )
+                        }
 
-        FlowRow {
-            if (views.isNotEmpty()) {
-                /*val inlineTextContent = mapOf("viewCountIcon" to InlineTextContent(
-                    placeholder = Placeholder(
-                        width = 12.spx,
-                        height = 12.spx,
-                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_view_count),
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(end = 2.dp)
-                    )
-                })
-                Text(
-                    text = buildAnnotatedString {
-                        if (views.isNotEmpty()) {
-                            appendInlineContent("viewCountIcon")
-                            append(views)
-                        }
-                    },
-                    fontSize = 9.spx,
-                    modifier = Modifier.alpha(0.7f),
-                    color = Color.White,
-                    inlineContent = inlineTextContent,
-                    //maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )*/
-                IconText(
-                    text = views,
-                    fontSize = 9.spx,
-                    fontFamily = wearbiliFontFamily,
-                    color = Color.White,
-                    modifier = Modifier.alpha(0.7f),
-                    overflow = TextOverflow.Ellipsis,
-                    spacingWidth = 1.spx
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_view_count),
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(end = 2.dp)
-                    )
+                    }
                 }
-                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = videoName,
+                    style = AppTheme.typography.h3,
+                    maxLines = 3,
+                    modifier = Modifier.weight(7f),
+                    overflow = TextOverflow.Ellipsis
+                )
             }
-            if (uploader.isNotEmpty()) {
-                IconText(
-                    text = uploader,
-                    fontSize = 9.spx,
-                    fontFamily = wearbiliFontFamily,
-                    color = Color.White,
-                    modifier = Modifier.alpha(0.7f),
-                    overflow = TextOverflow.Ellipsis,
-                    spacingWidth = 1.spx
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_uploader),
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(end = 2.dp)
-                    )
+
+            FlowRow {
+                if (views.isNotEmpty()) {
+                    /*val inlineTextContent = mapOf("viewCountIcon" to InlineTextContent(
+                        placeholder = Placeholder(
+                            width = 12.sp,
+                            height = 12.spx,
+                            placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_view_count),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = 2.dp)
+                        )
+                    })
+                    Text(
+                        text = buildAnnotatedString {
+                            if (views.isNotEmpty()) {
+                                appendInlineContent("viewCountIcon")
+                                append(views)
+                            }
+                        },
+                        fontSize = 9.spx,
+                        modifier = Modifier.alpha(0.7f),
+                        color = Color.White,
+                        inlineContent = inlineTextContent,
+                        //maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )*/
+                    IconText(
+                        text = views,
+                        fontSize = 9.sp,
+                        fontFamily = wearbiliFontFamily,
+                        color = Color.White,
+                        modifier = Modifier.alpha(0.7f),
+                        overflow = TextOverflow.Ellipsis,
+                        spacingWidth = 1.sp
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_view_count),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = 2.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
                 }
-                Spacer(modifier = Modifier.width(4.dp))
-                /*val inlineTextContent = mapOf("uploaderIcon" to InlineTextContent(
-                    placeholder = Placeholder(
-                        width = 12.spx,
-                        height = 12.spx,
-                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_uploader),
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(end = 2.dp)
-                    )
-                })
-                Text(
-                    text = buildAnnotatedString {
-                        if (uploader.isNotEmpty()) {
-                            appendInlineContent("uploaderIcon")
-                            append(uploader)
-                        }
-                    },
-                    fontSize = 9.spx,
-                    modifier = Modifier.alpha(0.7f),
-                    color = Color.White,
-                    inlineContent = inlineTextContent,
-                    //maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )*/
-            }
-            if (danmakus.isNotEmpty()) {
-                IconText(
-                    text = danmakus,
-                    fontSize = 9.spx,
-                    fontFamily = wearbiliFontFamily,
-                    color = Color.White,
-                    modifier = Modifier.alpha(0.7f),
-                    overflow = TextOverflow.Ellipsis,
-                    spacingWidth = 1.spx
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_danmaku),
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(end = 2.dp)
-                    )
+                if (uploader.isNotEmpty()) {
+                    IconText(
+                        text = uploader,
+                        fontSize = 9.sp,
+                        fontFamily = wearbiliFontFamily,
+                        color = Color.White,
+                        modifier = Modifier.alpha(0.7f),
+                        overflow = TextOverflow.Ellipsis,
+                        spacingWidth = 1.sp
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_uploader),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = 2.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    /*val inlineTextContent = mapOf("uploaderIcon" to InlineTextContent(
+                        placeholder = Placeholder(
+                            width = 12.spx,
+                            height = 12.spx,
+                            placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_uploader),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = 2.dp)
+                        )
+                    })
+                    Text(
+                        text = buildAnnotatedString {
+                            if (uploader.isNotEmpty()) {
+                                appendInlineContent("uploaderIcon")
+                                append(uploader)
+                            }
+                        },
+                        fontSize = 9.spx,
+                        modifier = Modifier.alpha(0.7f),
+                        color = Color.White,
+                        inlineContent = inlineTextContent,
+                        //maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )*/
                 }
-                /*val inlineTextContent = mapOf("danmakuIcon" to InlineTextContent(
-                    placeholder = Placeholder(
-                        width = 12.spx,
-                        height = 12.spx,
-                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_danmaku),
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(end = 2.dp)
-                    )
-                })
-                Text(
-                    text = buildAnnotatedString {
-                        if (uploader.isNotEmpty()) {
-                            appendInlineContent("danmakuIcon")
-                            append(danmakus)
-                        }
-                    },
-                    fontSize = 9.spx,
-                    modifier = Modifier.alpha(0.7f),
-                    color = Color.White,
-                    inlineContent = inlineTextContent,
-                    //maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )*/
+                if (danmakus.isNotEmpty()) {
+                    IconText(
+                        text = danmakus,
+                        fontSize = 9.sp,
+                        fontFamily = wearbiliFontFamily,
+                        color = Color.White,
+                        modifier = Modifier.alpha(0.7f),
+                        overflow = TextOverflow.Ellipsis,
+                        spacingWidth = 1.sp
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_danmaku),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = 2.dp)
+                        )
+                    }
+                    /*val inlineTextContent = mapOf("danmakuIcon" to InlineTextContent(
+                        placeholder = Placeholder(
+                            width = 12.spx,
+                            height = 12.spx,
+                            placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_danmaku),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(end = 2.dp)
+                        )
+                    })
+                    Text(
+                        text = buildAnnotatedString {
+                            if (uploader.isNotEmpty()) {
+                                appendInlineContent("danmakuIcon")
+                                append(danmakus)
+                            }
+                        },
+                        fontSize = 9.spx,
+                        modifier = Modifier.alpha(0.7f),
+                        color = Color.White,
+                        inlineContent = inlineTextContent,
+                        //maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )*/
+                }
             }
         }
     }
@@ -516,7 +635,7 @@ fun VideoCacheCard(
                                     text = cacheInfo.videoUploaderName,
                                     modifier = Modifier.alpha(0.7f),
                                     maxLines = 1,
-                                    fontSize = 9.spx
+                                    fontSize = 9.sp
                                 ) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.icon_uploader),
@@ -529,7 +648,7 @@ fun VideoCacheCard(
                                     text = cacheInfo.videoPartName,
                                     modifier = Modifier.alpha(0.7f),
                                     maxLines = 1,
-                                    fontSize = 9.spx
+                                    fontSize = 9.sp
                                 ) {
                                     Icon(
                                         imageVector = Icons.Outlined.VideoLibrary,
@@ -542,7 +661,7 @@ fun VideoCacheCard(
                                     text = cacheInfo.downloadFileSize,
                                     modifier = Modifier.alpha(0.7f),
                                     maxLines = 1,
-                                    fontSize = 9.spx
+                                    fontSize = 9.sp
                                 ) {
                                     Icon(
                                         imageVector = Icons.Outlined.FileCopy,

@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app.settings.toolbar.ui
 
+import BiliTextIcon
 import android.app.Activity
 import android.content.Intent
 import androidx.compose.animation.animateContentSize
@@ -24,11 +25,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.NotInterested
-import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,21 +37,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.app.cache.list.CacheListActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.folders.ui.FavoriteFolderActivity
 import cn.spacexc.wearbili.remake.app.main.profile.detail.history.ui.HistoryActivity
+import cn.spacexc.wearbili.remake.app.message.MessageActivity
 import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.isRound
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
 import cn.spacexc.wearbili.remake.proto.settings.QuickToolBarFunction
 import cn.spacexc.wearbili.remake.proto.settings.QuickToolBarSlotCount
@@ -80,37 +79,52 @@ data class QuickToolbarFunctionDetail(
 )
 
 val functionList = listOf(QuickToolbarFunctionDetail(name = "历史", icon = {
-    Icon(
+    BiliTextIcon(icon = "ea6e", size = 20.sp, modifier = Modifier.offset(y = (-0.5).dp))
+    /*Icon(
         imageVector = Icons.Default.History,
         contentDescription = null,
         modifier = Modifier.fillMaxSize(),
         tint = Color.White
-    )
+    )*/
 }, type = QuickToolBarFunction.History, action = {
     it.startActivity(Intent(it, HistoryActivity::class.java))
 }), QuickToolbarFunctionDetail(name = "搜索", icon = {
-    Icon(
+    /*Icon(
         imageVector = Icons.Default.Search,
         contentDescription = null,
         modifier = Modifier.fillMaxSize(),
         tint = Color.White
-    )
+    )*/
+    BiliTextIcon(icon = "eacb", size = 20.sp, modifier = Modifier.offset(y = (-0.5).dp))
 }, type = QuickToolBarFunction.Search, action = {
     it.startActivity(Intent(it, SearchActivity::class.java))
 }), QuickToolbarFunctionDetail(name = "缓存", icon = {
-    Icon(
+    /*Icon(
         imageVector = Icons.Outlined.FileDownload,
         contentDescription = null,
         modifier = Modifier.fillMaxSize(),
         tint = Color.White
-    )
+    )*/
+    BiliTextIcon(icon = "eaa2", size = 20.sp, modifier = Modifier.offset(y = (-0.5).dp))
 }, type = QuickToolBarFunction.Cache, action = {
     it.startActivity(Intent(it, CacheListActivity::class.java))
-}), QuickToolbarFunctionDetail(name = "收藏", icon = {
-    Icon(
-        imageVector = Icons.Outlined.StarBorder,
+}), QuickToolbarFunctionDetail(name = "消息", icon = {
+    /*Icon(
+        imageVector = Icons.Outlined.FileDownload,
         contentDescription = null,
         modifier = Modifier.fillMaxSize(),
+        tint = Color.White
+    )*/
+    BiliTextIcon(icon = "ea94", size = 20.sp, modifier = Modifier.offset(y = (-0.5).dp))
+}, type = QuickToolBarFunction.Message, action = {
+    it.startActivity(Intent(it, MessageActivity::class.java))
+}), QuickToolbarFunctionDetail(name = "收藏", icon = {
+    Icon(
+        painter = painterResource(id = cn.spacexc.wearbili.remake.R.drawable.icon_favourite),
+        contentDescription = null,
+        modifier = Modifier
+            .fillMaxSize()
+            .offset(y = (-0.5).dp),
         tint = Color.White
     )
 }, type = QuickToolBarFunction.Favourite, action = {
@@ -123,7 +137,6 @@ val functionList = listOf(QuickToolbarFunctionDetail(name = "历史", icon = {
         tint = Color.White
     )
 }, type = QuickToolBarFunction.None, action = {
-    //it.startActivity(Intent(it, FavoriteFolderActivity::class.java))
 }))
 
 val QuickToolBarFunction.toFunctionDetail: QuickToolbarFunctionDetail?
@@ -176,8 +189,8 @@ fun Activity.QuickToolbarCustomizationScreen() {
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(
-                    horizontal = TitleBackgroundHorizontalPadding(),
-                    vertical = if (isRound()) TitleBackgroundHorizontalPadding() else 4.dp
+                    horizontal = titleBackgroundHorizontalPadding(),
+                    vertical = if (isRound()) titleBackgroundHorizontalPadding() else 4.dp
                 ),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
@@ -315,7 +328,7 @@ fun StaticFunctionSlot(
                     text = function.name,
                     fontFamily = wearbiliFontFamily,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 15.spx
+                    fontSize = 15.sp
                 )
 
             }
@@ -342,7 +355,7 @@ fun FunctionItem(
         onClick = {
             onClick(function)
         }) {
-        IconText(text = "  ${function.name}", fontWeight = FontWeight.Medium, fontSize = 14.spx) {
+        IconText(text = "  ${function.name}", fontWeight = FontWeight.Medium, fontSize = 14.sp) {
             function.icon()
         }
     }

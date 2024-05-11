@@ -19,8 +19,8 @@ import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 
 /**
  * Created by XC-Qan on 2023/6/24.
@@ -57,7 +57,7 @@ fun Activity.HistoryScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     vertical = 4.dp,
-                    horizontal = TitleBackgroundHorizontalPadding() - 4.dp
+                    horizontal = titleBackgroundHorizontalPadding() - 4.dp
                 )
             ) {
                 items(lazyListItems.itemCount) {

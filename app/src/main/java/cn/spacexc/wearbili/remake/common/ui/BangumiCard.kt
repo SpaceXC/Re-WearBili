@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiActivity
@@ -101,7 +103,7 @@ fun LargeBangumiCard(
                             style = SpanStyle(
                                 color = Color(249, 157, 87, 255),
                                 fontFamily = wearbiliFontFamily,
-                                fontSize = 10.spx
+                                fontSize = 10.sp
                             )
                         ) {
                             append(score.toString())
@@ -110,14 +112,14 @@ fun LargeBangumiCard(
                             style = SpanStyle(
                                 color = Color(249, 157, 87, 255),
                                 fontFamily = wearbiliFontFamily,
-                                fontSize = 8.spx
+                                fontSize = 8.sp
                             )
                         ) {
                             append("分")
                         }
                     },
                     color = Color.White,
-                    fontSize = 7.spx,
+                    fontSize = 7.sp,
                     fontFamily = wearbiliFontFamily,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier
@@ -156,7 +158,7 @@ fun LargeBangumiCard(
                         ) {
                             androidx.compose.material.Text(
                                 text = badge,
-                                fontSize = 8.spx,
+                                fontSize = 8.sp,
                                 fontFamily = wearbiliFontFamily,
                                 color = Color.White,
                                 fontWeight = FontWeight.Medium,
@@ -200,18 +202,23 @@ fun SmallBangumiCard(
     epName: String,
     bangumiIdType: String = BANGUMI_ID_TYPE_SSID,
     bangumiId: Long,
-    context: Context
+    context: Context? = null,
+    onClick: (() -> Unit)? = null,
 ) {
     val localDensity = LocalDensity.current
     Card(onClick = {
-        context.startActivity(Intent(context, BangumiActivity::class.java).apply {
-            putExtra(
-                PARAM_BANGUMI_ID, bangumiId
-            )
-            putExtra(
-                PARAM_BANGUMI_ID_TYPE, bangumiIdType
-            )
-        })
+        if (onClick != null) {
+            onClick.invoke()
+        } else {
+            context?.startActivity(Intent(context, BangumiActivity::class.java).apply {
+                putExtra(
+                    PARAM_BANGUMI_ID, bangumiId
+                )
+                putExtra(
+                    PARAM_BANGUMI_ID_TYPE, bangumiIdType
+                )
+            })
+        }
     }, modifier = modifier) {
         Row(modifier = Modifier.fillMaxWidth()) {
             var coverHeight by remember {
@@ -228,7 +235,8 @@ fun SmallBangumiCard(
                     .clip(RoundedCornerShape(8.dp))
                     .onSizeChanged {
                         coverHeight = with(localDensity) { it.height.toDp() }
-                    }
+                    },
+                contentScale = ContentScale.FillHeight
             )
             Spacer(modifier = Modifier.width(6.dp))
             Column(

@@ -61,6 +61,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.bilibilisdk.sdk.video.info.remote.info.web.detailed.Data
 import cn.spacexc.wearbili.common.copyToClipboard
 import cn.spacexc.wearbili.common.domain.log.logd
@@ -99,14 +100,13 @@ import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.LargeUserCard
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.VfxOutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.copyable
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateColorAsState
 import cn.spacexc.wearbili.remake.proto.settings.Player
@@ -264,7 +264,7 @@ fun Activity.VideoInformationScreen(
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             state.videoData?.view?.let { video ->
-                Box(modifier = Modifier.padding(horizontal = TitleBackgroundHorizontalPadding())) {
+                Box(modifier = Modifier.padding(horizontal = titleBackgroundHorizontalPadding())) {
                     BiliImage(
                         url = video.pic,
                         contentDescription = null,
@@ -279,7 +279,7 @@ fun Activity.VideoInformationScreen(
                     Text(
                         text = video.duration.secondToTime(),
                         color = Color.White,
-                        fontSize = 11.spx,
+                        fontSize = 11.sp,
                         modifier = Modifier
                             .padding(end = 8.dp, bottom = 6.dp)
                             .align(Alignment.BottomEnd),
@@ -289,16 +289,16 @@ fun Activity.VideoInformationScreen(
                 Text(
                     text = video.title,
                     style = AppTheme.typography.h1,
-                    modifier = Modifier.padding(horizontal = TitleBackgroundHorizontalPadding())
+                    modifier = Modifier.padding(horizontal = titleBackgroundHorizontalPadding())
                 )
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(3.dp),
-                    modifier = Modifier.padding(horizontal = TitleBackgroundHorizontalPadding())
+                    modifier = Modifier.padding(horizontal = titleBackgroundHorizontalPadding())
                 ) {
                     IconText(
                         text = "${video.stat.view.toShortChinese()}观看",
                         modifier = Modifier.alpha(0.7f),
-                        fontSize = 11.spx
+                        fontSize = 11.sp
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.icon_view_count),
@@ -312,7 +312,7 @@ fun Activity.VideoInformationScreen(
                         text = video.stat.vt.secondToTime(),
                         modifier = Modifier
                             .alpha(0.7f),
-                        fontSize = 11.spx,
+                        fontSize = 11.sp,
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Timer,
@@ -325,7 +325,7 @@ fun Activity.VideoInformationScreen(
                     IconText(
                         text = "${video.stat.danmaku.toShortChinese()}弹幕",
                         modifier = Modifier.alpha(0.7f),
-                        fontSize = 11.spx
+                        fontSize = 11.sp
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.icon_danmaku),
@@ -338,7 +338,7 @@ fun Activity.VideoInformationScreen(
                     IconText(
                         text = video.pubdate.times(1000).toDateStr("yyyy-MM-dd HH:mm"),
                         modifier = Modifier.alpha(0.7f),
-                        fontSize = 11.spx
+                        fontSize = 11.sp
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.icon_time),
@@ -356,7 +356,7 @@ fun Activity.VideoInformationScreen(
                                 video.bvid.copyToClipboard(context = context)
                                 ToastUtils.showText(content = "已复制BV号")
                             }),
-                        fontSize = 11.spx,
+                        fontSize = 11.sp,
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Movie,
@@ -371,7 +371,7 @@ fun Activity.VideoInformationScreen(
                     if (video.staff.isNullOrEmpty()) {
                         state.videoData.card.card.let { user ->
                             LargeUserCard(
-                                modifier = Modifier.padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
+                                modifier = Modifier.padding(horizontal = titleBackgroundHorizontalPadding() - 2.dp),
                                 avatar = video.owner.face,
                                 username = video.owner.name,
                                 mid = user.mid,
@@ -384,7 +384,7 @@ fun Activity.VideoInformationScreen(
                         Row(
                             modifier = Modifier
                                 .horizontalScroll(rememberScrollState())
-                                .padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
+                                .padding(horizontal = titleBackgroundHorizontalPadding() - 2.dp),
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             video.staff?.forEach {
@@ -403,7 +403,7 @@ fun Activity.VideoInformationScreen(
                     video.ugcSeason?.let { season ->
                         Card(
                             shape = CircleShape,
-                            modifier = Modifier.padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
+                            modifier = Modifier.padding(horizontal = titleBackgroundHorizontalPadding() - 2.dp),
                             innerPaddingValues = PaddingValues(
                                 horizontal = 14.dp,
                                 vertical = 12.dp
@@ -432,7 +432,7 @@ fun Activity.VideoInformationScreen(
                                 IconText(
                                     text = season.title,
                                     fontWeight = FontWeight.Medium,
-                                    fontSize = 13.spx,
+                                    fontSize = 13.sp,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier
@@ -463,7 +463,7 @@ fun Activity.VideoInformationScreen(
                         text = video.desc,
                         modifier = Modifier
                             .copyable(video.desc)
-                            .padding(horizontal = TitleBackgroundHorizontalPadding()),
+                            .padding(horizontal = titleBackgroundHorizontalPadding()),
                         style = AppTheme.typography.body1
                     )
                 }
@@ -473,11 +473,11 @@ fun Activity.VideoInformationScreen(
                         text = "分集(${video.pages.size})",
                         style = AppTheme.typography.h1,
                         modifier = Modifier
-                            .padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp)
+                            .padding(horizontal = titleBackgroundHorizontalPadding() - 2.dp)
                     )
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
+                        contentPadding = PaddingValues(horizontal = titleBackgroundHorizontalPadding() - 2.dp),
                         state = rememberLazyListState()
                     ) {
                         video.pages.forEachIndexed { index, page ->
@@ -497,7 +497,7 @@ fun Activity.VideoInformationScreen(
                                                     putExtra(PARAM_VIDEO_ID, video.bvid)
                                                     putExtra(
                                                         PARAM_VIDEO_CID,
-                                                        video.cid.logd("cid")
+                                                        page.cid.logd("cid")
                                                     )
                                                     context.startActivity(this)
                                                 }
@@ -515,7 +515,7 @@ fun Activity.VideoInformationScreen(
                                                     putExtra(PARAM_VIDEO_ID, video.bvid)
                                                     putExtra(
                                                         PARAM_VIDEO_CID,
-                                                        video.cid.logd("cid")
+                                                        page.cid.logd("cid")
                                                     )
                                                     context.startActivity(this)
                                                 }
@@ -542,7 +542,7 @@ fun Activity.VideoInformationScreen(
                                             androidx.compose.material3.Text(
                                                 text = page.part,
                                                 style = AppTheme.typography.h2,
-                                                fontSize = 12.spx
+                                                fontSize = 12.sp
                                             )
                                         }
 
@@ -550,7 +550,7 @@ fun Activity.VideoInformationScreen(
                                         androidx.compose.material3.Text(
                                             text = "P${index.plus(1)}",
                                             style = AppTheme.typography.h3,
-                                            fontSize = 9.spx,
+                                            fontSize = 9.sp,
                                             modifier = Modifier.alpha(0.8f)
                                         )
                                     }
@@ -563,7 +563,7 @@ fun Activity.VideoInformationScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = TitleBackgroundHorizontalPadding() - 2.dp),
+                        .padding(horizontal = titleBackgroundHorizontalPadding() - 2.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Row(

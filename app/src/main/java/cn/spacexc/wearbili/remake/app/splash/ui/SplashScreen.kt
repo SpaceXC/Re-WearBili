@@ -13,11 +13,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.APP_VERSION_CODE
 import cn.spacexc.wearbili.remake.app.APP_VERSION_NAME
 import cn.spacexc.wearbili.remake.common.ui.CirclesBackground
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 
 /**
@@ -43,7 +43,7 @@ fun Activity.SplashScreen() {
         Text(
             text = "$APP_VERSION_NAME\nRelease $APP_VERSION_CODE\n此软件正处在测试阶段\n请勿传播安装包\nThis app is still in test phase\nDO NOT DISTRIBUTE",
             fontFamily = wearbiliFontFamily,
-            fontSize = 10.spx,
+            fontSize = 10.sp,
             modifier = Modifier
                 .padding(bottom = 8.dp)
                 .alpha(0.2f)

@@ -1,18 +1,15 @@
 package cn.spacexc.wearbili.remake.app.player.audio.ui
 
-import TextIcon
+import BiliTextIcon
+import SegoeTextIcon
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.VectorDrawable
 import android.media.AudioManager
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
@@ -32,7 +29,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
@@ -43,11 +39,11 @@ import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -59,21 +55,44 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
+import androidx.core.graphics.drawable.toBitmap
+import appendBiliIcon
+import biliIconFontFamily
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerService
+import cn.spacexc.wearbili.remake.app.player.audio.AudioSubtitleManager
 import cn.spacexc.wearbili.remake.app.player.audio.ui.lyrics.LyricsView
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerSetting
@@ -83,24 +102,28 @@ import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerSli
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.adjustVolume
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.getCurrentVolume
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.getMaxVolume
+import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
+import cn.spacexc.wearbili.remake.app.settings.experimantal.EXPERIMENTAL_FLOATING_SUBTITLE
+import cn.spacexc.wearbili.remake.app.settings.experimantal.getActivatedExperimentalFunctions
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
 import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ui.ArrowTitleBackgroundWithCustomBackground
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
-import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
+import cn.spacexc.wearbili.remake.common.ui.GradientSlider
 import cn.spacexc.wearbili.remake.common.ui.HorizontalPagerIndicator
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
+import cn.spacexc.wearbili.remake.common.ui.clickAlpha
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
+import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateDpAsState
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
-import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimatedContentSize
 import coil.transform.CustomBlurTransformation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import unicodeToString
 import kotlin.math.roundToInt
 
 /**
@@ -117,6 +140,9 @@ fun Activity.AudioPlayerActivityScreen(
     service: AudioPlayerService
 ) {
     val pagerState = rememberPagerState(pageCount = { 3 }, initialPage = 1)
+    var currentView by remember {
+        mutableStateOf(AudioPlayerView.Progress)
+    }
     Crossfade(
         targetState = service.viewModel.videoInfo != null,
         label = "audioPlayerCrossfade"
@@ -125,7 +151,7 @@ fun Activity.AudioPlayerActivityScreen(
             service.viewModel.videoInfo?.data?.let { video ->
                 ArrowTitleBackgroundWithCustomBackground(
                     background = {
-                        val alpha by wearBiliAnimateFloatAsState(targetValue = if (pagerState.currentPage == 1) 0.8f else 0.3f)
+                        val alpha by wearBiliAnimateFloatAsState(targetValue = if (pagerState.currentPage == 1 && currentView == AudioPlayerView.Progress) 0.8f else 0.3f)
                         BiliImage(
                             url = video.pic,
                             contentDescription = null,
@@ -144,7 +170,7 @@ fun Activity.AudioPlayerActivityScreen(
                             pagerState = pagerState,
                             modifier = Modifier
                                 .align(Alignment.End)
-                                .padding(end = TitleBackgroundHorizontalPadding() + 2.dp),
+                                .padding(end = titleBackgroundHorizontalPadding() + 2.dp),
                             activeColor = Color(255, 255, 255),
                             inactiveColor = Color(
                                 255,
@@ -164,7 +190,11 @@ fun Activity.AudioPlayerActivityScreen(
                         ) { page ->
                             when (page) {
                                 0 -> SubtitlePage(viewModel = service.viewModel)
-                                1 -> PlayerPage(service = service)
+                                1 -> PlayerPage(
+                                    service = service,
+                                    currentView = currentView
+                                ) { currentView = it }
+
                                 2 -> SettingsPage(service = service)
                             }
                         }
@@ -182,6 +212,7 @@ fun SubtitlePage(
     viewModel: Media3AudioPlayerViewModel
 ) {
     val currentSubtitle by viewModel.currentSubtitle.collectAsState(initial = null)
+    val currentProgress by viewModel.currentPlayProgress.collectAsState(initial = 0)
     var currentIndex by remember {
         mutableIntStateOf(-1)
     }
@@ -196,29 +227,178 @@ fun SubtitlePage(
             subtitles = subtitles,
             currentIndex = currentIndex,
             fontWeight = FontWeight.Bold,
-            fontSize = 18.spx,
+            fontSize = 18.sp,
             contentColor = Color.White,
-            contentPadding = PaddingValues(horizontal = 3.dp, vertical = 8.dp)
+            contentPadding = PaddingValues(horizontal = 3.dp, vertical = 8.dp),
+            currentTime = currentProgress
         ) {
             viewModel.player.seekTo(((it.from) * 1000).toLong())
         }
     }
 }
 
+enum class AudioPlayerView {
+    Progress, Volume, Seek
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun Activity.PlayerPage(
+    service: AudioPlayerService,
+    currentView: AudioPlayerView,
+    onViewChanged: (AudioPlayerView) -> Unit
+) {
+    val configuration = LocalConfiguration.current
+    val hasFloatingSubtitle by remember {
+        derivedStateOf {
+            configuration.getActivatedExperimentalFunctions().contains(
+                EXPERIMENTAL_FLOATING_SUBTITLE
+            )
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.weight(1f)) {
+            Crossfade(targetState = currentView, label = "") {
+                when (it) {
+                    AudioPlayerView.Progress -> ProgressView(service = service)
+                    AudioPlayerView.Seek -> SeekView(service = service)
+                    AudioPlayerView.Volume -> VolumeView()
+                }
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp), horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            val textMeasurer = rememberTextMeasurer()
+
+            val volumeAlpha by wearBiliAnimateFloatAsState(targetValue = if (currentView == AudioPlayerView.Volume) 1f else 0.7f)
+            val seekAlpha by wearBiliAnimateFloatAsState(targetValue = if (currentView == AudioPlayerView.Seek) 1f else 0.7f)
+            val subtitleAlpha by wearBiliAnimateFloatAsState(targetValue = if (AudioSubtitleManager.isSubtitleOn) 1f else 0.7f)
+
+            Box(modifier = Modifier
+                .size(24.dp)
+                .alpha(volumeAlpha)
+                .clickAlpha {
+                    onViewChanged(
+                        if (currentView == AudioPlayerView.Volume) {
+                            AudioPlayerView.Progress
+                        } else {
+                            AudioPlayerView.Volume
+                        }
+                    )
+                }
+                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                .drawBehind {
+                    if (currentView == AudioPlayerView.Volume) {
+                        drawRoundRect(
+                            Color.White,
+                            size = Size(size.width, size.height),
+                            cornerRadius = CornerRadius(6f)
+                        )
+                    }
+                    translate(
+                        (size.width - 18.sp.toPx()) / 2,
+                        (size.height - 18.sp.toPx()) / 2
+                    ) {
+                        drawText(
+                            textMeasurer,
+                            text = unicodeToString("\\ueb15"),
+                            style = TextStyle(
+                                fontFamily = biliIconFontFamily,
+                                fontSize = 18.sp,
+                                color = Color.White
+                            ),
+                            blendMode = if (currentView == AudioPlayerView.Volume) BlendMode.Xor else DrawScope.DefaultBlendMode
+                        )
+                    }
+                })
+            Box(modifier = Modifier
+                .size(24.dp)
+                .alpha(seekAlpha)
+                .clickAlpha {
+                    if (!service.viewModel.isReady) return@clickAlpha
+                    onViewChanged(
+                        if (currentView == AudioPlayerView.Seek) {
+                            AudioPlayerView.Progress
+                        } else {
+                            AudioPlayerView.Seek
+                        }
+                    )
+                }
+                .alpha(if (service.viewModel.isReady) 1f else 0.5f)
+                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                .drawBehind {
+                    if (currentView == AudioPlayerView.Seek) {
+                        drawRoundRect(
+                            Color.White,
+                            size = Size(size.width, size.height),
+                            cornerRadius = CornerRadius(6f)
+                        )
+                    }
+                    translate(
+                        (size.width - 18.sp.toPx()) / 2,
+                        (size.height - 18.sp.toPx()) / 2
+                    ) {
+                        val bitmap = (AppCompatResources.getDrawable(
+                            this@PlayerPage,
+                            R.drawable.icon_audio_seek
+                        ) as VectorDrawable).toBitmap()
+                        drawImage(
+                            bitmap.asImageBitmap(),
+                            dstSize = IntSize(18.sp.roundToPx(), 18.sp.roundToPx()),
+                            blendMode = if (currentView == AudioPlayerView.Seek) BlendMode.Xor else DrawScope.DefaultBlendMode
+                        )
+                    }
+                })
+            if (hasFloatingSubtitle && service.viewModel.currentSubtitleLanguage != null) {
+                Box(modifier = Modifier
+                    .size(24.dp)
+                    .alpha(subtitleAlpha)
+                    .clickAlpha {
+                        AudioSubtitleManager.currentVideo =
+                            service.viewModel.videoInfo?.data?.title ?: ""
+                        AudioSubtitleManager.isSubtitleOn = !AudioSubtitleManager.isSubtitleOn
+                    }
+                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                    .drawBehind {
+                        if (AudioSubtitleManager.isSubtitleOn) {
+                            drawRoundRect(
+                                Color.White,
+                                size = Size(size.width, size.height),
+                                cornerRadius = CornerRadius(6f)
+                            )
+                        }
+                        translate(
+                            (size.width - 18.sp.toPx()) / 2,
+                            (size.height - 18.sp.toPx()) / 2
+                        ) {
+                            drawText(
+                                textMeasurer,
+                                text = unicodeToString("\\uea7f"),
+                                style = TextStyle(
+                                    fontFamily = biliIconFontFamily,
+                                    fontSize = 18.sp,
+                                    color = Color.White
+                                ),
+                                blendMode = if (AudioSubtitleManager.isSubtitleOn) BlendMode.Xor else DrawScope.DefaultBlendMode
+                            )
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Activity.ProgressView(
     service: AudioPlayerService
 ) {
     val currentPlayProgress by service.viewModel.currentPlayProgress.collectAsState(initial = 0)
-    var draggedProgress by remember {
-        mutableLongStateOf(0L)
-    }
-    var isDraggingProgress by remember {
-        mutableStateOf(false)
-    }
-    val currentSubtitleText by service.viewModel.currentSubtitleText.collectAsState(initial = null)
-    val progressBarThumbScale by wearBiliAnimateFloatAsState(targetValue = if (isDraggingProgress) 1.5f else 1f)
     service.viewModel.let { viewModel ->
         service.viewModel.videoInfo?.data?.let { video ->
             Column(
@@ -232,7 +412,7 @@ fun Activity.PlayerPage(
                     text = video.title,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    fontSize = 13.spx,
+                    fontSize = 13.sp,
                     maxLines = 1,
                     //overflow = TextOverflow.Ellipsis,
                     fontFamily = wearbiliFontFamily,
@@ -243,7 +423,7 @@ fun Activity.PlayerPage(
                     text = video.owner.name,
                     fontWeight = FontWeight.Medium,
                     color = Color(255, 255, 255, 128),
-                    fontSize = 12.spx,
+                    fontSize = 12.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontFamily = wearbiliFontFamily
@@ -258,101 +438,81 @@ fun Activity.PlayerPage(
                         .padding(vertical = 4.dp, horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextIcon(icon = "\\ue993", size = 24.spx, modifier = Modifier
+                    val quickSeekAlpha by wearBiliAnimateFloatAsState(targetValue = if (viewModel.isReady) 1f else 0.5f)
+                    BiliTextIcon(icon = "ea04", size = 24.sp, modifier = Modifier
                         .weight(1f)
-                        .clickVfx { adjustVolume(false, viewModel, service.lifecycleScope) })
+                        .alpha(quickSeekAlpha)
+                        .clickVfx(isEnabled = viewModel.isReady) {
+                            //adjustVolume(false, viewModel, service.lifecycleScope)
+                            if (viewModel.isReady) {
+                                viewModel.player.seekTo(
+                                    (currentPlayProgress - 10 * 1000).coerceAtMost(
+                                        0
+                                    )
+                                )
+                            }
+                        })
                     Box(modifier = Modifier
                         .clickVfx(isEnabled = viewModel.isReady) {
                             if (viewModel.player.isPlaying) viewModel.player.pause() else viewModel.player.start()
                         }
                         .weight(1f)
-                        .clip(CircleShape)
-                        .background(BilibiliPink)
                         .aspectRatio(1f)
-                        .padding(10.dp)
-                    ) {
-                        if (viewModel.currentStat == PlayerStats.Buffering) {
-                            CircularProgressIndicator(color = parseColor("#FFDBE7"))
-                        } else {
-                            TextIcon(
-                                icon = if (viewModel.player.isPlaying) "\\uf8ae" else "\\uf5b0",
-                                modifier = Modifier.align(Alignment.Center),
-                                size = 20.spx
+                        .drawWithContent {
+                            drawContent()
+                            val stroke = Stroke(7f, cap = StrokeCap.Round)
+                            val diameterOffset = stroke.width / 2
+                            val arcDimen = size.width - 2 * diameterOffset
+                            val progress =
+                                currentPlayProgress.toFloat() / (viewModel.player.duration + 1).toFloat()
+                            drawArc(
+                                color = Color.White,
+                                startAngle = -90f,
+                                sweepAngle = progress * 360f,
+                                useCenter = false,
+                                topLeft = Offset(diameterOffset, diameterOffset),
+                                size = Size(arcDimen, arcDimen),
+                                style = stroke
                             )
+                        }) {
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(Color(18, 18, 18, 77))
+                                .aspectRatio(1f)
+
+                        ) {
+                            if (viewModel.currentStat == PlayerStats.Buffering) {
+                                CircularProgressIndicator(
+                                    color = parseColor("#FFDBE7"),
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .padding(3.dp)
+                                )
+                            } else {
+                                SegoeTextIcon(
+                                    icon = if (viewModel.player.isPlaying) "f8ae" else "f5b0",
+                                    modifier = Modifier.align(Alignment.Center),
+                                    size = 20.sp
+                                )
+                            }
                         }
                     }
-                    TextIcon(icon = "\\ue995", size = 24.spx, modifier = Modifier
+                    BiliTextIcon(icon = "ea1e", size = 24.sp, modifier = Modifier
                         .weight(1f)
-                        .clickVfx { adjustVolume(true, viewModel, service.lifecycleScope) })
+                        .alpha(quickSeekAlpha)
+                        .clickVfx(isEnabled = viewModel.isReady) {
+                            if (viewModel.isReady) {
+                                viewModel.player.seekTo(
+                                    (currentPlayProgress + 10 * 1000).coerceAtMost(
+                                        viewModel.videoDuration
+                                    )
+                                )
+                            }
+                        })
                 }
                 // endregion
 
-                // region subtitle
-                Box(modifier = Modifier.animateContentSize()) {
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = currentSubtitleText != null,
-                        enter = scaleIn() + fadeIn(),
-                        exit = scaleOut() + fadeOut()
-                    ) {
-                        androidx.compose.material.Text(
-                            text = currentSubtitleText ?: "", modifier = Modifier
-                                .padding(
-                                    start = 8.dp,
-                                    end = 8.dp,
-                                    top = 8.dp
-                                )
-                                .background(
-                                    color = Color(49, 47, 47, 153),
-                                    shape = RoundedCornerShape(4.dp)
-                                )
-                                .padding(6.dp)
-                                //.align(Alignment.BottomCenter)
-                                .wearBiliAnimatedContentSize(),
-                            color = Color.White,
-                            fontSize = 12.sp,
-                            fontFamily = wearbiliFontFamily,
-                            fontWeight = FontWeight.Medium,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-                // endregion
-
-                // region seekbar
-                androidx.compose.material3.Slider(
-                    value = if (isDraggingProgress) draggedProgress.toFloat() else currentPlayProgress.toFloat(),
-                    onValueChange = {
-                        isDraggingProgress = true
-                        draggedProgress = it.toLong()
-                    },
-                    onValueChangeFinished = {
-                        viewModel.player.seekTo(draggedProgress)
-                        viewModel.currentStat =
-                            PlayerStats.Buffering
-                        isDraggingProgress = false
-                    },
-                    valueRange = 0f..viewModel.videoDuration.toFloat(),
-                    colors = SliderDefaults.colors(
-                        activeTrackColor = BilibiliPink
-                    ),
-                    thumb = {
-                        Image(
-                            painter = painterResource(id = R.drawable.img_progress_bar_thumb_little_tv),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .offset(
-                                    y = 5.dp,
-                                    x = 3.dp
-                                )
-                                .size(10.dp)
-                                .scale(progressBarThumbScale)
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .scale(1.05f)
-                )
-                // endregion
 
                 // region loading and volume message
                 Crossfade(
@@ -363,11 +523,12 @@ fun Activity.PlayerPage(
                         Text(
                             text = viewModel.volumeInformation,
                             color = Color.White,
-                            fontSize = 10.spx,
+                            fontSize = 10.sp,
                             fontFamily = wearbiliFontFamily,
                             modifier = Modifier
                                 .fillMaxWidth(),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Medium
                         )
                     } else {
                         Crossfade(targetState = viewModel.isReady, label = "") { isReady ->
@@ -377,13 +538,14 @@ fun Activity.PlayerPage(
                                     label = ""
                                 ) { message ->
                                     Text(
-                                        text = message,
+                                        text = message.lines().lastOrNull() ?: "",
                                         color = Color.White,
-                                        fontSize = 10.spx,
+                                        fontSize = 10.sp,
                                         fontFamily = wearbiliFontFamily,
                                         modifier = Modifier
                                             .fillMaxWidth(),
-                                        textAlign = TextAlign.Center
+                                        textAlign = TextAlign.Center,
+                                        fontWeight = FontWeight.Medium
                                     )
                                 }
                             } else {
@@ -395,11 +557,12 @@ fun Activity.PlayerPage(
                                             .secondToTime()
                                     }",
                                     color = Color.White,
-                                    fontSize = 10.spx,
+                                    fontSize = 10.sp,
                                     fontFamily = wearbiliFontFamily,
                                     modifier = Modifier
                                         .fillMaxWidth(),
-                                    textAlign = TextAlign.Center
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         }
@@ -408,7 +571,122 @@ fun Activity.PlayerPage(
                 // endregion
             }
         }
+    }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SeekView(
+    service: AudioPlayerService,
+) {
+    val currentPlayProgress by service.viewModel.currentPlayProgress.collectAsState(initial = 0)
+    var draggedProgress by remember {
+        mutableLongStateOf(0L)
+    }
+    var isDraggingProgress by remember {
+        mutableStateOf(false)
+    }
+    val slideBarHeight by wearBiliAnimateDpAsState(targetValue = if (isDraggingProgress) 24.dp else 12.dp)
+    val textRowPadding by wearBiliAnimateDpAsState(targetValue = if (isDraggingProgress) 0.dp else 4.dp)
+
+    service.viewModel.let { viewModel ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp), verticalArrangement = Arrangement.Center
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = textRowPadding)
+                    .offset(y = (-2).dp)
+            ) {
+                Text(
+                    text = (if (isDraggingProgress) draggedProgress else currentPlayProgress).div(
+                        1000
+                    ).secondToTime(),
+                    fontFamily = wearbiliFontFamily,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = viewModel.player.duration.div(1000).secondToTime(),
+                    fontFamily = wearbiliFontFamily,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+            GradientSlider(
+                value = if (isDraggingProgress) draggedProgress.toFloat() else currentPlayProgress.toFloat(),
+                onValueChanged = {
+                    isDraggingProgress = true
+                    draggedProgress = it.toLong()
+                },
+                onSlideFinished = {
+                    viewModel.player.seekTo(draggedProgress)
+                    viewModel.currentStat =
+                        PlayerStats.Buffering
+                    isDraggingProgress = false
+                },
+                range = 0f..viewModel.videoDuration.toFloat(),
+                brush = Brush.horizontalGradient(listOf(Color.White, Color.White)),
+                trackHeight = slideBarHeight,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = (-2).dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun Activity.VolumeView() {
+    var currentVolume by remember {
+        mutableFloatStateOf(getCurrentVolume().toFloat())
+    }
+    var isDraggingProgress by remember {
+        mutableStateOf(false)
+    }
+    val slideBarHeight by wearBiliAnimateDpAsState(targetValue = if (isDraggingProgress) 24.dp else 12.dp)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp), verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(fontSize = 18.sp, baselineShift = BaselineShift(-0.3f))) {
+                    appendBiliIcon("eb15")
+                }
+                append(" ")
+                append("${(currentVolume / getMaxVolume().toFloat() * 100).toInt()}%")
+            },
+            fontFamily = wearbiliFontFamily,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        GradientSlider(
+            value = currentVolume,
+            onValueChanged = {
+                isDraggingProgress = true
+                currentVolume = it
+                adjustVolume(it.roundToInt())
+            },
+            onSlideFinished = {
+                isDraggingProgress = false
+            },
+            range = 0f..getMaxVolume().toFloat(),
+            brush = Brush.horizontalGradient(listOf(Color.White, Color.White)),
+            trackHeight = slideBarHeight,
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset(y = (-2).dp)
+        )
     }
 }
 
@@ -477,7 +755,7 @@ fun Activity.SettingsPage(
                 text = "播放选项",
                 color = Color.White,
                 fontFamily = wearbiliFontFamily,
-                fontSize = 20.spx,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
 

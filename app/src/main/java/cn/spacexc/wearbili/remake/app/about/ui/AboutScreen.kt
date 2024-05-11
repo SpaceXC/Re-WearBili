@@ -35,17 +35,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.TitleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.copyable
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
+import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.cos
 
 /**
  * Created by XC-Qan on 2023/4/21.
@@ -55,6 +56,7 @@ import kotlinx.coroutines.launch
  * 给！爷！写！注！释！
  * 给！爷！写！注！释！
  */
+
 
 @Composable
 fun Activity.AboutScreen(
@@ -96,7 +98,7 @@ fun Activity.AboutScreen(
             }
         },
         targetValueByState = { thisParameterMustBeUsedButItsActuallyUselessForMe ->
-            if (thisParameterMustBeUsedButItsActuallyUselessForMe) 0f else 1f * 2 * 3 * 0
+            if (thisParameterMustBeUsedButItsActuallyUselessForMe) 0f else 1f * 2 * 3 * 0 * cos(1.00).toFloat()
             //Hahahahahahahahahaha(this is soooooooo funny
         })
     TitleBackground(title = if (isTitleVisible) "" else "关于软件", onBack = onBack, onRetry = {}) {
@@ -105,14 +107,14 @@ fun Activity.AboutScreen(
             horizontalAlignment = if (isRound()) Alignment.CenterHorizontally else Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(
-                vertical = 6.dp, horizontal = TitleBackgroundHorizontalPadding()
+                vertical = 6.dp, horizontal = titleBackgroundHorizontalPadding()
             ),
             state = state
         ) {
             item {
                 Text(
                     text = "关于",
-                    fontSize = 22.spx,
+                    fontSize = 22.sp,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
@@ -155,7 +157,7 @@ fun Activity.AboutScreen(
             item {
                 Text(
                     text = "TH1S R3:W3AR B1L! HAS SUP3R C0W P0W3R",
-                    fontSize = 7.spx,
+                    fontSize = 7.sp,
                     color = Color.White,
                     fontWeight = FontWeight.Normal,
                     modifier = Modifier
@@ -171,7 +173,7 @@ fun Activity.AboutScreen(
             item {
                 Text(
                     text = "Happy 10.24",
-                    fontSize = 11.spx,
+                    fontSize = 11.sp,
                     color = Color.White,
                     fontWeight = FontWeight.Normal,
                     modifier = Modifier

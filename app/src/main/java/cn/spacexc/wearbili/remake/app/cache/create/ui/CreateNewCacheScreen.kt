@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import cn.spacexc.bilibilisdk.sdk.video.info.remote.info.web.Page
 import cn.spacexc.wearbili.remake.app.cache.list.CacheListActivity
@@ -34,7 +35,6 @@ import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
-import cn.spacexc.wearbili.remake.common.ui.spx
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateDpAsState
 import kotlinx.coroutines.launch
@@ -85,7 +85,7 @@ fun Activity.CreateNewCacheScreen(
                         }
                         selectedPages = temp
                     }) {
-                        Text(text = page.part, fontFamily = wearbiliFontFamily, fontSize = 13.spx)
+                        Text(text = page.part, fontFamily = wearbiliFontFamily, fontSize = 13.sp)
                     }
                 }
             }
@@ -131,7 +131,7 @@ fun Activity.CreateNewCacheScreen(
             ) {
                 androidx.compose.material3.Text(
                     text = "确定",
-                    fontSize = 13.spx,
+                    fontSize = 13.sp,
                     fontFamily = wearbiliFontFamily,
                     color = Color.White,
                     modifier = Modifier.fillMaxWidth(),

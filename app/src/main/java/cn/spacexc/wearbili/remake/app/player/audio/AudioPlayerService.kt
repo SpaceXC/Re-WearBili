@@ -22,6 +22,7 @@ import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_VID
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,6 +47,8 @@ class AudioPlayerService : LifecycleService() {
     lateinit var viewModel: Media3AudioPlayerViewModel
 
     var cid = 0L
+
+    private var subtitleUpdateJob: Job? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.let {
@@ -87,6 +90,9 @@ class AudioPlayerService : LifecycleService() {
                     }
                 }
 
+                subtitleUpdateJob?.cancel()
+                updateSubtitle()
+
                 createChannelId()
                 val notification = NotificationCompat.Builder(this, CHANNEL_ID)
                     .setSmallIcon(R.drawable.icon_outline_radio)
@@ -120,6 +126,26 @@ class AudioPlayerService : LifecycleService() {
         }
 
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun updateSubtitle() {
+        AudioSubtitleManager.currentPlayingSubtitle = null
+        subtitleUpdateJob = lifecycleScope.launch {
+            viewModel.currentPlayProgress.collect {
+                AudioSubtitleManager.currentProgress = it.toDouble() / 1000
+            }/*
+            viewModel.currentPlayProgress.collect {
+                AudioSubtitleManager.currentProgress = it.toDouble() / 1000
+                delay(10)
+            }*/
+        }
+        lifecycleScope.launch {
+            viewModel.currentSubtitle.collect {
+                if (it != null) {
+                    AudioSubtitleManager.currentPlayingSubtitle = it
+                }
+            }
+        }
     }
 
     private fun updateNotification(
@@ -183,6 +209,10 @@ class AudioPlayerService : LifecycleService() {
         //videoCid = 0
         //viewModel.player.stop()
         viewModel.player.release()
+        AudioSubtitleManager.currentVideo = ""
+        AudioSubtitleManager.currentPlayingSubtitle = null
+        AudioSubtitleManager.currentProgress = 0.0
+        AudioSubtitleManager.isSubtitleOn = false
         lifecycleScope.cancel()
         stopSelf()
     }

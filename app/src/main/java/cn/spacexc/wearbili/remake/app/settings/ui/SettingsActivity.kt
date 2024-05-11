@@ -12,20 +12,23 @@ import androidx.compose.material.icons.outlined.Animation
 import androidx.compose.material.icons.outlined.FormatSize
 import androidx.compose.material.icons.outlined.Handyman
 import androidx.compose.material.icons.outlined.PeopleOutline
+import androidx.compose.material.icons.outlined.VideoLabel
 import androidx.compose.material.icons.outlined.VideoSettings
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.lifecycleScope
 import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.remake.app.login.qrcode.web.ui.QrCodeLoginActivity
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.app.settings.domain.SettingsItem
+import cn.spacexc.wearbili.remake.app.settings.experimantal.ExperimentalFunctionsActivity
 import cn.spacexc.wearbili.remake.app.settings.scaling.ScaleAdjustingActivity
 import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.QuickToolbarCustomizationActivity
-import cn.spacexc.wearbili.remake.app.settings.user.SwitchUserActivity
 import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.proto.settings.VideoDecoder
+import cn.spacexc.wearbili.remake.proto.settings.VideoDisplaySurface
 import cn.spacexc.wearbili.remake.proto.settings.copy
 import kotlinx.coroutines.launch
 
@@ -119,22 +122,76 @@ class SettingsActivity : ComponentActivity() {
             },
             action = {
                 lifecycleScope.launch {
-                    SettingsManager.updateConfiguration {
-                        copy {
-                            videoDecoder =
-                                if (videoDecoder == VideoDecoder.Hardware) VideoDecoder.Software else VideoDecoder.Hardware
+                    if (it != null) {
+                        SettingsManager.updateConfiguration {
+                            copy {
+                                videoDecoder = it.option as VideoDecoder
+                            }
                         }
                     }
                 }
             },
-            value = {
+            currentValue = {
+                SettingsManager.getConfiguration().videoDecoder
+            },
+            displayedValue = {
                 when (SettingsManager.getConfiguration().videoDecoder) {
                     null -> ""
                     VideoDecoder.Hardware -> "硬解码"
                     VideoDecoder.Software -> "软解码"
                     else -> ""
                 }
-            }
+            },
+            options = listOf(
+                SettingsItem.Option(
+                    VideoDecoder.Software, "软解码"
+                ),
+                SettingsItem.Option(
+                    VideoDecoder.Hardware, "硬解码"
+                )
+            )
+        ),
+        SettingsItem(
+            name = "视频显示模式",
+            description = "无法正常播放时，尝试更改此选项",
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.VideoLabel,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.fillMaxSize()
+                )
+            },
+            action = {
+                lifecycleScope.launch {
+                    if (it != null) {
+                        SettingsManager.updateConfiguration {
+                            copy {
+                                videoDisplaySurface = it.option as VideoDisplaySurface
+                            }
+                        }
+                    }
+                }
+            },
+            currentValue = {
+                SettingsManager.getConfiguration().videoDisplaySurface
+            },
+            displayedValue = {
+                when (SettingsManager.getConfiguration().videoDisplaySurface) {
+                    null -> ""
+                    VideoDisplaySurface.SurfaceView -> "SurfaceView"
+                    VideoDisplaySurface.TextureView -> "TextureView"
+                    else -> ""
+                }
+            },
+            options = listOf(
+                SettingsItem.Option(
+                    VideoDisplaySurface.SurfaceView, "SurfaceView"
+                ),
+                SettingsItem.Option(
+                    VideoDisplaySurface.TextureView, "TextureView"
+                )
+            )
         ),
         SettingsItem(
             name = "添加账号",
@@ -152,18 +209,18 @@ class SettingsActivity : ComponentActivity() {
             }
         ),
         SettingsItem(
-            name = "切换账号",
-            description = "切换到另一个账号",
+            name = "实验性功能",
+            description = "开启正在试验的功能",
             icon = {
                 Icon(
-                    imageVector = Icons.Outlined.PeopleOutline,
+                    painter = painterResource(id = cn.spacexc.wearbili.remake.R.drawable.icon_experimental_function),
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier.fillMaxSize()
                 )
             },
             action = {
-                startActivity(Intent(this, SwitchUserActivity::class.java))
+                startActivity(Intent(this, ExperimentalFunctionsActivity::class.java))
             }
         ),
         SettingsItem(
@@ -177,7 +234,9 @@ class SettingsActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 )
             },
-            action = ::logout
+            action = {
+                logout()
+            }
         )
     )
 
