@@ -67,7 +67,7 @@ leancloud = "8.2.19"
 rxjava = "2.1.1"
 
 ijkplayer = "0.8.8"
-bilibilisdk = "b3244474a9"
+bilibilisdk = "d7960ca7e8"
 
 [libraries]
 accompanist-placeholder-material = { module = "com.google.accompanist:accompanist-placeholder-material", version.ref = "accompanistPlaceholderMaterial" }
