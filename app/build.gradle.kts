@@ -115,7 +115,6 @@ dependencies {
     implementation(project(":ijkplayer-java"))
     implementation(project(":ijkplayer-so"))
     implementation(libs.bilibili.sdk)
-    //implementation(project(":libs"))
 
     implementation(libs.androidx.datastore.proto)
     implementation(libs.androidx.datastore.core)

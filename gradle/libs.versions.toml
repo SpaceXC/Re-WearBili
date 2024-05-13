@@ -28,7 +28,7 @@ junitVersion = "4.12"
 rxhttp = "3.2.3"
 okhttp = "4.12.0"
 kotlinxMetadataJvm = "0.9.0"
-ktorClientCore = "2.3.7"
+ktorClientCore = "2.3.11"
 lifecycleRuntimeKtx = "2.7.0"
 material = "1.11.0"
 material3WindowSizeClass = "1.2.1"
@@ -67,7 +67,7 @@ leancloud = "8.2.19"
 rxjava = "2.1.1"
 
 ijkplayer = "0.8.8"
-bilibilisdk = "d7960ca7e8"
+bilibilisdk = "patch-1-a5d33ae346-1"
 
 [libraries]
 accompanist-placeholder-material = { module = "com.google.accompanist:accompanist-placeholder-material", version.ref = "accompanistPlaceholderMaterial" }
@@ -112,7 +112,7 @@ ijkplayer-arm64 = { module = "tv.danmaku.ijk.media:ijkplayer-arm64", version.ref
 ijkplayer-x86 = { module = "tv.danmaku.ijk.media:ijkplayer-x86", version.ref = "ijkplayer" }
 ijkplayer-x8664 = { module = "tv.danmaku.ijk.media:ijkplayer-x86_64", version.ref = "ijkplayer" }
 
-bilibili-sdk = { module = "com.github.SpaceXC:Bilibili-Kotlin-SDK", version.ref = "bilibilisdk" }
+bilibili-sdk = { module = "com.github.TsubakiDev:Bilibili-Kotlin-SDK", version.ref = "bilibilisdk" }
 fastutil = { module = "it.unimi.dsi:fastutil",  version.ref = "fastutil" }
 
 androidx-material3-window-size = { module = "androidx.compose.material3:material3-window-size-class", version.ref = "material3WindowSizeClass" }
