@@ -110,11 +110,11 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.palette.ktx)
 
+    implementation(libs.bilibili.sdk)
     implementation(libs.kotlinx.metadata.jvm)
     implementation(project(":app:common"))
     implementation(project(":ijkplayer-java"))
     implementation(project(":ijkplayer-so"))
-    implementation(project(":libs"))
 
     implementation(libs.androidx.datastore.proto)
     implementation(libs.androidx.datastore.core)
@@ -132,6 +132,8 @@ dependencies {
     kapt(libs.hilt.compiler)
     kapt(libs.hilt.work.compiler)
 
+    // TODO: 使用fastutil获得更好的性能
+    // implementation(libs.fastutil)
 
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)

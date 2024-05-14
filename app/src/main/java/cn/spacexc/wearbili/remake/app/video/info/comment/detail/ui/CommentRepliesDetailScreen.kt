@@ -58,70 +58,72 @@ fun Activity.CommentRepliesDetailScreen(
         ) {
             viewModel.pagingDataSource?.rootComment?.let { comment ->
                 item {
-                    CommentCard(
-                        senderName = comment.member.uname,
-                        senderAvatar = comment.member.avatar,
-                        senderNameColor = comment.member.vip.nicknameColor.ifNullOrEmpty { "#FFFFFF" },
-                        senderPendant = comment.member.pendant.imageEnhance,
-                        senderOfficialVerify = comment.member.officialVerify.type,
-                        senderMid = comment.member.mid.toLongOrNull() ?: 0L,
-                        uploaderMid = uploaderMid,
-                        senderIpLocation = comment.replyControl.location,
-                        sendTimeStamp = comment.ctime.times(1000),
-                        commentContent = comment.content.message,
-                        commentLikeCount = comment.like,
-                        commentRepliesCount = comment.rcount,
-                        commentImagesList = buildList {
-                            comment.content.pictures?.forEach {
-                                add(CommentContentData.Picture(it.imgSrc))
-                            }
-                        },
-                        commentEmoteMap = buildMap {
-                            comment.content.emote?.forEach {
-                                val emote = it.value
-                                put(
-                                    it.key, EmoteObject(
-                                        emote.attr,
-                                        emote.id,
-                                        emote.jumpTitle,
-                                        Meta(emote.meta.size),
-                                        emote.mtime,
-                                        emote.packageId,
-                                        emote.state,
-                                        emote.text,
-                                        emote.type,
-                                        emote.url
+                    comment.replyControl.location?.let {
+                        CommentCard(
+                            senderName = comment.member.uname,
+                            senderAvatar = comment.member.avatar,
+                            senderNameColor = comment.member.vip.nicknameColor.ifNullOrEmpty { "#FFFFFF" },
+                            senderPendant = comment.member.pendant.imageEnhance,
+                            senderOfficialVerify = comment.member.officialVerify.type,
+                            senderMid = comment.member.mid.toLongOrNull() ?: 0L,
+                            uploaderMid = uploaderMid,
+                            senderIpLocation = it,
+                            sendTimeStamp = comment.ctime.times(1000),
+                            commentContent = comment.content.message,
+                            commentLikeCount = comment.like,
+                            commentRepliesCount = comment.rcount,
+                            commentImagesList = buildList {
+                                comment.content.pictures?.forEach {
+                                    add(CommentContentData.Picture(it.imgSrc))
+                                }
+                            },
+                            commentEmoteMap = buildMap {
+                                comment.content.emote?.forEach {
+                                    val emote = it.value
+                                    put(
+                                        it.key, EmoteObject(
+                                            emote.attr,
+                                            emote.id,
+                                            emote.jumpTitle,
+                                            Meta(emote.meta.size),
+                                            emote.mtime,
+                                            emote.packageId,
+                                            emote.state,
+                                            emote.text,
+                                            emote.type,
+                                            emote.url
+                                        )
                                     )
-                                )
-                            }
-                        },
-                        commentJumpUrlMap = buildMap {
-                            comment.content.jumpUrl.forEach {
-                                val jumpUrlObject = it.value
-                                put(
-                                    it.key, CommentContentData.JumpUrlObject(
-                                        jumpUrlObject.title,
-                                        jumpUrlObject.prefixIcon,
-                                        CommentContentData.JumpUrlExtra(jumpUrlObject.extra.isWordSearch)
+                                }
+                            },
+                            commentJumpUrlMap = buildMap {
+                                comment.content.jumpUrl.forEach {
+                                    val jumpUrlObject = it.value
+                                    put(
+                                        it.key, CommentContentData.JumpUrlObject(
+                                            jumpUrlObject.title,
+                                            jumpUrlObject.prefixIcon,
+                                            CommentContentData.JumpUrlExtra(jumpUrlObject.extra.isWordSearch)
+                                        )
                                     )
-                                )
-                            }
-                        },
-                        commentAttentionedUsersMap = buildMap {
-                            for (member in comment.content.members) {
-                                put(member.uname, member.mid.toLongOrNull() ?: 2)
-                            }
-                        },
-                        commentReplyControl = "",
-                        commentRpid = comment.rpid,
-                        isUpLiked = comment.cardLabel?.find { it.textContent == "UP主觉得很赞" } != null,    //先这样咯
-                        context = this@CommentRepliesDetailScreen,
-                        isClickable = false,
-                        oid = 0,
-                        noteCvid = 0,
-                        isTopComment = false,
-                        commentReplies = emptyList()
-                    )
+                                }
+                            },
+                            commentAttentionedUsersMap = buildMap {
+                                for (member in comment.content.members) {
+                                    put(member.uname, member.mid.toLongOrNull() ?: 2)
+                                }
+                            },
+                            commentReplyControl = "",
+                            commentRpid = comment.rpid,
+                            isUpLiked = comment.cardLabel?.find { it.textContent == "UP主觉得很赞" } != null,    //先这样咯
+                            context = this@CommentRepliesDetailScreen,
+                            isClickable = false,
+                            oid = 0,
+                            noteCvid = 0,
+                            isTopComment = false,
+                            commentReplies = emptyList()
+                        )
+                    }
                 }
             }
             item {
@@ -136,70 +138,72 @@ fun Activity.CommentRepliesDetailScreen(
             }
             items(lazyListData?.itemCount ?: 0) { index ->
                 lazyListData?.get(index)?.let { comment ->
-                    CommentCard(
-                        senderName = comment.member.uname,
-                        senderAvatar = comment.member.avatar,
-                        senderNameColor = comment.member.vip.nicknameColor.ifNullOrEmpty { "#FFFFFF" },
-                        senderPendant = comment.member.pendant.imageEnhance,
-                        senderOfficialVerify = comment.member.officialVerify.type,
-                        senderMid = comment.member.mid.toLongOrNull() ?: 0L,
-                        uploaderMid = uploaderMid,
-                        senderIpLocation = comment.replyControl.location,
-                        sendTimeStamp = comment.ctime.times(1000),
-                        commentContent = comment.content.message,
-                        commentLikeCount = comment.like,
-                        commentRepliesCount = comment.rcount,
-                        commentImagesList = buildList {
-                            comment.content.pictures?.forEach {
-                                add(CommentContentData.Picture(it.imgSrc))
-                            }
-                        },
-                        commentEmoteMap = buildMap {
-                            comment.content.emote?.forEach {
-                                val emote = it.value
-                                put(
-                                    it.key, EmoteObject(
-                                        emote.attr,
-                                        emote.id,
-                                        emote.jumpTitle,
-                                        Meta(emote.meta.size),
-                                        emote.mtime,
-                                        emote.packageId,
-                                        emote.state,
-                                        emote.text,
-                                        emote.type,
-                                        emote.url
+                    comment.replyControl.location?.let {
+                        CommentCard(
+                            senderName = comment.member.uname,
+                            senderAvatar = comment.member.avatar,
+                            senderNameColor = comment.member.vip.nicknameColor.ifNullOrEmpty { "#FFFFFF" },
+                            senderPendant = comment.member.pendant.imageEnhance,
+                            senderOfficialVerify = comment.member.officialVerify.type,
+                            senderMid = comment.member.mid.toLongOrNull() ?: 0L,
+                            uploaderMid = uploaderMid,
+                            senderIpLocation = it,
+                            sendTimeStamp = comment.ctime.times(1000),
+                            commentContent = comment.content.message,
+                            commentLikeCount = comment.like,
+                            commentRepliesCount = comment.rcount,
+                            commentImagesList = buildList {
+                                comment.content.pictures?.forEach {
+                                    add(CommentContentData.Picture(it.imgSrc))
+                                }
+                            },
+                            commentEmoteMap = buildMap {
+                                comment.content.emote?.forEach {
+                                    val emote = it.value
+                                    put(
+                                        it.key, EmoteObject(
+                                            emote.attr,
+                                            emote.id,
+                                            emote.jumpTitle,
+                                            Meta(emote.meta.size),
+                                            emote.mtime,
+                                            emote.packageId,
+                                            emote.state,
+                                            emote.text,
+                                            emote.type,
+                                            emote.url
+                                        )
                                     )
-                                )
-                            }
-                        },
-                        commentJumpUrlMap = buildMap {
-                            comment.content.jumpUrl.forEach {
-                                val jumpUrlObject = it.value
-                                put(
-                                    it.key, CommentContentData.JumpUrlObject(
-                                        jumpUrlObject.title,
-                                        jumpUrlObject.prefixIcon,
-                                        CommentContentData.JumpUrlExtra(jumpUrlObject.extra.isWordSearch)
+                                }
+                            },
+                            commentJumpUrlMap = buildMap {
+                                comment.content.jumpUrl.forEach {
+                                    val jumpUrlObject = it.value
+                                    put(
+                                        it.key, CommentContentData.JumpUrlObject(
+                                            jumpUrlObject.title,
+                                            jumpUrlObject.prefixIcon,
+                                            CommentContentData.JumpUrlExtra(jumpUrlObject.extra.isWordSearch)
+                                        )
                                     )
-                                )
-                            }
-                        },
-                        commentAttentionedUsersMap = buildMap {
-                            for (member in comment.content.members) {
-                                put(member.uname, member.mid.toLongOrNull() ?: 2)
-                            }
-                        },
-                        commentReplyControl = "",
-                        commentRpid = comment.rpid,
-                        isUpLiked = comment.cardLabel?.find { it.textContent == "UP主觉得很赞" } != null,    //先这样咯
-                        context = this@CommentRepliesDetailScreen,
-                        isClickable = false,
-                        oid = 0,
-                        noteCvid = 0,
-                        isTopComment = false,
-                        commentReplies = emptyList()
-                    )
+                                }
+                            },
+                            commentAttentionedUsersMap = buildMap {
+                                for (member in comment.content.members) {
+                                    put(member.uname, member.mid.toLongOrNull() ?: 2)
+                                }
+                            },
+                            commentReplyControl = "",
+                            commentRpid = comment.rpid,
+                            isUpLiked = comment.cardLabel?.find { it.textContent == "UP主觉得很赞" } != null,    //先这样咯
+                            context = this@CommentRepliesDetailScreen,
+                            isClickable = false,
+                            oid = 0,
+                            noteCvid = 0,
+                            isTopComment = false,
+                            commentReplies = emptyList()
+                        )
+                    }
                 }
             }
             item {

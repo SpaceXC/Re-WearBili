@@ -42,9 +42,7 @@ dependencies {
     api(libs.material)
     api(libs.androidx.ui.graphics)
 
-    //api(libs.bilibili.sdk)
-    //api(project(":libs"))
-    api(project(":libs"))
+    api(libs.bilibili.sdk)
     api(libs.hilt.android)
 
     implementation(libs.androidx.datastore.preferences)
