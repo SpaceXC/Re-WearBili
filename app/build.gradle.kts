@@ -110,11 +110,11 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.palette.ktx)
 
+    implementation(libs.bilibili.sdk)
     implementation(libs.kotlinx.metadata.jvm)
     implementation(project(":app:common"))
     implementation(project(":ijkplayer-java"))
     implementation(project(":ijkplayer-so"))
-    implementation(libs.bilibili.sdk)
 
     implementation(libs.androidx.datastore.proto)
     implementation(libs.androidx.datastore.core)
