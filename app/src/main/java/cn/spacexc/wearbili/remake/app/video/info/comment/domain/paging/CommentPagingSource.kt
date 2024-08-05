@@ -14,7 +14,7 @@ import cn.spacexc.wearbili.remake.app.video.info.comment.domain.VideoComment
  */
 
 class CommentPagingSource(
-    private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils,
+    private val networkUtils: cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils,
     private val oid: String
 ) : PagingSource<Int, CommentContentData>() {
     override fun getRefreshKey(state: PagingState<Int, CommentContentData>): Int? {

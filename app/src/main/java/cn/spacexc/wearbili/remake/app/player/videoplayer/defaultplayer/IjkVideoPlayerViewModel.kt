@@ -24,7 +24,7 @@ import cn.spacexc.bilibilisdk.sdk.video.info.remote.subtitle.SubtitleFile
 import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.log.logd
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.DanmakuGetter
@@ -145,6 +145,23 @@ class Media3VideoPlayerViewModel @Inject constructor(
                     //println("currentLanguage: $currentSubtitleLanguage")
                     //println("currentSubtitleContent: ${subtitleList[subtitleList.keys.lastOrNull()]?.currentSubtitle?.content}")
                     subtitleList[currentSubtitleLanguage]?.currentSubtitle?.content
+                } else null
+            emit(nextSubtitle)
+            delay(5)
+        }
+    }
+
+    var secondarySubtitleLanguage: String? by mutableStateOf(/*subtitleList.entries.lastOrNull() { !it.value.isAIGenerated }?.key*/null)
+    var secondarySubtitleText = flow {
+        var index = 0
+        while (true) {
+            //emit("index: $index")
+            index++
+            val nextSubtitle =
+                if (secondarySubtitleLanguage != null) {
+                    //println("currentLanguage: $currentSubtitleLanguage")
+                    //println("currentSubtitleContent: ${subtitleList[subtitleList.keys.lastOrNull()]?.currentSubtitle?.content}")
+                    subtitleList[secondarySubtitleLanguage]?.currentSubtitle?.content
                 } else null
             emit(nextSubtitle)
             delay(5)

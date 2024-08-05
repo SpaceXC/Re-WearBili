@@ -22,7 +22,7 @@ import java.net.URLEncoder
  */
 
 class SearchPagingSource(
-    private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils,
+    private val networkUtils: cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils,
     private val keyword: String,
 ) : PagingSource<Int, SearchObject>() {
     override fun getRefreshKey(state: PagingState<Int, SearchObject>): Int? {

@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app.main.ui
 
+import BiliTextIcon
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -22,14 +23,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FileDownload
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Movie
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -58,6 +50,7 @@ import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendViewModel
 import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.ui.SettingsActivity
+import cn.spacexc.wearbili.remake.app.splash.remote.Version
 import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
@@ -75,7 +68,7 @@ import kotlinx.coroutines.launch
 
 data class MenuItem(
     val text: String,
-    val icon: ImageVector? = null,
+    val icon: String? = null,
     @DrawableRes val iconResId: Int = 0,
     val customIcon: Boolean = false,
     val onClick: suspend PagerState.(Context) -> Unit,
@@ -84,11 +77,11 @@ data class MenuItem(
 val menuItems = listOf(
     MenuItem(
         text = "主页",
-        icon = Icons.Outlined.Home,
+        iconResId = R.drawable.icon_home,
         onClick = { _ ->
             scrollToPage(0)
-
-        }
+        },
+        customIcon = true
     ),
     MenuItem(
         text = "动态",
@@ -100,42 +93,42 @@ val menuItems = listOf(
     ),
     MenuItem(
         text = "我的",
-        icon = Icons.Outlined.Person,
+        icon = "EAEF",
         onClick = { _ ->
             scrollToPage(2)
         }
     ),
     MenuItem(
         "搜索",
-        icon = Icons.Outlined.Search,
+        icon = "EACB",
         onClick = { context ->
             context.startActivity(Intent(context, SearchActivity::class.java))
         }
     ),
     MenuItem(
         "番剧",
-        icon = Icons.Outlined.Movie,
+        icon = "EA47",
         onClick = { context ->
             context.startActivity(Intent(context, BangumiIndexActivity::class.java))
         }
     ),
     MenuItem(
         "缓存",
-        icon = Icons.Outlined.FileDownload,
+        icon = "EAA2",
         onClick = { context ->
             context.startActivity(Intent(context, CacheListActivity::class.java))
         }
     ),
     MenuItem(
         "设置",
-        icon = Icons.Outlined.Settings,
+        icon = "EB91",
         onClick = { context ->
             context.startActivity(Intent(context, SettingsActivity::class.java))
         }
     ),
     MenuItem(
         "关于",
-        icon = Icons.Outlined.Info,
+        icon = "EAC0",
         onClick = { context ->
             context.startActivity(Intent(context, AboutActivity::class.java))
         }
@@ -149,7 +142,7 @@ fun MainActivityScreen(
     recommendViewModel: RecommendViewModel,
     dynamicViewModel: DynamicViewModel,
     profileScreenState: ProfileScreenState,
-    updateInfo: SplashScreenActivity.AppUpdatesResult?,
+    updateInfo: Version?,
     onProfileRetry: () -> Unit
 ) {
     val pagerState = rememberPagerState {
@@ -223,16 +216,8 @@ fun MainActivityScreen(
                             if (item.icon != null) {
                                 OutlinedRoundButton(
                                     icon = {
-                                        Icon(
-                                            imageVector = item.icon,
-                                            tint = Color.White,
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .align(Alignment.Center)
-                                                .fillMaxSize(0.4f)
-                                            /*.scale(
-                                                if (isRound()) 1.5f else 1f
-                                            )*/
+                                        BiliTextIcon(icon = item.icon, modifier = Modifier.align(
+                                            Alignment.Center)
                                         )
                                     },
                                     text = item.text,

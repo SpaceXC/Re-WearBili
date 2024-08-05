@@ -62,8 +62,6 @@ fun Activity.CacheListScreen(
                         painter = painterResource(id = R.drawable.img_empty_box),
                         contentDescription = "Empty...",
                         modifier = Modifier.fillMaxWidth()
-                        //.fillMaxWidth(0.3f)
-                        //.aspectRatio(1f)
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(text = "什么都没有啊")

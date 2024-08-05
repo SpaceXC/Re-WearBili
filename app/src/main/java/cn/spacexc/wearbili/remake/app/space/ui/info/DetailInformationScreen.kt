@@ -1,6 +1,9 @@
 package cn.spacexc.wearbili.remake.app.space.ui.info
 
 import android.app.Activity
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,14 +32,19 @@ import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceViewModel
 import cn.spacexc.wearbili.remake.common.ui.OfficialVerify
 import cn.spacexc.wearbili.remake.common.ui.SmallUserCard
+import cn.spacexc.wearbili.remake.common.ui.clickAlpha
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun Activity.DetailInformationScreen(
-    viewModel: UserSpaceViewModel
+    viewModel: UserSpaceViewModel,
+    animatedContentScope: AnimatedContentScope,
+    sharedTransitionScope: SharedTransitionScope,
+    onBackPressed: () -> Unit
 ) {
     val localDensity = LocalDensity.current
     viewModel.info?.let { user ->
@@ -50,9 +58,23 @@ fun Activity.DetailInformationScreen(
             SmallUserCard(
                 avatar = user.face,
                 username = user.name,
+                useBiliImage = false,
                 textSizeScale = 1.1f,
                 mid = 0,
-                context = this@DetailInformationScreen
+                context = this@DetailInformationScreen,
+                imageModifier = with(sharedTransitionScope) {
+                    Modifier.sharedElement(
+                        rememberSharedContentState(key = "userAvatar"),
+                        animatedVisibilityScope = animatedContentScope
+                    )
+                },
+                usernameModifier = with(sharedTransitionScope) {
+                    Modifier.sharedBounds(
+                        rememberSharedContentState(key = "username"),
+                        animatedVisibilityScope = animatedContentScope
+                    )
+                },
+                modifier = Modifier.clickAlpha { onBackPressed() }
             )
             Text(
                 text = "详情",

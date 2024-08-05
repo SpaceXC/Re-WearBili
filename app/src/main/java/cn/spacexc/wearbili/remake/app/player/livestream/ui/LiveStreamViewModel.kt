@@ -7,8 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.spacexc.bilibilisdk.sdk.stream.info.StreamInfo
-import cn.spacexc.wearbili.remake.app.settings.SettingsManager
-import cn.spacexc.wearbili.remake.proto.settings.VideoDecoder
 import kotlinx.coroutines.launch
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 
@@ -22,20 +20,20 @@ class LiveStreamViewModel : ViewModel() {
             "user_agent",
             "Mozilla/5.0 BiliDroid/*.*.* (bbcallen@gmail.com)"
         )
-        if (SettingsManager.getConfiguration().videoDecoder == VideoDecoder.Hardware) {
+        //if (SettingsManager.getConfiguration().videoDecoder == VideoDecoder.Hardware) {
             setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", 1)
             setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", 1)
             setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", 1)
-        }
 
-        if (SettingsManager.getConfiguration().isVideoLowPerformance) {
+
+        //if (SettingsManager.getConfiguration().isVideoLowPerformance) {
             setOption(
                 IjkMediaPlayer.OPT_CATEGORY_PLAYER,
                 "framedrop",
                 5
             )  //跳帧处理,放CPU处理较慢时，进行跳帧处理，保证播放流程，画面和声音同步
-            setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-fps", 24)  //最大fps
-        }
+            //setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-fps", 24)  //最大fps
+        //}
 
         setOnPreparedListener {
             aspectRatio = it.videoWidth.toFloat() / it.videoHeight.toFloat()

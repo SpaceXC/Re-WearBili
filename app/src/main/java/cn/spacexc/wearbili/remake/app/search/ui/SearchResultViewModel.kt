@@ -6,7 +6,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.search.domain.paging.SearchObject
 import cn.spacexc.wearbili.remake.app.search.domain.paging.SearchPagingSource
 import dagger.hilt.android.lifecycle.HiltViewModel

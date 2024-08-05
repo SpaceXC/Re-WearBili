@@ -17,19 +17,22 @@ import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
 import java.net.URI
+import java.util.UUID
 
 class DeviceDiscoverViewModel : ViewModel() {
     private val client = HttpClient(CIO)
 
     data class Device(
+        val uuid: UUID = UUID.randomUUID(),
         val descriptionLocation: String,
         val ipAddress: String,
         val friendlyName: String,
-        val isBilibiliDevice: Boolean
+        val isBiliDevice: Boolean
     )
 
-    var deviceList by mutableStateOf(emptyList<Device>())
+    var deviceList by mutableStateOf(listOf(Device(descriptionLocation = "", ipAddress = "", friendlyName = "", isBiliDevice = true)))
         private set
+
 
     suspend fun discoverDevices() {
         val tempDevices = deviceList.toMutableList()
@@ -98,7 +101,7 @@ class DeviceDiscoverViewModel : ViewModel() {
                     deviceList = tempDevices
 
                     deviceList.forEach {
-                        println(it.descriptionLocation)
+                        //println(it.descriptionLocation)
                     }
                     println()
                     delay(1000)
@@ -113,6 +116,7 @@ class DeviceDiscoverViewModel : ViewModel() {
     }
 
     private suspend fun Device.isOnline(client: HttpClient): Boolean {
+        if(descriptionLocation.isEmpty()) return true
         return try {
             val response = client.get(descriptionLocation)
             response.status == HttpStatusCode.OK
@@ -133,7 +137,7 @@ class DeviceDiscoverViewModel : ViewModel() {
         return Device(
             descriptionLocation = xmlLocation,
             friendlyName = friendlyName,
-            isBilibiliDevice = isBilibili,
+            isBiliDevice = isBilibili,
             ipAddress = URI(xmlLocation.replace("\r", "").replace("\n", "")).host
         )
     }

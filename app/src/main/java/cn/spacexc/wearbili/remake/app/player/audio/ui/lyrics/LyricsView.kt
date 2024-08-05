@@ -1,6 +1,7 @@
 package cn.spacexc.wearbili.remake.app.player.audio.ui.lyrics
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.StartOffset
@@ -12,6 +13,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
@@ -74,6 +77,7 @@ import cn.spacexc.bilibilisdk.sdk.video.info.remote.subtitle.Subtitle
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.experimantal.EXPERIMENTAL_FADE_SUBTITLE
 import cn.spacexc.wearbili.remake.app.settings.experimantal.getActivatedExperimentalFunctions
+import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateFloatAsState
@@ -122,6 +126,7 @@ fun LyricsView(
     currentIndex: Int,
     currentTime: Long,
     modifier: Modifier = Modifier,
+    secondarySubtitleText: String?,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     contentColor: Color,
     fadingEdges: FadingEdges = FadingEdges.None,
@@ -198,6 +203,8 @@ fun LyricsView(
     }
 
     fun startItemsAnimation(targetItemIndex: Int) {
+        if (targetItemIndex < 0) return
+        if (subtitles[targetItemIndex].content == "[BLANK_SUSPEND]") return
         val targetItemTop = itemsInfo[targetItemIndex]?.offsetY ?: return
         itemsAnimationJob?.cancel()
         itemsAnimationJob = scope.launch {
@@ -259,6 +266,7 @@ fun LyricsView(
                     onClick = { onClick(line) },
                     offsetYProvider = { getItemOffsetY(index) },
                     modifier = Modifier.onGloballyPositioned { updateItemInfo(index, it) },
+                    secondarySubtitleText = secondarySubtitleText
                 )
             }
         }
@@ -284,7 +292,8 @@ private fun LyricsViewLine(
     activeAlpha: Float = 1f,
     inactiveAlpha: Float = 0.5f,
     activeShadow: Float = 1f,
-    inactiveShadow: Float = 0f
+    inactiveShadow: Float = 0f,
+    secondarySubtitleText: String?
 ) {
     var scale by remember { mutableStateOf(if (isActive) activeScale else inactiveScale) }
     val offset by animateFloatAsState(targetValue = if (isActive) 0f else -5f, label = "")
@@ -386,6 +395,7 @@ private fun LyricsViewLine(
                 color = contentColor,
                 //offset = offset,
                 isActive = isActive,
+                notation = secondarySubtitleText,
                 modifier = Modifier
                     .alpha(alpha)
                     .graphicsLayer {
@@ -499,7 +509,8 @@ fun LyricsLine(
     timeLength: Double,
     isActive: Boolean,
     startTime: Double,
-    currentTime: Double
+    currentTime: Double,
+    notation: String?
 ) {
     val configuration = LocalConfiguration.current
     val hasSubtitleFadeAnimation by remember {
@@ -510,83 +521,104 @@ fun LyricsLine(
         }
     }
 
-    if (hasSubtitleFadeAnimation) {
-        val lineLength = text.length
-        val elapsedTime = currentTime - startTime
-        val timePerText = timeLength / lineLength.toDouble()
-        val currentLetterIndex = elapsedTime.toFloat() / timePerText
 
-        FlowRow(modifier = modifier) {
-            text.forEachIndexed { index, char ->
-                val factor = (currentLetterIndex - index.toDouble()).coerceIn(0.0..1.0)
-                val offset by animateFloatAsState(
-                    targetValue = if (currentLetterIndex < index) 0f else -5f,
-                    label = "",
-                    animationSpec = tween(1200)
-                )
+    Column {
+        if (hasSubtitleFadeAnimation) {
+            val lineLength = text.length
+            val elapsedTime = currentTime - startTime
+            val timePerText = timeLength / lineLength.toDouble()
+            val currentLetterIndex = elapsedTime.toFloat() / timePerText
 
-                BasicText(
-                    text = char.toString(),
-                    style = TextStyle(
+            FlowRow(modifier = modifier) {
+                text.forEachIndexed { index, char ->
+                    val factor = (currentLetterIndex - index.toDouble()).coerceIn(0.0..1.0)
+                    val offset by animateFloatAsState(
+                        targetValue = if (currentLetterIndex < index) 0f else -1.5f,
+                        label = "",
+                        animationSpec = tween((timePerText * 1000).toInt() * 2, easing = EaseInOutCubic)
+                    )
+
+                    BasicText(
+                        text = char.toString(),
+                        style = TextStyle(
+                            fontSize = fontSize,
+                            fontWeight = fontWeight,
+                            color = color,
+                            textMotion = TextMotion.Animated,
+                            fontFamily = wearbiliFontFamily
+                        ),
+                        modifier = Modifier
+                            //.alpha(alpha.toFloat())
+                            .graphicsLayer {
+                                compositingStrategy = CompositingStrategy.Offscreen
+                                translationY = offset
+                            }
+                            .drawWithContent {
+                                drawContent()
+                                drawRect(
+                                    brush = Brush.horizontalGradient(
+                                        factor.toFloat() * 2f - 1f to Color.Black,
+                                        factor.toFloat() * 2f to Color(0, 0, 0, 50)
+                                    ),
+                                    blendMode = BlendMode.DstIn
+                                )
+                            },
+                    )
+
+                    /*Text(
+                        char.toString(),
                         fontSize = fontSize,
                         fontWeight = fontWeight,
+                        modifier = Modifier
+                            //.alpha(alpha.toFloat())
+                            .graphicsLayer {
+                                compositingStrategy = CompositingStrategy.Offscreen
+                                translationY = offset
+                            }
+                            .drawWithContent {
+                                drawContent()
+                                drawRect(
+                                    brush = Brush.horizontalGradient(
+                                        factor.toFloat() * 2f - 1f to Color.Black,
+                                        factor.toFloat() * 2f to Color(0, 0, 0, 50)
+                                    ),
+                                    blendMode = BlendMode.DstIn
+                                )
+                            },
+                        fontFamily = wearbiliFontFamily,
                         color = color,
-                        textMotion = TextMotion.Animated,
-                        fontFamily = wearbiliFontFamily
-                    ),
-                    modifier = Modifier
-                        //.alpha(alpha.toFloat())
-                        .graphicsLayer {
-                            compositingStrategy = CompositingStrategy.Offscreen
-                            translationY = offset
-                        }
-                        .drawWithContent {
-                            drawContent()
-                            drawRect(
-                                brush = Brush.horizontalGradient(
-                                    factor.toFloat() * 2f - 1f to Color.Black,
-                                    factor.toFloat() * 2f to Color(0, 0, 0, 50)
-                                ),
-                                blendMode = BlendMode.DstIn
-                            )
-                        },
-                )
-
-                /*Text(
-                    char.toString(),
-                    fontSize = fontSize,
-                    fontWeight = fontWeight,
-                    modifier = Modifier
-                        //.alpha(alpha.toFloat())
-                        .graphicsLayer {
-                            compositingStrategy = CompositingStrategy.Offscreen
-                            translationY = offset
-                        }
-                        .drawWithContent {
-                            drawContent()
-                            drawRect(
-                                brush = Brush.horizontalGradient(
-                                    factor.toFloat() * 2f - 1f to Color.Black,
-                                    factor.toFloat() * 2f to Color(0, 0, 0, 50)
-                                ),
-                                blendMode = BlendMode.DstIn
-                            )
-                        },
-                    fontFamily = wearbiliFontFamily,
-                    color = color,
-                    style = TextStyle(textMotion = TextMotion.Animated)
-                )*/
+                        style = TextStyle(textMotion = TextMotion.Animated)
+                    )*/
+                }
             }
+        } else {
+            val alpha by wearBiliAnimateFloatAsState(targetValue = if (isActive) 1f else 0.3f)
+            Text(
+                text,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                modifier = modifier.alpha(alpha),
+                fontFamily = wearbiliFontFamily,
+                color = color
+            )
         }
-    } else {
-        val alpha by wearBiliAnimateFloatAsState(targetValue = if (isActive) 1f else 0.3f)
-        Text(
-            text,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            modifier = modifier.alpha(alpha),
-            fontFamily = wearbiliFontFamily,
-            color = color
-        )
+        //val alpha by wearBiliAnimateFloatAsState(targetValue = if (isActive) 0.5f else 0.3f)
+        WearBiliAnimatedVisibility(
+            modifier = Modifier
+                .offset(y = (-4).dp)
+                .fillMaxWidth(),
+            visible = notation != null && isActive,
+            enter = fadeIn(tween(delayMillis = 100)) + expandVertically(tween(delayMillis = 100)),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            Text(
+                notation ?: "",
+                fontSize = fontSize * 0.7f,
+                fontWeight = FontWeight.Medium,
+                modifier = modifier.alpha(0.5f),
+                fontFamily = wearbiliFontFamily,
+                color = color
+            )
+        }
     }
 }

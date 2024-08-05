@@ -16,7 +16,7 @@ import cn.spacexc.bilibilisdk.sdk.video.action.VideoAction
 import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
 import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.domain.log.logd
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_EPID
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiActivity
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID
@@ -222,9 +222,9 @@ class VideoInformationViewModel @Inject constructor(
                 val directory = File(application.cacheDir, "/danmakuMask")
                 if (!directory.exists()) directory.mkdir()
                 val maskFile = File(directory, "danmakuMask$videoCid.webmask")
-                /*VideoInfo.downloadDanmakuWebMask(maskInfo, maskFile) {
+                VideoInfo.downloadDanmakuWebMask(maskInfo, maskFile) {
 
-                }*/
+                }
             }
         }
     }

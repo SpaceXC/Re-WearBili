@@ -73,12 +73,12 @@ class Media3PlayerActivity : ComponentActivity() {
                 ProvideLocalDensity {
                     val configuration = LocalConfiguration.current
 
-                    val videoDisplaySurface = when (configuration.videoDisplaySurface) {
+                    val videoDisplaySurface = if(isCache) VideoDisplaySurface.SURFACE_VIEW else VideoDisplaySurface.TEXTURE_VIEW/*when (configuration.videoDisplaySurface) {
                         cn.spacexc.wearbili.remake.proto.settings.VideoDisplaySurface.TextureView -> VideoDisplaySurface.TEXTURE_VIEW
                         cn.spacexc.wearbili.remake.proto.settings.VideoDisplaySurface.SurfaceView -> VideoDisplaySurface.SURFACE_VIEW
                         null -> VideoDisplaySurface.TEXTURE_VIEW
                         else -> VideoDisplaySurface.TEXTURE_VIEW
-                    }
+                    }*/
 
                     Media3PlayerScreen(
                         viewModel = viewModel,

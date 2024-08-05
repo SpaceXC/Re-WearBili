@@ -9,18 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import cn.spacexc.wearbili.remake.common.ui.ArrowTitleBackgroundWithCustomBackground
-import cn.spacexc.wearbili.remake.common.ui.shimmerPlaceHolder
-import coil.compose.AsyncImage
-import coil.compose.AsyncImagePainter
-import coil.request.ImageRequest
-import coil.size.Size
+import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import net.engawapg.lib.zoomable.rememberZoomState
 import net.engawapg.lib.zoomable.zoomable
 
@@ -51,26 +42,11 @@ class ImageViewerActivity : ComponentActivity() {
                 })
                 Box {
                     HorizontalPager(state = pagerState) { page ->
-                        var isLoading by remember {
-                            mutableStateOf(true)
-                        }
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .size(Size.ORIGINAL)
-                                .data(images[page])
-                                .crossfade(true).build(),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .zoomable(rememberZoomState())
-                                .shimmerPlaceHolder(isLoading),
-                            onState = {
-                                isLoading = when (it) {
-                                    is AsyncImagePainter.State.Success -> false
-                                    is AsyncImagePainter.State.Loading -> true
-                                    else -> true
-                                }
-                            }
+                        BiliImage(url = images[page], contentDescription = null, modifier = Modifier
+                            .fillMaxSize()
+                            .zoomable(
+                                rememberZoomState()
+                            )
                         )
                     }
                 }

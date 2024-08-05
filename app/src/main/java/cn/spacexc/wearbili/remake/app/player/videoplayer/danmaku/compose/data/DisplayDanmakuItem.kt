@@ -1,5 +1,7 @@
 package cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.AnnotatedString
@@ -12,6 +14,8 @@ import androidx.compose.ui.text.AnnotatedString
  * 给！爷！写！注！释！
  */
 
+@Stable
+@Immutable
 data class DisplayDanmakuItem(
     val appearTime: Long,
     val content: AnnotatedString,

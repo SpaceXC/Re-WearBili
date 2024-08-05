@@ -59,7 +59,7 @@ import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.QuickToolbarCustomizat
 import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.StaticFunctionSlot
 import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.functionList
 import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.toFunctionDetail
-import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
+import cn.spacexc.wearbili.remake.app.splash.remote.Version
 import cn.spacexc.wearbili.remake.app.update.ui.UpdateCard
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
@@ -100,7 +100,7 @@ data class RecommendScreenState(
 fun RecommendScreen(
     viewModel: RecommendViewModel,
     context: Activity,
-    updatesResult: SplashScreenActivity.AppUpdatesResult?,
+    updatesResult: Version?,
     onFetch: (isRefresh: Boolean) -> Unit
 ) {
     val state = viewModel.screenState

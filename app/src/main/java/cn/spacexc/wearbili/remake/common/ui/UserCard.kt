@@ -49,6 +49,7 @@ import cn.spacexc.wearbili.remake.app.season.ui.PARAM_MID
 import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceActivity
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import coil.compose.AsyncImage
 
 /**
  * Created by XC-Qan on 2023/4/12.
@@ -77,8 +78,10 @@ fun Int?.toOfficialVerify(): OfficialVerify {
 @Composable
 fun UserAvatar(
     modifier: Modifier = Modifier,
+    //imageModifier: Modifier = Modifier,
     avatar: String,
     pendant: String? = null,
+    useBiliImage: Boolean = true,
     officialVerify: OfficialVerify = OfficialVerify.NONE,
     size: DpSize,
 ) {
@@ -102,34 +105,68 @@ fun UserAvatar(
             }
     ) {
         if (pendant.isNullOrEmpty()) {
-            BiliImage(
-                url = avatar,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .scale(0.82f)
-                    .clip(
-                        CircleShape
-                    )
-            )
+            if(useBiliImage) {
+                BiliImage(
+                    url = avatar,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .scale(0.82f)
+                        .clip(
+                            CircleShape
+                        )
+                )
+            }
+            else {
+                AsyncImage(
+                    model = avatar,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .scale(0.82f)
+                        .clip(
+                            CircleShape
+                        )
+                )
+            }
         } else {
-            BiliImage(
-                url = avatar,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .scale(0.6f)
-                    .clip(
-                        CircleShape
-                    )
-            )
-            BiliImage(
-                url = pendant,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize(),
-                placeholderEnabled = false
-            )
+            if(useBiliImage) {
+                BiliImage(
+                    url = avatar,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .scale(0.6f)
+                        .clip(
+                            CircleShape
+                        )
+                )
+                BiliImage(
+                    url = pendant,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    placeholderEnabled = false
+                )
+            }
+            else {
+                AsyncImage(
+                    model = avatar,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .scale(0.6f)
+                        .clip(
+                            CircleShape
+                        )
+                )
+                AsyncImage(
+                    model = pendant,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+            }
         }
         if (officialVerify != OfficialVerify.NONE) {
             Box(
@@ -257,11 +294,13 @@ fun Activity.LargeUserCard(
 }
 
 /**
- * @param mid 设置为0 -> 不可点击
+ * @param mid 设置为0 => 不可点击
  */
 @Composable
 fun SmallUserCard(
     modifier: Modifier = Modifier,
+    imageModifier: Modifier = Modifier,
+    usernameModifier: Modifier = Modifier,
     avatar: String,
     pendant: String? = null,
     textSizeScale: Float = 1.0f,
@@ -272,6 +311,7 @@ fun SmallUserCard(
     userLabel: AnnotatedString = buildAnnotatedString { },
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     context: Activity,
+    useBiliImage: Boolean = true,
     mid: Long
 ) {
     val localDensity = LocalDensity.current
@@ -292,8 +332,9 @@ fun SmallUserCard(
             avatar = avatar,
             pendant = pendant,
             officialVerify = officialVerify,
-            modifier = Modifier.size(avatarHeight.times(1.2f)),
-            size = DpSize.Unspecified
+            modifier = imageModifier.size(avatarHeight.times(1.2f)),
+            size = DpSize.Unspecified,
+            useBiliImage = useBiliImage
         )
         Spacer(modifier = Modifier.width(2.dp))
         Column(modifier = Modifier.onSizeChanged {
@@ -320,7 +361,8 @@ fun SmallUserCard(
                     fontFamily = wearbiliFontFamily
                 ),
                 fontWeight = FontWeight.Medium,
-                inlineContent = inlineContent
+                inlineContent = inlineContent,
+                modifier = usernameModifier
             )
             if (!userInfo.isNullOrEmpty()) {
                 AutoResizedText(

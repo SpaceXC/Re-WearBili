@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer
 
+import BiliTextIcon
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -9,12 +10,14 @@ import android.media.AudioManager
 import android.os.Build
 import android.util.Log
 import android.view.Surface
+import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.TextureView
 import android.view.TextureView.SurfaceTextureListener
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -56,7 +59,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
@@ -68,11 +70,9 @@ import androidx.compose.material.icons.filled.BrightnessLow
 import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.FitScreen
 import androidx.compose.material.icons.outlined.ScreenRotation
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -88,33 +88,46 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.text.style.TextAlign.Companion.Start
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewModelScope
+import appendBiliIcon
 import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R.drawable
 import cn.spacexc.wearbili.remake.app.player.cast.discover.DeviceDiscoverActivity
 import cn.spacexc.wearbili.remake.app.player.cast.discover.PARAM_DLNA_VIDEO_NAME
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.RateExtra
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.SubscribeExtra
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.VideoExtra
+import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.vote.VoteExtra
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.rememberDanmakuCanvasState
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.ui.DanmakuCanvas
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
@@ -126,7 +139,6 @@ import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedContent
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedVisibility
 import cn.spacexc.wearbili.remake.common.ui.clickAlpha
-import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
@@ -157,6 +169,14 @@ enum class VideoDisplaySurface {
     SURFACE_VIEW
 }
 
+sealed class CommandDanmakuType {
+    class Vote(val extra: VoteExtra) : CommandDanmakuType()
+    class Rate(val extra: RateExtra) : CommandDanmakuType()
+    class Subscribe(val extra: SubscribeExtra) : CommandDanmakuType()
+    class Video(val extra: VideoExtra) : CommandDanmakuType()
+}
+
+
 sealed class VideoPlayerPages(val weight: Int) {
     data object Main : VideoPlayerPages(0)
     data object Settings : VideoPlayerPages(1)
@@ -171,7 +191,6 @@ enum class VideoPlayerSurfaceRatio(val ratioName: String) {
     FourByThree("4:3"),
     ThreeByFour("3:4")
 }
-
 
 /*@UnstableApi*/
 @Composable
@@ -199,6 +218,7 @@ fun Activity.Media3PlayerScreen(
         mutableStateOf(Size(1f, 1f))
     }
     val currentSubtitleText by viewModel.currentSubtitleText.collectAsState(initial = null)
+    val secondarySubtitleText by viewModel.secondarySubtitleText.collectAsState(initial = null)
     val currentPlayerPosition by viewModel.currentPlayProgress.collectAsState(initial = 0)
     var currentPlayerSurfaceRatio: VideoPlayerSurfaceRatio by remember {
         mutableStateOf(VideoPlayerSurfaceRatio.FitIn)
@@ -310,6 +330,10 @@ fun Activity.Media3PlayerScreen(
             255
         )
     )
+
+    var currentCommandDanmaku: CommandDanmakuType? by remember {
+        mutableStateOf(null)
+    }
 
     var danmakuCanvasAlpha by remember {
         mutableFloatStateOf(configuration.danmakuPlayerSettings.alpha)
@@ -444,19 +468,15 @@ fun Activity.Media3PlayerScreen(
                             }
 
                         }
-
-                        //TextureMediaPlayer
-                        //textureView.surfaceTexture
-                        //viewModel.httpPlayer.setDisplay(textureView.surfaceTexture.h)
-                        //viewModel.cachePlayer.setVideoTextureView(textureView)
                     }
                 }
 
                 VideoDisplaySurface.SURFACE_VIEW -> {
                     AndroidView(factory = { SurfaceView(it) }) { surfaceView ->
-                        /*surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
+                        surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
                             override fun surfaceCreated(holder: SurfaceHolder) {
                                 viewModel.httpPlayer.setDisplay(holder)
+                                viewModel.cachePlayer.setDisplay(holder)
                             }
 
                             override fun surfaceChanged(
@@ -466,11 +486,12 @@ fun Activity.Media3PlayerScreen(
                                 p2: Int
                             ) {
                                 viewModel.httpPlayer.setDisplay(holder)
+                                viewModel.cachePlayer.setDisplay(holder)
                             }
+
                             override fun surfaceDestroyed(p0: SurfaceHolder) {}
-                        })*/
-                        viewModel.httpPlayer.setDisplay(surfaceView.holder)
-                        viewModel.cachePlayer.setDisplay(surfaceView.holder)
+                        })
+
                     }
                 }
             }
@@ -478,39 +499,102 @@ fun Activity.Media3PlayerScreen(
         //endregion
 
         //region danmaku surface
-        DanmakuCanvas(
-            state = danmakuCanvasState,
-            textMeasurer = textMeasurer,
-            playSpeed = playBackSpeed / 100f,
-            videoAspectRatio = viewModel.videoPlayerAspectRatio,
-            displayAreaPercent = danmakuCanvasDisplayPercent,
-            blockLevel = danmakuBlockLevel,
-            modifier = Modifier.alpha(danmakuCanvasAlpha),
-            textScale = danmakuTextScale,
-            uploaderAvatarUrl = viewModel.videoInfo?.data?.owner?.face ?: "",
-            isAdvanceDanmakuVisible = isAdvanceDanmakuVisible,
-            isNormalDanmakuVisible = isNormalDanmakuVisible,
-            videoDisplaySurfaceSize = playerSurfaceSize,
-            isDebug = false,
-            displayFrameRate = false,
-            scope = viewModel.viewModelScope
-        )
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    viewModel.isVideoControllerVisible =
+                        !viewModel.isVideoControllerVisible
+                }, onDoubleTap = {
+                    if (isCacheVideo) {
+                        if (viewModel.cachePlayer.isPlaying) viewModel.cachePlayer.pause() else viewModel.cachePlayer.start()
+                    } else {
+                        if (viewModel.httpPlayer.isPlaying) viewModel.httpPlayer.pause() else viewModel.httpPlayer.start()
+                    }
+                })
+            }
+            .draggable(
+                state = progressDraggableState,
+                orientation = Orientation.Horizontal,
+                startDragImmediately = false,
+                onDragStarted = {
+                    draggedProgress = currentPlayerPosition
+                    //viewModel.isVideoControllerVisible = true
+                    isDraggingProgress = true
+                },
+                onDragStopped = {
+                    if (isCacheVideo) {
+                        viewModel.cachePlayer.seekTo(draggedProgress)
+                    } else {
+                        viewModel.httpPlayer.seekTo(draggedProgress)
+                    }
 
+                    danmakuCanvasState.pause()
+                    danmakuCanvasState.seekTo(
+                        time = draggedProgress,
+                        textMeasurer = textMeasurer,
+                        displayWidth = playerSurfaceSize.width.toInt(),
+                        textScale = danmakuTextScale,
+                    )
+                    viewModel.currentStat = PlayerStats.Buffering
+                    isDraggingProgress = false
+                }
+            )
+            .draggable(
+                state = volumeDraggableState,
+                orientation = Orientation.Vertical,
+                startDragImmediately = false,
+                onDragStarted = {
+                    dragVolume = getCurrentVolume().toFloat()
+                    isAdjustingVolume = true
+                },
+                onDragStopped = {
+                    isAdjustingVolume = false
+                }
+            )//我知道这个放在这里有点奇怪，但是因为某些点击时间消费拦截的原因放在这里效果最好
+        ) {
+            DanmakuCanvas(
+                state = danmakuCanvasState,
+                textMeasurer = textMeasurer,
+                playSpeed = playBackSpeed / 100f,
+                videoAspectRatio = viewModel.videoPlayerAspectRatio,
+                displayAreaPercent = danmakuCanvasDisplayPercent,
+                blockLevel = danmakuBlockLevel,
+                modifier = Modifier.alpha(danmakuCanvasAlpha),
+                textScale = danmakuTextScale,
+                uploaderAvatarUrl = viewModel.videoInfo?.data?.owner?.face ?: "",
+                isAdvanceDanmakuVisible = isAdvanceDanmakuVisible,
+                isNormalDanmakuVisible = isNormalDanmakuVisible,
+                videoDisplaySurfaceSize = playerSurfaceSize,
+                isDebug = false,
+                displayFrameRate = false,
+                scope = viewModel.viewModelScope,
+
+                ) {
+                currentCommandDanmaku = it
+            }
+        }
         //endregion
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                //.size(0.dp)
                 .background(backgroundColor)
         ) {
-            WearBiliAnimatedContent(targetState = currentPage, transitionSpec = {
-                if (targetState.weight > initialState.weight) {
-                    slideInHorizontally { height -> height } + fadeIn() togetherWith
-                            slideOutHorizontally { height -> -height } + fadeOut()
-                } else {
-                    slideInHorizontally { height -> -height } + fadeIn() togetherWith
-                            slideOutHorizontally { height -> height } + fadeOut()
-                }
-            }, label = "") { currentVideoPage ->
+            WearBiliAnimatedContent(
+                targetState = currentPage,
+                transitionSpec = {
+                    if (targetState.weight > initialState.weight) {
+                        slideInHorizontally { height -> height } + fadeIn() togetherWith
+                                slideOutHorizontally { height -> -height } + fadeOut()
+                    } else {
+                        slideInHorizontally { height -> -height } + fadeIn() togetherWith
+                                slideOutHorizontally { height -> height } + fadeOut()
+                    }
+                },
+                label = ""
+            ) { currentVideoPage ->
                 when (currentVideoPage) {
                     VideoPlayerPages.Main -> {
                         Box(modifier = Modifier.fillMaxSize()) {
@@ -543,57 +627,6 @@ fun Activity.Media3PlayerScreen(
                                     Column(
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .draggable(
-                                                state = progressDraggableState,
-                                                orientation = Orientation.Horizontal,
-                                                startDragImmediately = false,
-                                                onDragStarted = {
-                                                    draggedProgress = currentPlayerPosition
-                                                    //viewModel.isVideoControllerVisible = true
-                                                    isDraggingProgress = true
-                                                },
-                                                onDragStopped = {
-                                                    if (isCacheVideo) {
-                                                        viewModel.cachePlayer.seekTo(draggedProgress)
-                                                    } else {
-                                                        viewModel.httpPlayer.seekTo(draggedProgress)
-                                                    }
-
-                                                    danmakuCanvasState.pause()
-                                                    danmakuCanvasState.seekTo(
-                                                        time = draggedProgress,
-                                                        textMeasurer = textMeasurer,
-                                                        displayWidth = playerSurfaceSize.width.toInt(),
-                                                        textScale = danmakuTextScale,
-                                                    )
-                                                    viewModel.currentStat = PlayerStats.Buffering
-                                                    isDraggingProgress = false
-                                                }
-                                            )
-                                            .draggable(
-                                                state = volumeDraggableState,
-                                                orientation = Orientation.Vertical,
-                                                startDragImmediately = false,
-                                                onDragStarted = {
-                                                    dragVolume = getCurrentVolume().toFloat()
-                                                    isAdjustingVolume = true
-                                                },
-                                                onDragStopped = {
-                                                    isAdjustingVolume = false
-                                                }
-                                            )
-                                            .pointerInput(Unit) {
-                                                detectTapGestures(onTap = {
-                                                    viewModel.isVideoControllerVisible =
-                                                        !viewModel.isVideoControllerVisible
-                                                }, onDoubleTap = {
-                                                    if (isCacheVideo) {
-                                                        if (viewModel.cachePlayer.isPlaying) viewModel.cachePlayer.pause() else viewModel.cachePlayer.start()
-                                                    } else {
-                                                        if (viewModel.httpPlayer.isPlaying) viewModel.httpPlayer.pause() else viewModel.httpPlayer.start()
-                                                    }
-                                                })
-                                            }
                                     ) {
                                         var titleRowHeight by remember {
                                             mutableStateOf(0.dp)
@@ -656,11 +689,42 @@ fun Activity.Media3PlayerScreen(
                                                         maxLines = 1,
                                                         //overflow = TextOverflow.Ellipsis,
                                                         modifier = Modifier
-                                                            .basicMarquee()
                                                             .padding(horizontal = if (isRound()) titleBackgroundHorizontalPadding() else 0.dp)
+                                                            .graphicsLayer {
+                                                                compositingStrategy =
+                                                                    CompositingStrategy.Offscreen
+                                                            }
+                                                            .drawWithContent {
+                                                                drawContent()
+                                                                drawRect(
+                                                                    brush = Brush.horizontalGradient(
+                                                                        0f to Color.Transparent,
+                                                                        0.15f to Color.Black,
+                                                                        0.85f to Color.Black,
+                                                                        1f to Color.Transparent
+                                                                    ),
+                                                                    blendMode = BlendMode.DstIn,
+                                                                )
+                                                                //drawContent()
+                                                            }
+                                                            .basicMarquee()
                                                     )
                                                     Text(
-                                                        text = if (isCacheVideo) "来自缓存的视频" else "${viewModel.onlineCount}人在看",
+                                                        text = buildAnnotatedString {
+                                                            if (isCacheVideo) append("来自缓存的视频") else {
+                                                                withStyle(
+                                                                    SpanStyle(
+                                                                        fontSize = 14.5.sp,
+                                                                        baselineShift = BaselineShift(
+                                                                            -0.23f
+                                                                        )
+                                                                    )
+                                                                ) {
+                                                                    appendBiliIcon("EAED")
+                                                                }
+                                                                append("${viewModel.onlineCount}人在看")
+                                                            }
+                                                        },
                                                         color = Color.White,
                                                         fontSize = 11.sp,
                                                         fontFamily = wearbiliFontFamily,
@@ -714,18 +778,24 @@ fun Activity.Media3PlayerScreen(
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis,
                                                     modifier = Modifier
-                                                        .padding(start = 4.dp)
-                                                        .offset(y = 18.dp)
+                                                        .padding(start = 1.dp)
+                                                        .offset(y = 20.dp)
                                                         .fillMaxWidth(),
                                                     textAlign = if (isRound()) Center else Start
                                                 )
-                                                androidx.compose.material3.Slider(
+                                                GradientSlider(
+                                                    brush = Brush.horizontalGradient(
+                                                        listOf(
+                                                            Color.White,
+                                                            Color.White
+                                                        )
+                                                    ),
                                                     value = if (isDraggingProgress) draggedProgress.toFloat() else currentPlayerPosition.toFloat(),
-                                                    onValueChange = {
+                                                    onValueChanged = {
                                                         isDraggingProgress = true
                                                         draggedProgress = it.toLong()
                                                     },
-                                                    onValueChangeFinished = {
+                                                    onSlideFinished = {
                                                         if (isCacheVideo) {
                                                             viewModel.cachePlayer.seekTo(
                                                                 draggedProgress
@@ -746,94 +816,21 @@ fun Activity.Media3PlayerScreen(
                                                             PlayerStats.Buffering
                                                         isDraggingProgress = false
                                                     },
-                                                    valueRange = 0f..viewModel.videoDuration.toFloat(),
-                                                    colors = SliderDefaults.colors(
-                                                        activeTrackColor = BilibiliPink
-                                                    ),
-                                                    thumb = {
-                                                        /*SliderDefaults.Thumb(
-                                                            interactionSource = rememberMutableInteractionSource(),
-                                                            thumbSize = DpSize(12.dp, 12.dp),
-                                                            modifier = Modifier
-                                                                .offset(
-                                                                    y = 4.dp,
-                                                                    x = *//*-(4.dp / viewModel.player.duration.toFloat()) * currentPlayerPosition.toFloat() + 2.dp*//* 2.dp
-                                                            )
-                                                            .scale(progressBarThumbScale),   //别问这串公式怎么得出来的，问就是数学的力量
-                                                        */
-                                                        /**
-                                                         * 上面公式的作用：视频开始时offset = 2.dp
-                                                         *              播放到中间时offset = 0.dp
-                                                         *              播放结束时offset = -2.dp
-                                                         * 可以防止thumb过于靠近屏幕边缘
-                                                         * 原始函数解析式：y=-(2n/m)x+n，其中y为offset的值，n是基准offset，m为视频总长，x为当前播放进度
-                                                         * 感谢群U帮助我不太聪明的大脑
-                                                         * *基准offset=2.dp，为视频开始时的offset
-                                                         *
-                                                         * (两分钟之后发现根本不需要这个公式，直接2dp的效果就很好...
-                                                         */
-                                                        /**
-                                                         * 上面公式的作用：视频开始时offset = 2.dp
-                                                         *              播放到中间时offset = 0.dp
-                                                         *              播放结束时offset = -2.dp
-                                                         * 可以防止thumb过于靠近屏幕边缘
-                                                         * 原始函数解析式：y=-(2n/m)x+n，其中y为offset的值，n是基准offset，m为视频总长，x为当前播放进度
-                                                         * 感谢群U帮助我不太聪明的大脑
-                                                         * *基准offset=2.dp，为视频开始时的offset
-                                                         *
-                                                         * (两分钟之后发现根本不需要这个公式，直接2dp的效果就很好...
-                                                         */
-                                                        /**
-                                                         * 上面公式的作用：视频开始时offset = 2.dp
-                                                         *              播放到中间时offset = 0.dp
-                                                         *              播放结束时offset = -2.dp
-                                                         * 可以防止thumb过于靠近屏幕边缘
-                                                         * 原始函数解析式：y=-(2n/m)x+n，其中y为offset的值，n是基准offset，m为视频总长，x为当前播放进度
-                                                         * 感谢群U帮助我不太聪明的大脑
-                                                         * *基准offset=2.dp，为视频开始时的offset
-                                                         *
-                                                         * (两分钟之后发现根本不需要这个公式，直接2dp的效果就很好...
-                                                         */
-                                                        /**
-                                                         * 上面公式的作用：视频开始时offset = 2.dp
-                                                         *              播放到中间时offset = 0.dp
-                                                         *              播放结束时offset = -2.dp
-                                                         * 可以防止thumb过于靠近屏幕边缘
-                                                         * 原始函数解析式：y=-(2n/m)x+n，其中y为offset的值，n是基准offset，m为视频总长，x为当前播放进度
-                                                         * 感谢群U帮助我不太聪明的大脑
-                                                         * *基准offset=2.dp，为视频开始时的offset
-                                                         *
-                                                         * (两分钟之后发现根本不需要这个公式，直接2dp的效果就很好...
-                                                         */
-                                                        /*
-                                                            colors = SliderDefaults.colors(
-                                                                thumbColor = Color.White
-                                                            )
-                                                        )*/
-                                                        Image(
-                                                            painter = painterResource(id = drawable.img_progress_bar_thumb_little_tv),
-                                                            contentDescription = null,
-                                                            modifier = Modifier
-                                                                .offset(
-                                                                    y = 4.dp,
-                                                                    x = 3.dp
-                                                                )
-                                                                .size(12.dp)
-                                                                .scale(progressBarThumbScale)
-                                                        )
-                                                    },
+                                                    range = 0f..viewModel.videoDuration.toFloat(),
+                                                    trackHeight = 10.dp * progressBarThumbScale,
                                                     modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .scale(1.05f)
                                                         .offset(y = (9).dp)
-                                                        .padding(horizontal = if (isRound()) titleBackgroundHorizontalPadding() else 0.dp)
+                                                        .fillMaxWidth()
+                                                        .scale(1.05f),
+                                                    thumbSize = 0.dp
+                                                    //.padding(horizontal = if (isRound()) titleBackgroundHorizontalPadding() * 0.9f else 0.dp)
                                                 )
                                                 Row(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
                                                         .padding(
-                                                            start = 4.dp,
-                                                            end = 4.dp,
+                                                            start = 2.dp,
+                                                            end = 2.dp,
                                                             bottom = 6.dp
                                                         ),
                                                     verticalAlignment = CenterVertically,
@@ -923,13 +920,14 @@ fun Activity.Media3PlayerScreen(
                                                             currentPage = VideoPlayerPages.Settings
                                                         },
                                                     ) {
-                                                        Icon(
+                                                        /*Icon(
                                                             imageVector = Icons.Outlined.Settings,
                                                             contentDescription = null,
                                                             tint = Color.White,
                                                             modifier = Modifier
                                                                 .size(12.dp)
-                                                        )
+                                                        )*/
+                                                        BiliTextIcon(icon = "EADE", size = 14.5.sp)
                                                     }
 
                                                     //endregion
@@ -1126,7 +1124,12 @@ fun Activity.Media3PlayerScreen(
                                 exit = scaleOut() + fadeOut() + slideOutVertically(),
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
-                                    .offset(y = dragIndicatorOffset)
+                                    .offset {
+                                        IntOffset(
+                                            x = 0,
+                                            y = with(this) { dragIndicatorOffset.roundToPx() }
+                                        )
+                                    }
                             ) {
                                 Box(
                                     modifier = Modifier
@@ -1185,40 +1188,74 @@ fun Activity.Media3PlayerScreen(
                             //endregion
 
                             //region subtitle
-                            WearBiliAnimatedVisibility(
+                            /*WearBiliAnimatedVisibility(
                                 visible = currentSubtitleText != null,
                                 enter = scaleIn() + fadeIn(),
                                 exit = scaleOut() + fadeOut(),
                                 modifier = Modifier
                                     .align(Alignment.BottomCenter)
-                                    .offset(y = -subtitleOffset)
+
                             ) {
-                                Text(
-                                    text = currentSubtitleText ?: "", modifier = Modifier
-                                        .padding(
-                                            bottom = subtitlePadding,
-                                            start = titleBackgroundHorizontalPadding() - 3.dp,
-                                            end = titleBackgroundHorizontalPadding() - 3.dp
+
+                            }*/
+                            Column(
+                                modifier = Modifier
+                                    .offset {
+                                        IntOffset(
+                                            x = 0,
+                                            y = with(this) { -subtitleOffset.roundToPx() }
                                         )
-                                        .background(
-                                            color = Color(49, 47, 47, 153),
-                                            shape = RoundedCornerShape(4.dp)
-                                        )
-                                        .padding(6.dp)
-                                        .align(Alignment.BottomCenter)
-                                        .wearBiliAnimatedContentSize(),
-                                    color = Color.White,
-                                    fontSize = 12.sp,
-                                    fontFamily = wearbiliFontFamily,
-                                    fontWeight = FontWeight.Medium,
-                                    textAlign = Center
-                                )
+                                    }
+                                    .padding(bottom = subtitlePadding)
+                                    .align(Alignment.BottomCenter)
+                                    .padding(
+                                        bottom = subtitlePadding,
+                                        start = titleBackgroundHorizontalPadding() - 3.dp,
+                                        end = titleBackgroundHorizontalPadding() - 3.dp
+                                    ),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                if (currentSubtitleText != null) {
+                                    Text(
+                                        text = currentSubtitleText ?: "", modifier = Modifier
+
+                                            .background(
+                                                color = Color(47, 47, 47, 150),
+                                                shape = RoundedCornerShape(2.dp)
+                                            )
+                                            .padding(horizontal = 6.dp, vertical = 4.dp)
+                                        /*
+                                    .wearBiliAnimatedContentSize()*/,
+                                        color = Color.White,
+                                        fontSize = 12.sp,
+                                        fontFamily = wearbiliFontFamily,
+                                        fontWeight = FontWeight.Normal,
+                                        textAlign = Center
+                                    )
+                                }
+                                if (secondarySubtitleText != null) {
+                                    Spacer(modifier = Modifier.height(1.dp))
+                                    Text(
+                                        text = secondarySubtitleText ?: "", modifier = Modifier
+                                            .background(
+                                                color = Color(47, 47, 47, 150),
+                                                shape = RoundedCornerShape(2.dp)
+                                            )
+                                            .padding(2.dp)/*
+                                        .wearBiliAnimatedContentSize()*/,
+                                        color = Color.White,
+                                        fontSize = 9.sp,
+                                        fontFamily = wearbiliFontFamily,
+                                        fontWeight = FontWeight.Normal,
+                                        textAlign = Center
+                                    )
+                                }
                             }
 
                             //endregion
 
                             //region loading indicator
-                            if (viewModel.currentStat == PlayerStats.Buffering) {
+                            /*if (viewModel.currentStat == PlayerStats.Buffering) {
                                 CircularProgressIndicator(
                                     modifier = Modifier
                                         .align(Alignment.Center)
@@ -1227,8 +1264,8 @@ fun Activity.Media3PlayerScreen(
                                         }),
                                     color = BilibiliPink
                                 )
-                            }
-                            if (viewModel.currentStat == PlayerStats.Loading) {
+                            }*/
+                            if (viewModel.currentStat == PlayerStats.Loading || viewModel.currentStat == PlayerStats.Buffering) {
                                 AsyncImage(
                                     model = ImageRequest.Builder(LocalContext.current)
                                         .data(drawable.img_loading_little_tv)
@@ -1352,6 +1389,31 @@ fun Activity.Media3PlayerScreen(
                                         isSelected = viewModel.currentSubtitleLanguage == it.key
                                     ) {
                                         viewModel.currentSubtitleLanguage =
+                                            it.key
+                                    }
+                                }
+                            }
+                            PlayerSetting(itemIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Subtitles,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }, settingName = "双语字幕") {
+                                PlayerSettingItem(
+                                    text = "关闭",
+                                    isSelected = viewModel.secondarySubtitleLanguage == null
+                                ) {
+                                    viewModel.currentSubtitleLanguage =
+                                        null
+                                }
+                                viewModel.subtitleList.forEach {
+                                    PlayerSettingItem(
+                                        text = it.value.subtitleLanguage,
+                                        isSelected = viewModel.secondarySubtitleLanguage == it.key
+                                    ) {
+                                        viewModel.secondarySubtitleLanguage =
                                             it.key
                                     }
                                 }
@@ -1581,6 +1643,42 @@ fun Activity.Media3PlayerScreen(
             }
         }
 
+        //region 互动弹幕显示
+        WearBiliAnimatedVisibility(
+            visible = currentCommandDanmaku != null,
+            enter = fadeIn(tween(400)) + slideInVertically(tween(400)) { it / 2 },
+            exit = fadeOut(tween(400)) + slideOutVertically(tween(400)) { it / 2 },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Spacer(modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clickable(
+                        interactionSource = rememberMutableInteractionSource(),
+                        indication = null
+                    ) {
+                        currentCommandDanmaku = null
+                    })
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .background(
+                            Color(10, 10, 10, 255),
+                            RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
+                        )
+                        .pointerInput(Unit) {
+
+                        } //拦截点击事件
+                ) {
+
+                }
+            }
+        }
+        //endregion
+
         if (viewModel.currentStat == PlayerStats.Loading) {
             Text(
                 text = viewModel.loadingMessage,
@@ -1646,7 +1744,7 @@ fun PlayerQuickActionButton(
         modifier = Modifier
             .background(
                 color = color,
-                shape = CircleShape
+                shape = RoundedCornerShape(30)
             )
             .size(22.dp)
             .clickable {

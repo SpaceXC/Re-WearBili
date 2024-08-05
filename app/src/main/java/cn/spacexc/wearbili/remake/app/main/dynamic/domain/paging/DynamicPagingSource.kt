@@ -3,7 +3,7 @@ package cn.spacexc.wearbili.remake.app.main.dynamic.domain.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import cn.spacexc.wearbili.common.domain.log.logd
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.common.exception.PagingDataLoadFailedException
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicItem
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicList

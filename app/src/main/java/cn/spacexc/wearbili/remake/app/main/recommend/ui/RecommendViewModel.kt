@@ -5,10 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cn.spacexc.wearbili.common.domain.log.logd
-import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.RecommendVideo
 import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.web.WebRecommendVideo
 import cn.spacexc.wearbili.remake.common.UIState
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.proto.settings.RecommendSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -24,8 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RecommendViewModel @Inject constructor(
-    private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils,
-    private val userManager: cn.spacexc.wearbili.common.domain.user.UserManager
+    private val networkUtils: KtorNetworkUtils,
 ) : ViewModel() {
     var screenState by mutableStateOf(
         RecommendScreenState()
@@ -39,8 +37,8 @@ class RecommendViewModel @Inject constructor(
             if (isRefresh) screenState = screenState.copy(isRefreshing = true)
             when (recommendSource) {
                 RecommendSource.App -> {
-                    val url =
-                        if (!userManager.accessKey().logd("accessKey")
+                    /*val url =
+                        if (!UserUtils.accessKey().logd("accessKey")
                                 .isNullOrEmpty()
                         ) "http://app.bilibili.com/x/v2/feed/index?access_key=${userManager.accessKey()}&actionKey=appkey&appkey=27eb53fc9058f8c3&build=70000100&c_locale=zh-Hans_CN&column=1&disable_rcmd=0&flush=0&fnval=976&fnver=0&force_host=0&fourk=1&guidance=1&https_url_req=0&login_event=2&pull=1&qn=32&recsys_mode=0&s_locale=zh-Hans_CH&screen_window_type=0"
                         else "http://app.bilibili.com/x/v2/feed/index?column=1"
@@ -66,7 +64,7 @@ class RecommendViewModel @Inject constructor(
                                 isRefreshing = false
                             )
                         }
-                    }
+                    }*/
                 }
 
                 RecommendSource.Web -> {

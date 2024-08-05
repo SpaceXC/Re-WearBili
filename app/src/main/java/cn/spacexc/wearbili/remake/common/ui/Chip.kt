@@ -58,15 +58,15 @@ fun DanmakuChip(
         COMMAND_SUBSCRIBE -> R.drawable.icon_uploader
         else -> 0
     }
-
+    
     Row(
         modifier = Modifier
+            .clickVfx { onClick() }
             .background(
                 Color(18, 18, 18, 255),
                 CircleShape
             )
-            .padding(start = 9.dp, end = 12.5.dp, top = 5.dp, bottom = 5.dp)
-            .clickVfx { onClick() },
+            .padding(start = 9.dp, end = 12.5.dp, top = 5.dp, bottom = 5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(

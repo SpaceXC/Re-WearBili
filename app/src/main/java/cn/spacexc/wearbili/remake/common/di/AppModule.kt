@@ -1,16 +1,18 @@
 package cn.spacexc.wearbili.remake.common.di
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import cn.spacexc.bilibilisdk.data.DataManager
+import cn.spacexc.bilibilisdk.data.KtorCookiesManager
 import cn.spacexc.wearbili.common.CryptoManager
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
-import cn.spacexc.wearbili.common.domain.network.cookie.KtorCookiesManager
 import cn.spacexc.wearbili.common.domain.qrcode.QRCodeUtil
 import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.DanmakuGetter
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.networking.CookiesManager
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.common.networking.db.CookiesRepository
 import dagger.Module
 import dagger.Provides
@@ -43,6 +45,7 @@ object AppModule {
     fun providesCookiesManager(dataManager: DataManager): KtorCookiesManager =
         KtorCookiesManager(dataManager)
 
+    @RequiresApi(Build.VERSION_CODES.M)
     @Provides
     @Singleton
     fun providesCryptoManager() = CryptoManager()

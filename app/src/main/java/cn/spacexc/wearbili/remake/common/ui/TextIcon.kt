@@ -4,6 +4,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -11,6 +12,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.common.ui.AutoResizedText
 
 /**
  * Created by Xiaochang on 2022/10/24.
@@ -54,16 +56,37 @@ fun SegoeTextIcon(
 fun BiliTextIcon(
     icon: String,
     modifier: Modifier = Modifier,
+    isUnicode: Boolean = true,
     size: TextUnit = 24.sp,
     color: Color = Color.White
 ) {
     Text(
-        text = unicodeToString("\\u$icon"),
+        text = if (isUnicode) unicodeToString("\\u$icon") else icon,
         color = color,
         modifier = modifier,
         fontFamily = biliIconFontFamily,
         fontSize = size,
         textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+fun AutoSizedBiliTextIcon(
+    icon: String,
+    modifier: Modifier = Modifier,
+    isUnicode: Boolean = true,
+    defaultSize: TextUnit = 24.sp,
+    color: Color = Color.White
+) {
+    AutoResizedText(
+        text = if (isUnicode) unicodeToString("\\u$icon") else icon,
+        color = color,
+        modifier = modifier,
+        style = TextStyle(
+            fontFamily = biliIconFontFamily,
+            textAlign = TextAlign.Center,
+            fontSize = defaultSize
+        )
     )
 }
 

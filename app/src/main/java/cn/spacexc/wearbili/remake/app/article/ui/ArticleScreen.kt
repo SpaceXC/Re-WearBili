@@ -118,31 +118,40 @@ fun Activity.ArticleScreen(
                     if (it.text.type == TYPE_QUOTE) {
                         Card(
                             isClickEnabled = false,
-                            innerPaddingValues = PaddingValues(
-                                start = 8.dp,
-                                end = 8.dp,
-                                top = 10.dp,
-                                bottom = 10.dp
-                            )
+                            innerPaddingValues = PaddingValues()
                         ) {
+                            Text(
+                                text = "「",
+                                color = Color.White,
+                                fontWeight = FontWeight.ExtraBold,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .alpha(0.7f).offset(y = 6.dp, x = (-2).dp),
+                                fontFamily = wearbiliFontFamily,
+                                fontSize = 20.sp
+                            )
+                            Text(
+                                text = "」",
+                                color = Color.White,
+                                fontWeight = FontWeight.ExtraBold,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .alpha(0.7f)
+                                    .align(Alignment.BottomEnd)
+                                    .offset(y = (-6).dp, x = 2.dp),
+                                fontFamily = wearbiliFontFamily,
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.End
+                            )
                             Column(
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp, horizontal = 12.dp)
                             ) {
                                 /*Image(
                                     painter = painterResource(id = R.drawable.icon_blockquote),
                                     contentDescription = null,
                                     modifier = Modifier.size(18.dp).alpha(0.7f).padding(bottom = 4.dp)
                                 )*/
-                                Text(
-                                    text = "「",
-                                    color = Color.White,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .alpha(0.7f),
-                                    fontFamily = wearbiliFontFamily,
-                                    fontSize = 20.sp
-                                )
+
                                 Text(
                                     text = it.text.content,
                                     color = it.text.color,
@@ -151,19 +160,8 @@ fun Activity.ArticleScreen(
                                         .fillMaxWidth()
                                         .padding(horizontal = 4.dp),
                                     textAlign = if (it.text.isCenter) TextAlign.Center else TextAlign.Unspecified,
-                                    fontFamily = wearbiliFontFamily
-                                )
-                                Text(
-                                    text = "」",
-                                    color = Color.White,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .alpha(0.7f)
-                                        .offset(y = 14.dp),
                                     fontFamily = wearbiliFontFamily,
-                                    fontSize = 20.sp,
-                                    textAlign = TextAlign.End
+                                    fontSize = 10.sp
                                 )
                             }
                         }

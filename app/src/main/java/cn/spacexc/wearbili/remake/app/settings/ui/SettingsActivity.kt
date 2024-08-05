@@ -11,7 +11,6 @@ import androidx.compose.material.icons.automirrored.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.Animation
 import androidx.compose.material.icons.outlined.FormatSize
 import androidx.compose.material.icons.outlined.Handyman
-import androidx.compose.material.icons.outlined.PeopleOutline
 import androidx.compose.material.icons.outlined.VideoLabel
 import androidx.compose.material.icons.outlined.VideoSettings
 import androidx.compose.ui.Modifier
@@ -19,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.lifecycleScope
 import cn.spacexc.bilibilisdk.utils.UserUtils
-import cn.spacexc.wearbili.remake.app.login.qrcode.web.ui.QrCodeLoginActivity
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.app.settings.domain.SettingsItem
 import cn.spacexc.wearbili.remake.app.settings.experimantal.ExperimentalFunctionsActivity
@@ -192,21 +190,6 @@ class SettingsActivity : ComponentActivity() {
                     VideoDisplaySurface.TextureView, "TextureView"
                 )
             )
-        ),
-        SettingsItem(
-            name = "添加账号",
-            description = "添加一个账号",
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.PeopleOutline,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.fillMaxSize()
-                )
-            },
-            action = {
-                startActivity(Intent(this, QrCodeLoginActivity::class.java))
-            }
         ),
         SettingsItem(
             name = "实验性功能",

@@ -7,7 +7,6 @@ import androidx.work.WorkerParameters
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BANGUMI_ID_TYPE_CID
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BangumiInfo
 import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.common.formatBytes
 import cn.spacexc.wearbili.remake.app.cache.domain.database.STATE_COMPLETED
 import cn.spacexc.wearbili.remake.app.cache.domain.database.STATE_DOWNLOADING
@@ -16,6 +15,7 @@ import cn.spacexc.wearbili.remake.app.cache.domain.database.STATE_FETCHING
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.DanmakuGetter
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.delay

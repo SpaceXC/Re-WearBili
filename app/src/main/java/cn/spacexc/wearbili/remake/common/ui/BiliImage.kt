@@ -39,6 +39,7 @@ import coil.transform.Transformation
 fun BiliImage(
     url: String,
     contentDescription: String?,
+    optimized: Boolean = true,
     modifier: Modifier = Modifier,
     transform: (State) -> State = DefaultTransform,
     transformations: List<Transformation> = emptyList(),
@@ -66,9 +67,7 @@ fun BiliImage(
         )*/
     ) {
         if (size.width != 0f) {
-            val realUrl = "${url.replace("http://", "https://")}${
-                if (url.contains(".hdslb.com/bfs")) "@${size.width.toInt()}w_${size.height.toInt()}h.webp" else ""
-            }"
+            val realUrl = if(optimized) "${url.replace("http://", "https://")}${if (url.contains(".hdslb.com/bfs")) "@${size.width.toInt()}w_${size.height.toInt()}h.webp" else ""}" else url.replace("http://", "https://")
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(realUrl)

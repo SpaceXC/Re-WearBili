@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.material.Text
+import androidx.compose.ui.graphics.Color
 import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -23,6 +25,9 @@ class DeviceDiscoverActivity : ComponentActivity() {
             }
         }
         setContent {
+            viewModel.deviceList.forEach { device ->
+                Text(text = device.friendlyName, color = Color.White)
+            }
             DeviceDiscoverScreen(viewModel = viewModel, wifiName = wifiName)
         }
     }

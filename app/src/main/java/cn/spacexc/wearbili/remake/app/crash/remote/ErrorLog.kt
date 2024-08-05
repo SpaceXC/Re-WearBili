@@ -2,7 +2,9 @@ package cn.spacexc.wearbili.remake.app.crash.remote
 
 import cn.leancloud.LCObject
 import cn.spacexc.wearbili.remake.app.Application
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ErrorLog(
     val reportTime: Long,
     val mid: Long?,
@@ -13,7 +15,8 @@ data class ErrorLog(
     val brand: String = android.os.Build.BRAND,
     val device: String = android.os.Build.DEVICE,
     val model: String = android.os.Build.MODEL,
-    val versionInt: Int = Application.getVersionCode().toInt(),
+    val status: String = "pending",
+    val versionInt: Int = Application.getReleaseNumber().toInt(),
     val versionName: String = Application.getVersionName(),
 )
 

@@ -1,9 +1,11 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.google.protobuf)
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.google.devtools.ksp)
+
     kotlin("kapt")
     id("kotlin-parcelize")
     alias(libs.plugins.baselineprofile)
@@ -18,11 +20,12 @@ android {
 
     val releaseNumber = 3
     defaultConfig {
+
         applicationId = "cn.spacexc.wearbili.remake"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 45
-        versionName = "Neon 霓虹"
+        versionCode = 47
+        versionName = "Atlas 阿特拉斯"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -31,13 +34,16 @@ android {
     }
     buildTypes {
         release {
+            buildConfigField("Integer", "releaseNumber", "$releaseNumber")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-
+        }
+        debug {
+            buildConfigField("Integer", "releaseNumber", "$releaseNumber")
         }
     }
     compileOptions {
@@ -54,9 +60,9 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
+    /*composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
-    }
+    }*/
     packaging {
         resources.excludes.apply {
             add("/META-INF/{AL2.0,LGPL2.1}")
@@ -91,6 +97,12 @@ protobuf {
                 }
             }
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
@@ -143,9 +155,6 @@ dependencies {
     //noinspection GradleDependency
     implementation(libs.androidx.paging.compose)
 
-
-    implementation(libs.appcenter.analytics)
-    implementation(libs.appcenter.crashes)
 
 
     /*// For media playback using ExoPlayer

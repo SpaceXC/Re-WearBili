@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

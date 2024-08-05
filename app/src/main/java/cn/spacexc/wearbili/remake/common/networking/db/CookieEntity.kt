@@ -13,17 +13,17 @@ import io.ktor.util.date.GMTDate
 @Entity
 @TypeConverters(MapNullableTypeConverter::class)
 data class CookieEntity(
-    val name: String,
-    val value: String,
-    val encoding: CookieEncoding,
-    val maxAge: Int = 0,
-    val expires: Long? = null,
-    val domain: String? = null,
-    val path: String? = null,
-    val secure: Boolean = false,
-    val httpOnly: Boolean = false,
-    val extensions: Map<String, String?> = emptyMap(),
-    val uid: Long?,
+    var name: String,
+    var value: String,
+    var encoding: CookieEncoding,
+    var maxAge: Int = 0,
+    var expires: Long? = null,
+    var domain: String? = null,
+    var path: String? = null,
+    var secure: Boolean = false,
+    var httpOnly: Boolean = false,
+    var extensions: Map<String, String?> = emptyMap(),
+    var uid: Long?,
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0
 )

@@ -92,7 +92,7 @@ fun Activity.DeviceDiscoverScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(
-                                        id = if (device.isBilibiliDevice) R.drawable.icon_cloud_tv_bilibili else R.drawable.icon_tv
+                                        id = if (device.isBiliDevice) R.drawable.icon_cloud_tv_bilibili else R.drawable.icon_tv
                                     ),
                                     contentDescription = null,
                                     tint = Color.White

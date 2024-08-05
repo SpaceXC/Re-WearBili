@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +32,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -144,6 +146,10 @@ fun Activity.AboutScreen(
                                         bannerClickedTimes = 0
                                     }
                                 }
+                            }.pointerInput(Unit) {
+                                detectTapGestures(onLongPress = {
+                                    throw RuntimeException("这是一个专门用来测试崩溃页的错误！")
+                                })
                             })
                     Text(
                         text = "另一个第三方Bilibili手表客户端",

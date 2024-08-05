@@ -18,8 +18,9 @@ import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
-import cn.spacexc.wearbili.remake.app.player.audio.AudioSubtitleManager
+import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerManager
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.common.HeartbeatListenable
 import cn.spacexc.wearbili.remake.proto.settings.VideoDecoder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -48,7 +49,7 @@ class Media3AudioPlayerViewModel /*@Inject constructor*/(
     private val application: Application,
     private val repository: VideoCacheRepository,
     private val scope: CoroutineScope
-) /*: ViewModel()*/ {
+): HeartbeatListenable<AudioPlayerManager.AudioPlayerHeartbeat> /*: ViewModel()*/ {
     // region view related
     var isAdjustingVolume by mutableStateOf(false)
     var volumeInformation by mutableStateOf("")
@@ -142,9 +143,32 @@ class Media3AudioPlayerViewModel /*@Inject constructor*/(
         }
     }
 
+    var secondarySubtitleLanguage: String? by mutableStateOf(/*subtitleList.entries.lastOrNull() { !it.value.isAIGenerated }?.key*/null)
+    var secondarySubtitleText = flow {
+        var index = 0
+        while (true) {
+            //emit("index: $index")
+            index++
+            val nextSubtitle =
+                if (secondarySubtitleLanguage != null) {
+                    //println("currentLanguage: $currentSubtitleLanguage")
+                    //println("currentSubtitleContent: ${subtitleList[subtitleList.keys.lastOrNull()]?.currentSubtitle?.content}")
+                    subtitleList[secondarySubtitleLanguage]?.currentSubtitle?.content
+                } else null
+            emit(nextSubtitle)
+            delay(5)
+        }
+    }
+
     var videoCastUrl = ""
 
     init {
+        scope.launch {
+            while (true) {
+                AudioPlayerManager.heartbeat(AudioPlayerManager.AudioPlayerHeartbeat(System.currentTimeMillis()))
+                delay(500)
+            }
+        }
         player.apply {
             setOnPreparedListener {
                 it.start()
@@ -211,7 +235,7 @@ class Media3AudioPlayerViewModel /*@Inject constructor*/(
             } else {
                 getVideoInfo(videoIdType, videoId)
                 onDataFetched(videoInfo?.data?.title ?: "未知视频")
-                AudioSubtitleManager.currentVideo = videoInfo?.data?.title ?: "未知视频"
+                AudioPlayerManager.currentVideo = videoInfo?.data?.title ?: "未知视频"
                 loadSubtitle()
                 appendLoadMessage("加载音频url...")
                 val urlResponse =
@@ -453,6 +477,10 @@ class Media3AudioPlayerViewModel /*@Inject constructor*/(
     private fun appendLoadMessage(message: String, needLineWrapping: Boolean = true) {
         loadingMessage += if (needLineWrapping) "\n$message" else message
         Log.d(TAG, "appendLoadMessage: $message")
+    }
+
+    override fun onHeartbeat(): AudioPlayerManager.AudioPlayerHeartbeat {
+        return AudioPlayerManager.AudioPlayerHeartbeat(System.currentTimeMillis())
     }
 
 }

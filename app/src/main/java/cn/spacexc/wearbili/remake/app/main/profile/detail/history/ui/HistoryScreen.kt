@@ -91,6 +91,9 @@ fun Activity.HistoryScreen(
                                     videoIdType = VIDEO_TYPE_BVID,
                                 )
                             }
+                            "article" -> {
+
+                            }
                             "pgc" -> {
 
                             }

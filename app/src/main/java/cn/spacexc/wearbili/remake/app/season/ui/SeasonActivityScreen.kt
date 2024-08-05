@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.bilibilisdk.sdk.season.remote.list.Archive
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID

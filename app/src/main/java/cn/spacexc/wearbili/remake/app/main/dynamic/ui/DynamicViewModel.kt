@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DynamicViewModel @Inject constructor(
-    private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+    private val networkUtils: cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 ) : ViewModel() {
     val scrollState = LazyListState(0)
     val dynamicFlow = Pager(

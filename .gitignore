@@ -10,3 +10,4 @@
 local.properties
 /app/src/main/java/cn/spacexc/wearbili/remake/AppSecrets.kt
 /app/mapping.txt
+.kotlin/

@@ -70,17 +70,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.palette.graphics.Palette
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.isAudioServiceUp
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerActivity
-import cn.spacexc.wearbili.remake.app.player.audio.AudioSubtitleManager
+import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerManager
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.ProvideConfiguration
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.ToastUtils.snackBarObject
 import cn.spacexc.wearbili.remake.common.ToastUtils.toastContent
 import cn.spacexc.wearbili.remake.common.UIState
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.WearBiliTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.time.DefaultTimeSource
@@ -257,8 +257,8 @@ fun Activity.CirclesBackground(
             }
         }
         Box(modifier = Modifier.fillMaxSize()) {
-            if (AudioSubtitleManager.isSubtitleOn) {
-                AudioSubtitleManager.LyricContent()
+            if (AudioPlayerManager.isSubtitleOn) {
+                AudioPlayerManager.LyricContent()
             }
         }
     }
@@ -359,6 +359,7 @@ fun Activity.TitleBackground(
     uiState: UIState = UIState.Success,
     themeColor: Color = BilibiliPink,
     ambientAlpha: Float = 0.6f,
+    titleAlpha: Float = 1f,
     onRetry: () -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -377,6 +378,7 @@ fun Activity.TitleBackground(
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
+                    .alpha(titleAlpha)
                     .padding(
                         horizontal = titleBackgroundHorizontalPadding(),
                         vertical = if (isAudioServiceUp) 6.dp else 8.dp
@@ -543,6 +545,7 @@ fun Activity.TitleBackground(
     uiState: UIState = UIState.Success,
     networkUtils: KtorNetworkUtils,
     themeImageUrl: String,
+    titleAlpha: Float = 1f,
     onRetry: () -> Unit = {},
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -579,6 +582,7 @@ fun Activity.TitleBackground(
             uiState,
             color,
             ambientAlpha,
+            titleAlpha,
             onRetry,
             content
         )

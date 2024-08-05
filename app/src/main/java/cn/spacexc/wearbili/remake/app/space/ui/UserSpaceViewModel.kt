@@ -12,7 +12,7 @@ import androidx.paging.cachedIn
 import cn.spacexc.bilibilisdk.sdk.user.profile.UserProfileInfo
 import cn.spacexc.bilibilisdk.sdk.user.profile.remote.info.space.Data
 import cn.spacexc.bilibilisdk.sdk.user.profile.remote.video.app.Item
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicItem
 import cn.spacexc.wearbili.remake.app.space.ui.dynamic.domain.UserSpaceDynamicPagingSource
 import cn.spacexc.wearbili.remake.app.space.ui.videos.domain.UploaderVideosPagingSource

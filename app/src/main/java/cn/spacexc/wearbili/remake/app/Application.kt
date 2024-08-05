@@ -16,19 +16,18 @@ import cn.leancloud.LeanCloud
 import cn.spacexc.bilibilisdk.BilibiliSdkManager
 import cn.spacexc.bilibilisdk.data.DataManager
 import cn.spacexc.bilibilisdk.sdk.user.profile.UserProfileInfo
-import cn.spacexc.wearbili.common.APP_CENTER_SECRET
+import cn.spacexc.wearbili.common.LEANCLOUD_APP_ID
+import cn.spacexc.wearbili.common.LEANCLOUD_APP_KEY
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.domain.data.DataStoreManager
+import cn.spacexc.wearbili.remake.BuildConfig
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.crash.ui.CrashActivity
 import cn.spacexc.wearbili.remake.app.crash.ui.PARAM_EXCEPTION_DESCRIPTION
 import cn.spacexc.wearbili.remake.app.crash.ui.PARAM_EXCEPTION_STACKTRACE
-import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerService
+import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerManager
 import cn.spacexc.wearbili.remake.common.networking.CookiesManager
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.analytics.Analytics
-import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.EntryPoint
 import dagger.hilt.EntryPoints
 import dagger.hilt.InstallIn
@@ -54,7 +53,7 @@ import kotlin.system.exitProcess
 
 const val TAG = "Re:WearBili"
 val APP_VERSION_NAME = Application.getVersionName()
-val APP_VERSION_CODE = Application.getVersionCode()
+val APP_VERSION_CODE = Application.getReleaseNumber()
 
 var Context.isAudioServiceUp by mutableStateOf(false)
 
@@ -101,14 +100,10 @@ class Application : android.app.Application(), Configuration.Provider {
             exitProcess(2)
             //throw throwable
         }
-        AppCenter.start(
-            this, APP_CENTER_SECRET,
-            Analytics::class.java, Crashes::class.java
-        )
         LeanCloud.initialize(
             this,
-            "MAE7LopsPz1kgP3deSjzQ67g-gzGzoHsz",
-            "VuirpQYiGiekok2L03M9NX4o",
+            LEANCLOUD_APP_ID,
+            LEANCLOUD_APP_KEY,
             "https://mae7lops.lc-cn-n1-shared.com"
         )
         LeanCloud.setLogLevel(LCLogger.Level.ALL)
@@ -143,8 +138,8 @@ class Application : android.app.Application(), Configuration.Provider {
     private fun checkIfAudioServiceIsUp() {
         CoroutineScope(Dispatchers.IO).launch {
             while (true) {
-                this@Application.isAudioServiceUp =
-                    isForegroundServiceRunning(this@Application, AudioPlayerService::class.java)
+                this@Application.isAudioServiceUp = AudioPlayerManager.isAudioPlayerOn()
+                    //isForegroundServiceRunning(this@Application, AudioPlayerService::class.java)
                 delay(800)
             }
         }
@@ -184,10 +179,14 @@ class Application : android.app.Application(), Configuration.Provider {
             return packageInfo.versionName
         }
 
-        fun getVersionCode(): Long {
+        fun getReleaseNumber(): Long {
             val packageInfo =
                 getApplication().packageManager.getPackageInfo(getApplication().packageName, 0)
             return if (Build.VERSION.SDK_INT >= 28) packageInfo.longVersionCode else packageInfo.versionCode.toLong()
+        }
+
+        fun getVersionCode(): Int {
+            return BuildConfig.releaseNumber
         }
     }
 }

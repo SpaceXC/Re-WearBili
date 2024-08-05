@@ -120,10 +120,11 @@ fun GradientSlider(
 @Composable
 fun GradientSlider(
     value: Float,
+    modifier: Modifier = Modifier,
     range: ClosedFloatingPointRange<Float>,
     brush: Brush = Brush.horizontalGradient(listOf(Color(50, 25, 33), BilibiliPink)),
     trackHeight: Dp = TrackHeight,
-    modifier: Modifier = Modifier,
+    thumbSize: Dp = TrackHeight * 0.4f,
     onValueChanged: (Float) -> Unit
 ) {
     val thumbInteractionSource = rememberMutableInteractionSource()
@@ -135,7 +136,7 @@ fun GradientSlider(
         thumb = {
             Box(
                 modifier = Modifier
-                    .size(10.dp)
+                    .size(thumbSize)
                     .offset(x = 4.5.dp, y = 5.dp)
                     .background(Color.White, CircleShape)
             )
@@ -153,25 +154,19 @@ fun GradientSlider(
     modifier: Modifier = Modifier,
     brush: Brush = Brush.horizontalGradient(listOf(Color(50, 25, 33), BilibiliPink)),
     trackHeight: Dp = TrackHeight,
+    thumbSize: Dp = TrackHeight * 0.4f,
     onValueChanged: (Float) -> Unit,
     onSlideFinished: () -> Unit
 ) {
-    val thumbInteractionSource = rememberMutableInteractionSource()
     Slider(
         modifier = modifier,
         value = value,
         onValueChange = onValueChanged,
         valueRange = range,
         thumb = {
-            /*SliderDefaults.Thumb(
-                interactionSource = thumbInteractionSource,
-                colors = SliderDefaults.colors(thumbColor = Color.White),
-                thumbSize = DpSize(width = 10.dp, height = 10.dp),
-                modifier = Modifier.offset(x = 4.5.dp, y = 5.dp)
-            )*/
             Box(
                 modifier = Modifier
-                    .size(10.dp)
+                    .size(thumbSize)
                     .offset(x = 4.5.dp, y = 5.dp)
                     .background(Color.White, CircleShape)
             )

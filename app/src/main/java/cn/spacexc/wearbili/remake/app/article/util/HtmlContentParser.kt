@@ -72,7 +72,6 @@ data class HtmlImage(
 )
 
 fun MutableList<HtmlNode>.parseElement(element: Element) {
-    //Log.d(TAG, "parseElement: $element")
     when (element.tag().name) {
         TYPE_PARAGRAPH -> {
             val text = HtmlText(

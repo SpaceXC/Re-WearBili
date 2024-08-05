@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cn.spacexc.wearbili.common.domain.qrcode.QRCodeUtil
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
@@ -98,7 +99,8 @@ fun Activity.QrCodeScreen(
                             Text(
                                 text = qrCodeMessage,
                                 fontFamily = wearbiliFontFamily,
-                                fontWeight = FontWeight.Medium
+                                fontWeight = FontWeight.Medium,
+                                textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(10.dp))
                         }

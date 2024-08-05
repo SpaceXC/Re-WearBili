@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
+import cn.spacexc.wearbili.remake.app.splash.remote.Version
 
 /**
  * Created by XC-Qan on 2023/4/30.
@@ -21,7 +21,7 @@ class UpdateActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val versionInfo = if (Build.VERSION.SDK_INT >= 33) intent.getParcelableExtra(
             "updateInfo",
-            SplashScreenActivity.AppUpdatesResult::class.java
+            Version::class.java
         ) else intent.getParcelableExtra("updateInfo")
         setContent {
             UpdateActivityScreen(versionInfo = versionInfo, viewModel = viewModel)

@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CommentViewModel @Inject constructor(
-    private val networkUtils: cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils,
+    private val networkUtils: cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils,
 ) : ViewModel() {
     private val commentPagingSources = HashMap<String, Pager<Int, CommentContentData>>()
     private val commentLazyColumnScrollState = HashMap<String, LazyListState>()

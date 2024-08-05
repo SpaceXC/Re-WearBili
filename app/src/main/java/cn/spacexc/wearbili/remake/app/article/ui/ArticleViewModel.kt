@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.spacexc.bilibilisdk.sdk.article.info.ArticleInfo
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.TAG
 import cn.spacexc.wearbili.remake.app.article.util.HtmlNode
 import cn.spacexc.wearbili.remake.app.article.util.parseElement

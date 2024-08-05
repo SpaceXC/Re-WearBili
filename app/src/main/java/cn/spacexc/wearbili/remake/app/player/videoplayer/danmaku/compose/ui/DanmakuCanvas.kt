@@ -50,6 +50,7 @@ import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.co
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.SubscribeExtra
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.VideoExtra
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.vote.VoteExtra
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.CommandDanmakuType
 import cn.spacexc.wearbili.remake.common.ui.BilibiliBlue
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.DanmakuChip
@@ -83,7 +84,8 @@ fun DanmakuCanvas(
     videoDisplaySurfaceSize: Size,
     isNormalDanmakuVisible: Boolean,
     isAdvanceDanmakuVisible: Boolean,
-    isDebug: Boolean = false
+    isDebug: Boolean = false,
+    onClickOnCommandDanmaku: (CommandDanmakuType) -> Unit = {},
 ) {
     val localDensity = LocalDensity.current
     val localContext = LocalContext.current
@@ -104,7 +106,10 @@ fun DanmakuCanvas(
             delay(1000)
         }
     })
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
         if (isNormalDanmakuVisible) {
             Canvas(modifier = modifier.fillMaxSize()) {
                 state.displayingDanmakus.forEach { danmaku ->
@@ -313,7 +318,7 @@ fun DanmakuCanvas(
                                     commandDanmakuType = it.type,
                                     uploaderAvatarUrl = uploaderAvatarUrl
                                 ) {
-
+                                    onClickOnCommandDanmaku(CommandDanmakuType.Subscribe(it.extra))
                                 }
                             }
 
@@ -332,7 +337,7 @@ fun DanmakuCanvas(
                                 modifier = Modifier.centeredOffset(position)
                             ) {
                                 DanmakuChip(commandDanmakuType = it.type) {
-
+                                    onClickOnCommandDanmaku(CommandDanmakuType.Vote(it.extra))
                                 }
                             }
 
@@ -351,7 +356,7 @@ fun DanmakuCanvas(
                                 modifier = Modifier.centeredOffset(position)
                             ) {
                                 DanmakuChip(commandDanmakuType = it.type) {
-
+                                    onClickOnCommandDanmaku(CommandDanmakuType.Rate(it.extra))
                                 }
                             }
 
@@ -370,7 +375,7 @@ fun DanmakuCanvas(
                                 modifier = Modifier.centeredOffset(position)
                             ) {
                                 DanmakuChip(commandDanmakuType = it.type) {
-
+                                    onClickOnCommandDanmaku(CommandDanmakuType.Video(it.extra))
                                 }
                             }
 

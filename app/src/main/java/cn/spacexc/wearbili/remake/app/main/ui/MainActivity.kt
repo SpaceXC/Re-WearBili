@@ -5,10 +5,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.paging.compose.collectAsLazyPagingItems
+import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicViewModel
 import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileViewModel
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendViewModel
-import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
+import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.app.splash.remote.Version
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -31,9 +37,18 @@ class MainActivity : ComponentActivity() {
         profileViewModel.getProfile()
         val versionInfo = if (Build.VERSION.SDK_INT >= 33) intent.getParcelableExtra(
             "updateInfo",
-            SplashScreenActivity.AppUpdatesResult::class.java
+            Version::class.java
         ) else intent.getParcelableExtra("updateInfo")
         setContent {
+            val currentUid by UserUtils.midFlow().collectAsState(initial = 0)
+            val dynamicData = dynamicViewModel.dynamicFlow.collectAsLazyPagingItems()
+            LaunchedEffect(key1 = currentUid) {
+                if(currentUid != 0L && currentUid != null) {
+                    profileViewModel.getProfile()
+                    recommendViewModel.getRecommendVideos(true, SettingsManager.getConfiguration().recommendSource)
+                    dynamicData.refresh()
+                }
+            }
             MainActivityScreen(
                 context = this,
                 recommendViewModel = recommendViewModel,

@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
-import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
+import cn.spacexc.wearbili.remake.app.splash.remote.Version
 import cn.spacexc.wearbili.remake.app.welcome.screens.ReWearBiliText
 import cn.spacexc.wearbili.remake.common.ui.BilibiliBlue
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
@@ -70,7 +70,7 @@ import java.util.Locale
 @SuppressLint("SimpleDateFormat")
 @Composable
 fun Activity.UpdateActivityScreen(
-    versionInfo: SplashScreenActivity.AppUpdatesResult?,
+    versionInfo: Version?,
     viewModel: UpdateViewModel
 ) {
     TitleBackground(title = "更新", onBack = ::finish, onRetry = {}) {
@@ -160,7 +160,7 @@ fun Activity.UpdateActivityScreen(
 
 @Composable
 fun UpdateCard(
-    updateInfo: SplashScreenActivity.AppUpdatesResult,
+    updateInfo: Version,
     clickable: Boolean = false,
     context: Activity? = null
 ) {
@@ -168,9 +168,8 @@ fun UpdateCard(
     var cardHeight by remember {
         mutableStateOf(0.dp)
     }
-    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
     val outputFormat = SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault())
-    val date: Date = inputFormat.parse(updateInfo.createdAt) as Date
+    val date = Date(updateInfo.updateTime)
     val formattedDate: String = outputFormat.format(date)
     Card(
         innerPaddingValues = PaddingValues(),

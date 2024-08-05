@@ -75,7 +75,7 @@ import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 @Composable
 fun Activity.LiveStreamScreen(
     viewModel: LiveStreamViewModel,
-    displaySurface: VideoDisplaySurface = VideoDisplaySurface.SURFACE_VIEW,
+    displaySurface: VideoDisplaySurface = VideoDisplaySurface.TEXTURE_VIEW,
 ) {
     val localDensity = LocalDensity.current
     val roundScreenControllerAlpha by animateIntAsState(

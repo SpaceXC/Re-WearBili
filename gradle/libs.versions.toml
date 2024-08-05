@@ -2,40 +2,40 @@
 # 依赖版本号
 accompanistPlaceholderMaterial = "0.34.0"
 
-activityVersion = "1.8.2"
+activityVersion = "1.9.0"
 appCenterSdkVersion = "5.0.4"
-appcompat = "1.6.1"
+appcompat = "1.7.0"
 appcompatV7 = "28.0.0"
-atomicfu = "0.22.0"
+atomicfu = "0.23.2"
 coilCompose = "2.6.0"
-compose = "1.7.0-alpha04"
+compose = "1.7.0-beta05"
 zoomable = "1.6.1"
 compose-compiler = "1.5.10"
 
 constraintlayout = "2.1.4"
-coreKtx = "1.12.0"
+coreKtx = "1.13.1"
 coreVersion = "3.5.3"
 crashx = "v6.0.19"
 danmakuflamemaster = "0.9.25"
-datastore = "1.0.0"
+datastore = "1.1.1"
 espressoCoreVersion = "3.0.2"
 gson = "2.10.1"
 hiltAndroid = "2.51"
 hiltWork = "1.2.0"
 jsoup = "1.17.2"
 runner = "1.0.2"
-junitVersion = "4.12"
+junitVersion = "4.13.2"
 rxhttp = "3.2.3"
 okhttp = "4.12.0"
 kotlinxMetadataJvm = "0.9.0"
 ktorClientCore = "2.3.7"
-lifecycleRuntimeKtx = "2.7.0"
-material = "1.11.0"
+lifecycleRuntimeKtx = "2.8.0"
+material = "1.12.0"
 material3WindowSizeClass = "1.2.1"
 
 
-media3Exoplayer = "1.3.0"
-pagingCompose = "3.2.1"
+media3Exoplayer = "1.3.1"
+pagingCompose = "3.3.0"
 paletteKtx = "1.0.0"
 
 
@@ -50,16 +50,16 @@ targetSdk = "34"
 buildTool = "34.0.0"
 minSdk = "21"
 
-agp = "8.3.0"
+agp = "8.3.2"
 
-kotlin = "1.9.22"
+kotlin = "2.0.0-RC3"
 workRuntime = "2.9.0"
-ksp = "1.9.22-1.0.16"
+ksp = "2.0.0-1.0.21"
 junit = "1.1.5"
 espressoCore = "3.5.1"
 uiautomator = "2.3.0"
-benchmarkMacroJunit4 = "1.2.3"
-baselineprofile = "1.2.3"
+benchmarkMacroJunit4 = "1.2.4"
+baselineprofile = "1.2.4"
 profileinstaller = "1.3.1"
 
 leancloud = "8.2.19"
@@ -170,3 +170,4 @@ google-protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
 google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 androidTest = { id = "com.android.test", version.ref = "agp" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
+kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

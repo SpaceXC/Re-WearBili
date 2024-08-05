@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
@@ -78,6 +79,7 @@ fun LargeRoundButton(
 fun OutlinedRoundButton(
     modifier: Modifier = Modifier,
     buttonModifier: Modifier = Modifier,
+    shape: Shape = CircleShape,
     text: String,
     clickable: Boolean = true,
     onClick: () -> Unit = { },
@@ -104,19 +106,21 @@ fun OutlinedRoundButton(
             innerPaddingValues = PaddingValues(3.dp),
             modifier = buttonModifier,
             /*.fillMaxSize()*/
-            shape = CircleShape,
+            shape = shape,
             outerPaddingValues = PaddingValues(2.dp),
             isClickEnabled = clickable,
         ) {
             icon()
         }
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = text,
-            fontFamily = wearbiliFontFamily,
-            fontWeight = FontWeight.Medium,
-            color = Color.White
-        )
+        if (text.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = text,
+                fontFamily = wearbiliFontFamily,
+                fontWeight = FontWeight.Medium,
+                color = Color.White
+            )
+        }
     }
 }
 
@@ -125,6 +129,7 @@ fun VfxOutlinedRoundButton(
     likeButtonState: LikeButtonState,
     modifier: Modifier = Modifier,
     buttonModifier: Modifier = Modifier,
+    shape: Shape = CircleShape,
     count: Int,
     clickable: Boolean = true,
     onClick: () -> Boolean = { false },
@@ -179,7 +184,7 @@ fun VfxOutlinedRoundButton(
                 )
             },
             /*.fillMaxSize()*/
-            shape = CircleShape,
+            shape = shape,
             outerPaddingValues = PaddingValues(2.dp),
             isClickEnabled = clickable,
         ) {

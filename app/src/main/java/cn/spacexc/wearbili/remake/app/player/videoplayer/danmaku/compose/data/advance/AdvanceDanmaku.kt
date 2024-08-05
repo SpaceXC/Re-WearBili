@@ -1,5 +1,7 @@
 package cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.advance
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -11,6 +13,8 @@ import com.google.gson.reflect.TypeToken
 import kotlin.math.abs
 import kotlin.math.sqrt
 
+@Stable
+@Immutable
 data class AdvanceDanmaku(
     var text: String = "",
     var progress: Long,

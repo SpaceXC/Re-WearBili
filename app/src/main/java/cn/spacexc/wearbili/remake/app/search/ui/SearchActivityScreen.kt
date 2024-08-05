@@ -3,7 +3,11 @@ package cn.spacexc.wearbili.remake.app.search.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Build.VERSION.SDK_INT
+import android.widget.EditText
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,9 +24,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -36,27 +37,30 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import cn.spacexc.wearbili.remake.app.input.InputActivity
+import cn.spacexc.wearbili.remake.app.input.PARAM_INPUT
+import cn.spacexc.wearbili.remake.app.input.PARAM_PREV_INPUT
 import cn.spacexc.wearbili.remake.common.ui.AutoResizedText
-import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.isRound
+import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
@@ -82,12 +86,24 @@ fun SearchActivityScreen(
     defaultSearchKeyword: String = "",
     context: Activity
 ) {
+    val scope = rememberCoroutineScope()
     val localDensity = LocalDensity.current
     val hotWords by searchViewModel.hotSearchedWords.collectAsState()
     val searchHistory by searchViewModel.searchHistory.collectAsState(initial = emptyList())
     var hotWordItemHeight by remember {
         mutableStateOf(100.dp)
     }
+
+    var searchInputValue by remember {
+        mutableStateOf(defaultSearchKeyword)
+    }
+
+    val inputResultLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) {
+            val input = it.data?.getStringExtra(PARAM_INPUT) ?: searchInputValue
+            searchInputValue = input
+        }
+
     Text(
         text = "",
         style = AppTheme.typography.body1,
@@ -96,9 +112,6 @@ fun SearchActivityScreen(
         }
     )  //这个Text是用来获取高度以设置下面LazyStaggeredGrid的高度以及热搜类型图片的高度的，不可或缺，要和下面热搜词的大小同步
     context.TitleBackground(title = "搜索", onBack = onBack, onRetry = {}) {
-        var searchInputValue by remember {
-            mutableStateOf(defaultSearchKeyword)
-        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -115,14 +128,27 @@ fun SearchActivityScreen(
                     innerPaddingValues = PaddingValues(vertical = 10.dp, horizontal = 8.dp),
                     outerPaddingValues = PaddingValues(0.dp),
                     isClickEnabled = false,
-                    //modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Box(modifier = Modifier.weight(1f)) {
+                        Box(modifier = Modifier
+                            .weight(1f)
+                            .clickable(
+                                rememberMutableInteractionSource(), null
+                            ) {
+                                inputResultLauncher.launch(
+                                    Intent(
+                                        context,
+                                        InputActivity::class.java
+                                    ).apply {
+                                        putExtra(
+                                            PARAM_PREV_INPUT, searchInputValue
+                                        )
+                                    })
+                            }) {
                             if (searchInputValue.isEmpty()) {
                                 AutoResizedText(
                                     text = "搜些什么ヾ(≧▽≦*)o",
@@ -135,31 +161,18 @@ fun SearchActivityScreen(
                                         .alpha(0.6f)
                                         .align(Alignment.CenterStart)
                                 )
-                            }
-                            BasicTextField(
-                                value = searchInputValue,
-                                onValueChange = { searchInputValue = it },
-                                //lineLimits = TextFieldLineLimits.SingleLine,
-                                singleLine = true,
-                                textStyle = TextStyle(
-                                    fontSize = 14.sp,
-                                    fontFamily = wearbiliFontFamily,
-                                    color = Color.White
-                                ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .align(
-                                        Alignment.CenterStart
+                            } else {
+                                Text(
+                                    text = searchInputValue,
+                                    style = TextStyle(
+                                        fontSize = 14.sp,
+                                        fontFamily = wearbiliFontFamily,
+                                        color = Color.White
                                     ),
-                                cursorBrush = SolidColor(value = BilibiliPink),
-                                keyboardActions = KeyboardActions(onSearch = {
-                                    if (searchInputValue.isNotEmpty()) {
-                                        searchViewModel.addSearchHistory(searchInputValue)
-                                        searchViewModel.searchByKeyword(context, searchInputValue)
-                                    }
-                                }),
-                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                            )
+                                    modifier = Modifier
+                                        .align(Alignment.CenterStart)
+                                )
+                            }
                         }
                         Spacer(modifier = Modifier.width(2.dp))
                         Icon(

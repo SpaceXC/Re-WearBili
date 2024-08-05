@@ -118,6 +118,15 @@ fun Card(
                     end = Offset.Infinite
                 )
             )
+            /*.shadow(
+                elevation = 10.dp,
+                shape = shape,
+                //ambientColor = Color.White,
+                //spotColor = Color.White
+                *//*ambientColor = borderColor,
+                spotColor = borderColor*//*
+            )*/
+            //.advancedShadow()
             .background(color = backgroundColor)
             .padding(innerPaddingValues)
             .then(if (fillMaxSize) Modifier.fillMaxWidth() else Modifier),

@@ -2,7 +2,7 @@ package cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku
 
 import bilibili.community.service.dm.v1.DmSegMobileReply
 import bilibili.community.service.dm.v1.DmWebViewReply
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 
 /**
  * Created by XC-Qan on 2023/12/24.

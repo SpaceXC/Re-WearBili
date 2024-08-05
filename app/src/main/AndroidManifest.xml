@@ -191,6 +191,7 @@
             android:exported="false" />
         <activity
             android:name=".app.player.livestream.ui.LiveStreamActivity"
+            android:configChanges="orientation|layoutDirection|screenSize"
             android:exported="false" />
         <activity
             android:name=".app.settings.user.SwitchUserActivity"
@@ -209,6 +210,24 @@
             android:exported="false" />
         <activity
             android:name=".app.video.info.comment.detail.CommentDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.feedback.ui.issues.AllIssuesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.input.InputActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.message.direct.history.ui.DirectMessageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.message.reply.ui.ReplyMessageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.message.at.ui.AtMessageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.message.like.ui.LikeMessagesActivity"
             android:exported="false" />
     </application>
 

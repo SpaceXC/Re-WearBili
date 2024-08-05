@@ -129,10 +129,10 @@ class AudioPlayerService : LifecycleService() {
     }
 
     private fun updateSubtitle() {
-        AudioSubtitleManager.currentPlayingSubtitle = null
+        AudioPlayerManager.currentPlayingSubtitle = null
         subtitleUpdateJob = lifecycleScope.launch {
             viewModel.currentPlayProgress.collect {
-                AudioSubtitleManager.currentProgress = it.toDouble() / 1000
+                AudioPlayerManager.currentProgress = it.toDouble() / 1000
             }/*
             viewModel.currentPlayProgress.collect {
                 AudioSubtitleManager.currentProgress = it.toDouble() / 1000
@@ -142,7 +142,7 @@ class AudioPlayerService : LifecycleService() {
         lifecycleScope.launch {
             viewModel.currentSubtitle.collect {
                 if (it != null) {
-                    AudioSubtitleManager.currentPlayingSubtitle = it
+                    AudioPlayerManager.currentPlayingSubtitle = it
                 }
             }
         }
@@ -209,10 +209,10 @@ class AudioPlayerService : LifecycleService() {
         //videoCid = 0
         //viewModel.player.stop()
         viewModel.player.release()
-        AudioSubtitleManager.currentVideo = ""
-        AudioSubtitleManager.currentPlayingSubtitle = null
-        AudioSubtitleManager.currentProgress = 0.0
-        AudioSubtitleManager.isSubtitleOn = false
+        AudioPlayerManager.currentVideo = ""
+        AudioPlayerManager.currentPlayingSubtitle = null
+        AudioPlayerManager.currentProgress = 0.0
+        AudioPlayerManager.isSubtitleOn = false
         lifecycleScope.cancel()
         stopSelf()
     }

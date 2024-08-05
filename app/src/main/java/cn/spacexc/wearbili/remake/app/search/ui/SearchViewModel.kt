@@ -7,8 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.spacexc.bilibilisdk.data.DataManager
 import cn.spacexc.wearbili.common.domain.log.logd
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.common.domain.video.VideoUtils
+import cn.spacexc.wearbili.remake.app.article.ui.ArticleActivity
+import cn.spacexc.wearbili.remake.app.article.ui.PARAM_CVID
 import cn.spacexc.wearbili.remake.app.player.livestream.ui.LiveStreamActivity
 import cn.spacexc.wearbili.remake.app.player.livestream.ui.PARAM_ROOM_ID
 import cn.spacexc.wearbili.remake.app.search.domain.SearchHistory
@@ -38,6 +40,7 @@ import javax.inject.Inject
  */
 
 val liveRoomIdRegex = Regex("^live\\d+\$")
+val articleIdRegex = Regex("^cv\\d+\$")
 val aidVideo = Regex("^av\\d+\$")
 
 @HiltViewModel
@@ -94,6 +97,12 @@ class SearchViewModel @Inject constructor(
         if (keyword.matches(liveRoomIdRegex)) {
             context.startActivity(Intent(context, LiveStreamActivity::class.java).apply {
                 putExtra(PARAM_ROOM_ID, keyword.replace("live", "").toLong())
+            })
+            return
+        }
+        if (keyword.matches(articleIdRegex)) {
+            context.startActivity(Intent(context, ArticleActivity::class.java).apply {
+                putExtra(PARAM_CVID, keyword.replace("cv", "").toLong())
             })
             return
         }

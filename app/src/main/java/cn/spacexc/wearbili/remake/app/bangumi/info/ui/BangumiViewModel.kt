@@ -21,7 +21,7 @@ import cn.spacexc.bilibilisdk.sdk.bangumi.info.BangumiInfo
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.remote.Episode
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.remote.Result
 import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
-import cn.spacexc.wearbili.common.domain.network.KtorNetworkUtils
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository

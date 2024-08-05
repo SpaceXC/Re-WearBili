@@ -1,24 +1,47 @@
 package cn.spacexc.wearbili.remake.app.space.ui.info
 
 import android.app.Activity
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.pager.VerticalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun Activity.UserInformationScreen(
     viewModel: UserSpaceViewModel
 ) {
-    val pagerState = rememberPagerState { 2 }
-    VerticalPager(state = pagerState) { page ->
-        when (page) {
-            0 -> BasicInformationScreen(
-                viewModel = viewModel
-            )
+    var isShowingDetail by remember {
+        mutableStateOf(false)
+    }
 
-            1 -> DetailInformationScreen(viewModel = viewModel)
+    SharedTransitionLayout(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        AnimatedContent(targetState = isShowingDetail, label = "") { isDetailShowing ->
+            if (isDetailShowing) {
+                DetailInformationScreen(
+                    viewModel = viewModel,
+                    animatedContentScope = this,
+                    sharedTransitionScope = this@SharedTransitionLayout
+                ) {
+                    isShowingDetail = false
+                }
+            } else {
+                BasicInformationScreen(viewModel = viewModel, animatedContentScope = this) {
+                    isShowingDetail = true
+                }
+            }
         }
     }
+    //}
+
 }

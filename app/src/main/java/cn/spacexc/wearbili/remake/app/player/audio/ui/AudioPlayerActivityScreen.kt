@@ -91,8 +91,8 @@ import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerManager
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerService
-import cn.spacexc.wearbili.remake.app.player.audio.AudioSubtitleManager
 import cn.spacexc.wearbili.remake.app.player.audio.ui.lyrics.LyricsView
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerSetting
@@ -139,7 +139,10 @@ import kotlin.math.roundToInt
 fun Activity.AudioPlayerActivityScreen(
     service: AudioPlayerService
 ) {
-    val pagerState = rememberPagerState(pageCount = { 3 }, initialPage = 1)
+    val pagerState = if (service.viewModel.currentSubtitleLanguage == null) rememberPagerState(
+        pageCount = { 2 },
+        initialPage = 0
+    ) else rememberPagerState(pageCount = { 3 }, initialPage = 1)
     var currentView by remember {
         mutableStateOf(AudioPlayerView.Progress)
     }
@@ -151,7 +154,7 @@ fun Activity.AudioPlayerActivityScreen(
             service.viewModel.videoInfo?.data?.let { video ->
                 ArrowTitleBackgroundWithCustomBackground(
                     background = {
-                        val alpha by wearBiliAnimateFloatAsState(targetValue = if (pagerState.currentPage == 1 && currentView == AudioPlayerView.Progress) 0.8f else 0.3f)
+                        val alpha by wearBiliAnimateFloatAsState(targetValue = if (pagerState.currentPage == (if (service.viewModel.currentSubtitleLanguage == null) 0 else 1) && currentView == AudioPlayerView.Progress) 0.8f else 0.3f)
                         BiliImage(
                             url = video.pic,
                             contentDescription = null,
@@ -188,14 +191,25 @@ fun Activity.AudioPlayerActivityScreen(
                             state = pagerState,
                             modifier = Modifier.weight(1f)
                         ) { page ->
-                            when (page) {
-                                0 -> SubtitlePage(viewModel = service.viewModel)
-                                1 -> PlayerPage(
-                                    service = service,
-                                    currentView = currentView
-                                ) { currentView = it }
+                            if (service.viewModel.currentSubtitleLanguage == null) {
+                                when (page) {
+                                    0 -> PlayerPage(
+                                        service = service,
+                                        currentView = currentView
+                                    ) { currentView = it }
 
-                                2 -> SettingsPage(service = service)
+                                    1 -> SettingsPage(service = service)
+                                }
+                            } else {
+                                when (page) {
+                                    0 -> SubtitlePage(viewModel = service.viewModel)
+                                    1 -> PlayerPage(
+                                        service = service,
+                                        currentView = currentView
+                                    ) { currentView = it }
+
+                                    2 -> SettingsPage(service = service)
+                                }
                             }
                         }
                     }
@@ -212,6 +226,7 @@ fun SubtitlePage(
     viewModel: Media3AudioPlayerViewModel
 ) {
     val currentSubtitle by viewModel.currentSubtitle.collectAsState(initial = null)
+    val secondarySubtitle by viewModel.secondarySubtitleText.collectAsState(initial = null)
     val currentProgress by viewModel.currentPlayProgress.collectAsState(initial = 0)
     var currentIndex by remember {
         mutableIntStateOf(-1)
@@ -230,7 +245,8 @@ fun SubtitlePage(
             fontSize = 18.sp,
             contentColor = Color.White,
             contentPadding = PaddingValues(horizontal = 3.dp, vertical = 8.dp),
-            currentTime = currentProgress
+            currentTime = currentProgress,
+            secondarySubtitleText = secondarySubtitle
         ) {
             viewModel.player.seekTo(((it.from) * 1000).toLong())
         }
@@ -276,7 +292,7 @@ fun Activity.PlayerPage(
 
             val volumeAlpha by wearBiliAnimateFloatAsState(targetValue = if (currentView == AudioPlayerView.Volume) 1f else 0.7f)
             val seekAlpha by wearBiliAnimateFloatAsState(targetValue = if (currentView == AudioPlayerView.Seek) 1f else 0.7f)
-            val subtitleAlpha by wearBiliAnimateFloatAsState(targetValue = if (AudioSubtitleManager.isSubtitleOn) 1f else 0.7f)
+            val subtitleAlpha by wearBiliAnimateFloatAsState(targetValue = if (AudioPlayerManager.isSubtitleOn) 1f else 0.7f)
 
             Box(modifier = Modifier
                 .size(24.dp)
@@ -358,13 +374,13 @@ fun Activity.PlayerPage(
                     .size(24.dp)
                     .alpha(subtitleAlpha)
                     .clickAlpha {
-                        AudioSubtitleManager.currentVideo =
+                        AudioPlayerManager.currentVideo =
                             service.viewModel.videoInfo?.data?.title ?: ""
-                        AudioSubtitleManager.isSubtitleOn = !AudioSubtitleManager.isSubtitleOn
+                        AudioPlayerManager.isSubtitleOn = !AudioPlayerManager.isSubtitleOn
                     }
                     .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                     .drawBehind {
-                        if (AudioSubtitleManager.isSubtitleOn) {
+                        if (AudioPlayerManager.isSubtitleOn) {
                             drawRoundRect(
                                 Color.White,
                                 size = Size(size.width, size.height),
@@ -383,7 +399,7 @@ fun Activity.PlayerPage(
                                     fontSize = 18.sp,
                                     color = Color.White
                                 ),
-                                blendMode = if (AudioSubtitleManager.isSubtitleOn) BlendMode.Xor else DrawScope.DefaultBlendMode
+                                blendMode = if (AudioPlayerManager.isSubtitleOn) BlendMode.Xor else DrawScope.DefaultBlendMode
                             )
                         }
                     }
@@ -852,6 +868,32 @@ fun Activity.SettingsPage(
                         isSelected = viewModel.currentSubtitleLanguage == it.key
                     ) {
                         viewModel.currentSubtitleLanguage =
+                            it.key
+                    }
+                }
+            }
+
+            PlayerSetting(itemIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.Subtitles,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }, settingName = "双语字幕") {
+                PlayerSettingItem(
+                    text = "关闭",
+                    isSelected = viewModel.secondarySubtitleLanguage == null
+                ) {
+                    viewModel.secondarySubtitleLanguage =
+                        null
+                }
+                viewModel.subtitleList.forEach {
+                    PlayerSettingItem(
+                        text = it.value.subtitleLanguage,
+                        isSelected = viewModel.secondarySubtitleLanguage == it.key
+                    ) {
+                        viewModel.secondarySubtitleLanguage =
                             it.key
                     }
                 }
