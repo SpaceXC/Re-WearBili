@@ -391,23 +391,19 @@ fun CommentCard(
                             context.startActivity(this)
                         }
                     } else {
-                        context.startActivity(
-                            Intent(
-                                context,
-                                CommentDetailActivity::class.java
-                            ).apply {
-                                putExtra(PARAM_VIDEO_AID, oid)
-                                putExtra(PARAM_ROOT_COMMENT_RPID, commentRpid)
-                                putExtra(PARAM_MID, uploaderMid)
-                            })
+                        if (commentReplyControl.isNotEmpty()) {
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    CommentDetailActivity::class.java
+                                ).apply {
+                                    putExtra(PARAM_VIDEO_AID, oid)
+                                    putExtra(PARAM_ROOT_COMMENT_RPID, commentRpid)
+                                    putExtra(PARAM_MID, uploaderMid)
+                                }
+                            )
+                        }
                     }
-                    /*Intent(context, CommentRepliesActivity::class.java).apply {
-                        putExtra("oid", oid)
-                        putExtra("rootCommentId", commentRpid)
-                        putExtra("upMid", uploaderMid)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        context.startActivity(this)
-                    }*/
                 }
             }
             .fillMaxWidth()

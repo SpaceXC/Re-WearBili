@@ -12,9 +12,9 @@ import androidx.paging.PagingData
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentScreen
 import cn.spacexc.wearbili.remake.app.video.info.comment.ui.CommentViewModel
+import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationScreen
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationScreenState
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
-import cn.spacexc.wearbili.remake.app.video.info.info.ui.v2.VideoInformationScreenNew
 import cn.spacexc.wearbili.remake.app.video.info.related.RelatedVideosScreen
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import kotlinx.coroutines.flow.Flow
@@ -68,7 +68,7 @@ fun Activity.VideoInformationActivityScreen(
     ) {
         HorizontalPager(state = state) {
             when (it) {
-                0 -> VideoInformationScreenNew(
+                0 -> /*VideoInformationScreenNew(
                     state = videoInformationScreenState,
                     context = this@VideoInformationActivityScreen,
                     videoInformationViewModel = videoInformationViewModel,
@@ -80,13 +80,13 @@ fun Activity.VideoInformationActivityScreen(
                     }
                 ) {
                     isVideoInformationDetail = true
-                }
-                /*VideoInformationScreen(
+                }*/
+                VideoInformationScreen(
                     state = videoInformationScreenState,
                     context = context,
                     videoInformationViewModel = videoInformationViewModel,
                     videoIdType = videoIdType, videoId = videoId
-                )*/
+                )
 
                 1 -> {
                     CommentScreen(

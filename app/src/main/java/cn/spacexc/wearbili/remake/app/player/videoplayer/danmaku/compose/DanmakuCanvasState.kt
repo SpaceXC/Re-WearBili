@@ -350,10 +350,13 @@ class DanmakuCanvasState(val updateTimer: () -> Long) {
                 newVisibleDanmakus.map { it.danmakuId }.contains(tempDanmakuElem.id)
             }
             dynamicAdvanceDanmakuSegments = dynamicAdvanceDanmakuSegments.toMutableList().apply {
-                set(
-                    index = indexOfFirst { it.segmentIndex == currentSegmentIndex },
-                    element = DanmakuSegment(currentSegmentIndex, tempDanmakuSegmentList)
-                )
+                val index = indexOfFirst { it.segmentIndex == currentSegmentIndex }
+                if(index >= 0) {
+                    set(
+                        index = index,
+                        element = DanmakuSegment(currentSegmentIndex, tempDanmakuSegmentList)
+                    )
+                }
             }
 
             tempList = tempList.map { advanceDanmaku ->
