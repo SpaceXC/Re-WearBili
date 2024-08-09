@@ -422,6 +422,7 @@ fun Activity.Media3PlayerScreen(
             enableOneFingerZoom = false,
             onDoubleTap = {}
         )*/
+
     ) {
         //region player surface
         Box(

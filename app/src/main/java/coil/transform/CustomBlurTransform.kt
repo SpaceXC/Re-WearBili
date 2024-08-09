@@ -101,4 +101,4 @@ class CustomBlurTransformation @JvmOverloads constructor(
 }
 
 internal val Bitmap.safeConfig: Bitmap.Config
-    get() = config
+    get() = config!!

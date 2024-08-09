@@ -30,7 +30,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Redeem
-import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -613,7 +612,7 @@ fun DynamicContent(
 
                         2 -> {
                             Icon(
-                                imageVector = Icons.Outlined.ThumbUp,
+                                painter = painterResource(id = R.drawable.icon_thumb_up),
                                 contentDescription = null,
                                 modifier = Modifier,
                                 tint = Color.White

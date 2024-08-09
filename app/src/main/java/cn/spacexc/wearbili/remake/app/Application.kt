@@ -176,7 +176,7 @@ class Application : android.app.Application(), Configuration.Provider {
         fun getVersionName(): String {
             val packageInfo =
                 getApplication().packageManager.getPackageInfo(getApplication().packageName, 0)
-            return packageInfo.versionName
+            return packageInfo.versionName ?: ""
         }
 
         fun getReleaseNumber(): Long {

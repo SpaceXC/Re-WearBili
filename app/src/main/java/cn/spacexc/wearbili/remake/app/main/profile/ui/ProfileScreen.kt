@@ -243,7 +243,8 @@ fun ProfileScreen(
                                         fontSize = 12.sp,
                                         color = Color.White,
                                         fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.shimmerPlaceHolder(user?.coins == null)
+                                        modifier = Modifier.shimmerPlaceHolder(user?.coins == null),
+                                        fontFamily = wearbiliFontFamily
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
@@ -251,7 +252,8 @@ fun ProfileScreen(
                                         fontSize = 11.sp,
                                         color = Color.White,
                                         fontWeight = FontWeight.Medium,
-                                        modifier = Modifier.alpha(0.8f)
+                                        modifier = Modifier.alpha(0.8f),
+                                        fontFamily = wearbiliFontFamily
                                     )
                                 }
                                 Box(
@@ -270,7 +272,8 @@ fun ProfileScreen(
                                         fontSize = 12.sp,
                                         color = Color.White,
                                         fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.shimmerPlaceHolder(user?.coins == null)
+                                        modifier = Modifier.shimmerPlaceHolder(user?.coins == null),
+                                        fontFamily = wearbiliFontFamily
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
@@ -278,7 +281,8 @@ fun ProfileScreen(
                                         fontSize = 11.sp,
                                         color = Color.White,
                                         fontWeight = FontWeight.Medium,
-                                        modifier = Modifier.alpha(0.8f)
+                                        modifier = Modifier.alpha(0.8f),
+                                        fontFamily = wearbiliFontFamily
                                     )
                                 }
                             }

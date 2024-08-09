@@ -5,10 +5,10 @@ plugins {
     alias(libs.plugins.google.protobuf)
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.google.devtools.ksp)
-
     kotlin("kapt")
     id("kotlin-parcelize")
     alias(libs.plugins.baselineprofile)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -20,13 +20,12 @@ android {
 
     val releaseNumber = 3
     defaultConfig {
-
         applicationId = "cn.spacexc.wearbili.remake"
-        minSdk = libs.versions.minSdk.get().toInt()
-        targetSdk = libs.versions.targetSdk.get().toInt()
+        minSdk = 21
+        targetSdk = 35
+        compileSdk = 35
         versionCode = 47
         versionName = "Atlas 阿特拉斯"
-
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -154,6 +153,10 @@ dependencies {
     implementation(libs.androidx.paging.runtime.ktx)
     //noinspection GradleDependency
     implementation(libs.androidx.paging.compose)
+
+
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
 
 
 

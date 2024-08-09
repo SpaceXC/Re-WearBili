@@ -51,7 +51,6 @@ import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.ui.SettingsActivity
 import cn.spacexc.wearbili.remake.app.splash.remote.Version
-import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedContent
@@ -172,6 +171,7 @@ fun MainActivityScreen(
             onDropdown = {
                 isDropdownMenuShowing = !isDropdownMenuShowing
             },
+            currentPageIndex = pagerState.currentPage,
             onRetry = {}
         ) {
             val recommendSource = LocalConfiguration.current.recommendSource

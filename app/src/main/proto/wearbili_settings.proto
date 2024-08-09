@@ -3,11 +3,6 @@ syntax = "proto3";
 option java_package = "cn.spacexc.wearbili.remake.proto.settings";
 option java_multiple_files = true;
 
-enum AppTheme {
-  Default = 0;
-  Dark = 1;
-}
-
 enum Player {
   VideoPlayer = 0;
   AudioPlayer = 1;
@@ -58,8 +53,20 @@ enum VideoDisplaySurface {
   TextureView = 1;
 }
 
+enum Theme {
+  Light = 0;
+  Black = 1;
+  Round = 2;
+}
+
+message Customization {
+  bool videoCoverColorAbsorb = 1;
+  bool recommendPageLargeCard = 2;
+  Theme theme = 3;
+  string themeColor = 4;
+}
+
 message AppConfiguration {
-  AppTheme theme = 1;
   QuickToolBarConfiguration toolBarConfiguration = 2;
   bool hasAnimation = 3;
   RecommendSource recommendSource = 4;
@@ -72,4 +79,5 @@ message AppConfiguration {
   bool initialized = 11;
   string activatedExperimentFunctions = 12;
   VideoDisplaySurface videoDisplaySurface = 13;
+  Customization customization = 14;
 }

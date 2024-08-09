@@ -8,6 +8,7 @@ import androidx.datastore.dataStore
 import cn.spacexc.wearbili.remake.proto.settings.AppConfiguration
 import cn.spacexc.wearbili.remake.proto.settings.QuickToolBarFunction
 import cn.spacexc.wearbili.remake.proto.settings.RecommendSource
+import cn.spacexc.wearbili.remake.proto.settings.Theme
 import cn.spacexc.wearbili.remake.proto.settings.copy
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
@@ -34,6 +35,11 @@ object AppConfigurationSerializer : Serializer<AppConfiguration> {
             toolBarConfiguration = toolBarConfiguration.copy {
                 functionOne = QuickToolBarFunction.History
                 functionOne = QuickToolBarFunction.Search
+            }
+            customization = customization.copy {
+                recommendPageLargeCard = false
+                videoCoverColorAbsorb = true
+                theme = Theme.Light
             }
         }
 

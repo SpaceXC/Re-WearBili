@@ -473,7 +473,8 @@ fun CommentCard(
                                 putExtra(PARAM_VIDEO_AID, oid)
                                 putExtra(PARAM_ROOT_COMMENT_RPID, commentRpid)
                                 putExtra(PARAM_MID, uploaderMid)
-                            })
+                            }
+                        )
                     }
                 }
             }

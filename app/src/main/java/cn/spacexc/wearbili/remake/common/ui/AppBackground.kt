@@ -4,18 +4,22 @@ import android.app.Activity
 import android.content.Intent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,6 +37,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.InlineTextContent
@@ -42,7 +47,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -67,6 +72,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.palette.graphics.Palette
@@ -85,6 +91,7 @@ import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.WearBiliTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.time.DefaultTimeSource
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
+import cn.spacexc.wearbili.remake.proto.settings.Theme
 import kotlinx.coroutines.delay
 
 /**
@@ -121,18 +128,16 @@ fun Activity.CirclesBackground(
         var boxWidth by remember {
             mutableStateOf(0.dp)
         }   //需要获取父容器宽度来计算两个圆圈的宽度, 不直接设置fraction参数是因为大小不太对
-        val theme = configuration.theme
+        val theme = configuration.customization.theme
         val infiniteTransition = rememberInfiniteTransition(label = "")
-        val alpha by infiniteTransition.animateFloat(
+        val breathingAlpha by infiniteTransition.animateFloat(
             initialValue = 1f,
             targetValue = 0.3f,
             animationSpec = infiniteRepeatable(
-                animation = keyframes {
-                    durationMillis = 1000
-                    0.7f at 500
-                },
-                repeatMode = RepeatMode.Reverse
-            ), label = ""
+                animation = tween(easing = EaseInOutCubic, durationMillis = 1000),
+                repeatMode = RepeatMode.Reverse,
+            ),
+            label = ""
         )
         //TODO 研究一下换成fraction参数
         LaunchedEffect(key1 = toastContent, block = {
@@ -150,7 +155,7 @@ fun Activity.CirclesBackground(
 
         when (theme) {
             null -> {}
-            cn.spacexc.wearbili.remake.proto.settings.AppTheme.Default -> {
+            Theme.Light -> {
                 Box(
                     modifier = modifier
                         .fillMaxSize()
@@ -172,7 +177,7 @@ fun Activity.CirclesBackground(
                                     .offset(y = circleHeight * -0.5f)
                                     .fillMaxWidth()
                                     .aspectRatio(1f)
-                                    .alpha(if (uiState == UIState.Loading) ambientAlpha * alpha * 0.5f else ambientAlpha * 0.5f)
+                                    .alpha(if (uiState == UIState.Loading) ambientAlpha * breathingAlpha * 0.5f else ambientAlpha * 0.5f)
                                     .background(
                                         shape = CircleShape, brush = Brush.radialGradient(
                                             listOf(themeColor, Color.Transparent)
@@ -182,16 +187,6 @@ fun Activity.CirclesBackground(
                                         circleHeight = with(localDensity) { it.height.toDp() }
                                     }
                             )
-                            /*Image(
-                                painter = painterResource(id = R.drawable.img_half_circle_white),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .alpha(if (uiState == UIState.Loading) ambientAlpha * alpha else ambientAlpha),
-                                colorFilter = ColorFilter.tint(themeColor),
-                                //contentScale = ContentScale.FillWidth
-
-                            )*/
                         }
 
                     }
@@ -204,7 +199,7 @@ fun Activity.CirclesBackground(
                 }
             }
 
-            cn.spacexc.wearbili.remake.proto.settings.AppTheme.Dark -> {
+            Theme.Black -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -219,7 +214,52 @@ fun Activity.CirclesBackground(
                 }
             }
 
-            cn.spacexc.wearbili.remake.proto.settings.AppTheme.UNRECOGNIZED -> {
+            Theme.Round -> {
+
+                WearBiliAnimatedVisibility(
+                    visible = isShowing,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Box(modifier = modifier
+                        .fillMaxSize()
+                        .background(backgroundColor)
+                        .onGloballyPositioned {
+                            boxWidth = with(localDensity) { it.size.width.toDp() }
+                        }
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.img_circle_top_right),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .align(
+                                    Alignment.TopEnd
+                                )
+                                .size(boxWidth * 0.75f)
+                                .alpha(if (uiState == UIState.Loading) breathingAlpha else 1f)
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.img_circle_bottom_left),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .align(
+                                    Alignment.BottomStart
+                                )
+                                .size(boxWidth * 0.75f)
+                                .alpha(if (uiState == UIState.Loading) breathingAlpha else 1f)
+                        )
+                    }
+                }
+                LoadableBox(
+                    uiState = uiState,
+                    content = content,
+                    onLongClick = { this@CirclesBackground.finish() },
+                    onRetry = onRetry
+                )
+            }
+
+            Theme.UNRECOGNIZED -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -272,6 +312,16 @@ fun LoadableBox(
     onRetry: () -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val breathingOffset by infiniteTransition.animateFloat(
+        initialValue = 10f,
+        targetValue = -10f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(easing = EaseInOutCubic, durationMillis = 1000),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = ""
+    )
     Box(modifier = modifier.fillMaxSize()) {
         Crossfade(targetState = uiState, label = "AppBackgroundLoadableBox") {
             when (it) {
@@ -289,11 +339,15 @@ fun LoadableBox(
                             Image(
                                 painter = painterResource(id = R.drawable.img_loading_2233),
                                 contentDescription = "Loading...",
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .offset {
+                                        IntOffset(x = 0, y = breathingOffset.toInt())
+                                    }
                                 //.fillMaxWidth(0.3f)
                                 //.aspectRatio(1f)
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
                             Text(text = "玩命加载中", textAlign = TextAlign.Center)
                         }
                     }
@@ -328,7 +382,7 @@ fun LoadableBox(
                                 //.fillMaxWidth(0.3f)
                                 //.aspectRatio(1f)
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
                             Text(
                                 text = uiState.errorMessage ?: "加载失败啦",
                                 textAlign = TextAlign.Center
@@ -361,6 +415,7 @@ fun Activity.TitleBackground(
     ambientAlpha: Float = 0.6f,
     titleAlpha: Float = 1f,
     onRetry: () -> Unit,
+    currentPageIndex: Int? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
     val timeSource = DefaultTimeSource("HH:mm")
@@ -396,32 +451,78 @@ fun Activity.TitleBackground(
                 horizontalArrangement = if (isRound()) Arrangement.Center else Arrangement.Start
             ) {
                 if (isDropdownTitle) {
-                    Text(
-                        text = buildAnnotatedString {
-                            append(title)
-                            appendInlineContent(id = "dropdownIcon")
-                        },
-                        style = AppTheme.typography.h2,
-                        inlineContent = mapOf(
-                            "dropdownIcon" to InlineTextContent(
-                                placeholder = Placeholder(
-                                    width = AppTheme.typography.h2.fontSize,
-                                    height = AppTheme.typography.h2.fontSize,
-                                    placeholderVerticalAlign = PlaceholderVerticalAlign.Center
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = if (isDropdown) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }),
-                        textAlign = if (isRound()) TextAlign.Center else null,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
+                    var currentPageInfo by remember {
+                        mutableStateOf(Pair(currentPageIndex ?: 0, title))
+                    }
+                    LaunchedEffect(key1 = currentPageIndex) {
+                        currentPageInfo = currentPageInfo.copy(first = currentPageIndex ?: 0)
+                    }
+                    LaunchedEffect(key1 = title) {
+                        currentPageInfo = currentPageInfo.copy(second = title)
+                    }
+                    val dropdownIconRotation by wearBiliAnimateFloatAsState(targetValue = if (isDropdown) 0f else 180f)
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        horizontalArrangement = if (isRound()) Arrangement.Center else Arrangement.Start
+                    ) {
+                        WearBiliAnimatedContent(
+                            targetState = currentPageInfo,
+                            transitionSpec = {
+                                if (!isDropdown) {
+                                    slideInVertically { height -> -height } + fadeIn() togetherWith
+                                            slideOutVertically { height -> height } + fadeOut()
+                                } else {
+                                    val (targetIndex, _) = targetState
+                                    val (initialIndex, _) = initialState
+
+                                    if (targetIndex > initialIndex) {
+                                        slideInHorizontally { it } + fadeIn() togetherWith
+                                                slideOutHorizontally { -it } + fadeOut()
+                                    } else if (targetIndex < initialIndex) {
+                                        slideInHorizontally { -it } + fadeIn() togetherWith
+                                                slideOutHorizontally { it } + fadeOut()
+                                    } else {
+                                        slideInVertically { height -> height } + fadeIn() togetherWith
+                                                slideOutVertically { height -> -height } + fadeOut()
+                                    }
+                                }.using(SizeTransform(clip = false))
+                            }
+                        ) { (_, pageTitle) ->
+                            Text(
+                                text = pageTitle,
+                                style = AppTheme.typography.h2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Text(
+                            text = buildAnnotatedString {
+                                appendInlineContent(id = "dropdownIcon")
+                            },
+                            style = AppTheme.typography.h2,
+                            inlineContent = mapOf(
+                                "dropdownIcon" to InlineTextContent(
+                                    placeholder = Placeholder(
+                                        width = AppTheme.typography.h2.fontSize,
+                                        height = AppTheme.typography.h2.fontSize,
+                                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                                    )
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowDown,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .rotate(dropdownIconRotation)
+                                    )
+                                }),
+                            textAlign = if (isRound()) TextAlign.Center else null,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 } else {
                     Text(
                         text = buildAnnotatedString {
@@ -547,6 +648,7 @@ fun Activity.TitleBackground(
     themeImageUrl: String,
     titleAlpha: Float = 1f,
     onRetry: () -> Unit = {},
+    currentPageIndex: Int? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
     ProvideConfiguration {
@@ -584,6 +686,7 @@ fun Activity.TitleBackground(
             ambientAlpha,
             titleAlpha,
             onRetry,
+            currentPageIndex,
             content
         )
     }
