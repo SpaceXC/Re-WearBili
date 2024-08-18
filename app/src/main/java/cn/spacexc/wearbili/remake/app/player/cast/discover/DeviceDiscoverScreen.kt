@@ -1,6 +1,7 @@
 package cn.spacexc.wearbili.remake.app.player.cast.discover
 
-import android.app.Activity
+import android.content.Context
+import android.net.wifi.WifiManager
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,30 +14,63 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.getSystemService
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
+import kotlinx.coroutines.launch
+
+@kotlinx.serialization.Serializable
+object DeviceDiscoverScreen
+
+fun Context.getWifiName(): String? {
+    //获取wifi名字
+    val wifiManager = getSystemService<WifiManager>()
+    return wifiManager?.connectionInfo?.ssid
+}
 
 @Composable
-fun Activity.DeviceDiscoverScreen(
-    viewModel: DeviceDiscoverViewModel,
-    wifiName: String?
+fun DeviceDiscoverScreen(
+    viewModel: DeviceDiscoverViewModel = viewModel(),
+    navController: NavController
 ) {
+    var wifiName: String? by remember {
+        mutableStateOf("")
+    }
+    val context = LocalContext.current
+    LaunchedEffect(key1 = Unit) {
+        wifiName = context.getWifiName()
+        val isWifiConnected = wifiName != null
+        if (isWifiConnected) {
+            viewModel.viewModelScope.launch {
+                viewModel.discoverDevices()
+            }
+        }
+    }
+
     LaunchedEffect(key1 = viewModel.deviceList) {
         Log.d(TAG, "devices updated: ${viewModel.deviceList}")
     }
 
-    TitleBackground(title = "", onBack = ::finish, onRetry = {}) {
+    TitleBackground(title = "", onBack = navController::navigateUp, onRetry = {}) {
         if (wifiName == null) {
             Text(
                 text = "需要连接Wi-Fi才能投屏哦",
@@ -56,7 +90,7 @@ fun Activity.DeviceDiscoverScreen(
                             fontWeight = FontWeight.Bold
                         )
                         IconText(
-                            text = wifiName,
+                            text = wifiName ?: "",
                             color = Color.White,
                             modifier = Modifier.alpha(0.8f),
                             fontWeight = FontWeight.Medium,

@@ -37,10 +37,10 @@ import coil.transform.Transformation
  */
 @Composable
 fun BiliImage(
+    modifier: Modifier = Modifier,
     url: String,
     contentDescription: String?,
     optimized: Boolean = true,
-    modifier: Modifier = Modifier,
     transform: (State) -> State = DefaultTransform,
     transformations: List<Transformation> = emptyList(),
     onState: ((State) -> Unit)? = null,

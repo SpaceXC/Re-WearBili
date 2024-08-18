@@ -1,11 +1,6 @@
 package cn.spacexc.wearbili.remake.app.settings.ui
 
 import AutoSizedBiliTextIcon
-import android.app.Activity
-import android.content.Intent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,18 +9,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -46,18 +37,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.Application
-import cn.spacexc.wearbili.remake.app.feedback.ui.issues.AllIssuesActivity
-import cn.spacexc.wearbili.remake.app.settings.domain.SettingsItem
-import cn.spacexc.wearbili.remake.app.settings.experimantal.ExperimentalFunctionsActivity
-import cn.spacexc.wearbili.remake.app.settings.scaling.ScaleAdjustingActivity
-import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.QuickToolbarCustomizationActivity
+import cn.spacexc.wearbili.remake.app.feedback.ui.issues.AllIssuesScreen
+import cn.spacexc.wearbili.remake.app.settings.experimantal.ExperimentalFunctionsScreen
+import cn.spacexc.wearbili.remake.app.settings.scaling.ScaleAdjustingScreen
+import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.QuickToolbarCustomizationScreen
 import cn.spacexc.wearbili.remake.app.welcome.screens.ReWearBiliText
 import cn.spacexc.wearbili.remake.common.ui.Card
-import cn.spacexc.wearbili.remake.common.ui.Checkbox
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
-import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
@@ -70,12 +59,15 @@ import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+object SettingsScreen
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun Activity.SettingsActivityScreen(
-    items: List<SettingsItem>
+fun SettingsScreen(
+    navController: NavController
 ) {
-    TitleBackground(title = "", onBack = ::finish, onRetry = {}) {
+    TitleBackground(title = "", onBack = navController::navigateUp, onRetry = {}) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -169,29 +161,34 @@ fun Activity.SettingsActivityScreen(
                 SettingsItemV2(
                     modifier = Modifier.weight(1f),
                     icon = {
-                        Icon(painter = painterResource(id = R.drawable.icon_interface_scaling_settings_item), contentDescription = null, modifier = Modifier.fillMaxSize().padding(1.5.dp), tint = Color.White)
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_interface_scaling_settings_item),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(1.5.dp),
+                            tint = Color.White
+                        )
                     },
                     name = "界面缩放"
                 ) {
-                    startActivity(Intent(this@SettingsActivityScreen, ScaleAdjustingActivity::class.java))
+                    navController.navigate(ScaleAdjustingScreen)
                 }
                 SettingsItemV2(
                     modifier = Modifier.weight(1f),
                     icon = {
-                        Icon(painter = painterResource(id = R.drawable.icon_quick_toolbar_settings_item), contentDescription = null, modifier = Modifier.fillMaxSize().padding(1.5.dp), tint = Color.White)
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_quick_toolbar_settings_item),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(1.5.dp),
+                            tint = Color.White
+                        )
                     },
                     name = "快捷功能"
                 ) {
-                    startActivity(Intent(this@SettingsActivityScreen, QuickToolbarCustomizationActivity::class.java))
-                }
-                SettingsItemV2(
-                    modifier = Modifier.weight(1f),
-                    icon = {
-                        AutoSizedBiliTextIcon(icon = "EA86", modifier = Modifier.align(Alignment.Center))
-                    },
-                    name = "弹幕设置"
-                ) {
-
+                    navController.navigate(QuickToolbarCustomizationScreen)
                 }
                 SettingsItemV2(
                     modifier = Modifier.weight(1f),
@@ -205,29 +202,34 @@ fun Activity.SettingsActivityScreen(
                 SettingsItemV2(
                     modifier = Modifier.weight(1f),
                     icon = {
-                        Icon(painter = painterResource(id = R.drawable.icon_experimental_function), contentDescription = null, modifier = Modifier.fillMaxSize().padding(1.5.dp), tint = Color.White)
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_experimental_function),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(1.5.dp),
+                            tint = Color.White
+                        )
                     },
                     name = "实验功能"
                 ) {
-                    startActivity(Intent(this@SettingsActivityScreen, ExperimentalFunctionsActivity::class.java))
+                    navController.navigate(ExperimentalFunctionsScreen)
                 }
                 SettingsItemV2(
                     modifier = Modifier.weight(1f),
                     icon = {
-                        Icon(painter = painterResource(id = R.drawable.icon_report), contentDescription = null, modifier = Modifier.fillMaxSize().padding(1.5.dp), tint = Color.White)
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_report),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(1.5.dp),
+                            tint = Color.White
+                        )
                     },
                     name = "反馈中心"
                 ) {
-                    startActivity(Intent(this@SettingsActivityScreen, AllIssuesActivity::class.java))
-                }
-                SettingsItemV2(
-                    modifier = Modifier.weight(1f).alpha(0f),
-                    icon = {
-                        Icon(painter = painterResource(id = R.drawable.icon_report), contentDescription = null, modifier = Modifier.fillMaxSize().padding(1.5.dp), tint = Color.White)
-                    },
-                    name = "反馈中心"
-                ) {
-                    //startActivity(Intent(this@SettingsActivityScreen, AllIssuesActivity::class.java))
+                    navController.navigate(AllIssuesScreen)
                 }
             }
         }
@@ -285,132 +287,6 @@ fun SettingsItemV2(
                 fontSize = 13.sp,
                 color = Color.White
             )
-        }
-    }
-}
-
-@Composable
-fun SettingsItem(
-    item: SettingsItem
-) {
-    val localDensity = LocalDensity.current
-    var textHeight by remember {
-        mutableStateOf(0.dp)
-    }
-    var isShowingList by remember {
-        mutableStateOf(false)
-    }
-    Card(shape = RoundedCornerShape(15.dp), onClick = {
-        if (item.options.isNullOrEmpty()) {
-            item.action?.invoke(null)
-        } else {
-            isShowingList = !isShowingList
-        }
-    }, isHighlighted = item.isOn?.invoke() ?: false) {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(2.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(modifier = Modifier.size(textHeight * 0.6f)) {
-                    item.icon()
-                }
-                Spacer(modifier = Modifier.width(6.dp))
-                Box {
-                    Column(modifier = Modifier) {
-                        Text(
-                            text = item.name,
-                            color = Color.White,
-                            fontFamily = wearbiliFontFamily,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = item.description,
-                            color = Color.White,
-                            fontFamily = wearbiliFontFamily,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.alpha(0.7f)
-                        )
-                    }
-                    Column(modifier = Modifier.onSizeChanged {
-                        textHeight = with(localDensity) {
-                            it.height.toDp()
-                        }
-                    }) {
-                        Text(
-                            text = "",
-                            color = Color.White,
-                            fontFamily = wearbiliFontFamily,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "",
-                            color = Color.White,
-                            fontFamily = wearbiliFontFamily,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.alpha(0.7f)
-                        )
-                    }   //Height Indicator
-                }
-                /*Spacer(modifier = Modifier.weight(1f))
-                if (item.displayedValue != null) {
-                    AnimatedVisibility(visible = !isShowingList, enter = expandHorizontally(), exit = shrinkHorizontally()) {
-                        Text(
-                            text = item.displayedValue.invoke(),
-                            fontFamily = wearbiliFontFamily,
-                            fontSize = 12.sp,
-                            color = Color.White
-                        )
-                    }
-                }*/
-            }
-            if (!item.options.isNullOrEmpty()) {
-                AnimatedVisibility(
-                    visible = isShowingList,
-                    modifier = Modifier.padding(horizontal = 3.dp)
-                ) {
-                    Column {
-                        item.options.forEach { option ->
-                            Row(modifier = Modifier
-                                .clickVfx { item.action?.invoke(option) }
-                                .padding(vertical = 3.dp),
-                                verticalAlignment = Alignment.CenterVertically) {
-                                AnimatedVisibility(
-                                    visible = item.currentValue?.invoke() == option.option,
-                                    enter = expandHorizontally(),
-                                    exit = shrinkHorizontally()
-                                ) {
-                                    Row {
-                                        Checkbox(
-                                            isChecked = true,
-                                            indication = true,
-                                            size = 12.dp
-                                        ) {
-
-                                        }
-                                        Spacer(modifier = Modifier.width(2.dp))
-                                    }
-                                }
-                                Text(
-                                    text = option.displayedValue,
-                                    fontFamily = wearbiliFontFamily,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color.White
-                                )
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }

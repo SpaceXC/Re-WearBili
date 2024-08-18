@@ -1,7 +1,6 @@
 package cn.spacexc.wearbili.remake.app.crash.ui
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -16,9 +15,6 @@ import cn.spacexc.wearbili.common.EncryptUtils
 import cn.spacexc.wearbili.remake.app.TAG
 import cn.spacexc.wearbili.remake.app.crash.remote.ErrorLog
 import cn.spacexc.wearbili.remake.app.crash.remote.Response
-import cn.spacexc.wearbili.remake.app.link.qrcode.PARAM_QRCODE_CONTENT
-import cn.spacexc.wearbili.remake.app.link.qrcode.PARAM_QRCODE_MESSAGE
-import cn.spacexc.wearbili.remake.app.link.qrcode.QrCodeActivity
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
@@ -56,10 +52,10 @@ class CrashViewModel @Inject constructor(
             Log.d(TAG, "uploadLog: ${response.data?.message}")
             if (response.data?.code == 0) {
                 val id = response.data.body!!
-                context.startActivity(Intent(context, QrCodeActivity::class.java).apply {
+                /*context.startActivity(Intent(context, QrCodeActivity::class.java).apply {
                     putExtra(PARAM_QRCODE_CONTENT, id)
                     putExtra(PARAM_QRCODE_MESSAGE, "Issue id: $id\n请在必要时提供此ID")
-                })
+                })*/
                 uiState = UIState.Success
             } else {
                 uiState = UIState.Success

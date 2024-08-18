@@ -1,6 +1,8 @@
 package cn.spacexc.wearbili.remake.app.video.info.comment.detail.ui
 
-import android.app.Activity
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -8,11 +10,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.wearbili.common.ifNullOrEmpty
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
@@ -30,11 +34,26 @@ import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 import kotlinx.coroutines.Dispatchers
 
+@kotlinx.serialization.Serializable
+data class CommentRepliesDetailScreen(
+    val rootRpid: Long,
+    val videoAid: Long,
+    val uploaderMid: Long
+)
+
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun Activity.CommentRepliesDetailScreen(
-    viewModel: CommentRepliesDetailViewModel,
-    uploaderMid: Long
+fun SharedTransitionScope.CommentRepliesDetailScreen(
+    rootRpid: Long,
+    videoAid: Long,
+    viewModel: CommentRepliesDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    uploaderMid: Long,
+    navController: NavController,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
+    LaunchedEffect(key1 = Unit) {
+        viewModel.initPaging(rootRpid, videoAid)
+    }
     val lazyListData = viewModel.pager?.flow?.collectAsLazyPagingItems(Dispatchers.IO)
     TitleBackground(
         title = "评论详情",
@@ -44,7 +63,7 @@ fun Activity.CommentRepliesDetailScreen(
             }
             lazyListData?.refresh()
         },
-        onBack = ::finish,
+        onBack = navController::navigateUp,
         uiState = lazyListData?.loadState?.refresh?.toUIState() ?: UIState.Loading
     ) {
         LazyColumn(
@@ -115,12 +134,13 @@ fun Activity.CommentRepliesDetailScreen(
                         commentReplyControl = "",
                         commentRpid = comment.rpid,
                         isUpLiked = comment.cardLabel?.find { it.textContent == "UP主觉得很赞" } != null,    //先这样咯
-                        context = this@CommentRepliesDetailScreen,
+                        navController = navController,
                         isClickable = false,
                         oid = 0,
                         noteCvid = 0,
                         isTopComment = false,
-                        commentReplies = emptyList()
+                        commentReplies = emptyList(),
+                        animatedVisibilityScope = animatedVisibilityScope
                     )
                 }
             }
@@ -193,12 +213,13 @@ fun Activity.CommentRepliesDetailScreen(
                         commentReplyControl = "",
                         commentRpid = comment.rpid,
                         isUpLiked = comment.cardLabel?.find { it.textContent == "UP主觉得很赞" } != null,    //先这样咯
-                        context = this@CommentRepliesDetailScreen,
+                        navController = navController,
                         isClickable = false,
                         oid = 0,
                         noteCvid = 0,
                         isTopComment = false,
-                        commentReplies = emptyList()
+                        commentReplies = emptyList(),
+                        animatedVisibilityScope = animatedVisibilityScope
                     )
                 }
             }

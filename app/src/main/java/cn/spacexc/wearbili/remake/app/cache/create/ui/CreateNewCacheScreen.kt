@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app.cache.create.ui
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -16,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,9 +27,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import cn.spacexc.bilibilisdk.sdk.video.info.remote.info.web.Page
-import cn.spacexc.wearbili.remake.app.cache.list.CacheListActivity
+import cn.spacexc.wearbili.remake.app.cache.list.CacheListScreen
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
@@ -47,13 +48,21 @@ import kotlinx.coroutines.launch
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+data class CreateNewCacheScreen(val videoBvid: String)
+
 @Composable
-fun Activity.CreateNewCacheScreen(
-    viewModel: CreateNewCacheViewModel,
+fun CreateNewCacheScreen(
+    viewModel: CreateNewCacheViewModel = hiltViewModel(),
+    videoBvid: String,
+    navController: NavController
 ) {
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getVideoParts(videoBvid)
+    }
     TitleBackground(
         title = "新建缓存",
-        onBack = ::finish,
+        onBack = navController::navigateUp,
         uiState = viewModel.uiState,
         onRetry = {}) {
         var selectedPages by remember {
@@ -118,14 +127,9 @@ fun Activity.CreateNewCacheScreen(
                             Icons.Default.Check,
                             Icons.AutoMirrored.Default.ArrowForwardIos
                         ) {
-                            startActivity(
-                                Intent(
-                                    this@CreateNewCacheScreen,
-                                    CacheListActivity::class.java
-                                )
-                            )
+                            navController.navigate(CacheListScreen)
                         }
-                        finish()
+                        navController.navigateUp()
                     }
                 }
             ) {

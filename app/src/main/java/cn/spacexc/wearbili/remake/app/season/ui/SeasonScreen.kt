@@ -1,15 +1,15 @@
 package cn.spacexc.wearbili.remake.app.season.ui
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -20,10 +20,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.paging.PagingData
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.paging.compose.collectAsLazyPagingItems
-import cn.spacexc.bilibilisdk.sdk.season.remote.list.Archive
-import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
@@ -35,7 +34,6 @@ import cn.spacexc.wearbili.remake.common.ui.VideoCardWithNoBorder
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Created by XC-Qan on 2023/11/5.
@@ -45,22 +43,36 @@ import kotlinx.coroutines.flow.Flow
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+data class SeasonScreen(
+    val seasonName: String,
+    val seasonId: Long,
+    val uploaderName: String,
+    val uploaderMid: Long,
+    val ambientImage: String
+)
+
 @Composable
-fun Activity.SeasonActivityScreen(
-    pagingData: Flow<PagingData<Archive>>,
-    networkUtils: KtorNetworkUtils,
+fun SeasonScreen(
+    navController: NavController,
+    viewModel: SeasonViewModel = hiltViewModel(),
+    seasonId: Long,
     seasonName: String,
+    uploaderMid: Long,
     uploaderName: String,
     ambientImage: String
 ) {
+    val pagingData = remember {
+        viewModel.getPager(uploaderMid, seasonId)
+    }
     val items = pagingData.collectAsLazyPagingItems()
 
     TitleBackground(
         title = "合集详情",
         uiState = items.loadState.refresh.toUIState(),
-        onBack = ::finish,
+        onBack = navController::navigateUp,
         themeImageUrl = ambientImage,
-        networkUtils = networkUtils
+        networkUtils = viewModel.networkUtils
     ) {
         LazyColumn(
             contentPadding = PaddingValues(
@@ -109,7 +121,8 @@ fun Activity.SeasonActivityScreen(
                         coverUrl = video.pic,
                         videoId = video.bvid,
                         videoIdType = VIDEO_TYPE_BVID,
-                        modifier = Modifier.padding(horizontal = 6.dp)
+                        modifier = Modifier.padding(horizontal = 6.dp),
+                        navController = navController
                     )
                 }
             }

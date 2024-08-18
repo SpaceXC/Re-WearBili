@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.bangumi.timeline.ui
 
-import android.app.Activity
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,8 +32,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.BANGUMI_ID_TYPE_EPID
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
+import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.SmallBangumiCard
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
@@ -65,16 +67,24 @@ val CHINESE_NUMBERS = mapOf(
     7 to "日",
 )
 
+@kotlinx.serialization.Serializable
+object BangumiTimelineScreen
+
 @Composable
-fun Activity.BangumiTimelineScreen(
-    viewModel: BangumiTimelineViewModel
+fun BangumiTimelineScreen(
+    viewModel: BangumiTimelineViewModel = viewModel(),
+    navController: NavController
 ) {
+    LaunchedEffect(key1 = Unit) {
+        if (viewModel.uiState != UIState.Success)
+            viewModel.getBangumiTimeline()
+    }
     val localDensity = LocalDensity.current
     val calendarRowState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     TitleBackground(
         title = "新番时间表",
-        onBack = ::finish,
+        onBack = navController::navigateUp,
         uiState = viewModel.uiState,
         onRetry = viewModel::getBangumiTimeline
     ) {
@@ -175,7 +185,7 @@ fun Activity.BangumiTimelineScreen(
                                     epName = episode.delay_reason.ifEmpty { episode.pub_index },
                                     bangumiId = if (published) episode.episode_id else episode.season_id,
                                     bangumiIdType = if (published) BANGUMI_ID_TYPE_EPID else BANGUMI_ID_TYPE_SSID,
-                                    context = this@BangumiTimelineScreen,
+                                    navController = navController,
                                     modifier = Modifier
                                         .alpha(if (episode.delay_reason.isEmpty()) 1f else 0.6f)
                                 )

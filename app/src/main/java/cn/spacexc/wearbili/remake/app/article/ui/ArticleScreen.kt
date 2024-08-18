@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app.article.ui
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -26,10 +25,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.remake.app.article.util.TYPE_QUOTE
-import cn.spacexc.wearbili.remake.app.image.ImageViewerActivity
-import cn.spacexc.wearbili.remake.app.image.PARAM_IMAGE_URLS
+import cn.spacexc.wearbili.remake.app.image.ImageViewerScreen
+import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.clickVfx
@@ -38,18 +39,26 @@ import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 
+@kotlinx.serialization.Serializable
+data class ArticleScreen(val articleCvid: Long)
+
 @Composable
-fun Activity.ArticleScreen(
-    viewModel: ArticleViewModel,
+fun ArticleScreen(
+    navController: NavController,
+    viewModel: ArticleViewModel = hiltViewModel(),
     cvid: Long
 ) {
+    LaunchedEffect(key1 = Unit) {
+        if (viewModel.uiState != UIState.Success)
+            viewModel.getArticle(cvid)
+    }
     TitleBackground(
         title = "",
         uiState = viewModel.uiState,
         themeImageUrl = viewModel.articleInfo?.readInfo?.bannerUrl ?: "",
         networkUtils = viewModel.ktorNetworkUtils,
         onRetry = { viewModel.getArticle(cvid) },
-        onBack = ::finish
+        onBack = navController::navigateUp
     ) {
         /**
         颜色参考
@@ -126,7 +135,8 @@ fun Activity.ArticleScreen(
                                 fontWeight = FontWeight.ExtraBold,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .alpha(0.7f).offset(y = 6.dp, x = (-2).dp),
+                                    .alpha(0.7f)
+                                    .offset(y = 6.dp, x = (-2).dp),
                                 fontFamily = wearbiliFontFamily,
                                 fontSize = 20.sp
                             )
@@ -144,7 +154,9 @@ fun Activity.ArticleScreen(
                                 textAlign = TextAlign.End
                             )
                             Column(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp, horizontal = 12.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 20.dp, horizontal = 12.dp)
                             ) {
                                 /*Image(
                                     painter = painterResource(id = R.drawable.icon_blockquote),
@@ -192,13 +204,11 @@ fun Activity.ArticleScreen(
                                 }
                             }
                             .clickVfx {
-                                startActivity(
-                                    Intent(
-                                        this@ArticleScreen,
-                                        ImageViewerActivity::class.java
-                                    ).apply {
-                                        putExtra(PARAM_IMAGE_URLS, arrayOf(it.image.imageUrl))
-                                    })
+                                navController.navigate(
+                                    ImageViewerScreen(
+                                        images = listOf(it.image.imageUrl)
+                                    )
+                                )
                             }
                     )
                     if (it.image.imageCaption.isNotEmpty()) {

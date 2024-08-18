@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app.welcome.screens
 
-import android.app.Activity
-import android.content.Intent
 import android.view.SurfaceView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseInOutCubic
@@ -17,10 +15,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -30,13 +26,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Badge
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,16 +52,13 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.navigation.NavController
 import cn.spacexc.bilibilisdk.utils.UserUtils
-import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.login.qrcode.web.ui.QrCodeLoginActivity
-import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
+import cn.spacexc.wearbili.remake.app.login.qrcode.web.ui.QrCodeLoginScreen
+import cn.spacexc.wearbili.remake.app.main.ui.HomeScreen
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.app.welcome.WelcomeViewModel
-import cn.spacexc.wearbili.remake.app.welcome.components.CirclePosition
-import cn.spacexc.wearbili.remake.app.welcome.components.PinkCircle
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
-import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.theme.time.DefaultTimeSource
@@ -78,85 +67,14 @@ import cn.spacexc.wearbili.remake.proto.settings.copy
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@Composable
-fun DeprecatedStartScreen(
-    onToNext: () -> Unit
-) {
-    val timeSource = DefaultTimeSource("HH:mm")
-    val timeText = timeSource.currentTime
-    Box(modifier = Modifier.fillMaxSize()) {
-        PinkCircle(CirclePosition.TOP_START)
-        PinkCircle(CirclePosition.BOTTOM_END)
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp)
-        ) {
-            Row(modifier = Modifier) {
-                Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    text = timeText,
-                    fontFamily = wearbiliFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically)
-            ) {
-                Text(
-                    text = "欢迎使用",
-                    fontSize = 17.sp,
-                    fontFamily = wearbiliFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(
-                        255,
-                        255,
-                        255,
-                        128
-                    )
-                )
-                Row(verticalAlignment = Alignment.Top) {
-                    Text(
-                        text = "WearBili",
-                        fontSize = 24.sp,
-                        fontFamily = wearbiliFontFamily,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    ReBadge()
-                }
-                Card(
-                    outerPaddingValues = PaddingValues(horizontal = 0.dp, vertical = 15.dp),
-                    innerPaddingValues = PaddingValues(15.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    borderWidth = 0.55.dp,
-                    onClick = onToNext
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = "开始使用", fontFamily = wearbiliFontFamily, fontSize = 13.sp)
-                        Spacer(modifier = Modifier.weight(1f))
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.ArrowForwardIos,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
+@kotlinx.serialization.Serializable
+object StartScreen
 
 @Composable
-fun Activity.StartScreen(viewModel: WelcomeViewModel, onToNext: () -> Unit) {
+fun StartScreen(
+    viewModel: WelcomeViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    navController: NavController
+) {
     val localDensity = LocalDensity.current
     val timeSource = DefaultTimeSource("HH:mm")
     val timeText = timeSource.currentTime
@@ -191,17 +109,9 @@ fun Activity.StartScreen(viewModel: WelcomeViewModel, onToNext: () -> Unit) {
                         }
                     }
                     if (UserUtils.isUserLoggedIn()) {
-                        startActivity(Intent(this@StartScreen, MainActivity::class.java))
-                        finish()
-                        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
+                        navController.navigate(HomeScreen(null))
                     } else {
-                        startActivity(
-                            Intent(
-                                this@StartScreen, QrCodeLoginActivity::class.java
-                            )
-                        )
-                        finish()
-                        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out)
+                        navController.navigate(QrCodeLoginScreen)
                     }
                 }
             }

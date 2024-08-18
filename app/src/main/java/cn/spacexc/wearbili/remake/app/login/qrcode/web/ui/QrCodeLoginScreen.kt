@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,8 +25,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreen
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
+import kotlinx.coroutines.launch
 
 /**
  * Created by XC-Qan on 2023/4/2.
@@ -35,11 +41,23 @@ import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+object QrCodeLoginScreen
+
 @Composable
 fun LoginScreen(
-    state: QrCodeLoginScreenState,
-    onQrcodeClicked: () -> Unit
+    viewModel: QrCodeLoginViewModel = hiltViewModel(),
+    navController: NavController
 ) {
+    var job = remember {
+        viewModel.viewModelScope.launch {
+            viewModel.startLogin {
+                navController.navigate(SplashScreen)
+                navController.popBackStack()
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -57,7 +75,7 @@ fun LoginScreen(
                 .background(Color.White)
                 .padding(4.dp)
         ) {
-            Crossfade(targetState = state.currentLoginStatus, label = "") {
+            Crossfade(targetState = viewModel.screenState.currentLoginStatus, label = "") {
                 when (it) {
                     QrCodeLoginStatus.Loading, QrCodeLoginStatus.GettingKey -> {
                         Image(
@@ -78,13 +96,19 @@ fun LoginScreen(
                                     interactionSource = rememberMutableInteractionSource(),
                                     indication = null
                                 ) {
-                                    onQrcodeClicked()
+                                    job.cancel()
+                                    job = viewModel.viewModelScope.launch {
+                                        viewModel.startLogin {
+                                            navController.navigate(SplashScreen)
+                                            navController.popBackStack()
+                                        }
+                                    }
                                 }
                         )
                     }
 
                     QrCodeLoginStatus.Pending, QrCodeLoginStatus.Waiting -> {
-                        state.qrCodeBitmap?.let { bitmap ->
+                        viewModel.screenState.qrCodeBitmap?.let { bitmap ->
                             Image(
                                 bitmap = bitmap,
                                 contentDescription = "登录二维码",
@@ -96,7 +120,13 @@ fun LoginScreen(
                                         interactionSource = rememberMutableInteractionSource(),
                                         indication = null
                                     ) {
-                                        onQrcodeClicked()
+                                        job.cancel()
+                                        job = viewModel.viewModelScope.launch {
+                                            viewModel.startLogin {
+                                                navController.navigate(SplashScreen)
+                                                navController.popBackStack()
+                                            }
+                                        }
                                     }
                             )
                         }
@@ -109,7 +139,7 @@ fun LoginScreen(
             }
 
         }
-        Crossfade(targetState = state.currentLoginStatus, label = "") {
+        Crossfade(targetState = viewModel.screenState.currentLoginStatus, label = "") {
             when (it) {
                 QrCodeLoginStatus.Loading -> {
                     Text(

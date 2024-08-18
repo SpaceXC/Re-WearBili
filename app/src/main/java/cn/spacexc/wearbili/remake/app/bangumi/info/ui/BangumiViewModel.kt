@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app.bangumi.info.ui
 
-import android.app.Activity
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.lazy.LazyListState
@@ -14,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
@@ -21,15 +20,14 @@ import cn.spacexc.bilibilisdk.sdk.bangumi.info.BangumiInfo
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.remote.Episode
 import cn.spacexc.bilibilisdk.sdk.bangumi.info.remote.Result
 import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
-import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.cache.domain.worker.VideoDownloadWorker
-import cn.spacexc.wearbili.remake.app.cache.list.CacheListActivity
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.UIState
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
@@ -132,7 +130,7 @@ class BangumiViewModel @Inject constructor(
         getCurrentSelectedEpisode()?.cid ?: 0,
     ).data?.data?.subtitle?.subtitles
 
-    suspend fun Activity.cacheBangumi() {
+    suspend fun cacheBangumi(navController: NavController) {
         val videoBvid = getCurrentSelectedEpisode()?.bvid ?: ""
         val videoCid = getCurrentSelectedEpisode()?.cid ?: 0
         val episodeName = getCurrentSelectedEpisode()?.long_title?.ifEmpty {
@@ -145,7 +143,7 @@ class BangumiViewModel @Inject constructor(
             Icons.Default.Check,
             Icons.AutoMirrored.Default.ArrowForwardIos
         ) {
-            startActivity(Intent(this@cacheBangumi, CacheListActivity::class.java))
+            //startActivity(Intent(this@cacheBangumi, CacheListActivity::class.java))
         }
     }
 

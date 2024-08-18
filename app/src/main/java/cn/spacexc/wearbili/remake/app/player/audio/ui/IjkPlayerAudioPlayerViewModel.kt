@@ -43,9 +43,9 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer
 
 @SuppressLint("UnsafeOptInUsageError")
 /**
- * 这里其实就是稍微小小改了一下的[cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3VideoPlayerViewModel]啦
+ * 这里其实就是稍微小小改了一下的[cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerViewModel]啦
  */
-class Media3AudioPlayerViewModel /*@Inject constructor*/(
+class IjkPlayerAudioPlayerViewModel /*@Inject constructor*/(
     private val application: Application,
     private val repository: VideoCacheRepository,
     private val scope: CoroutineScope

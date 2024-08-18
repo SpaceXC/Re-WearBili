@@ -1,18 +1,9 @@
 package cn.spacexc.wearbili.remake.app.link
 
-import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.lifecycleScope
 import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
-import cn.spacexc.wearbili.common.domain.video.VideoUtils
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
-import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
-import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -29,7 +20,7 @@ class LinkProcessActivity : ComponentActivity() {
 
     val state = MutableLiveData(0)
 
-    fun processUrl() {
+    /*fun processUrl() {
         lifecycleScope.launch {
             val uri = getUrl()
             if (VideoUtils.isBV(uri.path?.replace("/", "") ?: "")) {
@@ -66,7 +57,7 @@ class LinkProcessActivity : ComponentActivity() {
                 }
             }
         }
-    }
+    }*/
 
     private fun getUrl(): Uri {
         return intent.data ?: Uri.parse(intent.getStringExtra("url"))

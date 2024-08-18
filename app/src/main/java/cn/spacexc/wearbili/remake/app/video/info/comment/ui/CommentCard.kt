@@ -1,28 +1,27 @@
 package cn.spacexc.wearbili.remake.app.video.info.comment.ui
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
@@ -62,28 +61,21 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.TAG
-import cn.spacexc.wearbili.remake.app.article.ui.ArticleActivity
-import cn.spacexc.wearbili.remake.app.article.ui.PARAM_CVID
-import cn.spacexc.wearbili.remake.app.image.ImageViewerActivity
-import cn.spacexc.wearbili.remake.app.image.PARAM_IMAGE_URLS
-import cn.spacexc.wearbili.remake.app.image.PARAM_SELECTED_INDEX
-import cn.spacexc.wearbili.remake.app.search.ui.PARAM_DEFAULT_SEARCH_KEYWORD
-import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
-import cn.spacexc.wearbili.remake.app.season.ui.PARAM_MID
-import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceActivity
-import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.PARAM_VIDEO_AID
-import cn.spacexc.wearbili.remake.app.video.info.comment.detail.CommentDetailActivity
-import cn.spacexc.wearbili.remake.app.video.info.comment.detail.PARAM_ROOT_COMMENT_RPID
+import cn.spacexc.wearbili.remake.app.article.ui.ArticleScreen
+import cn.spacexc.wearbili.remake.app.image.ImageViewerScreen
+import cn.spacexc.wearbili.remake.app.search.ui.SearchScreen
+import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceScreen
+import cn.spacexc.wearbili.remake.app.video.info.comment.detail.ui.CommentRepliesDetailScreen
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.EmoteObject
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
-import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
+import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
+import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationScreen
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
@@ -121,7 +113,7 @@ fun RichText(
     jumpUrlMap: Map<String, CommentContentData.JumpUrlObject>,
     attentionUserMap: Map<String, Long>,
     fontSize: TextUnit,
-    context: Context,
+    navController: NavController,
     maxLines: Int = Int.MAX_VALUE,
     onGloballyClicked: () -> Unit
 ) {
@@ -272,18 +264,19 @@ fun RichText(
             annotatedString.getStringAnnotations(tag = "tagUrl", start = index, end = index)
                 .firstOrNull()?.let { annotation ->
                     if (cn.spacexc.wearbili.common.domain.video.VideoUtils.isBV(annotation.item)) {
-                        Intent(context, VideoInformationActivity::class.java).apply {
-                            putExtra(PARAM_VIDEO_ID, annotation.item)
-                            //flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            context.startActivity(this)
-                        }
+                        navController.navigate(
+                            VideoInformationScreen(
+                                VIDEO_TYPE_BVID,
+                                annotation.item
+                            )
+                        )
                     } else if (cn.spacexc.wearbili.common.domain.video.VideoUtils.isAV(annotation.item)) {
-                        Intent(context, VideoInformationActivity::class.java).apply {
-                            putExtra(PARAM_VIDEO_ID, annotation.item)
-                            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_AID)
-                            //flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            context.startActivity(this)
-                        }
+                        navController.navigate(
+                            VideoInformationScreen(
+                                VIDEO_TYPE_AID,
+                                annotation.item
+                            )
+                        )
                     } /*else if (annotation.item.startsWith("http")) {
                         context.startActivity(
                             Intent(
@@ -299,9 +292,10 @@ fun RichText(
             annotatedString.getStringAnnotations(tag = "tagUser", start = index, end = index)
                 .firstOrNull()?.let { annotation ->
                     //Log.d(TAG, "RichText: tagUser: ${annotation.item}")
-                    context.startActivity(Intent(context, UserSpaceActivity::class.java).apply {
+                    /*context.startActivity(Intent(context, UserSpaceActivity::class.java).apply {
                         putExtra(PARAM_MID, annotation.item.toLong())
-                    })
+                    })*/
+                    navController.navigate(UserSpaceScreen(annotation.item.toLong()))
                     return@ClickableText
                 }
             /*annotatedString.getStringAnnotations(tag = "tagUrl", start = index, end = index)
@@ -334,10 +328,11 @@ fun RichText(
                 }*/
             annotatedString.getStringAnnotations(tag = "tagSearch", start = index, end = index)
                 .firstOrNull()?.let { annotation ->
-                    val intent = Intent(context, SearchActivity::class.java)
+                    /*val intent = Intent(context, SearchActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     intent.putExtra(PARAM_DEFAULT_SEARCH_KEYWORD, annotation.item)
-                    context.startActivity(intent)
+                    context.startActivity(intent)*/
+                    navController.navigate(SearchScreen(annotation.item))
                     return@ClickableText
                 }
             Log.d(TAG, "RichText: Global Click Event")
@@ -350,8 +345,9 @@ fun RichText(
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun CommentCard(
+fun SharedTransitionScope.CommentCard(
     senderName: String,
     senderNameColor: String,
     senderAvatar: String,
@@ -373,10 +369,11 @@ fun CommentCard(
     isUpLiked: Boolean,
     isTopComment: Boolean,
     uploaderMid: Long,
-    context: Activity,
+    navController: NavController,
     isClickable: Boolean,
     noteCvid: Long,
     oid: Long,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     var commentInfoItemHeight by remember {
         mutableStateOf(0.dp)
@@ -386,21 +383,15 @@ fun CommentCard(
             .clickVfx(isEnabled = isClickable) {
                 if (isClickable) {
                     if (noteCvid != 0L) {
-                        Intent(context, ArticleActivity::class.java).apply {
-                            putExtra(PARAM_CVID, noteCvid)
-                            context.startActivity(this)
-                        }
+                        navController.navigate(ArticleScreen(noteCvid))
                     } else {
                         if (commentReplyControl.isNotEmpty()) {
-                            context.startActivity(
-                                Intent(
-                                    context,
-                                    CommentDetailActivity::class.java
-                                ).apply {
-                                    putExtra(PARAM_VIDEO_AID, oid)
-                                    putExtra(PARAM_ROOT_COMMENT_RPID, commentRpid)
-                                    putExtra(PARAM_MID, uploaderMid)
-                                }
+                            navController.navigate(
+                                CommentRepliesDetailScreen(
+                                    rootRpid = commentRpid,
+                                    videoAid = oid,
+                                    uploaderMid = uploaderMid
+                                )
                             )
                         }
                     }
@@ -445,9 +436,10 @@ fun CommentCard(
             },
             inlineContent = uploaderLabelInlineTextContent,
             mid = senderMid,
-            context = context
+            navController = navController,
+            modifier = Modifier.padding(horizontal = 8.dp)
         )
-        Column(Modifier.padding(horizontal = 6.dp)) {
+        Column(Modifier.padding(horizontal = 10.dp)) {
             Spacer(modifier = Modifier.height(4.dp))
             RichText(
                 isTopComment = isTopComment,
@@ -456,88 +448,60 @@ fun CommentCard(
                 jumpUrlMap = commentJumpUrlMap,
                 attentionUserMap = commentAttentionedUsersMap,
                 fontSize = AppTheme.typography.body1.fontSize * 1.1f,
-                context = context
+                navController = navController
             ) {
                 if (isClickable) {
                     if (noteCvid != 0L) {
-                        Intent(context, ArticleActivity::class.java).apply {
-                            putExtra(PARAM_CVID, noteCvid)
-                            context.startActivity(this)
-                        }
+                        navController.navigate(ArticleScreen(noteCvid))
                     } else {
-                        context.startActivity(
-                            Intent(
-                                context,
-                                CommentDetailActivity::class.java
-                            ).apply {
-                                putExtra(PARAM_VIDEO_AID, oid)
-                                putExtra(PARAM_ROOT_COMMENT_RPID, commentRpid)
-                                putExtra(PARAM_MID, uploaderMid)
-                            }
+                        navController.navigate(
+                            CommentRepliesDetailScreen(
+                                rootRpid = commentRpid,
+                                videoAid = oid,
+                                uploaderMid = uploaderMid
+                            )
                         )
                     }
-                }
-            }
-            commentImagesList?.let {
-                Spacer(modifier = Modifier.height(4.dp))
-                LazyVerticalGrid(
-                    modifier = Modifier.requiredSizeIn(maxHeight = 4000.dp),
-                    columns = GridCells.Fixed(
-                        if (commentImagesList.size == 1 || commentImagesList.size % 2 == 0) 2 else 3
-                    )
-                ) {
-                    itemsIndexed(commentImagesList) { index, image ->
-                        BiliImage(
-                            url = image.img_src,
-                            contentDescription = null,
-                            modifier = when (commentImagesList.size) {
-                                1 -> Modifier
-                                    .fillMaxWidth()
-                                    .clickVfx {
-                                        val intent =
-                                            Intent(context, ImageViewerActivity::class.java)
-                                        val urls =
-                                            commentImagesList
-                                                .map { it.img_src }
-                                                .toTypedArray()
-                                        intent.putExtra(
-                                            PARAM_IMAGE_URLS,
-                                            urls
-                                        )
-                                        intent.putExtra(PARAM_SELECTED_INDEX, index)
-                                        context.startActivity(intent)
-                                    }
-                                    .aspectRatio(1f)
-                                    .clip(
-                                        RoundedCornerShape(6.dp)
-                                    )
 
-                                else -> Modifier
-                                    .padding(2.dp)
-                                    .aspectRatio(1f)
-                                    .clickVfx {
-                                        val intent =
-                                            Intent(context, ImageViewerActivity::class.java)
-                                        val urls =
-                                            commentImagesList
-                                                .map { it.img_src }
-                                                .toTypedArray()
-                                        intent.putExtra(
-                                            PARAM_IMAGE_URLS,
-                                            urls
-                                        )
-                                        intent.putExtra(PARAM_SELECTED_INDEX, index)
-                                        context.startActivity(intent)
-                                    }
-                                    .clip(
-                                        RoundedCornerShape(6.dp)
-                                    )
-                            },
-                            contentScale = if (commentImagesList.size == 1) ContentScale.FillBounds else ContentScale.Crop
-                        )
-                    }
                 }
             }
+        }
+        commentImagesList?.let {
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Spacer(modifier = Modifier.width(10.dp))
+                commentImagesList.forEachIndexed { index, image ->
+                    BiliImage(
+                        url = image.img_src,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(96.dp)
+                            .sharedElement(
+                                rememberSharedContentState(key = "image$index"),
+                                animatedVisibilityScope
+                            )
+                            .fillMaxWidth()
+                            .clickVfx {
+                                navController.navigate(
+                                    ImageViewerScreen(
+                                        commentImagesList.map { it.img_src },
+                                        index
+                                    )
+                                )
+                            }
+                            .clip(RoundedCornerShape(6.dp)),
+                        contentScale = if (commentImagesList.size == 1) ContentScale.FillBounds else ContentScale.Crop
+                    )
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+            }
+        }
+        Column(Modifier.padding(horizontal = 10.dp)) {
             if (isUpLiked) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Image(
@@ -586,7 +550,7 @@ fun CommentCard(
                                 attentionUserMap = it.content?.at_name_to_mid ?: emptyMap(),
                                 fontSize = AppTheme.typography.body1.fontSize,
                                 isCommentReply = true,
-                                context = context,
+                                navController = navController,
                                 replyUserName = buildAnnotatedString {
                                     withStyle(
                                         style = SpanStyle(

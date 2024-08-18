@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app.message.like.ui
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,25 +30,33 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.bilibilisdk.sdk.message.data.like.LikeMessage
 import cn.spacexc.wearbili.common.domain.time.toDateStr
-import cn.spacexc.wearbili.remake.app.article.ui.ArticleActivity
-import cn.spacexc.wearbili.remake.app.article.ui.PARAM_CVID
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.VIDEO_TYPE_AID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
-import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
+import cn.spacexc.wearbili.remake.app.article.ui.ArticleScreen
+import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
+import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationScreen
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 
+@kotlinx.serialization.Serializable
+object LikeMessagesScreen
+
 @Composable
-fun Activity.LikeMessagesScreen(viewModel: LikeMessagesViewModel) {
+fun LikeMessagesScreen(
+    viewModel: LikeMessagesViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    navController: NavController
+) {
     val lazyItems = viewModel.flow.collectAsLazyPagingItems()
-    TitleBackground(title = "收到的赞", onRetry = lazyItems::refresh, onBack = ::finish) {
+    TitleBackground(
+        title = "收到的赞",
+        onRetry = lazyItems::refresh,
+        onBack = navController::navigateUp
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize(),
@@ -62,7 +68,7 @@ fun Activity.LikeMessagesScreen(viewModel: LikeMessagesViewModel) {
         ) {
             items(lazyItems.itemCount) {
                 lazyItems[it]?.let { item ->
-                    LikeMessageCard(item = item)
+                    LikeMessageCard(item = item, navController = navController)
                 }
             }
         }
@@ -70,7 +76,7 @@ fun Activity.LikeMessagesScreen(viewModel: LikeMessagesViewModel) {
 }
 
 @Composable
-fun Activity.LikeMessageCard(item: LikeMessage) {
+fun LikeMessageCard(item: LikeMessage, navController: NavController) {
     val users = if (item.users.size > 1) item.users.subList(0, 2) else item.users.subList(0, 1)
     Card(isClickEnabled = false, outerPaddingValues = PaddingValues()) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -112,21 +118,23 @@ fun Activity.LikeMessageCard(item: LikeMessage) {
                 Card(onClick = {
                     when (type) {
                         "video" -> {
-                            startActivity(Intent(this@LikeMessageCard, VideoInformationActivity::class.java).apply {
-                                putExtra(PARAM_VIDEO_ID, item.item.item_id.toString())
-                                putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_AID)
-                            })
+                            navController.navigate(
+                                VideoInformationScreen(
+                                    VIDEO_TYPE_AID,
+                                    item.item.item_id.toString()
+                                )
+                            )
                         }
                         "article" -> {
-                            startActivity(Intent(this@LikeMessageCard, ArticleActivity::class.java).apply {
-                                putExtra(PARAM_CVID, item.item.item_id)
-                            })
+                            navController.navigate(ArticleScreen(item.item.item_id))
                         }
                         "reply" -> {
-                            startActivity(Intent(this@LikeMessageCard, VideoInformationActivity::class.java).apply {
-                                putExtra(PARAM_VIDEO_ID, item.item.item_id.toString())
-                                putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_AID)
-                            })
+                            navController.navigate(
+                                VideoInformationScreen(
+                                    VIDEO_TYPE_AID,
+                                    item.item.item_id.toString()
+                                )
+                            )
                         }
                         /*"dynamic" -> {
                             startActivity(

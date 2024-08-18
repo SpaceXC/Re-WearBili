@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.common.ui
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.Application
@@ -57,13 +56,9 @@ import cn.spacexc.wearbili.remake.app.cache.domain.database.STATE_FAILED
 import cn.spacexc.wearbili.remake.app.cache.domain.database.STATE_FETCHING
 import cn.spacexc.wearbili.remake.app.cache.domain.database.STATE_IDLE
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_IS_CACHE
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_VIDEO_CID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerScreen
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
-import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
+import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationScreen
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import coil.compose.AsyncImage
@@ -91,17 +86,12 @@ fun VideoCard(
     coverUrl: String,
     videoId: String? = null,
     videoIdType: String? = null,
-    context: Context = Application.getApplication(),
+    navController: NavController,
     isLarge: Boolean = false
 ) {
     Card(modifier = modifier, onClick = {
         if (!videoId.isNullOrEmpty() && !videoIdType.isNullOrEmpty()) {
-            Intent(context, VideoInformationActivity::class.java).apply {
-                putExtra(PARAM_VIDEO_ID, videoId)
-                putExtra(PARAM_VIDEO_ID_TYPE, videoIdType)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                context.startActivity(this)
-            }
+            navController.navigate(VideoInformationScreen(videoIdType, videoId))
         }
     }) {
         VideoCardContent(
@@ -126,19 +116,14 @@ fun VideoCardWithNoBorder(
     coverUrl: String,
     videoId: String? = null,
     videoIdType: String? = null,
-    context: Context = Application.getApplication(),
+    navController: NavController,
     isLarge: Boolean = false
 ) {
     Box(modifier = modifier
         .padding(vertical = 2.dp)
         .clickVfx {
             if (!videoId.isNullOrEmpty() && !videoIdType.isNullOrEmpty()) {
-                Intent(context, VideoInformationActivity::class.java).apply {
-                    putExtra(PARAM_VIDEO_ID, videoId)
-                    putExtra(PARAM_VIDEO_ID_TYPE, videoIdType)
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    context.startActivity(this)
-                }
+                navController.navigate(VideoInformationScreen(videoIdType, videoId))
             }
         }) {
         VideoCardContent(
@@ -496,8 +481,9 @@ fun VideoCacheCard(
     onDelete: () -> Unit,
     onLongClick: () -> Unit,
     onBack: () -> Unit,
-    context: Context
+    navController: NavController
 ) {
+    val context = LocalContext.current
     val progress by wearBiliAnimateFloatAsState(targetValue = cacheInfo.downloadProgress / 100f)
     var isSourceFileExist by remember {
         mutableStateOf(true)
@@ -512,10 +498,15 @@ fun VideoCacheCard(
                 )
             logd(videoFile.absolutePath)
             if (videoFile.exists()) {
-                context.startActivity(Intent(context, Media3PlayerActivity::class.java).apply {
-                    putExtra(PARAM_IS_CACHE, true)
-                    putExtra(PARAM_VIDEO_CID, cacheInfo.videoCid)
-                })
+                navController.navigate(
+                    IjkVideoPlayerScreen(
+                        isCacheVideo = true,
+                        videoCid = cacheInfo.videoCid,
+                        videoIdType = "",
+                        videoId = "",
+                        isBangumi = false
+                    )
+                )
             } else {
                 isSourceFileExist = false
             }
@@ -535,17 +526,12 @@ fun VideoCacheCard(
                             fontWeight = FontWeight.Medium,
                             fontSize = 15.sp,
                             modifier = Modifier.clickVfx(onClick = {
-                                with(context) {
-                                    startActivity(
-                                        Intent(
-                                            this,
-                                            VideoInformationActivity::class.java
-                                        ).apply {
-                                            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-                                            putExtra(PARAM_VIDEO_ID, cacheInfo.videoBvid)
-                                        }
+                                navController.navigate(
+                                    VideoInformationScreen(
+                                        videoId = cacheInfo.videoBvid,
+                                        videoIdType = VIDEO_TYPE_BVID
                                     )
-                                }
+                                )
                                 onBack()
                             })
                         ) {
@@ -744,13 +730,12 @@ fun VideoCacheCard(
                     shape = RoundedCornerShape(8.dp),
                     fillMaxSize = false,
                     onClick = {
-                        context.startActivity(Intent(
-                            context, VideoInformationActivity::class.java
-                        ).apply {
-                            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-                            putExtra(PARAM_VIDEO_ID, cacheInfo.videoBvid)
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        })
+                        navController.navigate(
+                            VideoInformationScreen(
+                                VIDEO_TYPE_BVID,
+                                cacheInfo.videoBvid
+                            )
+                        )
                     }) {
                     Text(text = "跳转视频")
                 }

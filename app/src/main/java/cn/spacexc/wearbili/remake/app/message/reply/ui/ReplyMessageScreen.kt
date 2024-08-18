@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app.message.reply.ui
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,15 +26,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.bilibilisdk.sdk.message.data.reply.ReplyMessage
 import cn.spacexc.wearbili.common.domain.time.toDateStr
-import cn.spacexc.wearbili.remake.app.article.ui.ArticleActivity
-import cn.spacexc.wearbili.remake.app.article.ui.PARAM_CVID
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.VIDEO_TYPE_AID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
-import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
+import cn.spacexc.wearbili.remake.app.article.ui.ArticleScreen
+import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
+import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationScreen
 import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.Card
@@ -49,12 +45,18 @@ import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 
+@kotlinx.serialization.Serializable
+object ReplyMessageScreen
+
 @Composable
-fun Activity.ReplyMessageScreen(viewModel: ReplyMessageViewModel) {
+fun ReplyMessageScreen(
+    viewModel: ReplyMessageViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    navController: NavController
+) {
     val lazyItems = viewModel.flow.collectAsLazyPagingItems()
     TitleBackground(
         title = "@我的",
-        onBack = ::finish,
+        onBack = navController::navigateUp,
         onRetry = lazyItems::refresh,
         uiState = lazyItems.loadState.refresh.toUIState()
     ) {
@@ -65,7 +67,7 @@ fun Activity.ReplyMessageScreen(viewModel: ReplyMessageViewModel) {
         ) {
             items(lazyItems.itemCount) {
                 lazyItems[it]?.let { item ->
-                    ReplyMessageCard(item = item)
+                    ReplyMessageCard(item = item, navController = navController)
                 }
             }
             item {
@@ -76,13 +78,13 @@ fun Activity.ReplyMessageScreen(viewModel: ReplyMessageViewModel) {
 }
 
 @Composable
-fun Activity.ReplyMessageCard(item: ReplyMessage) {
+fun ReplyMessageCard(item: ReplyMessage, navController: NavController) {
     Card(isClickEnabled = false, outerPaddingValues = PaddingValues()) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             SmallUserCard(
                 avatar = item.user.avatar,
                 username = item.user.nickname,
-                context = this@ReplyMessageCard,
+                navController = navController,
                 mid = item.user.mid,
                 userInfo = "在${item.item.business}中回复了我"
             )
@@ -102,21 +104,23 @@ fun Activity.ReplyMessageCard(item: ReplyMessage) {
                     onClick = {
                         when (type) {
                             "video" -> {
-                                startActivity(Intent(this@ReplyMessageCard, VideoInformationActivity::class.java).apply {
-                                    putExtra(PARAM_VIDEO_ID, item.item.subject_id.toString())
-                                    putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_AID)
-                                })
+                                navController.navigate(
+                                    VideoInformationScreen(
+                                        VIDEO_TYPE_AID,
+                                        item.item.subject_id.toString()
+                                    )
+                                )
                             }
                             "article" -> {
-                                startActivity(Intent(this@ReplyMessageCard, ArticleActivity::class.java).apply {
-                                    putExtra(PARAM_CVID, item.item.source_id)
-                                })
+                                navController.navigate(ArticleScreen(item.item.source_id))
                             }
                             "reply" -> {
-                                startActivity(Intent(this@ReplyMessageCard, VideoInformationActivity::class.java).apply {
-                                    putExtra(PARAM_VIDEO_ID, item.item.subject_id.toString())
-                                    putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_AID)
-                                })
+                                navController.navigate(
+                                    VideoInformationScreen(
+                                        VIDEO_TYPE_AID,
+                                        item.item.subject_id.toString()
+                                    )
+                                )
                             }
                         }
                     },

@@ -1,6 +1,8 @@
 package cn.spacexc.wearbili.remake.app.main.dynamic.ui
 
-import android.app.Activity
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.wearbili.remake.common.toUIState
@@ -32,11 +35,15 @@ import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
  * 给！爷！写！注！释！
  */
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
+    ExperimentalSharedTransitionApi::class
+)
 @Composable
-fun DynamicScreen(
+fun SharedTransitionScope.DynamicScreen(
     viewModel: DynamicViewModel,
-    context: Activity
+    navController: NavController,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val focusRequester = remember {
         FocusRequester()
@@ -68,7 +75,11 @@ fun DynamicScreen(
             ) {
                 items(dynamicListData.itemCount) {
                     dynamicListData[it]?.let { dynamicItem ->
-                        DynamicCard(item = dynamicItem, context = context)
+                        DynamicCard(
+                            item = dynamicItem,
+                            navController = navController,
+                            animatedVisibilityScope = animatedVisibilityScope
+                        )
                     }
                 }
             }

@@ -1,10 +1,10 @@
 package cn.spacexc.wearbili.remake.app.main.ui
 
 import BiliTextIcon
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -36,20 +36,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.about.ui.AboutActivity
-import cn.spacexc.wearbili.remake.app.bangumi.index.ui.BangumiIndexActivity
-import cn.spacexc.wearbili.remake.app.cache.list.CacheListActivity
+import cn.spacexc.wearbili.remake.app.about.ui.AboutScreen
+import cn.spacexc.wearbili.remake.app.bangumi.index.ui.BangumiIndexScreen
+import cn.spacexc.wearbili.remake.app.cache.list.CacheListScreen
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicScreen
 import cn.spacexc.wearbili.remake.app.main.dynamic.ui.DynamicViewModel
 import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreen
-import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileScreenState
+import cn.spacexc.wearbili.remake.app.main.profile.ui.ProfileViewModel
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendScreen
 import cn.spacexc.wearbili.remake.app.main.recommend.ui.RecommendViewModel
-import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
+import cn.spacexc.wearbili.remake.app.search.ui.SearchScreen
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
-import cn.spacexc.wearbili.remake.app.settings.ui.SettingsActivity
+import cn.spacexc.wearbili.remake.app.settings.ui.SettingsScreen
 import cn.spacexc.wearbili.remake.app.splash.remote.Version
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
@@ -70,7 +73,7 @@ data class MenuItem(
     val icon: String? = null,
     @DrawableRes val iconResId: Int = 0,
     val customIcon: Boolean = false,
-    val onClick: suspend PagerState.(Context) -> Unit,
+    val onClick: suspend PagerState.(NavController) -> Unit,
 )
 
 val menuItems = listOf(
@@ -100,53 +103,57 @@ val menuItems = listOf(
     MenuItem(
         "搜索",
         icon = "EACB",
-        onClick = { context ->
-            context.startActivity(Intent(context, SearchActivity::class.java))
+        onClick = { navController ->
+            navController.navigate(SearchScreen())
         }
     ),
     MenuItem(
         "番剧",
         icon = "EA47",
-        onClick = { context ->
-            context.startActivity(Intent(context, BangumiIndexActivity::class.java))
+        onClick = { navController ->
+            navController.navigate(BangumiIndexScreen)
         }
     ),
     MenuItem(
         "缓存",
         icon = "EAA2",
-        onClick = { context ->
-            context.startActivity(Intent(context, CacheListActivity::class.java))
+        onClick = { navController ->
+            navController.navigate(CacheListScreen)
         }
     ),
     MenuItem(
         "设置",
         icon = "EB91",
-        onClick = { context ->
-            context.startActivity(Intent(context, SettingsActivity::class.java))
+        onClick = { navController ->
+            navController.navigate(SettingsScreen)
         }
     ),
     MenuItem(
         "关于",
         icon = "EAC0",
-        onClick = { context ->
-            context.startActivity(Intent(context, AboutActivity::class.java))
+        onClick = { navController ->
+            navController.navigate(AboutScreen)
         }
     )
 )
 
+@kotlinx.serialization.Serializable
+data class HomeScreen(val updateInfo: String?)
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun MainActivityScreen(
-    context: Activity,
-    recommendViewModel: RecommendViewModel,
-    dynamicViewModel: DynamicViewModel,
-    profileScreenState: ProfileScreenState,
+fun SharedTransitionScope.HomeScreen(
     updateInfo: Version?,
-    onProfileRetry: () -> Unit
+    navController: NavController,
+    recommendViewModel: RecommendViewModel = hiltViewModel(),
+    dynamicViewModel: DynamicViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = viewModel(),
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val pagerState = rememberPagerState {
         3
     }
+    pagerState.settledPage
     var isDropdownMenuShowing by remember {
         mutableStateOf(false)
     }
@@ -156,8 +163,11 @@ fun MainActivityScreen(
         pagerState.targetPage.logd("targetPage")
         pagerState.logd("pagerState")
     })
+    LaunchedEffect(key1 = Unit) {
+        profileViewModel.getProfile()
+    }
     Box(modifier = Modifier.fillMaxSize()) {
-        context.TitleBackground(
+        TitleBackground(
             title = if (isDropdownMenuShowing) "菜单" else when (pagerState.currentPage) {
                 0 -> "推荐"
                 1 -> "动态"
@@ -175,15 +185,11 @@ fun MainActivityScreen(
             onRetry = {}
         ) {
             val recommendSource = LocalConfiguration.current.recommendSource
-            LaunchedEffect(key1 = recommendSource, block = {
-                recommendViewModel.getRecommendVideos(true, recommendSource)
-            })
             WearBiliAnimatedContent(
                 targetState = isDropdownMenuShowing,
                 transitionSpec = {
                     val tweenFloat = tween<Float>(
                         durationMillis = 400,
-                        //easing = CubicBezierEasing(0f, 1f, 0.25f, 1f)
                     )
                     val tweenIntOffset = tween<IntOffset>(
                         durationMillis = 400,
@@ -225,7 +231,7 @@ fun MainActivityScreen(
                                     buttonModifier = Modifier.aspectRatio(1f),
                                     onClick = {
                                         coroutineScope.launch {
-                                            item.onClick(pagerState, context)
+                                            item.onClick(pagerState, navController)
                                             isDropdownMenuShowing = false
                                         }
                                     }
@@ -247,7 +253,7 @@ fun MainActivityScreen(
                                     buttonModifier = Modifier.aspectRatio(1f),
                                     onClick = {
                                         coroutineScope.launch {
-                                            item.onClick(pagerState, context)
+                                            item.onClick(pagerState, navController)
                                             isDropdownMenuShowing = false
                                         }
                                     }
@@ -264,7 +270,7 @@ fun MainActivityScreen(
                         when (it) {
                             0 -> RecommendScreen(
                                 viewModel = recommendViewModel,
-                                context = context,
+                                navController = navController,
                                 updatesResult = updateInfo,
                                 onFetch = { isRefresh ->
                                     recommendViewModel.getRecommendVideos(
@@ -274,11 +280,14 @@ fun MainActivityScreen(
                                 }
                             )
 
-                            1 -> DynamicScreen(viewModel = dynamicViewModel, context = context)
+                            1 -> DynamicScreen(
+                                viewModel = dynamicViewModel,
+                                navController = navController,
+                                animatedVisibilityScope = animatedVisibilityScope
+                            )
                             2 -> ProfileScreen(
-                                state = profileScreenState,
-                                context = context,
-                                onRetry = onProfileRetry
+                                viewModel = profileViewModel,
+                                navController = navController
                             )
                         }
                     }

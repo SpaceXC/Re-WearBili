@@ -1,12 +1,12 @@
 
 package cn.spacexc.wearbili.remake.app.splash.ui
 
-import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -14,6 +14,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.APP_VERSION_CODE
 import cn.spacexc.wearbili.remake.app.APP_VERSION_NAME
@@ -28,8 +30,17 @@ import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+object SplashScreen
+
 @Composable
-fun Activity.SplashScreen() {
+fun SplashScreen(
+    navController: NavController,
+    viewModel: SplashScreenViewModel = hiltViewModel()
+) {
+    LaunchedEffect(key1 = Unit) {
+        viewModel.initApp(navController)
+    }
     CirclesBackground(modifier = Modifier) {
         Image(
             painter = painterResource(id = R.drawable.icon_app_main_reverse),

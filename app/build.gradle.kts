@@ -142,6 +142,7 @@ dependencies {
     "baselineProfile"(project(":baselineprofile"))
     kapt(libs.hilt.compiler)
     kapt(libs.hilt.work.compiler)
+    implementation(libs.hilt.navigation.compose)
 
 
     implementation(libs.coil.compose)

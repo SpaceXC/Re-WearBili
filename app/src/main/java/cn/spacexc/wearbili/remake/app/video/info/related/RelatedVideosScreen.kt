@@ -6,9 +6,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
+import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.VideoCard
 
@@ -22,7 +23,8 @@ import cn.spacexc.wearbili.remake.common.ui.VideoCard
 
 @Composable
 fun RelatedVideosScreen(
-    viewModel: VideoInformationViewModel
+    viewModel: VideoInformationViewModel,
+    navController: NavController
 ) {
     LoadableBox(uiState = viewModel.state.uiState, onRetry = {}) {
         LazyColumn(
@@ -37,7 +39,8 @@ fun RelatedVideosScreen(
                         views = video.stat.view.toShortChinese(),
                         coverUrl = video.pic,
                         videoIdType = VIDEO_TYPE_BVID,
-                        videoId = video.bvid
+                        videoId = video.bvid,
+                        navController = navController
                     )
                 }
             }

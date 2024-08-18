@@ -3,6 +3,7 @@
 
     <style name="Theme.WearBili" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">#000000</item>
+        <item name="android:windowSwipeToDismiss">false</item>
     </style>
 
     <style name="Theme.WearBili.Player" parent="Theme.WearBili">

@@ -1,26 +1,19 @@
 package cn.spacexc.wearbili.remake.app.search.ui
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.ScrollState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import cn.spacexc.bilibilisdk.data.DataManager
 import cn.spacexc.wearbili.common.domain.log.logd
-import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.common.domain.video.VideoUtils
-import cn.spacexc.wearbili.remake.app.article.ui.ArticleActivity
-import cn.spacexc.wearbili.remake.app.article.ui.PARAM_CVID
-import cn.spacexc.wearbili.remake.app.player.livestream.ui.LiveStreamActivity
-import cn.spacexc.wearbili.remake.app.player.livestream.ui.PARAM_ROOM_ID
 import cn.spacexc.wearbili.remake.app.search.domain.SearchHistory
 import cn.spacexc.wearbili.remake.app.search.domain.remote.hot.TrendingWord
 import cn.spacexc.wearbili.remake.app.search.domain.remote.hot.TrendingWordList
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_AID
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
-import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
+import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationScreen
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,9 +49,9 @@ class SearchViewModel @Inject constructor(
             Gson().fromJson(it, SearchHistory::class.java).history
         }.map {
             val temp = it.toMutableList()
-            while (temp.size > 8) {
-                temp.removeFirst()
-            }
+            /*while (temp.size > 8) {
+                temp
+            }*/
             temp
         }.map { it.asReversed() }
 
@@ -92,39 +85,39 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun searchByKeyword(context: Context, keyword: String) {
+    fun searchByKeyword(navController: NavController, keyword: String) {
         keyword.logd("search keyword")
         if (keyword.matches(liveRoomIdRegex)) {
-            context.startActivity(Intent(context, LiveStreamActivity::class.java).apply {
+            /*context.startActivity(Intent(context, LiveStreamActivity::class.java).apply {
                 putExtra(PARAM_ROOM_ID, keyword.replace("live", "").toLong())
-            })
+            })*/
             return
         }
         if (keyword.matches(articleIdRegex)) {
-            context.startActivity(Intent(context, ArticleActivity::class.java).apply {
+            /*context.startActivity(Intent(context, ArticleActivity::class.java).apply {
                 putExtra(PARAM_CVID, keyword.replace("cv", "").toLong())
-            })
+            })*/
             return
         }
         if (VideoUtils.isAV(keyword)) {
-            context.startActivity(Intent(context, VideoInformationActivity::class.java).apply {
-                putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_AID)
-                putExtra(PARAM_VIDEO_ID, keyword.replace("av", ""))
-            })
+            navController.navigate(
+                VideoInformationScreen(
+                    VIDEO_TYPE_AID,
+                    keyword.replace("av", "")
+                )
+            )
             return
         }
         if (VideoUtils.isBV(keyword)) {
-            context.startActivity(Intent(context, VideoInformationActivity::class.java).apply {
-                putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-                putExtra(PARAM_VIDEO_ID, keyword)
-            })
+            navController.navigate(VideoInformationScreen(VIDEO_TYPE_BVID, keyword))
             return
         }
-        context.startActivity(
+        navController.navigate(SearchResultScreen(keyword))
+        /*context.startActivity(
             Intent(context, SearchResultActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 putExtra(PARAM_KEYWORD, keyword)
             }
-        )
+        )*/
     }
 }

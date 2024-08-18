@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.video.action.favourite.ui
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -47,7 +46,7 @@ class VideoFavouriteViewModel : ViewModel() {
         }
     }
 
-    fun confirmAction(context: Context, callback: (Boolean) -> Unit) {
+    fun confirmAction(callback: (Boolean) -> Unit) {
         viewModelScope.launch {
             uiState = UIState.Loading
             val response = FavoriteActions.commitFavorite(

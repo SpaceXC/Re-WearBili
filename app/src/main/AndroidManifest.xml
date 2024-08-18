@@ -52,7 +52,7 @@
         </provider>
 
         <activity
-            android:name=".app.splash.ui.SplashScreenActivity"
+            android:name=".app.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.WearBili">
             <intent-filter>
@@ -77,12 +77,13 @@
         <activity
             android:name=".app.test.UITest"
             android:exported="true" />
-        <activity
-            android:name=".app.main.ui.MainActivity"
-            android:exported="false" />
+
+
         <activity
             android:name=".app.video.info.ui.VideoInformationActivity"
             android:exported="false" />
+
+
         <activity
             android:name=".app.about.ui.AboutActivity"
             android:exported="false" />

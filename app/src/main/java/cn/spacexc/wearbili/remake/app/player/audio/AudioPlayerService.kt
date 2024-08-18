@@ -2,24 +2,14 @@ package cn.spacexc.wearbili.remake.app.player.audio
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.Application
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
-import cn.spacexc.wearbili.remake.app.player.audio.ui.Media3AudioPlayerViewModel
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_IS_BANGUMI
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_IS_CACHE
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_VIDEO_CID
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_VIDEO_ID_TYPE
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.VIDEO_TYPE_BVID
+import cn.spacexc.wearbili.remake.app.player.audio.ui.IjkPlayerAudioPlayerViewModel
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -44,14 +34,14 @@ class AudioPlayerService : LifecycleService() {
     @Inject
     lateinit var repository: VideoCacheRepository
 
-    lateinit var viewModel: Media3AudioPlayerViewModel
+    lateinit var viewModel: IjkPlayerAudioPlayerViewModel
 
     var cid = 0L
 
     private var subtitleUpdateJob: Job? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        intent?.let {
+        /*intent?.let {
             val isCache = intent.getBooleanExtra(PARAM_IS_CACHE, false)
 
             val videoIdType = intent.getStringExtra(PARAM_VIDEO_ID_TYPE) ?: VIDEO_TYPE_BVID
@@ -67,7 +57,7 @@ class AudioPlayerService : LifecycleService() {
                 } catch (_: Exception) {
 
                 }
-                viewModel = Media3AudioPlayerViewModel(
+                viewModel = IjkPlayerAudioPlayerViewModel(
                     Application.getApplication(),
                     repository,
                     lifecycleScope
@@ -123,7 +113,7 @@ class AudioPlayerService : LifecycleService() {
                     .build()
                 startForeground(NOTIFICATION_ID, notification)      //id must be positive!
             }
-        }
+        }*/
 
         return super.onStartCommand(intent, flags, startId)
     }
@@ -155,7 +145,7 @@ class AudioPlayerService : LifecycleService() {
         videoTitle: String
     ) {
         createChannelId()
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+        /*val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.icon_outline_radio)
             .setContentTitle("Re:WearBili正在播放")
             .setContentText(videoTitle)
@@ -182,7 +172,7 @@ class AudioPlayerService : LifecycleService() {
                 )
             )
             .build()
-        startForeground(NOTIFICATION_ID, notification)      //id must be positive!
+        startForeground(NOTIFICATION_ID, notification)      //id must be positive!*/
     }
 
     private fun createChannelId() {

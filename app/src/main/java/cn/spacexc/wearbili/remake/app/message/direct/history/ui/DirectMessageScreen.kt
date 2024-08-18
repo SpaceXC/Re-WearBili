@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.message.direct.history.ui
 
-import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import appendBiliIcon
 import cn.spacexc.bilibilisdk.sdk.message.data.direct.history.Message
 import cn.spacexc.wearbili.common.domain.time.toDateStr
@@ -43,18 +44,28 @@ import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 
+@kotlinx.serialization.Serializable
+data class DirectMessageScreen(
+    val talkerName: String,
+    val talkerMid: Long
+)
+
 @Composable
-fun Activity.DirectMessageScreen(
+fun DirectMessageScreen(
     talkerName: String,
     talkerMid: Long,
-    viewModel: DirectMessageViewModel
+    viewModel: DirectMessageViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    navController: NavController
 ) {
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getMessages(talkerMid)
+    }
     TitleBackground(
         title = talkerName,
         onRetry = {
             viewModel.getMessages(talkerMid)
         },
-        onBack = ::finish,
+        onBack = navController::navigateUp,
         uiState = viewModel.uiState
     ) {
         LazyColumn(
@@ -152,10 +163,9 @@ fun ColumnScope.MessageCard(isTalker: Boolean, message: Message, shouldJoinNext:
                 modifier = Modifier
                     .fillMaxWidth()
                     .then(
-                        if(isTalker) {
+                        if (isTalker) {
                             Modifier.padding(end = 12.dp)
-                        }
-                        else {
+                        } else {
                             Modifier.padding(start = 12.dp)
                         }
                     )

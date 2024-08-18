@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.main.profile.detail.history.ui
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.wearbili.common.domain.time.secondToTime
@@ -30,11 +31,14 @@ import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+object HistoryScreen
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Activity.HistoryScreen(
-    viewModel: HistoryViewModel,
-    onBack: () -> Unit
+fun HistoryScreen(
+    viewModel: HistoryViewModel = viewModel(),
+    navController: NavController
 ) {
     val lazyListItems = viewModel.historyPagerFlow.collectAsLazyPagingItems()
     val pullToRefreshState = rememberPullRefreshState(
@@ -44,7 +48,7 @@ fun Activity.HistoryScreen(
     )
     TitleBackground(
         title = "历史记录",
-        onBack = onBack,
+        onBack = navController::navigateUp,
         uiState = lazyListItems.loadState.refresh.toUIState(),
         onRetry = lazyListItems::retry
     ) {
@@ -89,6 +93,7 @@ fun Activity.HistoryScreen(
                                     coverUrl = item.cover,
                                     videoId = item.history.bvid,
                                     videoIdType = VIDEO_TYPE_BVID,
+                                    navController = navController
                                 )
                             }
                             "article" -> {

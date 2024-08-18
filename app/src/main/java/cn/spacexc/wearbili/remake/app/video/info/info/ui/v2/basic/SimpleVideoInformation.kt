@@ -1,9 +1,7 @@
 package cn.spacexc.wearbili.remake.app.video.info.info.ui.v2.basic
 
 import BiliTextIcon
-import android.content.Context
-import android.content.Intent
-import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
@@ -15,32 +13,35 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cn.spacexc.wearbili.common.domain.log.logd
-import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerActivity
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
+import androidx.compose.ui.unit.toSize
+import androidx.navigation.NavController
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerScreen
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerViewModel
+import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
-import cn.spacexc.wearbili.remake.common.ui.BiliImage
-import cn.spacexc.wearbili.remake.common.ui.ImageAmbient
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
@@ -49,33 +50,109 @@ import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SimpleVideoInformation(
-    animatedContentScope: AnimatedContentScope,
+    animatedContentScope: AnimatedVisibilityScope,
     sharedTransitionScope: SharedTransitionScope,
-    context: Context,
+    globalSharedTransitionScope: SharedTransitionScope,
+    globalAnimatedVisibilityScope: AnimatedVisibilityScope,
+    navController: NavController,
     viewModel: VideoInformationViewModel,
-    onGoToDetail: () -> Unit
+    videoPlayerViewModel: IjkVideoPlayerViewModel,
+    onGoToDetail: (DpSize) -> Unit
 ) {
+    var infoButtonSize by remember {
+        mutableStateOf(DpSize(0.dp, 0.dp))
+    }
+    val displaySurface = LocalConfiguration.current.videoDisplaySurface
+    val localDensity = LocalDensity.current
     viewModel.state.videoData?.let { video ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .offset(y = -8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            //verticalArrangement = Arrangement.Center
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                ImageAmbient(url = video.view.pic, scale = 1.1f)
-                BiliImage(
-                    url = video.view.pic,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth(0.65f)
+            Box(
+                modifier = with(globalSharedTransitionScope) {
+                    Modifier
+                        .sharedElement(
+                            rememberSharedContentState(key = "videoCover"),
+                            globalAnimatedVisibilityScope
+                        )
+                        .weight(1f)
+                        .padding(vertical = 10.dp)
                         .aspectRatio(16f / 10f)
                         .clip(
                             RoundedCornerShape(8.dp)
-                        ),
-                    contentScale = ContentScale.Crop
-                )
+                        )
+                }
+            ) {
+                /*if(videoPlayerViewModel.currentStat == PlayerStats.Playing) {
+                    when (displaySurface) {
+                        cn.spacexc.wearbili.remake.proto.settings.VideoDisplaySurface.TextureView -> {
+                            AndroidView(factory = { TextureView(it) }) { textureView ->
+                                textureView.surfaceTextureListener = object : SurfaceTextureListener {
+                                    override fun onSurfaceTextureAvailable(
+                                        texture: SurfaceTexture,
+                                        p1: Int,
+                                        p2: Int
+                                    ) {
+                                        //videoPlayerViewModel.httpPlayer.setSurface(Surface(texture))
+                                    }
+
+                                    override fun onSurfaceTextureSizeChanged(
+                                        texture: SurfaceTexture,
+                                        p1: Int,
+                                        p2: Int
+                                    ) {
+                                        //videoPlayerViewModel.httpPlayer.setSurface(Surface(texture))
+                                    }
+
+                                    override fun onSurfaceTextureDestroyed(p0: SurfaceTexture): Boolean {
+                                        return false
+                                    }
+
+                                    override fun onSurfaceTextureUpdated(p0: SurfaceTexture) {
+
+                                    }
+
+                                }
+                            }
+                        }
+
+                        cn.spacexc.wearbili.remake.proto.settings.VideoDisplaySurface.SurfaceView -> {
+                            AndroidView(factory = { SurfaceView(it) }) { surfaceView ->
+                                surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
+                                    override fun surfaceCreated(holder: SurfaceHolder) {
+                                        //videoPlayerViewModel.httpPlayer.setDisplay(holder)
+                                    }
+
+                                    override fun surfaceChanged(
+                                        holder: SurfaceHolder,
+                                        p0: Int,
+                                        p1: Int,
+                                        p2: Int
+                                    ) {
+                                        //videoPlayerViewModel.httpPlayer.setDisplay(holder)
+                                    }
+
+                                    override fun surfaceDestroyed(p0: SurfaceHolder) {}
+                                })
+
+                            }
+                        }
+
+                        else -> {
+
+                        }
+                    }
+                }
+                else {
+                    BiliImage(
+                        url = video.view.pic,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }*/
             }
             Text(
                 text = video.view.title,
@@ -87,10 +164,12 @@ fun SimpleVideoInformation(
                 ),
                 modifier = with(sharedTransitionScope) {
                     Modifier
-                        .offset(y = -4.dp)
                         .fillMaxWidth()
                         .padding(horizontal = titleBackgroundHorizontalPadding())
-                        .sharedBounds(sharedContentState = rememberSharedContentState(key = "title"), animatedVisibilityScope = animatedContentScope)
+                        .sharedBounds(
+                            sharedContentState = rememberSharedContentState(key = "title"),
+                            animatedVisibilityScope = animatedContentScope
+                        )
                 },
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -101,8 +180,7 @@ fun SimpleVideoInformation(
             Row(
                 modifier = Modifier
                     .fillMaxWidth(0.75f)
-                //.padding(bottom = 8.dp)
-                ,
+                    .padding(bottom = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 OutlinedRoundButton(
@@ -118,12 +196,7 @@ fun SimpleVideoInformation(
                     },
                     text = "",
                     onClick = {
-                        Intent(context, AudioPlayerActivity::class.java).apply {
-                            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-                            putExtra(PARAM_VIDEO_ID, video.view.bvid)
-                            putExtra(PARAM_VIDEO_CID, video.view.cid.logd("cid"))
-                            context.startActivity(this)
-                        }
+
                     }
                 )
                 OutlinedRoundButton(
@@ -139,19 +212,33 @@ fun SimpleVideoInformation(
                     },
                     text = "",
                     onClick = {
-                        Intent(
-                            context,
-                            Media3PlayerActivity::class.java
-                        ).apply {
-                            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-                            putExtra(PARAM_VIDEO_ID, video.view.bvid)
-                            putExtra(PARAM_VIDEO_CID, video.view.cid.logd("cid"))
-                            context.startActivity(this)
-                        }
+                        navController.navigate(
+                            IjkVideoPlayerScreen(
+                                isCacheVideo = false,
+                                videoIdType = VIDEO_TYPE_BVID,
+                                videoId = video.view.bvid,
+                                videoCid = video.view.cid,
+                                isBangumi = false
+                            )
+                        )
                     }
                 )
                 OutlinedRoundButton(
-                    modifier = Modifier.weight(1f),
+                    modifier = with(sharedTransitionScope) {
+                        Modifier
+                            .sharedElement(
+                                rememberSharedContentState(key = "infoButton"),
+                                animatedContentScope
+                            )
+                            .weight(1f)
+                            .onSizeChanged {
+                                infoButtonSize = with(localDensity) {
+                                    it
+                                        .toSize()
+                                        .toDpSize()
+                                }
+                            }
+                    },
                     buttonModifier = Modifier.aspectRatio(1f),
                     interactionSource = rememberMutableInteractionSource(), icon = {
                         Row(
@@ -163,10 +250,15 @@ fun SimpleVideoInformation(
                     },
                     text = "",
                     onClick = {
-                        onGoToDetail()
+                        onGoToDetail(infoButtonSize)
                     }
                 )
             }
+        }
+    }
+    DisposableEffect(key1 = Unit) {
+        onDispose {
+            videoPlayerViewModel.httpPlayer.setDisplay(null)
         }
     }
 }

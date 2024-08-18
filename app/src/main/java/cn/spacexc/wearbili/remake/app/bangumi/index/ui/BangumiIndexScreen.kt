@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app.bangumi.index.ui
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,10 +24,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
-import cn.spacexc.wearbili.remake.app.bangumi.timeline.ui.BangumiTimelineActivity
+import cn.spacexc.wearbili.remake.app.bangumi.timeline.ui.BangumiTimelineScreen
 import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
@@ -46,11 +45,15 @@ import cn.spacexc.wearbili.remake.common.ui.toLoadingState
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+object BangumiIndexScreen
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
         /*@UnstableApi*/
-fun Activity.BangumiIndexScreen(
-    viewModel: BangumiIndexViewModel
+fun BangumiIndexScreen(
+    viewModel: BangumiIndexViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    navController: NavController
 ) {
     val lazyItems = viewModel.pager.collectAsLazyPagingItems()
     val pullRefreshState = rememberPullRefreshState(
@@ -60,7 +63,7 @@ fun Activity.BangumiIndexScreen(
     )
     TitleBackground(
         title = "追番索引",
-        onBack = ::finish,
+        onBack = navController::navigateUp,
         uiState = lazyItems.loadState.refresh.toUIState(),
         onRetry = lazyItems::retry
     ) {
@@ -85,12 +88,7 @@ fun Activity.BangumiIndexScreen(
                             innerPaddingValues = PaddingValues(12.dp),
                             shape = CircleShape,
                             onClick = {
-                                startActivity(
-                                    Intent(
-                                        this@BangumiIndexScreen,
-                                        BangumiTimelineActivity::class.java
-                                    )
-                                )
+                                navController.navigate(BangumiTimelineScreen)
                             }
                         ) {
                             IconText(
@@ -129,7 +127,7 @@ fun Activity.BangumiIndexScreen(
                             bangumiIdType = BANGUMI_ID_TYPE_SSID,
                             badge = listOf(bangumi.badge),
                             badgeColor = listOf(bangumi.badge_info.bg_color),
-                            context = this@BangumiIndexScreen
+                            navController = navController
                         )
                     }
                 }

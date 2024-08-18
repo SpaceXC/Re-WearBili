@@ -1,9 +1,6 @@
 package cn.spacexc.wearbili.remake.app.search.ui
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Build.VERSION.SDK_INT
-import android.widget.EditText
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -24,6 +21,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -33,6 +31,7 @@ import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -50,11 +50,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import cn.spacexc.wearbili.remake.app.input.InputActivity
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.app.input.PARAM_INPUT
-import cn.spacexc.wearbili.remake.app.input.PARAM_PREV_INPUT
 import cn.spacexc.wearbili.remake.common.ui.AutoResizedText
+import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
@@ -78,14 +78,19 @@ import coil.request.ImageRequest
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+data class SearchScreen(val defaultSearchKeyword: String = "")
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SearchActivityScreen(
-    searchViewModel: SearchViewModel,
-    onBack: () -> Unit,
+fun SearchScreen(
+    searchViewModel: SearchViewModel = hiltViewModel(),
     defaultSearchKeyword: String = "",
-    context: Activity
+    navController: NavController
 ) {
+    LaunchedEffect(key1 = Unit) {
+        searchViewModel.getHotSearch()
+    }
     val scope = rememberCoroutineScope()
     val localDensity = LocalDensity.current
     val hotWords by searchViewModel.hotSearchedWords.collectAsState()
@@ -111,7 +116,7 @@ fun SearchActivityScreen(
             hotWordItemHeight = with(localDensity) { it.height.toDp() }
         }
     )  //这个Text是用来获取高度以设置下面LazyStaggeredGrid的高度以及热搜类型图片的高度的，不可或缺，要和下面热搜词的大小同步
-    context.TitleBackground(title = "搜索", onBack = onBack, onRetry = {}) {
+    TitleBackground(title = "搜索", onBack = navController::navigateUp, onRetry = {}) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -139,7 +144,7 @@ fun SearchActivityScreen(
                             .clickable(
                                 rememberMutableInteractionSource(), null
                             ) {
-                                inputResultLauncher.launch(
+                                /*inputResultLauncher.launch(
                                     Intent(
                                         context,
                                         InputActivity::class.java
@@ -147,8 +152,22 @@ fun SearchActivityScreen(
                                         putExtra(
                                             PARAM_PREV_INPUT, searchInputValue
                                         )
-                                    })
+                                    })*/
                             }) {
+                            BasicTextField(
+                                value = searchInputValue,
+                                onValueChange = {
+                                    searchInputValue = it
+                                },
+                                textStyle = TextStyle(
+                                    fontSize = 14.sp,
+                                    fontFamily = wearbiliFontFamily,
+                                    color = Color.White
+                                ),
+                                modifier = Modifier
+                                    .align(Alignment.CenterStart),
+                                cursorBrush = SolidColor(BilibiliPink)
+                            )
                             if (searchInputValue.isEmpty()) {
                                 AutoResizedText(
                                     text = "搜些什么ヾ(≧▽≦*)o",
@@ -161,17 +180,6 @@ fun SearchActivityScreen(
                                         .alpha(0.6f)
                                         .align(Alignment.CenterStart)
                                 )
-                            } else {
-                                Text(
-                                    text = searchInputValue,
-                                    style = TextStyle(
-                                        fontSize = 14.sp,
-                                        fontFamily = wearbiliFontFamily,
-                                        color = Color.White
-                                    ),
-                                    modifier = Modifier
-                                        .align(Alignment.CenterStart)
-                                )
                             }
                         }
                         Spacer(modifier = Modifier.width(2.dp))
@@ -182,7 +190,7 @@ fun SearchActivityScreen(
                             modifier = Modifier.clickVfx {
                                 if (searchInputValue.isNotEmpty()) {
                                     searchViewModel.addSearchHistory(searchInputValue)
-                                    searchViewModel.searchByKeyword(context, searchInputValue)
+                                    searchViewModel.searchByKeyword(navController, searchInputValue)
                                 }
                             }
                         )
@@ -239,7 +247,7 @@ fun SearchActivityScreen(
                         outerPaddingValues = PaddingValues(),
                         innerPaddingValues = PaddingValues(8.dp),
                         onClick = {
-                            searchViewModel.searchByKeyword(context, item)
+                            searchViewModel.searchByKeyword(navController, item)
                         }
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -283,13 +291,7 @@ fun SearchActivityScreen(
                         outerPaddingValues = PaddingValues(),
                         innerPaddingValues = PaddingValues(8.dp),
                         onClick = {
-                            searchViewModel.addSearchHistory(item.keyword)
-                            context.startActivity(
-                                Intent(context, SearchResultActivity::class.java).apply {
-                                    //flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    putExtra(PARAM_KEYWORD, item.keyword)
-                                }
-                            )
+                            searchViewModel.searchByKeyword(navController, item.keyword)
                         }
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {

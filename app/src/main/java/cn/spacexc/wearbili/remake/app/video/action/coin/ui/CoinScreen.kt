@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.video.action.coin.ui
 
-import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,19 +21,31 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cn.spacexc.wearbili.remake.common.UIState
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 
+@kotlinx.serialization.Serializable
+data class CoinScreen(
+    val videoIdType: String,
+    val videoId: String
+)
+
 @Composable
-fun Activity.CoinScreen(uiState: UIState, onClick: (Int) -> Unit) {
+fun CoinScreen(
+    navController: NavController,
+    viewModel: CoinViewModel = hiltViewModel(),
+    videoIdType: String,
+    videoId: String
+) {
     TitleBackground(
         title = "",
         onRetry = { /*因为如果失败了的话会直接返回所以这里就不用做重试了*/ },
-        onBack = ::finish,
-        uiState = uiState
+        onBack = navController::navigateUp,
+        uiState = viewModel.uiState
     ) {
         var coinCount by remember {
             mutableIntStateOf(1)
@@ -83,7 +94,7 @@ fun Activity.CoinScreen(uiState: UIState, onClick: (Int) -> Unit) {
                 }
             }
             Card(modifier = Modifier, onClick = {
-                onClick(coinCount)
+                viewModel.coin(coinCount, videoIdType, videoId, navController)
             }, contentAlignment = Alignment.Center) {
                 Text(
                     text = "确定",

@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.common.ui
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,11 +34,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_SSID
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiActivity
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID_TYPE
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiScreen
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 
@@ -64,18 +61,12 @@ fun LargeBangumiCard(
     updateInformation: String,
     bangumiIdType: String = BANGUMI_ID_TYPE_SSID,
     bangumiId: Long,
-    context: Context
+    navController: NavController
 ) {
     val localDensity = LocalDensity.current
     Card(onClick = {
-        context.startActivity(Intent(context, BangumiActivity::class.java).apply {
-            putExtra(
-                PARAM_BANGUMI_ID, bangumiId
-            )
-            putExtra(
-                PARAM_BANGUMI_ID_TYPE, bangumiIdType
-            )
-        })
+
+        navController.navigate(BangumiScreen(bangumiIdType, bangumiId))
     }) {
         Row(modifier = Modifier.fillMaxWidth()) {
             var coverHeight by remember {
@@ -202,7 +193,7 @@ fun SmallBangumiCard(
     epName: String,
     bangumiIdType: String = BANGUMI_ID_TYPE_SSID,
     bangumiId: Long,
-    context: Context? = null,
+    navController: NavController,
     onClick: (() -> Unit)? = null,
 ) {
     val localDensity = LocalDensity.current
@@ -210,14 +201,12 @@ fun SmallBangumiCard(
         if (onClick != null) {
             onClick.invoke()
         } else {
-            context?.startActivity(Intent(context, BangumiActivity::class.java).apply {
-                putExtra(
-                    PARAM_BANGUMI_ID, bangumiId
+            navController.navigate(
+                BangumiScreen(
+                    bangumiIdType = bangumiIdType,
+                    bangumiId = bangumiId,
                 )
-                putExtra(
-                    PARAM_BANGUMI_ID_TYPE, bangumiIdType
-                )
-            })
+            )
         }
     }, modifier = modifier) {
         Row(modifier = Modifier.fillMaxWidth()) {
