@@ -1,9 +1,9 @@
-package cn.spacexc.wearbili.remake.baselineprofile
+package cn.spacexc.baselineprofile
 
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,9 +40,10 @@ class BaselineProfileGenerator {
 
     @Test
     fun generate() {
-        // This example works only with the variant with application id `cn.spacexc.wearbili.remake`."
+        // The application id for the running build variant is read from the instrumentation arguments.
         rule.collect(
-            packageName = "cn.spacexc.wearbili.remake",
+            packageName = InstrumentationRegistry.getArguments().getString("targetAppId")
+                ?: throw Exception("targetAppId not passed as instrumentation runner arg"),
 
             // See: https://d.android.com/topic/performance/baselineprofiles/dex-layout-optimizations
             includeInStartupProfile = true
@@ -59,6 +60,7 @@ class BaselineProfileGenerator {
             // 1. Wait until the content is asynchronously loaded
             // 2. Scroll the feed content
             // 3. Navigate to detail screen
+
             // Check UiAutomator documentation for more information how to interact with the app.
             // https://d.android.com/training/testing/other-components/ui-automator
         }

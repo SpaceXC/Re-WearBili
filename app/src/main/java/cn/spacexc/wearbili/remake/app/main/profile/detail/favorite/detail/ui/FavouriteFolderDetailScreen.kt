@@ -51,55 +51,57 @@ fun FavouriteFolderDetailScreen(
     LaunchedEffect(key1 = Unit) {
         viewModel.setPagerFlow(folderId)
     }
-    val lazyPagingItem = viewModel.dataFlow.collectAsLazyPagingItems()
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = lazyPagingItem.loadState.refresh is LoadState.Loading,
-        onRefresh = lazyPagingItem::refresh,
-        refreshThreshold = 40.dp
-    )
-    TitleBackground(
-        title = folderName,
-        onBack = navController::navigateUp,
-        uiState = lazyPagingItem.loadState.refresh.toUIState(),
-        onRetry = lazyPagingItem::retry
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .pullRefresh(state = pullRefreshState)
+    if (viewModel.isLoaded) {
+        val lazyPagingItem = viewModel.dataFlow.collectAsLazyPagingItems()
+        val pullRefreshState = rememberPullRefreshState(
+            refreshing = lazyPagingItem.loadState.refresh is LoadState.Loading,
+            onRefresh = lazyPagingItem::refresh,
+            refreshThreshold = 40.dp
+        )
+        TitleBackground(
+            title = folderName,
+            onBack = navController::navigateUp,
+            uiState = lazyPagingItem.loadState.refresh.toUIState(),
+            onRetry = lazyPagingItem::retry
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pullRefresh(state = pullRefreshState)
             ) {
-                items(lazyPagingItem.itemCount) {
-                    lazyPagingItem[it]?.let { video ->
-                        VideoCard(
-                            videoName = video.title,
-                            uploader = video.upper.name,
-                            views = video.cnt_info.play.toShortChinese(),
-                            coverUrl = video.cover,
-                            videoIdType = VIDEO_TYPE_BVID,
-                            videoId = video.bvid,
-                            navController = navController
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    items(lazyPagingItem.itemCount) {
+                        lazyPagingItem[it]?.let { video ->
+                            VideoCard(
+                                videoName = video.title,
+                                uploader = video.upper.name,
+                                views = video.cnt_info.play.toShortChinese(),
+                                coverUrl = video.cover,
+                                videoIdType = VIDEO_TYPE_BVID,
+                                videoId = video.bvid,
+                                navController = navController
+                            )
+                        }
+                    }
+                    item {
+                        LoadingTip(
+                            lazyPagingItem.loadState.append.toLoadingState(),
+                            lazyPagingItem::retry
                         )
                     }
                 }
-                item {
-                    LoadingTip(
-                        lazyPagingItem.loadState.append.toLoadingState(),
-                        lazyPagingItem::retry
+                PullRefreshIndicator(
+                    refreshing = lazyPagingItem.loadState.refresh is LoadState.Loading,
+                    state = pullRefreshState,
+                    modifier = Modifier.align(
+                        Alignment.TopCenter
                     )
-                }
-            }
-            PullRefreshIndicator(
-                refreshing = lazyPagingItem.loadState.refresh is LoadState.Loading,
-                state = pullRefreshState,
-                modifier = Modifier.align(
-                    Alignment.TopCenter
                 )
-            )
+            }
         }
     }
 }

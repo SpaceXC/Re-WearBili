@@ -110,12 +110,14 @@ fun SearchScreen(
         }
 
     Text(
-        text = "",
+        text = "xjdjdj",
         style = AppTheme.typography.body1,
+        color = Color.White,
         modifier = Modifier.onSizeChanged {
             hotWordItemHeight = with(localDensity) { it.height.toDp() }
         }
     )  //这个Text是用来获取高度以设置下面LazyStaggeredGrid的高度以及热搜类型图片的高度的，不可或缺，要和下面热搜词的大小同步
+
     TitleBackground(title = "搜索", onBack = navController::navigateUp, onRetry = {}) {
         Column(
             modifier = Modifier

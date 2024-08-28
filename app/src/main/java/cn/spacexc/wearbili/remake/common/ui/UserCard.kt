@@ -383,7 +383,7 @@ fun TinyUserCard(
     avatar: String,
     username: String,
     mid: Long,
-    navController: NavController
+    navController: NavController?
 ) {
     val localDensity = LocalDensity.current
     var textHeight by remember {
@@ -393,9 +393,9 @@ fun TinyUserCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 6.dp)
-            .clickVfx {
-                navController.navigate(UserSpaceScreen(mid))
-            },
+            .clickVfx(enabled = (navController != null), onClick = {
+                navController?.navigate(UserSpaceScreen(mid))
+            }),
         verticalAlignment = Alignment.CenterVertically
     ) {
         BiliImage(

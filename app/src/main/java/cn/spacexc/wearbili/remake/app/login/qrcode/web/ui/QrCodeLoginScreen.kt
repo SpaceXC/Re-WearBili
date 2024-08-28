@@ -30,6 +30,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreen
+import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import kotlinx.coroutines.launch
 
@@ -49,73 +50,51 @@ fun LoginScreen(
     viewModel: QrCodeLoginViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    var job = remember {
-        viewModel.viewModelScope.launch {
-            viewModel.startLogin {
-                navController.navigate(SplashScreen)
-                navController.popBackStack()
+    TitleBackground(title = "登录", onRetry = { /*TODO*/ }, onBack = navController::navigateUp) {
+        var job = remember {
+            viewModel.viewModelScope.launch {
+                viewModel.startLogin {
+                    navController.navigate(SplashScreen) {
+                        popUpTo(0)
+                    }
+                }
             }
         }
-    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Box(
+        Column(
             modifier = Modifier
-                //.aspectRatio(1f)
-                .fillMaxSize(0.7f)
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color.White)
-                .padding(4.dp)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Crossfade(targetState = viewModel.screenState.currentLoginStatus, label = "") {
-                when (it) {
-                    QrCodeLoginStatus.Loading, QrCodeLoginStatus.GettingKey -> {
-                        Image(
-                            painter = painterResource(id = R.drawable.img_loading_2233),
-                            contentDescription = "加载中...",
-                            modifier = Modifier
-                                .fillMaxSize()
-                        )
-                    }
-
-                    QrCodeLoginStatus.Failed, QrCodeLoginStatus.Timeout, QrCodeLoginStatus.FailedGettingKey -> {
-                        Image(
-                            painter = painterResource(id = R.drawable.img_loading_2233_error),
-                            contentDescription = "加载失败",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clickable(
-                                    interactionSource = rememberMutableInteractionSource(),
-                                    indication = null
-                                ) {
-                                    job.cancel()
-                                    job = viewModel.viewModelScope.launch {
-                                        viewModel.startLogin {
-                                            navController.navigate(SplashScreen)
-                                            navController.popBackStack()
-                                        }
-                                    }
-                                }
-                        )
-                    }
-
-                    QrCodeLoginStatus.Pending, QrCodeLoginStatus.Waiting -> {
-                        viewModel.screenState.qrCodeBitmap?.let { bitmap ->
+            Box(
+                modifier = Modifier
+                    //.aspectRatio(1f)
+                    .fillMaxSize(0.7f)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White)
+                    .padding(4.dp)
+            ) {
+                Crossfade(targetState = viewModel.screenState.currentLoginStatus, label = "") {
+                    when (it) {
+                        QrCodeLoginStatus.Loading, QrCodeLoginStatus.GettingKey -> {
                             Image(
-                                bitmap = bitmap,
-                                contentDescription = "登录二维码",
-                                contentScale = ContentScale.FillBounds,
+                                painter = painterResource(id = R.drawable.img_loading_2233),
+                                contentDescription = "加载中...",
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(6.dp)
+                            )
+                        }
+
+                        QrCodeLoginStatus.Failed, QrCodeLoginStatus.Timeout, QrCodeLoginStatus.FailedGettingKey -> {
+                            Image(
+                                painter = painterResource(id = R.drawable.img_loading_2233_error),
+                                contentDescription = "加载失败",
+                                modifier = Modifier
+                                    .fillMaxSize()
                                     .clickable(
                                         interactionSource = rememberMutableInteractionSource(),
                                         indication = null
@@ -123,86 +102,113 @@ fun LoginScreen(
                                         job.cancel()
                                         job = viewModel.viewModelScope.launch {
                                             viewModel.startLogin {
-                                                navController.navigate(SplashScreen)
-                                                navController.popBackStack()
+                                                navController.navigate(SplashScreen) {
+                                                    popUpTo(0)
+                                                }
                                             }
                                         }
                                     }
                             )
                         }
+
+                        QrCodeLoginStatus.Pending, QrCodeLoginStatus.Waiting -> {
+                            viewModel.screenState.qrCodeBitmap?.let { bitmap ->
+                                Image(
+                                    bitmap = bitmap,
+                                    contentDescription = "登录二维码",
+                                    contentScale = ContentScale.FillBounds,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(6.dp)
+                                        .clickable(
+                                            interactionSource = rememberMutableInteractionSource(),
+                                            indication = null
+                                        ) {
+                                            job.cancel()
+                                            job = viewModel.viewModelScope.launch {
+                                                viewModel.startLogin {
+                                                    navController.navigate(SplashScreen) {
+                                                        popUpTo(0)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                )
+                            }
+                        }
+
+                        QrCodeLoginStatus.Success -> {
+                            Text(text = "登录成功")
+                        }
+                    }
+                }
+
+            }
+            Crossfade(targetState = viewModel.screenState.currentLoginStatus, label = "") {
+                when (it) {
+                    QrCodeLoginStatus.Loading -> {
+                        Text(
+                            text = "二维码加载中",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                    QrCodeLoginStatus.Failed -> {
+                        Text(
+                            text = "加载失败啦",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                    QrCodeLoginStatus.Timeout -> {
+                        Text(
+                            text = "二维码失效啦",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                    QrCodeLoginStatus.Pending -> {
+                        Text(
+                            text = "使用手机客户端扫描二维码",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                    QrCodeLoginStatus.Waiting -> {
+                        Text(
+                            text = "请在手机上轻触确认",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
                     }
 
                     QrCodeLoginStatus.Success -> {
-                        Text(text = "登录成功")
+                        Text(
+                            text = "登录成功",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
                     }
-                }
-            }
 
-        }
-        Crossfade(targetState = viewModel.screenState.currentLoginStatus, label = "") {
-            when (it) {
-                QrCodeLoginStatus.Loading -> {
-                    Text(
-                        text = "二维码加载中",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
+                    QrCodeLoginStatus.FailedGettingKey -> {
+                        Text(
+                            text = "跳转失败, 点击重新登录",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
-                QrCodeLoginStatus.Failed -> {
-                    Text(
-                        text = "加载失败啦",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                QrCodeLoginStatus.Timeout -> {
-                    Text(
-                        text = "二维码失效啦",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                QrCodeLoginStatus.Pending -> {
-                    Text(
-                        text = "使用手机客户端扫描二维码",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                QrCodeLoginStatus.Waiting -> {
-                    Text(
-                        text = "请在手机上轻触确认",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                QrCodeLoginStatus.Success -> {
-                    Text(
-                        text = "登录成功",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                QrCodeLoginStatus.FailedGettingKey -> {
-                    Text(
-                        text = "跳转失败, 点击重新登录",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                QrCodeLoginStatus.GettingKey -> {
-                    Text(
-                        text = "登录成功, 正在跳转",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
+                    QrCodeLoginStatus.GettingKey -> {
+                        Text(
+                            text = "登录成功, 正在跳转",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         }

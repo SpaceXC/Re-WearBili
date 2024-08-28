@@ -75,6 +75,7 @@ import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -109,7 +110,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.BaselineShift
-import androidx.compose.ui.text.style.TextAlign.Companion.Center
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextAlign.Companion.Start
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
@@ -125,6 +126,7 @@ import appendBiliIcon
 import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R.drawable
+import cn.spacexc.wearbili.remake.app.isRotated
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.RateExtra
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.SubscribeExtra
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.VideoExtra
@@ -222,7 +224,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val context = LocalContext.current as Activity
-    val displaySurface = VideoDisplaySurface.TEXTURE_VIEW
+    val displaySurface = VideoDisplaySurface.SURFACE_VIEW
     //if (isCacheVideo) VideoDisplaySurface.SURFACE_VIEW else VideoDisplaySurface.TEXTURE_VIEW
 
     LaunchedEffect(key1 = Unit) {
@@ -235,6 +237,12 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
             viewModel.playVideoFromLocalFile(videoCid)
         } else {
             viewModel.playVideoFromId(videoIdType, videoId, videoCid, isBangumi)
+        }
+    }
+
+    DisposableEffect(key1 = Unit) {
+        onDispose {
+            isRotated = false
         }
     }
 
@@ -472,6 +480,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                     playerSurfaceSize = it.toSize()
                 }
         ) {
+
             when (displaySurface) {
                 VideoDisplaySurface.TEXTURE_VIEW -> {
                     AndroidView(factory = { TextureView(it) }) { textureView ->
@@ -530,6 +539,13 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                     }
                 }
             }
+            Text(
+                text = "F",
+                color = Color.Red,
+                fontFamily = wearbiliFontFamily,
+                fontSize = 36.sp,
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
         //endregion
 
@@ -644,7 +660,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                                         .alpha(0.8f)
                                         .clickable { navController.navigateUp() }
                                         .fillMaxWidth(),
-                                    textAlign = if (isRound()) Center else Start
+                                    textAlign = if (isRound()) TextAlign.Center else Start
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.ArrowBackIosNew,
@@ -817,7 +833,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                                                         .padding(start = 1.dp)
                                                         .offset(y = 20.dp)
                                                         .fillMaxWidth(),
-                                                    textAlign = if (isRound()) Center else Start
+                                                    textAlign = if (isRound()) TextAlign.Center else Start
                                                 )
                                                 GradientSlider(
                                                     brush = Brush.horizontalGradient(
@@ -939,7 +955,9 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
 
 
                                                     PlayerQuickActionButton(
-                                                        onClick = context::rotateScreen,
+                                                        onClick = {
+                                                            isRotated = !isRotated
+                                                        },
                                                     ) {
                                                         Icon(
                                                             imageVector = Icons.Outlined.ScreenRotation,
@@ -1047,7 +1065,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                                                                         PlayerStats.Buffering
                                                                 },
                                                             fontSize = 7.sp,
-                                                            textAlign = Center,
+                                                            textAlign = TextAlign.Center,
                                                             fontFamily = wearbiliFontFamily,
                                                             maxLines = if (isAtCurrentChapter) 1 else 2,
                                                             overflow = if (isAtCurrentChapter) TextOverflow.Clip else TextOverflow.Ellipsis
@@ -1136,7 +1154,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                                             fontSize = 12.sp,
                                             fontFamily = wearbiliFontFamily,
                                             fontWeight = FontWeight.Medium,
-                                            textAlign = Center
+                                            textAlign = TextAlign.Center
                                         )
                                         currentChapter?.let {
                                             Text(
@@ -1147,7 +1165,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                                                 fontSize = 10.sp,
                                                 fontFamily = wearbiliFontFamily,
                                                 fontWeight = FontWeight.Medium,
-                                                textAlign = Center
+                                                textAlign = TextAlign.Center
                                             )
                                         }
                                     }
@@ -1188,7 +1206,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                                             fontSize = 12.sp,
                                             fontFamily = wearbiliFontFamily,
                                             fontWeight = FontWeight.Medium,
-                                            textAlign = Center,
+                                            textAlign = TextAlign.Center,
                                             icon = {
                                                 Icon(
                                                     imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
@@ -1269,7 +1287,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                                         fontSize = 12.sp,
                                         fontFamily = wearbiliFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        textAlign = Center
+                                        textAlign = TextAlign.Center
                                     )
                                 }
                                 if (secondarySubtitleText != null) {
@@ -1286,7 +1304,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                                         fontSize = 9.sp,
                                         fontFamily = wearbiliFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        textAlign = Center
+                                        textAlign = TextAlign.Center
                                     )
                                 }
                             }
@@ -1344,7 +1362,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                                     .clickable { currentPage = VideoPlayerPages.Main }
                                     .fillMaxWidth()
                                     .offset(if (isRound()) (-7).dp else 0.dp),
-                                textAlign = if (isRound()) Center else Start,
+                                textAlign = if (isRound()) TextAlign.Center else Start,
                                 fontWeight = FontWeight.Bold
                             ) {
                                 Icon(
@@ -1620,7 +1638,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                                     .clickable { currentPage = VideoPlayerPages.Settings }
                                     .fillMaxWidth()
                                     .offset(if (isRound()) (-7).dp else 0.dp),
-                                textAlign = if (isRound()) Center else Start,
+                                textAlign = if (isRound()) TextAlign.Center else Start,
                                 fontWeight = FontWeight.Bold
                             ) {
                                 Icon(
@@ -1732,7 +1750,7 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                 fontSize = 12.sp,
                 fontFamily = wearbiliFontFamily,
                 fontWeight = FontWeight.Normal,
-                textAlign = if (isRound()) Center else Start
+                textAlign = if (isRound()) TextAlign.Center else Start
             )
         }
 
@@ -1948,7 +1966,7 @@ fun PlayerSettingItem(
             fontFamily = wearbiliFontFamily,
             color = Color.White,
             fontWeight = FontWeight.Medium,
-            textAlign = Center,
+            textAlign = TextAlign.Center,
             modifier = Modifier.alpha(textAlpha)
         )
     }

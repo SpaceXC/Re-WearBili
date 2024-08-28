@@ -1,6 +1,8 @@
 package cn.spacexc.wearbili.remake.app.video.info.info.ui.v2.basic
 
 import BiliTextIcon
+import android.view.SurfaceHolder
+import android.view.SurfaceView
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -17,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -36,12 +38,14 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerScreen
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerViewModel
-import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerStats
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
+import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
@@ -62,7 +66,6 @@ fun SimpleVideoInformation(
     var infoButtonSize by remember {
         mutableStateOf(DpSize(0.dp, 0.dp))
     }
-    val displaySurface = LocalConfiguration.current.videoDisplaySurface
     val localDensity = LocalDensity.current
     viewModel.state.videoData?.let { video ->
         Column(
@@ -79,80 +82,40 @@ fun SimpleVideoInformation(
                         )
                         .weight(1f)
                         .padding(vertical = 10.dp)
-                        .aspectRatio(16f / 10f)
+                        .aspectRatio(16f / 9f)
                         .clip(
                             RoundedCornerShape(8.dp)
                         )
                 }
             ) {
-                /*if(videoPlayerViewModel.currentStat == PlayerStats.Playing) {
-                    when (displaySurface) {
-                        cn.spacexc.wearbili.remake.proto.settings.VideoDisplaySurface.TextureView -> {
-                            AndroidView(factory = { TextureView(it) }) { textureView ->
-                                textureView.surfaceTextureListener = object : SurfaceTextureListener {
-                                    override fun onSurfaceTextureAvailable(
-                                        texture: SurfaceTexture,
-                                        p1: Int,
-                                        p2: Int
-                                    ) {
-                                        //videoPlayerViewModel.httpPlayer.setSurface(Surface(texture))
-                                    }
-
-                                    override fun onSurfaceTextureSizeChanged(
-                                        texture: SurfaceTexture,
-                                        p1: Int,
-                                        p2: Int
-                                    ) {
-                                        //videoPlayerViewModel.httpPlayer.setSurface(Surface(texture))
-                                    }
-
-                                    override fun onSurfaceTextureDestroyed(p0: SurfaceTexture): Boolean {
-                                        return false
-                                    }
-
-                                    override fun onSurfaceTextureUpdated(p0: SurfaceTexture) {
-
-                                    }
-
-                                }
-                            }
-                        }
-
-                        cn.spacexc.wearbili.remake.proto.settings.VideoDisplaySurface.SurfaceView -> {
-                            AndroidView(factory = { SurfaceView(it) }) { surfaceView ->
-                                surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
-                                    override fun surfaceCreated(holder: SurfaceHolder) {
-                                        //videoPlayerViewModel.httpPlayer.setDisplay(holder)
-                                    }
-
-                                    override fun surfaceChanged(
-                                        holder: SurfaceHolder,
-                                        p0: Int,
-                                        p1: Int,
-                                        p2: Int
-                                    ) {
-                                        //videoPlayerViewModel.httpPlayer.setDisplay(holder)
-                                    }
-
-                                    override fun surfaceDestroyed(p0: SurfaceHolder) {}
-                                })
-
-                            }
-                        }
-
-                        else -> {
-
-                        }
-                    }
-                }
-                else {
+                if (videoPlayerViewModel.currentStat != PlayerStats.Playing) {
                     BiliImage(
                         url = video.view.pic,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
-                }*/
+                } else {
+                    AndroidView(factory = { SurfaceView(it) }) { surfaceView ->
+                        surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
+                            override fun surfaceCreated(holder: SurfaceHolder) {
+                                videoPlayerViewModel.httpPlayer.setDisplay(holder)
+                            }
+
+                            override fun surfaceChanged(
+                                holder: SurfaceHolder,
+                                p0: Int,
+                                p1: Int,
+                                p2: Int
+                            ) {
+                                //videoPlayerViewModel.httpPlayer.setDisplay(holder)
+                            }
+
+                            override fun surfaceDestroyed(p0: SurfaceHolder) {}
+                        })
+
+                    }
+                }
             }
             Text(
                 text = video.view.title,
@@ -254,11 +217,6 @@ fun SimpleVideoInformation(
                     }
                 )
             }
-        }
-    }
-    DisposableEffect(key1 = Unit) {
-        onDispose {
-            videoPlayerViewModel.httpPlayer.setDisplay(null)
         }
     }
 }

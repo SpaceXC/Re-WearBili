@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "cn.spacexc.wearbili.remake.baselineprofile"
+    namespace = "cn.spacexc.baselineprofile"
     compileSdk = 34
 
     compileOptions {
@@ -39,4 +39,14 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.uiautomator)
     implementation(libs.androidx.benchmark.macro.junit4)
+}
+
+androidComponents {
+    onVariants { v ->
+        val artifactsLoader = v.artifacts.getBuiltArtifactsLoader()
+        v.instrumentationRunnerArguments.put(
+            "targetAppId",
+            v.testedApks.map { artifactsLoader.load(it)?.applicationId }
+        )
+    }
 }

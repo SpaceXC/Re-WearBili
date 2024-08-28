@@ -341,7 +341,7 @@ fun LazyItemScope.QuickToolBar(
                         function = firstFunction,
                         slotCount = tooltipConfiguration.slotCount
                     ) {
-                        //firstFunction.action(context)
+                        firstFunction.action(navController)
                     }
                 }
                 if (secondFunction.type != QuickToolBarFunction.None) {
@@ -351,7 +351,7 @@ fun LazyItemScope.QuickToolBar(
                             .weight(1f),
                         slotCount = tooltipConfiguration.slotCount
                     ) {
-                        //secondFunction.action(context)
+                        secondFunction.action(navController)
                     }
                 }
             }

@@ -109,9 +109,14 @@ fun StartScreen(
                         }
                     }
                     if (UserUtils.isUserLoggedIn()) {
-                        navController.navigate(HomeScreen(null))
+                        navController.navigate(HomeScreen(null)) {
+                            popUpTo(0)
+                        }
                     } else {
-                        navController.navigate(QrCodeLoginScreen)
+                        navController.navigateUp()
+                        navController.navigate(QrCodeLoginScreen) {
+                            popUpTo(0)
+                        }
                     }
                 }
             }

@@ -196,3 +196,10 @@
 -dontwarn okio.**
 -keep class okio.** { *;}
 -keepattributes *Annotation*
+
+-keep class tv.danmaku.ijk.media.player.IMediaPlayer$OnCompletionListener
+-keep class tv.danmaku.ijk.media.player.IMediaPlayer$OnInfoListener
+-keep class tv.danmaku.ijk.media.player.IMediaPlayer$OnPreparedListener
+-keep class tv.danmaku.ijk.media.player.IMediaPlayer
+-keep class tv.danmaku.ijk.media.player.IjkLibLoader
+-keep class tv.danmaku.ijk.media.player.IjkMediaPlayer

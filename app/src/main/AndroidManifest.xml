@@ -36,10 +36,14 @@
         tools:ignore="WearRecents"
         tools:targetApi="31">
 
+        <meta-data
+            android:name="com.google.android.wearable.standalone"
+            android:value="true" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove"></provider>
+            tools:node="remove" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -54,6 +58,7 @@
         <activity
             android:name=".app.MainActivity"
             android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout"
             android:theme="@style/Theme.WearBili">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -61,61 +66,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <service
             android:name=".app.player.audio.AudioPlayerService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
-        <receiver
-            android:name=".app.update.UpdateReceiver"
-            android:exported="false" />
-
-        <activity
-            android:name=".app.welcome.WelcomeActivity"
-            android:exported="false" />
         <activity
             android:name=".app.test.UITest"
             android:exported="true" />
-
-
-        <activity
-            android:name=".app.video.info.ui.VideoInformationActivity"
-            android:exported="false" />
-
-
-        <activity
-            android:name=".app.about.ui.AboutActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.update.ui.UpdateActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.search.ui.SearchActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.search.ui.SearchResultActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.main.profile.detail.following.ui.FollowingUsersActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.main.profile.detail.history.ui.HistoryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.main.profile.detail.watchlater.ui.WatchLaterActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.main.profile.detail.favorite.folders.ui.FavoriteFolderActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.player.videoplayer.defaultplayer.Media3PlayerActivity"
-            android:configChanges="orientation|screenSize"
-            android:exported="false"
-            android:theme="@style/Theme.WearBili.Player" />
-        <activity
-            android:name=".app.settings.toolbar.ui.QuickToolbarCustomizationActivity"
-            android:exported="false" />
         <activity
             android:name=".app.crash.ui.CrashActivity"
             android:exported="false"
@@ -124,112 +82,6 @@
                 <action android:name="com.developer.crashx.ERROR" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".app.player.cast.discover.DeviceDiscoverActivity"
-            android:exported="false" />
-        <!--<activity
-            android:name=".app.player.videoplayer.mirroring.dlna.DlnaDeviceDiscoverActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.player.videoplayer.mirroring.ScreenMirrorActivity"
-            android:exported="false" />-->
-        <activity
-            android:name=".app.bangumi.info.ui.BangumiActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.settings.ui.SettingsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.bangumi.index.ui.BangumiIndexActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.bangumi.timeline.ui.BangumiTimelineActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.video.action.favourite.ui.VideoFavouriteFoldersActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.main.profile.detail.favorite.detail.ui.FavouriteFolderDetailActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.cache.create.ui.CreateNewCacheActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.cache.list.CacheListActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.player.audio.AudioPlayerActivity"
-            android:exported="false" />
-        <!--<activity
-            android:name=".app.player.videoplayer.mirroring.dlna.controller.ui.DlnaControllerActivity"
-            android:exported="false" />-->
-        <activity
-            android:name=".app.login.password.ui.PasswordLoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.login.qrcode.web.ui.QrCodeLoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.season.ui.SeasonActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.image.ImageViewerActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.article.ui.ArticleActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.space.ui.UserSpaceActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.video.action.coin.ui.CoinActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.link.qrcode.QrCodeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.settings.scaling.ScaleAdjustingActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.player.livestream.ui.LiveStreamActivity"
-            android:configChanges="orientation|layoutDirection|screenSize"
-            android:exported="false" />
-        <activity
-            android:name=".app.settings.user.SwitchUserActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.bangumi.info.episodes.BangumiEpisodeListActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.settings.experimantal.ExperimentalFunctionsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.message.system.SystemMessageActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.message.MessageActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.video.info.comment.detail.CommentDetailActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.feedback.ui.issues.AllIssuesActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.input.InputActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.message.direct.history.ui.DirectMessageActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.message.reply.ui.ReplyMessageActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.message.at.ui.AtMessageActivity"
-            android:exported="false" />
-        <activity
-            android:name=".app.message.like.ui.LikeMessagesActivity"
-            android:exported="false" />
     </application>
 
 

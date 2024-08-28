@@ -53,13 +53,12 @@ class SplashScreenViewModel @Inject constructor(
                     popUpTo(0)
                 }
             } else {
-                println(UserUtils.mid())
-                println(UserUtils.getUsers())
                 if (UserUtils.mid().isZeroOrNull() && UserUtils.getUsers().isNotEmpty()) {
                     navController.navigate(SwitchUserScreen)
                 } else {
-                    navController.navigate(QrCodeLoginScreen)
-                    navController.clearBackStack<QrCodeLoginScreen>()
+                    navController.navigate(QrCodeLoginScreen) {
+                        popUpTo(0)
+                    }
                 }
             }
         }
