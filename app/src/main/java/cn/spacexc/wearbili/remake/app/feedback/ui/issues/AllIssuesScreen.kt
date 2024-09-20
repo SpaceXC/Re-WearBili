@@ -31,6 +31,7 @@ object AllIssuesScreen
 fun AllIssuesScreen(viewModel: AllIssuesViewModel = hiltViewModel(), navController: NavController) {
     val items = viewModel.pager.collectAsLazyPagingItems()
     TitleBackground(
+        navController = navController,
         title = "我的提交",
         onRetry = items::retry,
         uiState = items.loadState.refresh.toUIState(),

@@ -68,6 +68,7 @@ fun SharedTransitionScope.VideoInformationScreen(
         3
     }
     TitleBackground(
+        navController = navController,
         title = when (state.currentPage) {
             0 -> "详情"
             1 -> "评论"

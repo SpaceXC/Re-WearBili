@@ -117,6 +117,7 @@ fun SwitchUserScreen(
         }
         Box(modifier = Modifier.fillMaxSize()) {
             TitleBackground(
+                navController = navController,
                 title = "是谁在使用？",
                 onRetry = { },
                 onBack = navController::navigateUp,

@@ -53,6 +53,7 @@ fun ArticleScreen(
             viewModel.getArticle(cvid)
     }
     TitleBackground(
+        navController = navController,
         title = "",
         uiState = viewModel.uiState,
         themeImageUrl = viewModel.articleInfo?.readInfo?.bannerUrl ?: "",

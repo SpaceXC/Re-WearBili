@@ -67,7 +67,11 @@ object SettingsScreen
 fun SettingsScreen(
     navController: NavController
 ) {
-    TitleBackground(title = "", onBack = navController::navigateUp, onRetry = {}) {
+    TitleBackground(
+        navController = navController,
+        title = "",
+        onBack = navController::navigateUp,
+        onRetry = {}) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

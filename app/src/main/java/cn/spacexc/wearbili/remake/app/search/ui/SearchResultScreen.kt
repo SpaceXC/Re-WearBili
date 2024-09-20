@@ -62,6 +62,7 @@ fun SearchResultScreen(
         refreshThreshold = 60.dp
     )
     TitleBackground(
+        navController = navController,
         title = "搜索结果",
         onBack = navController::navigateUp,
         uiState = searchResult.loadState.refresh.toUIState(),

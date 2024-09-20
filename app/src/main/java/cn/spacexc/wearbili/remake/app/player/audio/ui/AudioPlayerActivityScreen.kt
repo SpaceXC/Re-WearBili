@@ -119,6 +119,7 @@ import coil.transform.CustomBlurTransformation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import unicodeToString
 import kotlin.math.roundToInt
 
@@ -130,9 +131,12 @@ import kotlin.math.roundToInt
  * 给！爷！写！注！释！
  */
 
-data class AudioPlayerActivityScreen(
+@Serializable
+data class AudioPlayerScreen(
     val videoIdType: String,
-    val videoId: String
+    val videoId: String,
+    val videoCid: Long,
+    val isBangumi: Boolean
 )
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -167,7 +171,6 @@ fun AudioPlayerScreen(
                             transformations = listOf(CustomBlurTransformation(LocalContext.current)),
                             contentScale = ContentScale.FillHeight
                         )
-
                     }
                 ) {
                     Column {

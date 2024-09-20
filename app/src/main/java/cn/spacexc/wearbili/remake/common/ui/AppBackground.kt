@@ -73,10 +73,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.palette.graphics.Palette
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.isAudioServiceUp
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerManager
+import cn.spacexc.wearbili.remake.app.player.audio.ui.AudioPlayerScreen
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.ProvideConfiguration
 import cn.spacexc.wearbili.remake.common.ToastUtils
@@ -413,6 +415,7 @@ fun TitleBackground(
     titleAlpha: Float = 1f,
     onRetry: () -> Unit,
     currentPageIndex: Int? = null,
+    navController: NavController?,
     content: @Composable BoxScope.() -> Unit
 ) {
     val timeSource = DefaultTimeSource("HH:mm")
@@ -576,6 +579,13 @@ fun TitleBackground(
                         modifier = Modifier
                             .wearBiliAnimatedContentSize()
                             .clickVfx(isEnabled = isAudioServiceUp) {
+                                AudioPlayerManager.currentPlayerTask.value?.apply {
+                                    navController?.navigate(
+                                        AudioPlayerScreen(
+                                            videoIdType, videoId, videoCid, isBangumi
+                                        )
+                                    )
+                                }
                                 /*startActivity(
                                     Intent(
                                         this@TitleBackground,
@@ -655,6 +665,7 @@ fun TitleBackground(
     titleAlpha: Float = 1f,
     onRetry: () -> Unit = {},
     currentPageIndex: Int? = null,
+    navController: NavController,
     content: @Composable BoxScope.() -> Unit
 ) {
     ProvideConfiguration {
@@ -693,6 +704,7 @@ fun TitleBackground(
             titleAlpha,
             onRetry,
             currentPageIndex,
+            navController,
             content
         )
     }

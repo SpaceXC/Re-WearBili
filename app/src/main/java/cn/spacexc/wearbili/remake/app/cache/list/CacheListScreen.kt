@@ -50,7 +50,11 @@ fun CacheListScreen(
 ) {
     val completedTasks by viewModel.completedTasks.collectAsState(initial = emptyList())
     val unCompletedTasks by viewModel.unCompletedTasks.collectAsState(initial = emptyList())
-    TitleBackground(title = "视频缓存", onBack = navController::navigateUp, onRetry = {}) {
+    TitleBackground(
+        navController = navController,
+        title = "视频缓存",
+        onBack = navController::navigateUp,
+        onRetry = {}) {
         var currentSelectedCache by remember {
             mutableLongStateOf(0L)
         }

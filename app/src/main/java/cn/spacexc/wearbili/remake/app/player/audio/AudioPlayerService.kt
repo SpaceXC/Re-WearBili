@@ -2,18 +2,21 @@ package cn.spacexc.wearbili.remake.app.player.audio
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.MainActivity
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.player.audio.ui.IjkPlayerAudioPlayerViewModel
-import cn.spacexc.wearbili.remake.common.ToastUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,143 +39,71 @@ class AudioPlayerService : LifecycleService() {
 
     lateinit var viewModel: IjkPlayerAudioPlayerViewModel
 
-    var cid = 0L
 
     private var subtitleUpdateJob: Job? = null
+    private var subtitleTimeUpdateJob: Job? = null
+
+
+    private var currentCid: Long = 0
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        /*intent?.let {
-            val isCache = intent.getBooleanExtra(PARAM_IS_CACHE, false)
-
-            val videoIdType = intent.getStringExtra(PARAM_VIDEO_ID_TYPE) ?: VIDEO_TYPE_BVID
-            val videoId = intent.getStringExtra(PARAM_VIDEO_ID)
-            val videoCid = intent.getLongExtra(PARAM_VIDEO_CID, 0L)
-            val isBangumi = intent.getBooleanExtra(PARAM_IS_BANGUMI, false)
-
-            if (videoCid != cid && videoCid != 0L) {
-                cid = videoCid
-                try {
-                    viewModel.player.stop()
-                    viewModel.player.release()
-                } catch (_: Exception) {
-
-                }
-                viewModel = IjkPlayerAudioPlayerViewModel(
-                    Application.getApplication(),
-                    repository,
-                    lifecycleScope
+        createChannelId()
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.icon_outline_radio)
+            .setContentTitle("Re:WearBili音频播放")
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    this,
+                    0,
+                    Intent(this, MainActivity::class.java),
+                    PendingIntent.FLAG_IMMUTABLE
                 )
-                if (isCache) {
-                    lifecycleScope.launch {
-                        repository.getTaskInfoByVideoCid(videoCid)?.let {
-                            viewModel.cacheVideoInfo = it
-                        }
-                    }
-                    viewModel.playVideoFromLocalFile(videoCid)
-                } else {
-                    viewModel.playVideoFromId(
-                        videoIdType,
-                        videoId!!,
-                        videoCid,
-                        isBangumi
-                    ) { title ->
-                        updateNotification(videoCid, videoId, videoIdType, title)
-                    }
-                }
+            )
+            .build()
+        startForeground(NOTIFICATION_ID, notification)
 
-                subtitleUpdateJob?.cancel()
-                updateSubtitle()
-
-                createChannelId()
-                val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.icon_outline_radio)
-                    .setContentTitle("Re:WearBili正在播放")
-                    .setContentText(videoId ?: "未知音频")
-                    .setContentIntent(
-                        PendingIntent.getActivity(
-                            this,
-                            0,
-                            Intent(this, AudioPlayerActivity::class.java).apply {
-                                putExtra(
-                                    cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE,
-                                    videoIdType
-                                )
-                                putExtra(
-                                    cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID,
-                                    videoId
-                                )
-                                putExtra(
-                                    cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID,
-                                    videoCid
-                                )
-                                //putExtras(intent)
-                            },
-                            PendingIntent.FLAG_IMMUTABLE
-                        )
-                    )
-                    .build()
-                startForeground(NOTIFICATION_ID, notification)      //id must be positive!
-            }
-        }*/
+        println("Service started!")
+        viewModel = IjkPlayerAudioPlayerViewModel(application, repository, lifecycleScope)
 
         return super.onStartCommand(intent, flags, startId)
     }
 
+    fun playAudio(videoIdType: String, videoId: String, videoCid: Long) {
+        if (currentCid != videoCid) {
+            currentCid = videoCid
+            AudioPlayerManager.currentPlayerTask.value = AudioPlayerTask(
+                isCache = false,
+                videoIdType = videoIdType,
+                videoId = videoId,
+                videoCid = videoCid,
+                isBangumi = false
+            )
+            viewModel.player.stop()
+            viewModel.player.release()
+            subtitleUpdateJob?.cancel()
+            subtitleUpdateJob?.cancel()
+            viewModel = IjkPlayerAudioPlayerViewModel(application, repository, lifecycleScope)
+            viewModel.playVideoFromId(videoIdType, videoId, videoCid, false) {
+                updateSubtitle()
+            }
+        }
+    }
+
     private fun updateSubtitle() {
         AudioPlayerManager.currentPlayingSubtitle = null
-        subtitleUpdateJob = lifecycleScope.launch {
+        subtitleTimeUpdateJob = lifecycleScope.launch {
             viewModel.currentPlayProgress.collect {
                 AudioPlayerManager.currentProgress = it.toDouble() / 1000
-            }/*
-            viewModel.currentPlayProgress.collect {
-                AudioSubtitleManager.currentProgress = it.toDouble() / 1000
                 delay(10)
-            }*/
+            }
         }
-        lifecycleScope.launch {
+        subtitleUpdateJob = lifecycleScope.launch {
             viewModel.currentSubtitle.collect {
                 if (it != null) {
                     AudioPlayerManager.currentPlayingSubtitle = it
                 }
             }
         }
-    }
-
-    private fun updateNotification(
-        videoCid: Long,
-        videoId: String,
-        videoIdType: String,
-        videoTitle: String
-    ) {
-        createChannelId()
-        /*val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.icon_outline_radio)
-            .setContentTitle("Re:WearBili正在播放")
-            .setContentText(videoTitle)
-            .setContentIntent(
-                PendingIntent.getActivity(
-                    this,
-                    0,
-                    Intent(this, AudioPlayerActivity::class.java).apply {
-                        putExtra(
-                            cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE,
-                            videoIdType
-                        )
-                        putExtra(
-                            cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID,
-                            videoId
-                        )
-                        putExtra(
-                            cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID,
-                            videoCid
-                        )
-                        //putExtras(intent)
-                    },
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-            .build()
-        startForeground(NOTIFICATION_ID, notification)      //id must be positive!*/
     }
 
     private fun createChannelId() {
@@ -190,11 +121,6 @@ class AudioPlayerService : LifecycleService() {
         }
     }
 
-    override fun onLowMemory() {
-        super.onLowMemory()
-        ToastUtils.showText("系统运行内存不足")
-    }
-
     fun exitService() {
         //videoCid = 0
         //viewModel.player.stop()
@@ -203,8 +129,6 @@ class AudioPlayerService : LifecycleService() {
         AudioPlayerManager.currentPlayingSubtitle = null
         AudioPlayerManager.currentProgress = 0.0
         AudioPlayerManager.isSubtitleOn = false
-        lifecycleScope.cancel()
-        stopSelf()
     }
 
     override fun onBind(intent: Intent): IBinder {

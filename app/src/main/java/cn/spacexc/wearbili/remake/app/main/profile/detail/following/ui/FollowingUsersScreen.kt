@@ -93,6 +93,7 @@ fun FollowingUsersScreen(
     }
 
     TitleBackground(
+        navController = navController,
         title = if (viewModel.followedUserTags.isEmpty()) "" else viewModel.followedUserTags[pagerState.currentPage].name,
         uiState = viewModel.uiState,
         onBack = navController::navigateUp,

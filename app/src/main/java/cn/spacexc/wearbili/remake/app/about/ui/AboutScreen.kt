@@ -112,6 +112,7 @@ fun Activity.AboutScreen(
                 //Hahahahahahahahahaha(this is soooooooo funny
             })
         TitleBackground(
+            navController = navController,
             title = if (isTitleVisible) "" else "关于软件",
             onBack = navController::navigateUp,
             onRetry = {}) {

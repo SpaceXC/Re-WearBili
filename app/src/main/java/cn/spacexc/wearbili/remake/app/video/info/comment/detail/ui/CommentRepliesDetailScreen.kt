@@ -56,6 +56,7 @@ fun SharedTransitionScope.CommentRepliesDetailScreen(
     }
     val lazyListData = viewModel.pager?.flow?.collectAsLazyPagingItems(Dispatchers.IO)
     TitleBackground(
+        navController = navController,
         title = "评论详情",
         onRetry = {
             viewModel.pagingDataSource?.let {

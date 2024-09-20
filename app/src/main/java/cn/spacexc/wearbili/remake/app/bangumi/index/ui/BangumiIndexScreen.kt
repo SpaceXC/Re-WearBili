@@ -62,6 +62,7 @@ fun BangumiIndexScreen(
         refreshThreshold = 40.dp
     )
     TitleBackground(
+        navController = navController,
         title = "追番索引",
         onBack = navController::navigateUp,
         uiState = lazyItems.loadState.refresh.toUIState(),

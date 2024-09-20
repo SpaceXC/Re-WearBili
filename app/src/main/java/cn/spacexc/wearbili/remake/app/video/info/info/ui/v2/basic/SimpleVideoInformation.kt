@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import cn.spacexc.wearbili.remake.app.isRotated
+import cn.spacexc.wearbili.remake.app.player.audio.ui.AudioPlayerScreen
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerScreen
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerViewModel
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerStats
@@ -47,6 +49,7 @@ import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewMod
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.OutlinedRoundButton
+import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.rememberMutableInteractionSource
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
@@ -76,6 +79,17 @@ fun SimpleVideoInformation(
             Box(
                 modifier = with(globalSharedTransitionScope) {
                     Modifier
+                        .clickVfx {
+                            navController.navigate(
+                                IjkVideoPlayerScreen(
+                                    isCacheVideo = false,
+                                    videoIdType = VIDEO_TYPE_BVID,
+                                    videoId = video.view.bvid,
+                                    videoCid = video.view.cid,
+                                    isBangumi = false
+                                )
+                            )
+                        }
                         .sharedElement(
                             rememberSharedContentState(key = "videoCover"),
                             globalAnimatedVisibilityScope
@@ -159,7 +173,16 @@ fun SimpleVideoInformation(
                     },
                     text = "",
                     onClick = {
-
+                        videoPlayerViewModel.isPaused = true
+                        videoPlayerViewModel.httpPlayer.pause()
+                        navController.navigate(
+                            AudioPlayerScreen(
+                                videoIdType = VIDEO_TYPE_BVID,
+                                videoId = video.view.bvid,
+                                videoCid = video.view.cid,
+                                isBangumi = false
+                            )
+                        )
                     }
                 )
                 OutlinedRoundButton(
@@ -175,6 +198,7 @@ fun SimpleVideoInformation(
                     },
                     text = "",
                     onClick = {
+                        isRotated = true
                         navController.navigate(
                             IjkVideoPlayerScreen(
                                 isCacheVideo = false,

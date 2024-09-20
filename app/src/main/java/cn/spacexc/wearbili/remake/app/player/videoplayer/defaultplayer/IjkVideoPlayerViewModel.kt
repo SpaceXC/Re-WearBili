@@ -65,8 +65,6 @@ class IjkVideoPlayerViewModel @Inject constructor(
     private val networkUtils: KtorNetworkUtils,
     private val danmakuGetter: DanmakuGetter
 ) : ViewModel() {
-
-
     var currentVideoCid: Long = 0L
 
     var httpPlayer: IjkMediaPlayer = IjkMediaPlayer().apply {
@@ -194,10 +192,14 @@ class IjkVideoPlayerViewModel @Inject constructor(
 
     var videoCastUrl = ""
 
+    var isPaused = false
+
     init {
         httpPlayer.apply {
             setOnPreparedListener {
-                it.start()
+                if (isPaused) {
+                    it.start()
+                }
                 it.seekTo(videoHistoryPlayProgress)
                 startContinuouslyUpdatingSubtitle()
                 videoPlayerAspectRatio = it.videoWidth.toFloat() / it.videoHeight.toFloat()

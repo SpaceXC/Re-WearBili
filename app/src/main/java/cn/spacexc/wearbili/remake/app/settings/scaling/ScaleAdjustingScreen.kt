@@ -42,7 +42,12 @@ object ScaleAdjustingScreen
 @Composable
 fun ScaleAdjustingScreen(navController: NavController) {
     val scope = rememberCoroutineScope()
-    TitleBackground(title = "", onRetry = { }, onBack = navController::navigateUp) {
+    TitleBackground(
+        navController = navController,
+        title = "",
+        onRetry = { },
+        onBack = navController::navigateUp
+    ) {
         val configuration = LocalConfiguration.current
         var scale by remember {
             mutableFloatStateOf(configuration.screenDisplayScaleFactor.ifNullOrZero {

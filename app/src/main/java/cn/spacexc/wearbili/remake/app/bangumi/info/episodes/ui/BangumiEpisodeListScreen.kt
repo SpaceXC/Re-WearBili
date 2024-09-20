@@ -48,7 +48,7 @@ fun BangumiEpisodeListScreen(
     LaunchedEffect(key1 = Unit) {
         pagerState.scrollToPage(screenIndex)
     }
-    TitleBackground(title = currentTitle, onRetry = {
+    TitleBackground(navController = navController, title = currentTitle, onRetry = {
         viewModel.getBangumiInfo(bangumiIdType, bangumiId)
     }, onBack = navController::navigateUp, uiState = viewModel.uiState) {
         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->

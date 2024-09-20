@@ -61,6 +61,7 @@ fun DirectMessageScreen(
         viewModel.getMessages(talkerMid)
     }
     TitleBackground(
+        navController = navController,
         title = talkerName,
         onRetry = {
             viewModel.getMessages(talkerMid)

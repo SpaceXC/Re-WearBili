@@ -42,6 +42,7 @@ fun CoinScreen(
     videoId: String
 ) {
     TitleBackground(
+        navController = navController,
         title = "",
         onRetry = { /*因为如果失败了的话会直接返回所以这里就不用做重试了*/ },
         onBack = navController::navigateUp,

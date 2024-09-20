@@ -68,6 +68,7 @@ fun SeasonScreen(
     val items = pagingData.collectAsLazyPagingItems()
 
     TitleBackground(
+        navController = navController,
         title = "合集详情",
         uiState = items.loadState.refresh.toUIState(),
         onBack = navController::navigateUp,

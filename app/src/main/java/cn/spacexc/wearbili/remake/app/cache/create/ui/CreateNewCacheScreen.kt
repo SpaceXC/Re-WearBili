@@ -61,6 +61,7 @@ fun CreateNewCacheScreen(
         viewModel.getVideoParts(videoBvid)
     }
     TitleBackground(
+        navController = navController,
         title = "新建缓存",
         onBack = navController::navigateUp,
         uiState = viewModel.uiState,

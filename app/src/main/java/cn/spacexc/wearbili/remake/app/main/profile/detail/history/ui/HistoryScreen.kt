@@ -47,6 +47,7 @@ fun HistoryScreen(
         refreshThreshold = 40.dp
     )
     TitleBackground(
+        navController = navController,
         title = "历史记录",
         onBack = navController::navigateUp,
         uiState = lazyListItems.loadState.refresh.toUIState(),

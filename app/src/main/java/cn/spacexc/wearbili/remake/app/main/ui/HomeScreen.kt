@@ -168,6 +168,7 @@ fun SharedTransitionScope.HomeScreen(
     }
     Box(modifier = Modifier.fillMaxSize()) {
         TitleBackground(
+            navController = navController,
             title = if (isDropdownMenuShowing) "菜单" else when (pagerState.currentPage) {
                 0 -> "推荐"
                 1 -> "动态"

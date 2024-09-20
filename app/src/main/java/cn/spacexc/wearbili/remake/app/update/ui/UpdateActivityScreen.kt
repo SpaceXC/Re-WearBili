@@ -79,7 +79,11 @@ fun UpdateScreen(
     viewModel: UpdateViewModel = viewModel(),
     navController: NavController
 ) {
-    TitleBackground(title = "更新", onBack = navController::navigateUp, onRetry = {}) {
+    TitleBackground(
+        navController = navController,
+        title = "更新",
+        onBack = navController::navigateUp,
+        onRetry = {}) {
         versionInfo?.let {
             Column(
                 modifier = Modifier

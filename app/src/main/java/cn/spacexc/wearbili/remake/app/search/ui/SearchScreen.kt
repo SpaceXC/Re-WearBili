@@ -8,6 +8,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ContextualFlowRow
+import androidx.compose.foundation.layout.ContextualFlowRowOverflow
+import androidx.compose.foundation.layout.ContextualFlowRowOverflowScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,13 +19,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -34,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,6 +57,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -81,7 +91,7 @@ import coil.request.ImageRequest
 @kotlinx.serialization.Serializable
 data class SearchScreen(val defaultSearchKeyword: String = "")
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun SearchScreen(
     searchViewModel: SearchViewModel = hiltViewModel(),
@@ -118,7 +128,11 @@ fun SearchScreen(
         }
     )  //这个Text是用来获取高度以设置下面LazyStaggeredGrid的高度以及热搜类型图片的高度的，不可或缺，要和下面热搜词的大小同步
 
-    TitleBackground(title = "搜索", onBack = navController::navigateUp, onRetry = {}) {
+    TitleBackground(
+        navController = navController,
+        title = "搜索",
+        onBack = navController::navigateUp,
+        onRetry = {}) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -168,7 +182,13 @@ fun SearchScreen(
                                 ),
                                 modifier = Modifier
                                     .align(Alignment.CenterStart),
-                                cursorBrush = SolidColor(BilibiliPink)
+                                cursorBrush = SolidColor(BilibiliPink),
+                                maxLines = 1,
+                                keyboardActions = KeyboardActions(onSearch = {
+                                    searchViewModel.addSearchHistory(searchInputValue)
+                                    searchViewModel.searchByKeyword(navController, searchInputValue)
+                                }),
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search)
                             )
                             if (searchInputValue.isEmpty()) {
                                 AutoResizedText(
@@ -233,14 +253,78 @@ fun SearchScreen(
                         )
                     }
                 }
+
+                var historyFlowRowMaxLine by remember {
+                    mutableIntStateOf(4)
+                }
+
+                val moreOrCollapseIndicator = @Composable { scope: ContextualFlowRowOverflowScope ->
+                    val remainingItems = searchHistory.size - scope.shownItemCount
+                    Card(
+                        shape = CircleShape,
+                        outerPaddingValues = PaddingValues(),
+                        innerPaddingValues = PaddingValues(8.dp),
+                        onClick = {
+                            if (remainingItems == 0) {
+                                historyFlowRowMaxLine = 4
+                            } else {
+                                historyFlowRowMaxLine += 1
+                            }
+                        },
+                        fillMaxSize = false
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = if (remainingItems == 0) "Less" else "+$remainingItems",
+                                style = AppTheme.typography.body1
+                            )
+                        }
+                    }
+                }
+                ContextualFlowRow(
+                    modifier = Modifier
+                        .safeDrawingPadding()
+                        .fillMaxWidth(1f)
+                        .padding(horizontal = titleBackgroundHorizontalPadding())
+                        .wrapContentHeight(align = Alignment.Top),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    maxLines = historyFlowRowMaxLine,
+                    overflow = ContextualFlowRowOverflow.expandOrCollapseIndicator(
+                        minRowsToShowCollapse = 4,
+                        expandIndicator = moreOrCollapseIndicator,
+                        collapseIndicator = moreOrCollapseIndicator
+                    ),
+                    itemCount = searchHistory.size
+                ) { index ->
+                    Card(
+                        shape = CircleShape,
+                        outerPaddingValues = PaddingValues(),
+                        innerPaddingValues = PaddingValues(8.dp),
+                        onClick = {
+                            searchViewModel.searchByKeyword(navController, searchHistory[index])
+                        },
+                        fillMaxSize = false
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = searchHistory[index],
+                                style = AppTheme.typography.body1
+                            )
+                        }
+                    }
+                }
             }
-            LazyHorizontalStaggeredGrid(
+            /*LazyHorizontalStaggeredGrid(
                 rows = StaggeredGridCells.Fixed(count = if (searchHistory.size > 4) 2 else 1),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalItemSpacing = 4.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(if (searchHistory.isNotEmpty()) ((hotWordItemHeight + 8.dp) * (if (searchHistory.size > 4) 2 else 1) + 4.dp * ((if (searchHistory.size > 4) 2 else 1) - 1)) else 0.dp),
+                    *//*.height(
+                        if (searchHistory.isNotEmpty())
+                            ((hotWordItemHeight * 2 + 8.dp) * (if (searchHistory.size > 4) 2 else 1) + 4.dp * ((if (searchHistory.size > 4) 2 else 1) - 1)) else 0.dp
+                    )*//*,
                 contentPadding = PaddingValues(horizontal = titleBackgroundHorizontalPadding())
             ) {
                 items(searchHistory) { item ->
@@ -260,7 +344,7 @@ fun SearchScreen(
                         }
                     }
                 }
-            }
+            }*/
             if (hotWords.isNotEmpty()) {
                 IconText(
                     text = "bilibili热搜",

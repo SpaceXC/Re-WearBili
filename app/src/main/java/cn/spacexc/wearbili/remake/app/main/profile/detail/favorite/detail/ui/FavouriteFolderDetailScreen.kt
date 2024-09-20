@@ -59,6 +59,7 @@ fun FavouriteFolderDetailScreen(
             refreshThreshold = 40.dp
         )
         TitleBackground(
+            navController = navController,
             title = folderName,
             onBack = navController::navigateUp,
             uiState = lazyPagingItem.loadState.refresh.toUIState(),

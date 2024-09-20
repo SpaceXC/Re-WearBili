@@ -50,7 +50,12 @@ fun LoginScreen(
     viewModel: QrCodeLoginViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    TitleBackground(title = "登录", onRetry = { /*TODO*/ }, onBack = navController::navigateUp) {
+    TitleBackground(
+        navController = navController,
+        title = "登录",
+        onRetry = { /*TODO*/ },
+        onBack = navController::navigateUp
+    ) {
         var job = remember {
             viewModel.viewModelScope.launch {
                 viewModel.startLogin {

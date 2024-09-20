@@ -68,6 +68,7 @@ fun SharedTransitionScope.UserSpaceScreen(
     }
 
     TitleBackground(
+        navController = navController,
         title = currentTitle,
         onRetry = {
             viewModel.getUserSpace(mid)

@@ -62,6 +62,7 @@ import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
+import cn.spacexc.wearbili.remake.app.isRotated
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerScreen
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
@@ -539,6 +540,7 @@ fun BangumiInfoScreen(
                                             section?.episodes?.find { it.ep_id == viewModel.currentSelectedEpid }
                                     }
                                     if (episode != null) {
+                                        isRotated = true
                                         navController.navigate(
                                             IjkVideoPlayerScreen(
                                                 false,

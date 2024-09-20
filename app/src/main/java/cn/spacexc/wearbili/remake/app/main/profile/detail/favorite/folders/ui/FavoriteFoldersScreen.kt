@@ -59,6 +59,7 @@ fun FavoriteFoldersScreen(
         viewModel.getFolders()
     }
     TitleBackground(
+        navController = navController,
         title = "个人收藏",
         onBack = navController::navigateUp,
         uiState = viewModel.uiState,

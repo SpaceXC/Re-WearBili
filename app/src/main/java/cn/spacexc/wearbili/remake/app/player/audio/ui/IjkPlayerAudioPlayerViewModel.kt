@@ -76,7 +76,7 @@ class IjkPlayerAudioPlayerViewModel /*@Inject constructor*/(
             IjkMediaPlayer.OPT_CATEGORY_PLAYER,
             "framedrop",
             5
-        )  //跳帧处理,放CPU处理较慢时，进行跳帧处理，保证播放流程，画面和声音同步
+        )  //跳帧处理,CPU处理较慢时，进行跳帧处理，保证播放流程，画面和声音同步
         setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-fps", 1)  //最大fps
         setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1)  //精确seek
 

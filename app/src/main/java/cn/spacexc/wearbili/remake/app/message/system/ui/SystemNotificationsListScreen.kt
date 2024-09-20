@@ -116,6 +116,7 @@ fun SystemNotificationScreen(
 ) {
     val lazyListData = viewModel.flow.collectAsLazyPagingItems()
     TitleBackground(
+        navController = navController,
         title = "系统通知",
         onRetry = lazyListData::retry,
         onBack = navController::navigateUp,

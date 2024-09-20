@@ -57,6 +57,7 @@ fun WatchLaterScreen(
         }, refreshThreshold = 40.dp
     )
     TitleBackground(
+        navController = navController,
         title = "稍后再看",
         onBack = navController::navigateUp,
         uiState = viewModel.uiState,

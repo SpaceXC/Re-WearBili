@@ -144,7 +144,11 @@ object QuickToolbarCustomizationScreen
 
 @Composable
 fun QuickToolbarCustomizationScreen(navController: NavController) {
-    TitleBackground(title = "编辑功能区", onBack = navController::navigateUp, onRetry = {}) {
+    TitleBackground(
+        navController = navController,
+        title = "编辑功能区",
+        onBack = navController::navigateUp,
+        onRetry = {}) {
         val configuration = LocalConfiguration.current
         var firstFunction by remember {
             mutableStateOf(

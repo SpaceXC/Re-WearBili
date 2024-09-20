@@ -1,6 +1,11 @@
 package cn.spacexc.wearbili.remake.app
 
+import android.app.Service
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -61,6 +66,8 @@ import cn.spacexc.wearbili.remake.app.message.reply.ui.ReplyMessageScreen
 import cn.spacexc.wearbili.remake.app.message.system.ui.SystemNotificationScreen
 import cn.spacexc.wearbili.remake.app.message.system.ui.SystemNotificationsListScreen
 import cn.spacexc.wearbili.remake.app.message.ui.MessageScreen
+import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerService
+import cn.spacexc.wearbili.remake.app.player.audio.ui.AudioPlayerScreen
 import cn.spacexc.wearbili.remake.app.player.cast.discover.DeviceDiscoverScreen
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerScreen
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerViewModel
@@ -97,6 +104,7 @@ var isRotated by mutableStateOf(false)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private var ijkVideoPlayerViewModel: IjkVideoPlayerViewModel? = null
+    var audioPlayerService: AudioPlayerService? = null
 
     @OptIn(ExperimentalSharedTransitionApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -293,6 +301,18 @@ class MainActivity : ComponentActivity() {
                                             }
                                         }
                                     }
+                                    composable<AudioPlayerScreen> {
+                                        val (videoIdType, videoId, videoCid) = it.toRoute<AudioPlayerScreen>()
+                                        audioPlayerService?.let { service ->
+                                            LaunchedEffect(key1 = Unit) {
+                                                service.playAudio(videoIdType, videoId, videoCid)
+                                            }
+                                            AudioPlayerScreen(
+                                                service = service,
+                                                navController = navController
+                                            )
+                                        }
+                                    }
                                     composable<QuickToolbarCustomizationScreen> {
                                         QuickToolbarCustomizationScreen(navController = navController)
                                     }
@@ -468,5 +488,19 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        val bindingIntent = Intent(this, AudioPlayerService::class.java).apply {
+            putExtras(intent)
+        }
+        startService(bindingIntent)
+        bindService(bindingIntent, object : ServiceConnection {
+            override fun onServiceConnected(p0: ComponentName?, service: IBinder?) {
+                audioPlayerService = (service as AudioPlayerService.AudioPlayerBinder).service
+            }
+
+            override fun onServiceDisconnected(p0: ComponentName?) {
+                audioPlayerService = null
+            }
+
+        }, Service.BIND_AUTO_CREATE)
     }
 }

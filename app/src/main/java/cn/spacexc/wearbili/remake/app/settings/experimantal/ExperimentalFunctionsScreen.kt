@@ -52,7 +52,12 @@ const val EXPERIMENTAL_FADE_SUBTITLE = "experimental.fade.subtitle.animation"
 
 @Composable
 fun ExperimentalFunctionsScreen(navController: NavController) {
-    TitleBackground(title = "", onRetry = { }, onBack = navController::navigateUp) {
+    TitleBackground(
+        navController = navController,
+        title = "",
+        onRetry = { },
+        onBack = navController::navigateUp
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

@@ -68,6 +68,7 @@ fun MessageScreen(
 ) {
     val lazyListData = directMessagesSessionsViewModel.flow.collectAsLazyPagingItems()
     TitleBackground(
+        navController = navController,
         title = "消息中心",
         onRetry = { /*TODO*/ },
         onBack = navController::navigateUp

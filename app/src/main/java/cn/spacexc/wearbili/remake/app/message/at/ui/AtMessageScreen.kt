@@ -55,6 +55,7 @@ fun AtMessageScreen(
 ) {
     val lazyItems = viewModel.flow.collectAsLazyPagingItems()
     TitleBackground(
+        navController = navController,
         title = "@我的",
         onBack = navController::navigateUp,
         onRetry = lazyItems::refresh,

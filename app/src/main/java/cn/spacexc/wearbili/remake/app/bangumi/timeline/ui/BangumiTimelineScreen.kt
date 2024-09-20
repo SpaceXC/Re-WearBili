@@ -83,6 +83,7 @@ fun BangumiTimelineScreen(
     val calendarRowState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     TitleBackground(
+        navController = navController,
         title = "新番时间表",
         onBack = navController::navigateUp,
         uiState = viewModel.uiState,

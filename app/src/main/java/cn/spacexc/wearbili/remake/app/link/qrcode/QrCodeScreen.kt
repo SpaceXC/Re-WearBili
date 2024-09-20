@@ -43,6 +43,7 @@ fun QrCodeScreen(
     qrCodeMessage: String
 ) {
     TitleBackground(
+        navController = navController,
         title = "",
         onRetry = {},
         onBack = navController::navigateUp,

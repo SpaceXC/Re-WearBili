@@ -43,11 +43,14 @@ import cn.spacexc.wearbili.remake.common.ui.WearBiliAnimatedContent
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimatedContentSize
+import kotlinx.coroutines.flow.MutableStateFlow
 
 object AudioPlayerManager {
     private var audioPlayerHeartbeat: AudioPlayerHeartbeat? = null
 
     var isSubtitleOn by mutableStateOf(false)
+
+    var currentPlayerTask = MutableStateFlow<AudioPlayerTask?>(null)
 
     private var currentOffset by mutableStateOf(Offset.Zero)
 
@@ -60,7 +63,7 @@ object AudioPlayerManager {
     }
 
     fun isAudioPlayerOn(): Boolean {
-       return (System.currentTimeMillis() - (audioPlayerHeartbeat?.timestamp?: 0)) < 1000
+        return (System.currentTimeMillis() - (audioPlayerHeartbeat?.timestamp ?: 0)) < 1000
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -162,5 +165,8 @@ object AudioPlayerManager {
 
 data class AudioPlayerTask(
     val isCache: Boolean,
-
-    )
+    val videoIdType: String,
+    val videoId: String,
+    val videoCid: Long,
+    val isBangumi: Boolean
+)

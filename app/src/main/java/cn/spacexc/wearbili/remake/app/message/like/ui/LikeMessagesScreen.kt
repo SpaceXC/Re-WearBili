@@ -53,6 +53,7 @@ fun LikeMessagesScreen(
 ) {
     val lazyItems = viewModel.flow.collectAsLazyPagingItems()
     TitleBackground(
+        navController = navController,
         title = "收到的赞",
         onRetry = lazyItems::refresh,
         onBack = navController::navigateUp

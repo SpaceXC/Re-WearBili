@@ -64,7 +64,13 @@ fun Activity.CrashActivityScreen(
     viewModel: CrashViewModel,
     context: Context
 ) {
-    TitleBackground(title = "", onBack = ::finish, onRetry = {}, uiState = viewModel.uiState) {
+    TitleBackground(
+        navController = null,
+        title = "",
+        onBack = ::finish,
+        onRetry = {},
+        uiState = viewModel.uiState
+    ) {
         var currentHighlightedButton by remember {
             mutableStateOf("")
         }

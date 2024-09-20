@@ -70,7 +70,11 @@ fun DeviceDiscoverScreen(
         Log.d(TAG, "devices updated: ${viewModel.deviceList}")
     }
 
-    TitleBackground(title = "", onBack = navController::navigateUp, onRetry = {}) {
+    TitleBackground(
+        navController = navController,
+        title = "",
+        onBack = navController::navigateUp,
+        onRetry = {}) {
         if (wifiName == null) {
             Text(
                 text = "需要连接Wi-Fi才能投屏哦",

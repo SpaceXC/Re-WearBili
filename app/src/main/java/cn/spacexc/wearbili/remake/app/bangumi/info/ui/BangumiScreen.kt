@@ -80,6 +80,7 @@ fun SharedTransitionScope.BangumiScreen(
             }
         })
         TitleBackground(
+            navController = navController,
             title = when (pagerState.currentPage) {
                 0 -> "剧集详情"
                 1 -> "单集评论"

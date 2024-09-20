@@ -13,6 +13,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.TextureView
 import android.view.TextureView.SurfaceTextureListener
+import android.view.WindowManager
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -224,8 +225,18 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val context = LocalContext.current as Activity
-    val displaySurface = VideoDisplaySurface.SURFACE_VIEW
+    val displaySurface = VideoDisplaySurface.TEXTURE_VIEW
     //if (isCacheVideo) VideoDisplaySurface.SURFACE_VIEW else VideoDisplaySurface.TEXTURE_VIEW
+
+    LaunchedEffect(key1 = Unit) {
+        context.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    DisposableEffect(key1 = Unit) {
+        onDispose {
+            context.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
 
     LaunchedEffect(key1 = Unit) {
         if (isCacheVideo) {
@@ -539,13 +550,6 @@ fun SharedTransitionScope.IjkVideoPlayerScreen(
                     }
                 }
             }
-            Text(
-                text = "F",
-                color = Color.Red,
-                fontFamily = wearbiliFontFamily,
-                fontSize = 36.sp,
-                modifier = Modifier.align(Alignment.Center)
-            )
         }
         //endregion
 

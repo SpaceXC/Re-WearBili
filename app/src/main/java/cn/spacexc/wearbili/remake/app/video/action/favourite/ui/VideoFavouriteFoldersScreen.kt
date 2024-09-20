@@ -69,6 +69,7 @@ fun VideoFavouriteFoldersScreen(
     }
 
     TitleBackground(
+        navController = navController,
         title = "收藏视频",
         uiState = viewModel.uiState,
         onBack = navController::navigateUp,
