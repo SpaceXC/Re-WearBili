@@ -1,31 +1,61 @@
 package cn.spacexc.wearbili.remake.app.video.info.info.ui.v2
 
-import android.app.Activity
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerViewModel
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.VideoInformationViewModel
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.v2.basic.DetailedVideoInformation
 import cn.spacexc.wearbili.remake.app.video.info.info.ui.v2.basic.SimpleVideoInformation
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun Activity.BasicVideoInformation(
-    modifier: Modifier = Modifier,
-    isDetail: Boolean = false,
+fun SharedTransitionScope.BasicVideoInformation(
+    navController: NavController,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: VideoInformationViewModel,
-    onGoToDetail: () -> Unit
+    videoPlayerViewModel: IjkVideoPlayerViewModel
 ) {
-    SharedTransitionLayout(modifier = Modifier.fillMaxSize()) {
+    var isDetail by remember {
+        mutableStateOf(false)
+    }
+    var infoButtonSize by remember {
+        mutableStateOf(DpSize(0.dp, 0.dp))
+    }
+    SharedTransitionLayout {
         AnimatedContent(targetState = isDetail, label = "") { isDetailShowing ->
             if (isDetailShowing) {
-                DetailedVideoInformation(context = this@BasicVideoInformation, viewModel = viewModel, sharedTransitionScope = this@SharedTransitionLayout, animatedContentScope = this)
+                DetailedVideoInformation(
+                    navController = navController,
+                    viewModel = viewModel,
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedContentScope = this,
+                    infoButtonSize = infoButtonSize
+                ) {
+                    isDetail = false
+                }
             } else {
-                SimpleVideoInformation(viewModel = viewModel, context = this@BasicVideoInformation, sharedTransitionScope = this@SharedTransitionLayout, animatedContentScope = this) {
-                    onGoToDetail()
+                SimpleVideoInformation(
+                    viewModel = viewModel,
+                    navController = navController,
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedContentScope = this,
+                    globalSharedTransitionScope = this@BasicVideoInformation,
+                    globalAnimatedVisibilityScope = animatedVisibilityScope,
+                    videoPlayerViewModel = videoPlayerViewModel
+                ) {
+                    infoButtonSize = it
+                    isDetail = true
                 }
             }
         }

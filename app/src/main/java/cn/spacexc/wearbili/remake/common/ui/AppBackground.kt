@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.common.ui
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.SizeTransform
@@ -75,11 +73,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.palette.graphics.Palette
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.isAudioServiceUp
-import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerActivity
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerManager
+import cn.spacexc.wearbili.remake.app.player.audio.ui.AudioPlayerScreen
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.ProvideConfiguration
 import cn.spacexc.wearbili.remake.common.ToastUtils
@@ -112,7 +111,7 @@ import kotlinx.coroutines.delay
     ExperimentalAnimationApi::class,
     ExperimentalFoundationApi::class
 ) //DON'T DELETE THIS!!!!!!!!!!!!!!!!(DELETING CAUSES BUILD TIME EXCEPTION "This is an experimental animation API.")
-fun Activity.CirclesBackground(
+fun CirclesBackground(
     modifier: Modifier = Modifier,
     uiState: UIState = UIState.Success,
     isShowing: Boolean = true,
@@ -193,7 +192,7 @@ fun Activity.CirclesBackground(
                     LoadableBox(
                         uiState = uiState,
                         content = content,
-                        onLongClick = { this@CirclesBackground.finish() },
+                        onLongClick = { },
                         onRetry = onRetry
                     )
                 }
@@ -208,7 +207,7 @@ fun Activity.CirclesBackground(
                     LoadableBox(
                         uiState = uiState,
                         content = content,
-                        onLongClick = { this@CirclesBackground.finish() },
+                        onLongClick = { },
                         onRetry = onRetry
                     )
                 }
@@ -254,7 +253,7 @@ fun Activity.CirclesBackground(
                 LoadableBox(
                     uiState = uiState,
                     content = content,
-                    onLongClick = { this@CirclesBackground.finish() },
+                    onLongClick = { },
                     onRetry = onRetry
                 )
             }
@@ -399,7 +398,7 @@ fun LoadableBox(
 fun titleBackgroundHorizontalPadding() = if (isRound()) 24.dp else 12.dp
 
 @Composable
-fun Activity.TitleBackground(
+fun TitleBackground(
     modifier: Modifier = Modifier,
     title: String,
     isTitleClipToBounds: Boolean = true,
@@ -416,10 +415,15 @@ fun Activity.TitleBackground(
     titleAlpha: Float = 1f,
     onRetry: () -> Unit,
     currentPageIndex: Int? = null,
+    navController: NavController?,
     content: @Composable BoxScope.() -> Unit
 ) {
     val timeSource = DefaultTimeSource("HH:mm")
     val timeText = timeSource.currentTime
+
+    var isBackClicked by remember {
+        mutableStateOf(false)
+    }
 
     CirclesBackground(
         modifier = modifier,
@@ -444,7 +448,12 @@ fun Activity.TitleBackground(
                         indication = null
                     ) {
                         if (isTitleClickable) {
-                            if (isDropdownTitle) onDropdown() else onBack()
+                            if (isDropdownTitle) onDropdown() else {
+                                if (!isBackClicked) {
+                                    onBack()
+                                    isBackClicked = true
+                                }
+                            }
                         }
                     },
                 verticalAlignment = Alignment.CenterVertically,
@@ -570,14 +579,21 @@ fun Activity.TitleBackground(
                         modifier = Modifier
                             .wearBiliAnimatedContentSize()
                             .clickVfx(isEnabled = isAudioServiceUp) {
-                                startActivity(
+                                AudioPlayerManager.currentPlayerTask.value?.apply {
+                                    navController?.navigate(
+                                        AudioPlayerScreen(
+                                            videoIdType, videoId, videoCid, isBangumi
+                                        )
+                                    )
+                                }
+                                /*startActivity(
                                     Intent(
                                         this@TitleBackground,
                                         AudioPlayerActivity::class.java
                                     ).apply {
                                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                     }
-                                )
+                                )*/
                             }
                             .then(
                                 if (isAudioServiceUp) {
@@ -632,7 +648,7 @@ fun Activity.TitleBackground(
 }
 
 @Composable
-fun Activity.TitleBackground(
+fun TitleBackground(
     modifier: Modifier = Modifier,
     title: String,
     isTitleClipToBounds: Boolean = true,
@@ -649,6 +665,7 @@ fun Activity.TitleBackground(
     titleAlpha: Float = 1f,
     onRetry: () -> Unit = {},
     currentPageIndex: Int? = null,
+    navController: NavController,
     content: @Composable BoxScope.() -> Unit
 ) {
     ProvideConfiguration {
@@ -687,20 +704,24 @@ fun Activity.TitleBackground(
             titleAlpha,
             onRetry,
             currentPageIndex,
+            navController,
             content
         )
     }
 }
 
 @Composable
-fun Activity.ArrowTitleBackgroundWithCustomBackground(
-    onBack: () -> Unit = ::finish,
+fun ArrowTitleBackgroundWithCustomBackground(
+    onBack: () -> Unit,
     background: @Composable BoxScope.() -> Unit,
     title: String = "",
     content: @Composable BoxScope.() -> Unit
 ) {
     val timeSource = DefaultTimeSource("HH:mm")
     val timeText = timeSource.currentTime
+    var isBackClicked by remember {
+        mutableStateOf(false)
+    }
 
     LaunchedEffect(key1 = toastContent, block = {
         if (toastContent.isNotEmpty()) {
@@ -729,7 +750,10 @@ fun Activity.ArrowTitleBackgroundWithCustomBackground(
                             interactionSource = rememberMutableInteractionSource(),
                             indication = null
                         ) {
-                            onBack()
+                            if (!isBackClicked) {
+                                onBack()
+                                isBackClicked = true
+                            }
                         },
                     verticalAlignment = if (isRound()) Alignment.CenterVertically else Alignment.Top
                 ) {

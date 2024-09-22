@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app.video.action.favourite.ui
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -18,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +29,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.CardBackgroundColor
@@ -50,17 +51,29 @@ import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateDpAsState
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+data class VideoFavouriteFoldersScreen(val videoAid: Long)
+
 @Composable
-fun Activity.VideoFavouriteFoldersScreen(
-    viewModel: VideoFavouriteViewModel,
+fun VideoFavouriteFoldersScreen(
+    navController: NavController,
+    viewModel: VideoFavouriteViewModel = hiltViewModel(),
     videoAid: Long
 ) {
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getFolders(videoAid)
+    }
     val localDensity = LocalDensity.current
     var confirmButtonHeight by remember {
         mutableStateOf(0.dp)
     }
 
-    TitleBackground(title = "收藏视频", uiState = viewModel.uiState, onBack = ::finish, onRetry = {
+    TitleBackground(
+        navController = navController,
+        title = "收藏视频",
+        uiState = viewModel.uiState,
+        onBack = navController::navigateUp,
+        onRetry = {
         viewModel.getFolders(videoAid)
     }) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -182,12 +195,12 @@ fun Activity.VideoFavouriteFoldersScreen(
                     innerPaddingValues = PaddingValues(12.dp),
                     shape = RoundedCornerShape(30),
                     onClick = {
-                        viewModel.confirmAction(callback = { isStillFavourite ->
+                        /*viewModel.confirmAction { isStillFavourite ->
                             val resultIntent =
                                 Intent().apply { putExtra("isStillFavourite", isStillFavourite) }
                             setResult(0, resultIntent)
                             finish()
-                        }, context = this@VideoFavouriteFoldersScreen)
+                        }*/
                     }
                 ) {
                     Text(

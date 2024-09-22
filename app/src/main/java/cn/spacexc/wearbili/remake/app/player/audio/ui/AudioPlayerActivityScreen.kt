@@ -2,9 +2,7 @@ package cn.spacexc.wearbili.remake.app.player.audio.ui
 
 import BiliTextIcon
 import SegoeTextIcon
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.graphics.drawable.VectorDrawable
 import android.media.AudioManager
 import androidx.appcompat.content.res.AppCompatResources
@@ -71,6 +69,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -85,16 +84,16 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.navigation.NavController
 import appendBiliIcon
 import biliIconFontFamily
 import cn.spacexc.wearbili.common.domain.color.parseColor
-import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerManager
 import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerService
 import cn.spacexc.wearbili.remake.app.player.audio.ui.lyrics.LyricsView
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerScreen
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerSetting
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerSettingActionItem
 import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PlayerSettingItem
@@ -105,9 +104,6 @@ import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.getMaxVol
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.experimantal.EXPERIMENTAL_FLOATING_SUBTITLE
 import cn.spacexc.wearbili.remake.app.settings.experimantal.getActivatedExperimentalFunctions
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ui.ArrowTitleBackgroundWithCustomBackground
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
@@ -123,6 +119,7 @@ import coil.transform.CustomBlurTransformation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import unicodeToString
 import kotlin.math.roundToInt
 
@@ -134,10 +131,19 @@ import kotlin.math.roundToInt
  * 给！爷！写！注！释！
  */
 
+@Serializable
+data class AudioPlayerScreen(
+    val videoIdType: String,
+    val videoId: String,
+    val videoCid: Long,
+    val isBangumi: Boolean
+)
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Activity.AudioPlayerActivityScreen(
-    service: AudioPlayerService
+fun AudioPlayerScreen(
+    service: AudioPlayerService,
+    navController: NavController
 ) {
     val pagerState = if (service.viewModel.currentSubtitleLanguage == null) rememberPagerState(
         pageCount = { 2 },
@@ -153,6 +159,7 @@ fun Activity.AudioPlayerActivityScreen(
         if (isVideoInformationLoaded) {
             service.viewModel.videoInfo?.data?.let { video ->
                 ArrowTitleBackgroundWithCustomBackground(
+                    onBack = navController::navigateUp,
                     background = {
                         val alpha by wearBiliAnimateFloatAsState(targetValue = if (pagerState.currentPage == (if (service.viewModel.currentSubtitleLanguage == null) 0 else 1) && currentView == AudioPlayerView.Progress) 0.8f else 0.3f)
                         BiliImage(
@@ -161,10 +168,9 @@ fun Activity.AudioPlayerActivityScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .alpha(alpha),
-                            transformations = listOf(CustomBlurTransformation(this@AudioPlayerActivityScreen)),
+                            transformations = listOf(CustomBlurTransformation(LocalContext.current)),
                             contentScale = ContentScale.FillHeight
                         )
-
                     }
                 ) {
                     Column {
@@ -198,7 +204,10 @@ fun Activity.AudioPlayerActivityScreen(
                                         currentView = currentView
                                     ) { currentView = it }
 
-                                    1 -> SettingsPage(service = service)
+                                    1 -> SettingsPage(
+                                        service = service,
+                                        navController = navController
+                                    )
                                 }
                             } else {
                                 when (page) {
@@ -208,7 +217,10 @@ fun Activity.AudioPlayerActivityScreen(
                                         currentView = currentView
                                     ) { currentView = it }
 
-                                    2 -> SettingsPage(service = service)
+                                    2 -> SettingsPage(
+                                        service = service,
+                                        navController = navController
+                                    )
                                 }
                             }
                         }
@@ -223,7 +235,7 @@ fun Activity.AudioPlayerActivityScreen(
 
 @Composable
 fun SubtitlePage(
-    viewModel: Media3AudioPlayerViewModel
+    viewModel: IjkPlayerAudioPlayerViewModel
 ) {
     val currentSubtitle by viewModel.currentSubtitle.collectAsState(initial = null)
     val secondarySubtitle by viewModel.secondarySubtitleText.collectAsState(initial = null)
@@ -259,12 +271,13 @@ enum class AudioPlayerView {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun Activity.PlayerPage(
+fun PlayerPage(
     service: AudioPlayerService,
     currentView: AudioPlayerView,
     onViewChanged: (AudioPlayerView) -> Unit
 ) {
     val configuration = LocalConfiguration.current
+    val context = LocalContext.current
     val hasFloatingSubtitle by remember {
         derivedStateOf {
             configuration.getActivatedExperimentalFunctions().contains(
@@ -359,7 +372,7 @@ fun Activity.PlayerPage(
                         (size.height - 18.sp.toPx()) / 2
                     ) {
                         val bitmap = (AppCompatResources.getDrawable(
-                            this@PlayerPage,
+                            context,
                             R.drawable.icon_audio_seek
                         ) as VectorDrawable).toBitmap()
                         drawImage(
@@ -411,7 +424,7 @@ fun Activity.PlayerPage(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Activity.ProgressView(
+fun ProgressView(
     service: AudioPlayerService
 ) {
     val currentPlayProgress by service.viewModel.currentPlayProgress.collectAsState(initial = 0)
@@ -658,9 +671,10 @@ fun SeekView(
 }
 
 @Composable
-fun Activity.VolumeView() {
+fun VolumeView() {
+    val context = LocalContext.current
     var currentVolume by remember {
-        mutableFloatStateOf(getCurrentVolume().toFloat())
+        mutableFloatStateOf(context.getCurrentVolume().toFloat())
     }
     var isDraggingProgress by remember {
         mutableStateOf(false)
@@ -678,7 +692,7 @@ fun Activity.VolumeView() {
                     appendBiliIcon("eb15")
                 }
                 append(" ")
-                append("${(currentVolume / getMaxVolume().toFloat() * 100).toInt()}%")
+                append("${(currentVolume / context.getMaxVolume().toFloat() * 100).toInt()}%")
             },
             fontFamily = wearbiliFontFamily,
             fontSize = 14.sp,
@@ -691,12 +705,12 @@ fun Activity.VolumeView() {
             onValueChanged = {
                 isDraggingProgress = true
                 currentVolume = it
-                adjustVolume(it.roundToInt())
+                context.adjustVolume(it.roundToInt())
             },
             onSlideFinished = {
                 isDraggingProgress = false
             },
-            range = 0f..getMaxVolume().toFloat(),
+            range = 0f..context.getMaxVolume().toFloat(),
             brush = Brush.horizontalGradient(listOf(Color.White, Color.White)),
             trackHeight = slideBarHeight,
             modifier = Modifier
@@ -706,13 +720,14 @@ fun Activity.VolumeView() {
     }
 }
 
-private fun Activity.adjustVolume(
+private fun adjustVolume(
+    context: Context,
     isIncrease: Boolean,
-    viewModel: Media3AudioPlayerViewModel,
+    viewModel: IjkPlayerAudioPlayerViewModel,
     scope: CoroutineScope
 ) {
     //获取系统的Audio管理者
-    val mAudioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     //最大音量
     var maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
     //当前音量
@@ -749,14 +764,16 @@ private fun Activity.adjustVolume(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Activity.SettingsPage(
-    service: AudioPlayerService
+fun SettingsPage(
+    service: AudioPlayerService,
+    navController: NavController
 ) {
+    val context = LocalContext.current
     var playBackSpeed by remember {
         mutableIntStateOf(100)
     }
     var currentVolume by remember {
-        mutableFloatStateOf(getCurrentVolume().toFloat())
+        mutableFloatStateOf(context.getCurrentVolume().toFloat())
     }
     service.viewModel.let { viewModel ->
         Column(
@@ -787,15 +804,17 @@ fun Activity.SettingsPage(
                     )
                 }) {
                 viewModel.videoInfo?.data?.let { video ->
-                    startActivity(
-                        Intent(this@SettingsPage, Media3PlayerActivity::class.java).apply {
-                            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-                            putExtra(PARAM_VIDEO_ID, video.bvid)
-                            putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
-                        }
+                    navController.navigateUp()
+                    navController.navigate(
+                        IjkVideoPlayerScreen(
+                            isCacheVideo = false,
+                            videoIdType = VIDEO_TYPE_BVID,
+                            videoId = video.bvid,
+                            videoCid = video.cid,
+                            isBangumi = false,
+                        )
                     )
                     service.exitService()
-                    finish()
                 }
             }
 
@@ -812,7 +831,7 @@ fun Activity.SettingsPage(
                 }
             ) {
                 service.exitService()
-                finish()
+                //finish()
             }
 
             PlayerSetting(itemIcon = {
@@ -933,10 +952,12 @@ fun Activity.SettingsPage(
                 },
                 settingName = "设备音量",
                 sliderValue = currentVolume,
-                displayedSliderValue = "${(currentVolume / getMaxVolume().toFloat() * 100).toInt()}%",
-                sliderValueRange = 0f..getMaxVolume().toFloat()
+                displayedSliderValue = "${
+                    (currentVolume / context.getMaxVolume().toFloat() * 100).toInt()
+                }%",
+                sliderValueRange = 0f..context.getMaxVolume().toFloat()
             ) {
-                this@SettingsPage.adjustVolume(it.roundToInt())
+                context.adjustVolume(it.roundToInt())
                 currentVolume = it
             }
         }

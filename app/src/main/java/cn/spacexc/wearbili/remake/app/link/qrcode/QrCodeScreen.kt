@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.link.qrcode
 
-import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,17 +24,31 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.qrcode.QRCodeUtil
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 
+@kotlinx.serialization.Serializable
+data class QrCodeScreen(
+    val content: String,
+    val message: String
+)
+
 @Composable
-fun Activity.QrCodeScreen(
+fun QrCodeScreen(
+    navController: NavController,
     qrCodeContent: String,
     qrCodeMessage: String
 ) {
-    TitleBackground(title = "", onRetry = {}, onBack = ::finish, themeColor = Color.Transparent) {
+    TitleBackground(
+        navController = navController,
+        title = "",
+        onRetry = {},
+        onBack = navController::navigateUp,
+        themeColor = Color.Transparent
+    ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
             Box(
                 modifier = Modifier

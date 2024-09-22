@@ -26,3 +26,16 @@
 -keep class tv.danmaku.ijk.media.player.** {
     *;
 }
+
+# Please add these rules to your existing keep rules in order to suppress warnings.
+# This is generated automatically by the Android Gradle plugin.
+-keep class tv.**
+-keep class tv.*
+-keep class tv.* { *; }
+-keep class tv.* { *; }
+-keep class tv.danmaku.ijk.media.player.IMediaPlayer$OnCompletionListener
+-keep class tv.danmaku.ijk.media.player.IMediaPlayer$OnInfoListener
+-keep class tv.danmaku.ijk.media.player.IMediaPlayer$OnPreparedListener
+-keep class tv.danmaku.ijk.media.player.IMediaPlayer
+-keep class tv.danmaku.ijk.media.player.IjkLibLoader
+-keep class tv.danmaku.ijk.media.player.IjkMediaPlayer

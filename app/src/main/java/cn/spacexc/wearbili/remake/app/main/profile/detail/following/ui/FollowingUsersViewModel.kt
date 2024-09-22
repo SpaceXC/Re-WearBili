@@ -1,5 +1,6 @@
 package cn.spacexc.wearbili.remake.app.main.profile.detail.following.ui
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,13 +8,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
+import androidx.paging.PagingData
 import cn.spacexc.bilibilisdk.sdk.user.follow.following.FollowedUserInfo
 import cn.spacexc.bilibilisdk.sdk.user.follow.following.remote.tags.FollowedUserTag
+import cn.spacexc.bilibilisdk.sdk.user.follow.following.remote.user.Data
 import cn.spacexc.wearbili.remake.app.main.profile.detail.following.domain.FollowingPagingSource
 import cn.spacexc.wearbili.remake.common.UIState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 /**
@@ -26,19 +27,11 @@ import kotlinx.coroutines.launch
 
 class FollowingUsersViewModel : ViewModel() {
     var uiState: UIState by mutableStateOf(UIState.Loading)
-    var followedUserTags = MutableStateFlow<List<FollowedUserTag>>(emptyList())
+    var followedUserTags by mutableStateOf(emptyList<FollowedUserTag>())
 
-    var followedUsers = followedUserTags.map { list ->
-        list.map { tag ->
-            FollowingPagingSource(tag.tagid)
-        }.map {
-            Pager(config = PagingConfig(pageSize = 1)) {
-                it
-            }
-        }.map {
-            it.flow.cachedIn(viewModelScope)
-        }
-    }
+    var lazyColumnStates = HashMap<Int, LazyListState>()
+
+    var followedUsers by mutableStateOf(mapOf<Int, Flow<PagingData<Data>>>())
 
     fun getFollowedUserTags() {
         viewModelScope.launch {
@@ -47,7 +40,18 @@ class FollowingUsersViewModel : ViewModel() {
                 uiState = UIState.Failed(response.code)
                 return@launch
             }
-            followedUserTags.value = response.data?.data ?: emptyList()
+            val tags = response.data?.data ?: emptyList()
+            tags.indices.forEach { lazyColumnStates[it] = LazyListState() }
+            followedUserTags = tags
+            followedUsers = buildMap {
+                followedUserTags.forEachIndexed { index, followedUserTag ->
+                    put(
+                        index, Pager(config = PagingConfig(1)) {
+                            FollowingPagingSource(followedUserTag.tagid)
+                        }.flow
+                    )
+                }
+            }
             uiState = UIState.Success
         }
     }

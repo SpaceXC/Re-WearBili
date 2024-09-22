@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.bilibilisdk.sdk.user.profile.remote.video.app.Item
@@ -35,7 +36,8 @@ import kotlinx.coroutines.flow.Flow
 fun UserSpaceVideosScreen(
     pagingItems: Flow<PagingData<Item>>,
     viewModel: UserSpaceViewModel,
-    listState: LazyListState
+    listState: LazyListState,
+    navController: NavController
 ) {
     val lazyItems = pagingItems.collectAsLazyPagingItems()
     LoadableBox(uiState = lazyItems.loadState.refresh.toUIState(), onRetry = lazyItems::retry) {
@@ -80,7 +82,8 @@ fun UserSpaceVideosScreen(
                         coverUrl = video.cover,
                         danmaku = video.danmaku.toShortChinese(),
                         videoIdType = VIDEO_TYPE_BVID,
-                        videoId = video.bvid
+                        videoId = video.bvid,
+                        navController = navController
                     )
                 }
             }

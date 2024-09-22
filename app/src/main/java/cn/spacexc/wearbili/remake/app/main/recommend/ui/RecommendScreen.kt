@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app.main.recommend.ui
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -49,13 +47,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.app.main.recommend.domain.remote.rcmd.app.Item
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.app.settings.experimantal.EXPERIMENTAL_LARGE_VIDEO_CARD
 import cn.spacexc.wearbili.remake.app.settings.experimantal.getActivatedExperimentalFunctions
-import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.QuickToolbarCustomizationActivity
 import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.StaticFunctionSlot
 import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.functionList
 import cn.spacexc.wearbili.remake.app.settings.toolbar.ui.toFunctionDetail
@@ -99,7 +97,7 @@ data class RecommendScreenState(
 @Composable
 fun RecommendScreen(
     viewModel: RecommendViewModel,
-    context: Activity,
+    navController: NavController,
     updatesResult: Version?,
     onFetch: (isRefresh: Boolean) -> Unit
 ) {
@@ -141,7 +139,7 @@ fun RecommendScreen(
             item(key = "quickToolBar") {
                 QuickToolBar(
                     configuration = configuration,
-                    context = context,
+                    navController = navController,
                     density = localDensity,
                     lazyListState = state.scrollState
                 )
@@ -149,7 +147,11 @@ fun RecommendScreen(
             //}
             updatesResult?.let {
                 item {
-                    UpdateCard(updateInfo = updatesResult, clickable = true, context = context)
+                    UpdateCard(
+                        updateInfo = updatesResult,
+                        clickable = true,
+                        navController = navController
+                    )
                 }
             }
 
@@ -165,7 +167,7 @@ fun RecommendScreen(
                                         uploader = it.args.up_name ?: "",
                                         views = it.cover_left_text_2,
                                         coverUrl = it.cover ?: "",
-                                        context = context,
+                                        navController = navController,
                                         videoIdType = if (it.bvid.isNullOrEmpty()) VIDEO_TYPE_AID else VIDEO_TYPE_BVID,
                                         videoId = it.bvid ?: it.param,
                                         modifier = Modifier.wearBiliAnimateContentPlacement(this),
@@ -190,7 +192,7 @@ fun RecommendScreen(
                                         views = it.stat?.view?.toShortChinese()
                                             ?: "",
                                         coverUrl = it.pic,
-                                        context = context,
+                                        navController = navController,
                                         videoId = it.bvid,
                                         videoIdType = VIDEO_TYPE_BVID,
                                         modifier = Modifier.wearBiliAnimateContentPlacement(this),
@@ -236,7 +238,7 @@ fun RecommendScreen(
 fun LazyItemScope.QuickToolBar(
     configuration: AppConfiguration,
     lazyListState: LazyListState,
-    context: Activity,
+    navController: NavController,
     density: Density,
 ) {
     var isToolTipDisplaying by remember {
@@ -277,12 +279,12 @@ fun LazyItemScope.QuickToolBar(
                         horizontal = 8.dp
                     ),
                     onClick = {
-                        context.startActivity(
+                        /*context.startActivity(
                             Intent(
                                 context,
                                 QuickToolbarCustomizationActivity::class.java
                             )
-                        )
+                        )*/
                     }
                 ) {
                     Row(
@@ -339,7 +341,7 @@ fun LazyItemScope.QuickToolBar(
                         function = firstFunction,
                         slotCount = tooltipConfiguration.slotCount
                     ) {
-                        firstFunction.action(context)
+                        firstFunction.action(navController)
                     }
                 }
                 if (secondFunction.type != QuickToolBarFunction.None) {
@@ -349,7 +351,7 @@ fun LazyItemScope.QuickToolBar(
                             .weight(1f),
                         slotCount = tooltipConfiguration.slotCount
                     ) {
-                        secondFunction.action(context)
+                        secondFunction.action(navController)
                     }
                 }
             }

@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.common.ui
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,10 +41,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.ifNullOrEmpty
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.season.ui.PARAM_MID
-import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceActivity
+import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceScreen
 import cn.spacexc.wearbili.remake.common.ui.theme.AppTheme
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import coil.compose.AsyncImage
@@ -199,7 +197,7 @@ fun UserAvatar(
 
 
 @Composable
-fun Activity.LargeUserCard(
+fun LargeUserCard(
     modifier: Modifier = Modifier,
     avatar: String,
     pendant: String? = null,
@@ -210,7 +208,8 @@ fun Activity.LargeUserCard(
     userInfo: String? = null,
     isInfoAdaptive: Boolean = false,
     mid: Long,
-    isFillMaxWidth: Boolean = true
+    isFillMaxWidth: Boolean = true,
+    navController: NavController
 ) {
     Card(
         modifier = modifier.apply { if (isFillMaxWidth) fillMaxWidth() },
@@ -222,9 +221,7 @@ fun Activity.LargeUserCard(
             end = 12.dp
         ),
         onClick = {
-            startActivity(Intent(this, UserSpaceActivity::class.java).apply {
-                putExtra(PARAM_MID, mid)
-            })
+            navController.navigate(UserSpaceScreen(mid))
         }
     ) {
         val localDensity = LocalDensity.current
@@ -310,7 +307,7 @@ fun SmallUserCard(
     userInfo: String? = null,
     userLabel: AnnotatedString = buildAnnotatedString { },
     inlineContent: Map<String, InlineTextContent> = mapOf(),
-    context: Activity,
+    navController: NavController,
     useBiliImage: Boolean = true,
     mid: Long
 ) {
@@ -322,9 +319,10 @@ fun SmallUserCard(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.clickVfx(enabled = mid != 0L, onClick = {
             if (mid != 0L) {
-                context.startActivity(Intent(context, UserSpaceActivity::class.java).apply {
+                /*context.startActivity(Intent(context, UserSpaceActivity::class.java).apply {
                     putExtra(PARAM_MID, mid)
-                })
+                })*/
+                navController.navigate(UserSpaceScreen(mid))
             }
         })
     ) {
@@ -385,7 +383,7 @@ fun TinyUserCard(
     avatar: String,
     username: String,
     mid: Long,
-    context: Activity
+    navController: NavController?
 ) {
     val localDensity = LocalDensity.current
     var textHeight by remember {
@@ -395,11 +393,9 @@ fun TinyUserCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 6.dp)
-            .clickVfx {
-                context.startActivity(Intent(context, UserSpaceActivity::class.java).apply {
-                    putExtra(PARAM_MID, mid)
-                })
-            },
+            .clickVfx(enabled = (navController != null), onClick = {
+                navController?.navigate(UserSpaceScreen(mid))
+            }),
         verticalAlignment = Alignment.CenterVertically
     ) {
         BiliImage(

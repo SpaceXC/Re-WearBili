@@ -3,7 +3,6 @@ package cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer
 import BiliTextIcon
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.SurfaceTexture
 import android.media.AudioManager
@@ -14,7 +13,11 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.TextureView
 import android.view.TextureView.SurfaceTextureListener
+import android.view.WindowManager
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
@@ -67,13 +70,13 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.BrightnessLow
-import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.FitScreen
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -108,7 +111,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.BaselineShift
-import androidx.compose.ui.text.style.TextAlign.Companion.Center
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextAlign.Companion.Start
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
@@ -117,13 +120,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import appendBiliIcon
 import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.R.drawable
-import cn.spacexc.wearbili.remake.app.player.cast.discover.DeviceDiscoverActivity
-import cn.spacexc.wearbili.remake.app.player.cast.discover.PARAM_DLNA_VIDEO_NAME
+import cn.spacexc.wearbili.remake.app.isRotated
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.RateExtra
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.SubscribeExtra
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.command.VideoExtra
@@ -153,6 +157,7 @@ import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
+import kotlinx.coroutines.launch
 import net.engawapg.lib.zoomable.rememberZoomState
 import kotlin.math.roundToInt
 
@@ -192,21 +197,66 @@ enum class VideoPlayerSurfaceRatio(val ratioName: String) {
     ThreeByFour("3:4")
 }
 
+@kotlinx.serialization.Serializable
+data class IjkVideoPlayerScreen(
+    val isCacheVideo: Boolean,
+    val videoIdType: String,
+    val videoId: String,
+    val videoCid: Long,
+    val isBangumi: Boolean
+)
+
 /*@UnstableApi*/
 @Composable
 @OptIn(
     ExperimentalAnimationApi::class,
-    ExperimentalMaterial3Api::class, ExperimentalTextApi::class, ExperimentalFoundationApi::class
+    ExperimentalMaterial3Api::class, ExperimentalTextApi::class, ExperimentalFoundationApi::class,
+    ExperimentalSharedTransitionApi::class
 )    //不要删掉这个OptIn!!!!!!!!!!!!!!!!!!灰色的也别删掉!!!!!!!!!!!!
 //如果不小心删掉：ExperimentalAnimationApi::class
-fun Activity.Media3PlayerScreen(
-    viewModel: Media3VideoPlayerViewModel,
-    displaySurface: VideoDisplaySurface,
+fun SharedTransitionScope.IjkVideoPlayerScreen(
+    viewModel: IjkVideoPlayerViewModel = hiltViewModel(),
     isCacheVideo: Boolean,
-    context: Context,
+    videoIdType: String,
+    videoId: String,
+    videoCid: Long,
     isBangumi: Boolean,
-    onBack: () -> Unit
+    navController: NavController,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
+    val context = LocalContext.current as Activity
+    val displaySurface = VideoDisplaySurface.TEXTURE_VIEW
+    //if (isCacheVideo) VideoDisplaySurface.SURFACE_VIEW else VideoDisplaySurface.TEXTURE_VIEW
+
+    LaunchedEffect(key1 = Unit) {
+        context.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    DisposableEffect(key1 = Unit) {
+        onDispose {
+            context.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        if (isCacheVideo) {
+            viewModel.viewModelScope.launch {
+                viewModel.repository.getTaskInfoByVideoCid(videoCid)?.let {
+                    viewModel.cacheVideoInfo = it
+                }
+            }
+            viewModel.playVideoFromLocalFile(videoCid)
+        } else {
+            viewModel.playVideoFromId(videoIdType, videoId, videoCid, isBangumi)
+        }
+    }
+
+    DisposableEffect(key1 = Unit) {
+        onDispose {
+            isRotated = false
+        }
+    }
+
     //region variables
     val configuration = LocalConfiguration.current
     val localDensity = LocalDensity.current
@@ -242,7 +292,7 @@ fun Activity.Media3PlayerScreen(
         mutableIntStateOf(100)
     }
     var currentVolume by remember {
-        mutableFloatStateOf(getCurrentVolume().toFloat())
+        mutableFloatStateOf(context.getCurrentVolume().toFloat())
     }
     var dragVolume by remember {
         mutableFloatStateOf(0f)
@@ -258,12 +308,12 @@ fun Activity.Media3PlayerScreen(
         val offset = dragValue / validScreenHeight * 20 //一通乱试试出来的
         if (dragVolume + offset < 0) {
             dragVolume = 0f
-        } else if (dragVolume + offset > getMaxVolume()) {
-            dragVolume = getMaxVolume().toFloat()
+        } else if (dragVolume + offset > context.getMaxVolume()) {
+            dragVolume = context.getMaxVolume().toFloat()
         } else {
             dragVolume += offset//.toInt()
         }
-        adjustVolume(dragVolume.toInt())
+        context.adjustVolume(dragVolume.toInt())
         currentVolume = dragVolume
     })
     val progressDraggableState = rememberDraggableState(onDelta = {
@@ -411,6 +461,7 @@ fun Activity.Media3PlayerScreen(
 
     Box(
         modifier = Modifier
+            .sharedElement(rememberSharedContentState(key = "videoCover"), animatedVisibilityScope)
             .fillMaxSize()
             .background(Color.Black)
             .onSizeChanged {
@@ -440,6 +491,7 @@ fun Activity.Media3PlayerScreen(
                     playerSurfaceSize = it.toSize()
                 }
         ) {
+
             when (displaySurface) {
                 VideoDisplaySurface.TEXTURE_VIEW -> {
                     AndroidView(factory = { TextureView(it) }) { textureView ->
@@ -450,6 +502,7 @@ fun Activity.Media3PlayerScreen(
                                 p2: Int
                             ) {
                                 viewModel.httpPlayer.setSurface(Surface(texture))
+                                viewModel.cachePlayer.setSurface(Surface(texture))
                             }
 
                             override fun onSurfaceTextureSizeChanged(
@@ -458,6 +511,7 @@ fun Activity.Media3PlayerScreen(
                                 p2: Int
                             ) {
                                 viewModel.httpPlayer.setSurface(Surface(texture))
+                                viewModel.cachePlayer.setSurface(Surface(texture))
                             }
 
                             override fun onSurfaceTextureDestroyed(p0: SurfaceTexture): Boolean {
@@ -546,7 +600,9 @@ fun Activity.Media3PlayerScreen(
                 orientation = Orientation.Vertical,
                 startDragImmediately = false,
                 onDragStarted = {
-                    dragVolume = getCurrentVolume().toFloat()
+                    dragVolume = context
+                        .getCurrentVolume()
+                        .toFloat()
                     isAdjustingVolume = true
                 },
                 onDragStopped = {
@@ -569,9 +625,8 @@ fun Activity.Media3PlayerScreen(
                 videoDisplaySurfaceSize = playerSurfaceSize,
                 isDebug = false,
                 displayFrameRate = false,
-                scope = viewModel.viewModelScope,
-
-                ) {
+                scope = viewModel.viewModelScope
+            ) {
                 currentCommandDanmaku = it
             }
         }
@@ -607,9 +662,9 @@ fun Activity.Media3PlayerScreen(
                                     modifier = Modifier
                                         .padding(8.dp)
                                         .alpha(0.8f)
-                                        .clickable { onBack() }
+                                        .clickable { navController.navigateUp() }
                                         .fillMaxWidth(),
-                                    textAlign = if (isRound()) Center else Start
+                                    textAlign = if (isRound()) TextAlign.Center else Start
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.ArrowBackIosNew,
@@ -660,7 +715,7 @@ fun Activity.Media3PlayerScreen(
                                                     .clickable(
                                                         interactionSource = rememberMutableInteractionSource(),
                                                         indication = null,
-                                                        onClick = onBack
+                                                        onClick = navController::navigateUp
                                                     ),
                                                 verticalAlignment = CenterVertically,
                                                 horizontalArrangement = if (isRound()) Arrangement.Center else Arrangement.Start
@@ -782,7 +837,7 @@ fun Activity.Media3PlayerScreen(
                                                         .padding(start = 1.dp)
                                                         .offset(y = 20.dp)
                                                         .fillMaxWidth(),
-                                                    textAlign = if (isRound()) Center else Start
+                                                    textAlign = if (isRound()) TextAlign.Center else Start
                                                 )
                                                 GradientSlider(
                                                     brush = Brush.horizontalGradient(
@@ -904,7 +959,9 @@ fun Activity.Media3PlayerScreen(
 
 
                                                     PlayerQuickActionButton(
-                                                        onClick = ::rotateScreen,
+                                                        onClick = {
+                                                            isRotated = !isRotated
+                                                        },
                                                     ) {
                                                         Icon(
                                                             imageVector = Icons.Outlined.ScreenRotation,
@@ -1012,7 +1069,7 @@ fun Activity.Media3PlayerScreen(
                                                                         PlayerStats.Buffering
                                                                 },
                                                             fontSize = 7.sp,
-                                                            textAlign = Center,
+                                                            textAlign = TextAlign.Center,
                                                             fontFamily = wearbiliFontFamily,
                                                             maxLines = if (isAtCurrentChapter) 1 else 2,
                                                             overflow = if (isAtCurrentChapter) TextOverflow.Clip else TextOverflow.Ellipsis
@@ -1101,7 +1158,7 @@ fun Activity.Media3PlayerScreen(
                                             fontSize = 12.sp,
                                             fontFamily = wearbiliFontFamily,
                                             fontWeight = FontWeight.Medium,
-                                            textAlign = Center
+                                            textAlign = TextAlign.Center
                                         )
                                         currentChapter?.let {
                                             Text(
@@ -1112,7 +1169,7 @@ fun Activity.Media3PlayerScreen(
                                                 fontSize = 10.sp,
                                                 fontFamily = wearbiliFontFamily,
                                                 fontWeight = FontWeight.Medium,
-                                                textAlign = Center
+                                                textAlign = TextAlign.Center
                                             )
                                         }
                                     }
@@ -1143,14 +1200,17 @@ fun Activity.Media3PlayerScreen(
                                 ) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         IconText(
-                                            text = "${(dragVolume / getMaxVolume().toFloat() * 100).toInt()}%",
+                                            text = "${
+                                                (dragVolume / context.getMaxVolume()
+                                                    .toFloat() * 100).toInt()
+                                            }%",
                                             modifier = Modifier
                                                 .wearBiliAnimatedContentSize(),
                                             color = Color.White,
                                             fontSize = 12.sp,
                                             fontFamily = wearbiliFontFamily,
                                             fontWeight = FontWeight.Medium,
-                                            textAlign = Center,
+                                            textAlign = TextAlign.Center,
                                             icon = {
                                                 Icon(
                                                     imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
@@ -1173,7 +1233,7 @@ fun Activity.Media3PlayerScreen(
                                                 )
                                             )
                                             LinearProgressIndicator(
-                                                progress = (dragVolume / getMaxVolume()),
+                                                progress = (dragVolume / context.getMaxVolume()),
                                                 modifier = Modifier
                                                     .width(80.dp)
                                                     .clip(CircleShape),
@@ -1231,7 +1291,7 @@ fun Activity.Media3PlayerScreen(
                                         fontSize = 12.sp,
                                         fontFamily = wearbiliFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        textAlign = Center
+                                        textAlign = TextAlign.Center
                                     )
                                 }
                                 if (secondarySubtitleText != null) {
@@ -1248,7 +1308,7 @@ fun Activity.Media3PlayerScreen(
                                         fontSize = 9.sp,
                                         fontFamily = wearbiliFontFamily,
                                         fontWeight = FontWeight.Normal,
-                                        textAlign = Center
+                                        textAlign = TextAlign.Center
                                     )
                                 }
                             }
@@ -1306,7 +1366,7 @@ fun Activity.Media3PlayerScreen(
                                     .clickable { currentPage = VideoPlayerPages.Main }
                                     .fillMaxWidth()
                                     .offset(if (isRound()) (-7).dp else 0.dp),
-                                textAlign = if (isRound()) Center else Start,
+                                textAlign = if (isRound()) TextAlign.Center else Start,
                                 fontWeight = FontWeight.Bold
                             ) {
                                 Icon(
@@ -1474,7 +1534,7 @@ fun Activity.Media3PlayerScreen(
                             ) {
                                 dragSensibility = it
                             }
-                            PlayerSettingActionItem(
+                            /*PlayerSettingActionItem(
                                 name = "投屏",
                                 description = "投射视频到DLNA设备",
                                 icon = {
@@ -1501,7 +1561,7 @@ fun Activity.Media3PlayerScreen(
                                         putExtra(PARAM_IS_BANGUMI, isBangumi)
                                     })
                                 finish()
-                            }
+                            }*/
 
                             PlayerSliderSetting(
                                 itemIcon = {
@@ -1514,8 +1574,10 @@ fun Activity.Media3PlayerScreen(
                                 },
                                 settingName = "设备音量",
                                 sliderValue = currentVolume,
-                                displayedSliderValue = "${(currentVolume / getMaxVolume().toFloat() * 100).toInt()}%",
-                                sliderValueRange = 0f..getMaxVolume().toFloat()
+                                displayedSliderValue = "${
+                                    (currentVolume / context.getMaxVolume().toFloat() * 100).toInt()
+                                }%",
+                                sliderValueRange = 0f..context.getMaxVolume().toFloat()
                             ) {
                                 context.adjustVolume(it.roundToInt())
                                 currentVolume = it
@@ -1580,7 +1642,7 @@ fun Activity.Media3PlayerScreen(
                                     .clickable { currentPage = VideoPlayerPages.Settings }
                                     .fillMaxWidth()
                                     .offset(if (isRound()) (-7).dp else 0.dp),
-                                textAlign = if (isRound()) Center else Start,
+                                textAlign = if (isRound()) TextAlign.Center else Start,
                                 fontWeight = FontWeight.Bold
                             ) {
                                 Icon(
@@ -1692,7 +1754,7 @@ fun Activity.Media3PlayerScreen(
                 fontSize = 12.sp,
                 fontFamily = wearbiliFontFamily,
                 fontWeight = FontWeight.Normal,
-                textAlign = if (isRound()) Center else Start
+                textAlign = if (isRound()) TextAlign.Center else Start
             )
         }
 
@@ -1908,7 +1970,7 @@ fun PlayerSettingItem(
             fontFamily = wearbiliFontFamily,
             color = Color.White,
             fontWeight = FontWeight.Medium,
-            textAlign = Center,
+            textAlign = TextAlign.Center,
             modifier = Modifier.alpha(textAlpha)
         )
     }

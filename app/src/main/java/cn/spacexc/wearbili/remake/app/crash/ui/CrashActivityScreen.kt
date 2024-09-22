@@ -36,7 +36,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cn.spacexc.wearbili.common.copyToClipboard
-import cn.spacexc.wearbili.remake.app.splash.ui.SplashScreenActivity
+import cn.spacexc.wearbili.remake.app.MainActivity
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.ClickableText
@@ -64,7 +64,13 @@ fun Activity.CrashActivityScreen(
     viewModel: CrashViewModel,
     context: Context
 ) {
-    TitleBackground(title = "", onBack = ::finish, onRetry = {}, uiState = viewModel.uiState) {
+    TitleBackground(
+        navController = null,
+        title = "",
+        onBack = ::finish,
+        onRetry = {},
+        uiState = viewModel.uiState
+    ) {
         var currentHighlightedButton by remember {
             mutableStateOf("")
         }
@@ -204,7 +210,7 @@ fun Activity.CrashActivityScreen(
                         //finish()
                         //exitProcess(0)
                         finish()
-                        val intent = Intent(context, SplashScreenActivity::class.java)
+                        val intent = Intent(context, MainActivity::class.java)
                         intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
                         context.startActivity(intent)
                         Process.killProcess(Process.myPid())

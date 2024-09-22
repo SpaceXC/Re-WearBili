@@ -1,8 +1,10 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package cn.spacexc.wearbili.remake.app.main.dynamic.ui
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,25 +57,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.article.ui.ArticleActivity
-import cn.spacexc.wearbili.remake.app.article.ui.PARAM_CVID
+import cn.spacexc.wearbili.remake.app.article.ui.ArticleScreen
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_EPID
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiActivity
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID_TYPE
-import cn.spacexc.wearbili.remake.app.image.ImageViewerActivity
-import cn.spacexc.wearbili.remake.app.image.PARAM_IMAGE_URLS
-import cn.spacexc.wearbili.remake.app.image.PARAM_SELECTED_INDEX
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiScreen
+import cn.spacexc.wearbili.remake.app.image.ImageViewerScreen
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicItem
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.ItemRichTextNode
-import cn.spacexc.wearbili.remake.app.search.ui.PARAM_DEFAULT_SEARCH_KEYWORD
-import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
-import cn.spacexc.wearbili.remake.app.season.ui.PARAM_MID
-import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceActivity
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationActivity
+import cn.spacexc.wearbili.remake.app.search.ui.SearchScreen
+import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceScreen
+import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
+import cn.spacexc.wearbili.remake.app.video.info.ui.VideoInformationScreen
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
@@ -106,7 +102,7 @@ fun DynamicRichText(
     modifier: Modifier = Modifier,
     textNodes: List<ItemRichTextNode>,
     textStyle: TextStyle,
-    context: Context,
+    navController: NavController,
     leadingIcon: (@Composable () -> Unit)? = null,
     onGloballyClicked: () -> Unit
 ) {
@@ -244,16 +240,12 @@ fun DynamicRichText(
     ) { index ->
         annotatedString.getStringAnnotations(tag = "tagUser", start = index, end = index)
             .firstOrNull()?.let { annotation ->
-                context.startActivity(Intent(context, UserSpaceActivity::class.java).apply {
-                    putExtra(PARAM_MID, annotation.item.toLong())
-                })
+                navController.navigate(UserSpaceScreen(annotation.item.toLong()))
                 return@ClickableText
             }
         annotatedString.getStringAnnotations(tag = "tagSearch", start = index, end = index)
             .firstOrNull()?.let { annotation ->
-                val intent = Intent(context, SearchActivity::class.java)
-                intent.putExtra(PARAM_DEFAULT_SEARCH_KEYWORD, annotation.item)
-                context.startActivity(intent)
+                navController.navigate(SearchScreen(annotation.item))
                 return@ClickableText
             }/*annotatedString.getStringAnnotations(tag = "tagUrl", start = index, end = index)
             .firstOrNull()?.let { annotation ->
@@ -267,12 +259,13 @@ fun DynamicRichText(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun DynamicContent(
+fun SharedTransitionScope.DynamicContent(
     item: DynamicItem,
     textSizeScale: Float = 1.0f,
-    context: Activity/*?*/   //for compose preview   //f*** **u compose preview!
+    navController: NavController,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val localDensity = LocalDensity.current
     Column(modifier = Modifier.padding(4.dp)) {
@@ -281,7 +274,7 @@ fun DynamicContent(
             DynamicRichText(
                 textNodes = it.richTextNodes,
                 textStyle = AppTheme.typography.body1.copy(fontSize = AppTheme.typography.body1.fontSize * textSizeScale),
-                context = context
+                navController = navController
             ) {
                 //TODO 动态详情&评论
                 /*if (supportedDynamicTypes.contains(item.type)) {
@@ -305,7 +298,12 @@ fun DynamicContent(
         when (item.type) {
             "DYNAMIC_TYPE_FORWARD" -> {
                 if (item.orig != null) {
-                    DynamicCard(item = item.orig, context = context, textSizeScale = 0.95f)
+                    DynamicCard(
+                        item = item.orig,
+                        navController = navController,
+                        textSizeScale = 0.95f,
+                        animatedVisibilityScope = animatedVisibilityScope
+                    )
                 }
             }
 
@@ -325,18 +323,19 @@ fun DynamicContent(
                                     contentDescription = null,
                                     modifier = when (imageList.size) {
                                         1 -> Modifier
+                                            .sharedElement(
+                                                rememberSharedContentState(key = "image$index"),
+                                                animatedVisibilityScope
+                                            )
                                             .fillMaxWidth()
                                             .clickVfx {
-                                                val intent =
-                                                    Intent(context, ImageViewerActivity::class.java)
-                                                val urls = imageList
-                                                    .map { it.src }
-                                                    .toTypedArray()
-                                                intent.putExtra(
-                                                    PARAM_IMAGE_URLS, urls
+                                                navController.navigate(
+                                                    ImageViewerScreen(
+                                                        images = imageList
+                                                            .map { it.src },
+                                                        selectedIndex = index
+                                                    )
                                                 )
-                                                intent.putExtra(PARAM_SELECTED_INDEX, index)
-                                                context.startActivity(intent)
                                             }
                                             .aspectRatio(image.width.toFloat() / image.height.toFloat())
                                             .clip(
@@ -344,19 +343,20 @@ fun DynamicContent(
                                             )
 
                                         else -> Modifier
+                                            .sharedElement(
+                                                rememberSharedContentState(key = "image$index"),
+                                                animatedVisibilityScope
+                                            )
                                             .padding(2.dp)
                                             .aspectRatio(1f)
                                             .clickVfx {
-                                                val intent =
-                                                    Intent(context, ImageViewerActivity::class.java)
-                                                val urls = imageList
-                                                    .map { it.src }
-                                                    .toTypedArray()
-                                                intent.putExtra(
-                                                    PARAM_IMAGE_URLS, urls
+                                                navController.navigate(
+                                                    ImageViewerScreen(
+                                                        images = imageList
+                                                            .map { it.src },
+                                                        selectedIndex = index
+                                                    )
                                                 )
-                                                intent.putExtra(PARAM_SELECTED_INDEX, index)
-                                                context.startActivity(intent)
                                             }
                                             .clip(
                                                 RoundedCornerShape(6.dp)
@@ -380,15 +380,12 @@ fun DynamicContent(
 
                 Box(modifier = Modifier
                     .clickVfx {
-                        context.startActivity(Intent(
-                            context, VideoInformationActivity::class.java
-                        ).apply {
-                            //flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            putExtra(
-                                PARAM_VIDEO_ID,
-                                item.modules.moduleDynamic.major?.archive?.bvid
+                        navController.navigate(
+                            VideoInformationScreen(
+                                VIDEO_TYPE_BVID,
+                                item.modules.moduleDynamic.major?.archive?.bvid ?: ""
                             )
-                        })
+                        )
                     }
                     .clip(RoundedCornerShape(6.dp))) {
                     BiliImage(
@@ -471,13 +468,19 @@ fun DynamicContent(
                     fontSize = 10.sp
                 )*/
                 Column(modifier = Modifier.clickVfx {
-                    Intent(
+                    /*Intent(
                         context, BangumiActivity::class.java
                     ).apply {
                         putExtra(PARAM_BANGUMI_ID, item.modules.moduleDynamic.major?.pgc?.epid)
                         putExtra(PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_EPID)
                         context.startActivity(this)
-                    }
+                    }*/
+                    navController.navigate(
+                        BangumiScreen(
+                            BANGUMI_ID_TYPE_EPID,
+                            item.modules.moduleDynamic.major?.pgc?.epid ?: 0L
+                        )
+                    )
                 }) {
                     var infoHeight by remember {
                         mutableStateOf(0.dp)
@@ -554,9 +557,11 @@ fun DynamicContent(
 
             "DYNAMIC_TYPE_ARTICLE" -> {
                 Card(onClick = {
-                    context.startActivity(Intent(context, ArticleActivity::class.java).apply {
-                        putExtra(PARAM_CVID, item.modules.moduleDynamic.major?.article?.id)
-                    })
+                    navController.navigate(
+                        ArticleScreen(
+                            item.modules.moduleDynamic.major?.article?.id ?: 0L
+                        )
+                    )
                 }) {
                     Column {
                         item.modules.moduleDynamic.major?.article?.let { article ->
@@ -595,7 +600,7 @@ fun DynamicContent(
                 textStyle = TextStyle(
                     fontSize = 9.sp, color = Color.White, fontFamily = wearbiliFontFamily
                 ),
-                context = context,
+                navController = navController,
                 modifier = Modifier
                     .alpha(0.7f)
                     .padding(horizontal = 4.dp),
@@ -674,8 +679,11 @@ fun DynamicContent(
 }
 
 @Composable
-fun DynamicCard(
-    item: DynamicItem, context: Activity, textSizeScale: Float = 1.0f
+fun SharedTransitionScope.DynamicCard(
+    item: DynamicItem,
+    navController: NavController,
+    textSizeScale: Float = 1.0f,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(), innerPaddingValues = PaddingValues(
@@ -696,11 +704,16 @@ fun DynamicCard(
                     usernameColor = author.vip?.nicknameColor,
                     textSizeScale = textSizeScale,
                     officialVerify = (author.officialVerify?.type ?: -1).toOfficialVerify(),
-                    context = context,
+                    navController = navController,
                     mid = author.mid
                 )
             }
-            DynamicContent(item = item, context = context, textSizeScale = textSizeScale)
+            DynamicContent(
+                item = item,
+                navController = navController,
+                textSizeScale = textSizeScale,
+                animatedVisibilityScope = animatedVisibilityScope
+            )
         }
     }
 }

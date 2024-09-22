@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.settings.experimantal
 
-import android.app.Activity
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
@@ -51,8 +51,13 @@ const val EXPERIMENTAL_FLOATING_SUBTITLE = "experimental.global.floating.subtitl
 const val EXPERIMENTAL_FADE_SUBTITLE = "experimental.fade.subtitle.animation"
 
 @Composable
-fun Activity.ExperimentalFunctionsScreen() {
-    TitleBackground(title = "", onRetry = { }, onBack = ::finish) {
+fun ExperimentalFunctionsScreen(navController: NavController) {
+    TitleBackground(
+        navController = navController,
+        title = "",
+        onRetry = { },
+        onBack = navController::navigateUp
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -113,6 +118,9 @@ fun Activity.ExperimentalFunctionsScreen() {
         }
     }
 }
+
+@kotlinx.serialization.Serializable
+object ExperimentalFunctionsScreen
 
 @Composable
 fun ExperimentalFunctionCard(

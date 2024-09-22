@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.space.ui.info
 
-import android.app.Activity
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -28,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceViewModel
 import cn.spacexc.wearbili.remake.common.ui.OfficialVerify
@@ -40,7 +40,8 @@ import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun Activity.DetailInformationScreen(
+fun DetailInformationScreen(
+    navController: NavController,
     viewModel: UserSpaceViewModel,
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
@@ -61,7 +62,7 @@ fun Activity.DetailInformationScreen(
                 useBiliImage = false,
                 textSizeScale = 1.1f,
                 mid = 0,
-                context = this@DetailInformationScreen,
+                navController = navController,
                 imageModifier = with(sharedTransitionScope) {
                     Modifier.sharedElement(
                         rememberSharedContentState(key = "userAvatar"),

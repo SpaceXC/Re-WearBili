@@ -1,5 +1,8 @@
 package cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.detail.ui
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -20,9 +23,12 @@ import kotlinx.coroutines.flow.Flow
 
 class FavoriteFolderDetailViewModel : ViewModel() {
     lateinit var dataFlow: Flow<PagingData<Media>>
+    var isLoaded by mutableStateOf(false)
+
     fun setPagerFlow(folderId: Long) {
         dataFlow = Pager(config = PagingConfig(pageSize = 1)) {
             FavoriteFolderDetailPagingSource(folderId)
         }.flow.cachedIn(viewModelScope)
+        isLoaded = true
     }
 }

@@ -43,9 +43,9 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer
 
 @SuppressLint("UnsafeOptInUsageError")
 /**
- * 这里其实就是稍微小小改了一下的[cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3VideoPlayerViewModel]啦
+ * 这里其实就是稍微小小改了一下的[cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerViewModel]啦
  */
-class Media3AudioPlayerViewModel /*@Inject constructor*/(
+class IjkPlayerAudioPlayerViewModel /*@Inject constructor*/(
     private val application: Application,
     private val repository: VideoCacheRepository,
     private val scope: CoroutineScope
@@ -76,7 +76,7 @@ class Media3AudioPlayerViewModel /*@Inject constructor*/(
             IjkMediaPlayer.OPT_CATEGORY_PLAYER,
             "framedrop",
             5
-        )  //跳帧处理,放CPU处理较慢时，进行跳帧处理，保证播放流程，画面和声音同步
+        )  //跳帧处理,CPU处理较慢时，进行跳帧处理，保证播放流程，画面和声音同步
         setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-fps", 1)  //最大fps
         setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1)  //精确seek
 

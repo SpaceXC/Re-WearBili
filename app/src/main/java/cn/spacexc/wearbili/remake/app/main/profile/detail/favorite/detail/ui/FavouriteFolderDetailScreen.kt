@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.detail.ui
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,9 +10,12 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
@@ -32,60 +34,75 @@ import cn.spacexc.wearbili.remake.common.ui.toLoadingState
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+data class FavouriteFolderDetailScreen(
+    val folderId: Long,
+    val folderName: String
+)
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Activity.FavouriteFolderDetailScreen(
-    viewModel: FavoriteFolderDetailViewModel,
-    folderName: String
+fun FavouriteFolderDetailScreen(
+    viewModel: FavoriteFolderDetailViewModel = viewModel(),
+    folderId: Long,
+    folderName: String,
+    navController: NavController
 ) {
-    val lazyPagingItem = viewModel.dataFlow.collectAsLazyPagingItems()
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = lazyPagingItem.loadState.refresh is LoadState.Loading,
-        onRefresh = lazyPagingItem::refresh,
-        refreshThreshold = 40.dp
-    )
-    TitleBackground(
-        title = folderName,
-        onBack = ::finish,
-        uiState = lazyPagingItem.loadState.refresh.toUIState(),
-        onRetry = lazyPagingItem::retry
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .pullRefresh(state = pullRefreshState)
+    LaunchedEffect(key1 = Unit) {
+        viewModel.setPagerFlow(folderId)
+    }
+    if (viewModel.isLoaded) {
+        val lazyPagingItem = viewModel.dataFlow.collectAsLazyPagingItems()
+        val pullRefreshState = rememberPullRefreshState(
+            refreshing = lazyPagingItem.loadState.refresh is LoadState.Loading,
+            onRefresh = lazyPagingItem::refresh,
+            refreshThreshold = 40.dp
+        )
+        TitleBackground(
+            navController = navController,
+            title = folderName,
+            onBack = navController::navigateUp,
+            uiState = lazyPagingItem.loadState.refresh.toUIState(),
+            onRetry = lazyPagingItem::retry
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pullRefresh(state = pullRefreshState)
             ) {
-                items(lazyPagingItem.itemCount) {
-                    lazyPagingItem[it]?.let { video ->
-                        VideoCard(
-                            videoName = video.title,
-                            uploader = video.upper.name,
-                            views = video.cnt_info.play.toShortChinese(),
-                            coverUrl = video.cover,
-                            videoIdType = VIDEO_TYPE_BVID,
-                            videoId = video.bvid
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    items(lazyPagingItem.itemCount) {
+                        lazyPagingItem[it]?.let { video ->
+                            VideoCard(
+                                videoName = video.title,
+                                uploader = video.upper.name,
+                                views = video.cnt_info.play.toShortChinese(),
+                                coverUrl = video.cover,
+                                videoIdType = VIDEO_TYPE_BVID,
+                                videoId = video.bvid,
+                                navController = navController
+                            )
+                        }
+                    }
+                    item {
+                        LoadingTip(
+                            lazyPagingItem.loadState.append.toLoadingState(),
+                            lazyPagingItem::retry
                         )
                     }
                 }
-                item {
-                    LoadingTip(
-                        lazyPagingItem.loadState.append.toLoadingState(),
-                        lazyPagingItem::retry
+                PullRefreshIndicator(
+                    refreshing = lazyPagingItem.loadState.refresh is LoadState.Loading,
+                    state = pullRefreshState,
+                    modifier = Modifier.align(
+                        Alignment.TopCenter
                     )
-                }
-            }
-            PullRefreshIndicator(
-                refreshing = lazyPagingItem.loadState.refresh is LoadState.Loading,
-                state = pullRefreshState,
-                modifier = Modifier.align(
-                    Alignment.TopCenter
                 )
-            )
+            }
         }
     }
 }

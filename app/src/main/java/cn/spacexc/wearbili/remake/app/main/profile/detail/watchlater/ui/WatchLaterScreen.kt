@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.main.profile.detail.watchlater.ui
 
-import android.app.Activity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,9 +15,12 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
@@ -33,12 +35,20 @@ import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateContentPlacement
  * 给！爷！写！注！释！
  * 给！爷！写！注！释！
  */
+
+@kotlinx.serialization.Serializable
+object WatchLaterScreen
+
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun Activity.WatchLaterScreen(
-    viewModel: WatchLaterViewModel,
-    onBack: () -> Unit
+fun WatchLaterScreen(
+    viewModel: WatchLaterViewModel = viewModel(),
+    navController: NavController
 ) {
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getWatchLaterItems()
+    }
+
     val pullRefreshState = rememberPullRefreshState(
         refreshing = viewModel.isRefreshing,
         onRefresh = {
@@ -47,8 +57,9 @@ fun Activity.WatchLaterScreen(
         }, refreshThreshold = 40.dp
     )
     TitleBackground(
+        navController = navController,
         title = "稍后再看",
-        onBack = onBack,
+        onBack = navController::navigateUp,
         uiState = viewModel.uiState,
         onRetry = viewModel::getWatchLaterItems
     ) {
@@ -88,7 +99,8 @@ fun Activity.WatchLaterScreen(
                                 coverUrl = item.pic,
                                 videoIdType = VIDEO_TYPE_BVID,
                                 videoId = item.bvid,
-                                badge = if (item.viewed) "已看完" else null
+                                badge = if (item.viewed) "已看完" else null,
+                                navController = navController
                             )
                         }
                     }

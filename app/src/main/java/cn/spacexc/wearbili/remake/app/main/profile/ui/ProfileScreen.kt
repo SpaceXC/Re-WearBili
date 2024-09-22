@@ -1,8 +1,6 @@
 package cn.spacexc.wearbili.remake.app.main.profile.ui
 
 import BiliTextIcon
-import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -50,22 +48,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import cn.spacexc.bilibilisdk.sdk.user.profile.remote.info.current.Data
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.cache.list.CacheListActivity
-import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.folders.ui.FavoriteFolderActivity
-import cn.spacexc.wearbili.remake.app.main.profile.detail.following.ui.FollowingUsersActivity
-import cn.spacexc.wearbili.remake.app.main.profile.detail.history.ui.HistoryActivity
-import cn.spacexc.wearbili.remake.app.main.profile.detail.watchlater.ui.WatchLaterActivity
-import cn.spacexc.wearbili.remake.app.message.MessageActivity
-import cn.spacexc.wearbili.remake.app.season.ui.PARAM_MID
+import cn.spacexc.wearbili.remake.app.cache.list.CacheListScreen
+import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.folders.ui.FavoriteFoldersScreen
+import cn.spacexc.wearbili.remake.app.main.profile.detail.following.ui.FollowingUsersScreen
+import cn.spacexc.wearbili.remake.app.main.profile.detail.history.ui.HistoryScreen
+import cn.spacexc.wearbili.remake.app.main.profile.detail.watchlater.ui.WatchLaterScreen
+import cn.spacexc.wearbili.remake.app.message.ui.MessageScreen
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.experimantal.EXPERIMENTAL_MULTI_ACCOUNTS
 import cn.spacexc.wearbili.remake.app.settings.experimantal.getActivatedExperimentalFunctions
-import cn.spacexc.wearbili.remake.app.settings.ui.SettingsActivity
-import cn.spacexc.wearbili.remake.app.settings.user.SwitchUserActivity
-import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceActivity
+import cn.spacexc.wearbili.remake.app.settings.ui.SettingsScreen
+import cn.spacexc.wearbili.remake.app.settings.user.SwitchUserScreen
 import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
@@ -96,9 +93,8 @@ data class ProfileScreenState(
 
 @Composable
 fun ProfileScreen(
-    state: ProfileScreenState,
-    context: Context,
-    onRetry: () -> Unit
+    viewModel: ProfileViewModel,
+    navController: NavController,
 ) {
     if (/*runBlocking { UserUtils.isUserLoggedIn() }*/true) {
         val focusRequester = remember {
@@ -121,8 +117,8 @@ fun ProfileScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(state.scrollState)
-                        .rotateInput(focusRequester, state.scrollState),
+                        .verticalScroll(viewModel.screenState.scrollState)
+                        .rotateInput(focusRequester, viewModel.screenState.scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -131,18 +127,18 @@ fun ProfileScreen(
                             .fillMaxWidth()
                             .clickVfx(
                                 onClick = {
-                                    context.startActivity(
+                                    /*context.startActivity(
                                         Intent(
                                             context,
                                             UserSpaceActivity::class.java
                                         ).apply {
-                                            putExtra(PARAM_MID, state.user?.mid)
-                                        })
+                                            putExtra(PARAM_MID, viewModel.screenState.user?.mid)
+                                        })*/
                                 },
-                                enabled = state.user?.mid != null
-                            )//.placeholder(visible = state.user != null, shape = RoundedCornerShape(8.dp), highlight = PlaceholderHighlight.shimmer())
+                                enabled = viewModel.screenState.user?.mid != null
+                            )//.placeholder(visible = viewModel.screenState.user != null, shape = RoundedCornerShape(8.dp), highlight = PlaceholderHighlight.shimmer())
                     ) {
-                        state.user.let { user ->
+                        viewModel.screenState.user.let { user ->
                             //region 个人信息
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
@@ -312,12 +308,7 @@ fun ProfileScreen(
                                 modifier = Modifier.weight(1f),
                                 buttonModifier = Modifier.aspectRatio(1f),
                                 onClick = {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            WatchLaterActivity::class.java
-                                        )
-                                    )
+                                    navController.navigate(WatchLaterScreen)
                                 }
                             )
                             OutlinedRoundButton(
@@ -332,12 +323,7 @@ fun ProfileScreen(
                                 modifier = Modifier.weight(1f),
                                 buttonModifier = Modifier.aspectRatio(1f),
                                 onClick = {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            FollowingUsersActivity::class.java
-                                        )
-                                    )
+                                    navController.navigate(FollowingUsersScreen)
                                 }
                             )
                         }
@@ -359,12 +345,7 @@ fun ProfileScreen(
                                 modifier = Modifier.weight(1f),
                                 buttonModifier = Modifier.aspectRatio(1f),
                                 onClick = {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            CacheListActivity::class.java
-                                        )
-                                    )
+                                    navController.navigate(CacheListScreen)
                                 }
                             )
                             OutlinedRoundButton(
@@ -379,13 +360,7 @@ fun ProfileScreen(
                                 modifier = Modifier.weight(1f),
                                 buttonModifier = Modifier.aspectRatio(1f),
                                 onClick = {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            HistoryActivity::class.java
-                                        )
-                                    )
-
+                                    navController.navigate(HistoryScreen)
                                 }
                             )
                         }
@@ -405,12 +380,7 @@ fun ProfileScreen(
                                 modifier = Modifier.weight(1f),
                                 buttonModifier = Modifier.aspectRatio(1f),
                                 onClick = {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            MessageActivity::class.java
-                                        )
-                                    )
+                                    navController.navigate(MessageScreen)
                                 }
                             )
                             OutlinedRoundButton(
@@ -428,12 +398,7 @@ fun ProfileScreen(
                                 modifier = Modifier.weight(1f),
                                 buttonModifier = Modifier.aspectRatio(1f),
                                 onClick = {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            FavoriteFolderActivity::class.java
-                                        )
-                                    )
+                                    navController.navigate(FavoriteFoldersScreen)
                                 }
                             )
                         }
@@ -451,7 +416,7 @@ fun ProfileScreen(
                             innerPaddingValues = PaddingValues(12.dp),
                             shape = RoundedCornerShape(40),
                             onClick = {
-                                context.startActivity(Intent(context, SettingsActivity::class.java))
+                                navController.navigate(SettingsScreen)
                             }
                         ) {
                             if (haveMultiAccount) {
@@ -486,12 +451,7 @@ fun ProfileScreen(
                                 innerPaddingValues = PaddingValues(12.dp),
                                 shape = RoundedCornerShape(40),
                                 onClick = {
-                                    context.startActivity(
-                                        Intent(
-                                            context,
-                                            SwitchUserActivity::class.java
-                                        )
-                                    )
+                                    navController.navigate(SwitchUserScreen)
                                 }
                             ) {
                                 BiliTextIcon(

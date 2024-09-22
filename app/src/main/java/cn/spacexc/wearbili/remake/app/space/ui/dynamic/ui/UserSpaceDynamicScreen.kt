@@ -1,6 +1,8 @@
 package cn.spacexc.wearbili.remake.app.space.ui.dynamic.ui
 
-import android.app.Activity
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.wearbili.remake.app.main.dynamic.domain.remote.list.DynamicItem
@@ -30,11 +33,14 @@ import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 import kotlinx.coroutines.flow.Flow
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun Activity.UserSpaceDynamicScreen(
+fun SharedTransitionScope.UserSpaceDynamicScreen(
+    navController: NavController,
     pagingItems: Flow<PagingData<DynamicItem>>,
     viewModel: UserSpaceViewModel,
-    listState: LazyListState
+    listState: LazyListState,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val lazyItems = pagingItems.collectAsLazyPagingItems()
     LoadableBox(uiState = lazyItems.loadState.refresh.toUIState(), onRetry = lazyItems::retry) {
@@ -73,7 +79,11 @@ fun Activity.UserSpaceDynamicScreen(
             }
             items(count = lazyItems.itemCount) {
                 lazyItems[it]?.let { dynamicItem ->
-                    DynamicCard(item = dynamicItem, context = this@UserSpaceDynamicScreen)
+                    DynamicCard(
+                        item = dynamicItem,
+                        navController = navController,
+                        animatedVisibilityScope = animatedVisibilityScope
+                    )
                 }
             }
             item {

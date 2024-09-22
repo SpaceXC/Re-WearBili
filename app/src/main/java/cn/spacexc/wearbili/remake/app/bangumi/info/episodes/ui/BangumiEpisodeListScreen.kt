@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app.bangumi.info.episodes.ui
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,21 +13,30 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.app.bangumi.info.episodes.BangumiEpisodesViewModel
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_EPID
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID
+import cn.spacexc.wearbili.remake.common.UIState
 import cn.spacexc.wearbili.remake.common.ui.SmallBangumiCard
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 
+@kotlinx.serialization.Serializable
+data class BangumiEpisodeListScreen(val bangumiIdType: String, val bangumiId: Long, val index: Int)
 
 @Composable
-fun Activity.BangumiEpisodeListScreen(
+fun BangumiEpisodeListScreen(
+    navController: NavController,
     bangumiIdType: String,
     bangumiId: Long,
-    viewModel: BangumiEpisodesViewModel,
+    viewModel: BangumiEpisodesViewModel = viewModel(),
     screenIndex: Int
 ) {
+    LaunchedEffect(key1 = Unit) {
+        if (viewModel.uiState != UIState.Success)
+            viewModel.getBangumiInfo(bangumiIdType, bangumiId)
+    }
     val pagerState = rememberPagerState {
         viewModel.bangumiInfo.size
     }
@@ -41,34 +48,10 @@ fun Activity.BangumiEpisodeListScreen(
     LaunchedEffect(key1 = Unit) {
         pagerState.scrollToPage(screenIndex)
     }
-    TitleBackground(title = currentTitle, onRetry = {
+    TitleBackground(navController = navController, title = currentTitle, onRetry = {
         viewModel.getBangumiInfo(bangumiIdType, bangumiId)
-    }, onBack = ::finish, uiState = viewModel.uiState) {
+    }, onBack = navController::navigateUp, uiState = viewModel.uiState) {
         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
-            /*viewModel.bangumiInfo[page].second.forEachIndexed { index, episode ->
-                LazyColumn(
-                    contentPadding = PaddingValues(
-                        horizontal = TitleBackgroundHorizontalPadding(),
-                        vertical = 8.dp
-                    )
-                ) {
-                    item(key = episode.ep_id) {
-                        SmallBangumiCard(
-                            title = episode.long_title.ifEmpty { episode.title },
-                            cover = episode.cover,
-                            epName = "EP${index.plus(1)}",
-                            bangumiId = episode.ep_id,
-                            bangumiIdType = BANGUMI_ID_TYPE_EPID,
-                            onClick = {
-                                setResult(0, Intent().apply {
-                                    putExtra(PARAM_BANGUMI_ID, episode.ep_id)
-                                })
-                                finish()
-                            }
-                        )
-                    }
-                }
-            }*/
             val (_, episodes) = viewModel.bangumiInfo[page]
             LazyColumn(
                 contentPadding = PaddingValues(
@@ -83,11 +66,12 @@ fun Activity.BangumiEpisodeListScreen(
                         epName = "EP${index.plus(1)}",
                         bangumiId = episode.ep_id,
                         bangumiIdType = BANGUMI_ID_TYPE_EPID,
+                        navController = navController,
                         onClick = {
-                            setResult(0, Intent().apply {
+                            /*setResult(0, Intent().apply {
                                 putExtra(PARAM_BANGUMI_ID, episode.ep_id)
                             })
-                            finish()
+                            finish()*/
                         }
                     )
                 }

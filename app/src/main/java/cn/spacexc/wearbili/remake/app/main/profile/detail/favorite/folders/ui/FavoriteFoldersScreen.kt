@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.folders.ui
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -29,9 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.detail.ui.FavouriteFolderDetailActivity
-import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.detail.ui.PARAM_FAVOURITE_FOLDER_ID
-import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.detail.ui.PARAM_FAVOURITE_FOLDER_NAME
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.detail.ui.FavouriteFolderDetailScreen
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.IconText
@@ -46,16 +45,23 @@ import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+object FavoriteFoldersScreen
+
 @Composable
-fun Activity.FavoriteFoldersScreen(
-    viewModel: FavoriteFolderViewModel,
-    onBack: () -> Unit
+fun FavoriteFoldersScreen(
+    viewModel: FavoriteFolderViewModel = viewModel(),
+    navController: NavController
 ) {
     val defaultFolder = viewModel.folders.find { it?.data?.title == "默认收藏夹" }
     val otherFolders = viewModel.folders.filter { it?.data?.title != "默认收藏夹" }
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getFolders()
+    }
     TitleBackground(
+        navController = navController,
         title = "个人收藏",
-        onBack = onBack,
+        onBack = navController::navigateUp,
         uiState = viewModel.uiState,
         onRetry = viewModel::getFolders
     ) {
@@ -70,10 +76,12 @@ fun Activity.FavoriteFoldersScreen(
                         modifier = Modifier.fillMaxWidth(),
                         innerPaddingValues = PaddingValues(8.dp),
                         onClick = {
-                            startActivity(Intent(this@FavoriteFoldersScreen, FavouriteFolderDetailActivity::class.java).apply {
-                                putExtra(PARAM_FAVOURITE_FOLDER_ID, defaultFolder.data.id)
-                                putExtra(PARAM_FAVOURITE_FOLDER_NAME, defaultFolder.data.title)
-                            })
+                            navController.navigate(
+                                FavouriteFolderDetailScreen(
+                                    defaultFolder.data.id,
+                                    defaultFolder.data.title
+                                )
+                            )
                         }
                     ) {
                         Column {
@@ -120,10 +128,12 @@ fun Activity.FavoriteFoldersScreen(
                             modifier = Modifier.fillMaxWidth(),
                             innerPaddingValues = PaddingValues(8.dp),
                             onClick = {
-                                startActivity(Intent(this@FavoriteFoldersScreen, FavouriteFolderDetailActivity::class.java).apply {
-                                    putExtra(PARAM_FAVOURITE_FOLDER_ID, folder.data.id)
-                                    putExtra(PARAM_FAVOURITE_FOLDER_NAME, folder.data.title)
-                                })
+                                navController.navigate(
+                                    FavouriteFolderDetailScreen(
+                                        folder.data.id,
+                                        folder.data.title
+                                    )
+                                )
                             }
                         ) {
                             Row(

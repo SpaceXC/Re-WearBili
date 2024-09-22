@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.feedback.ui.issues
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +13,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.remake.common.toUIState
@@ -23,14 +24,18 @@ import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 
+@kotlinx.serialization.Serializable
+object AllIssuesScreen
+
 @Composable
-fun Activity.AllIssuesScreen(viewModel: AllIssuesViewModel) {
+fun AllIssuesScreen(viewModel: AllIssuesViewModel = hiltViewModel(), navController: NavController) {
     val items = viewModel.pager.collectAsLazyPagingItems()
     TitleBackground(
+        navController = navController,
         title = "我的提交",
         onRetry = items::retry,
         uiState = items.loadState.refresh.toUIState(),
-        onBack = ::finish
+        onBack = navController::navigateUp
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),

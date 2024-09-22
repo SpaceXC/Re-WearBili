@@ -38,6 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import java.io.File
 import javax.inject.Inject
 import kotlin.system.exitProcess
@@ -55,7 +56,7 @@ const val TAG = "Re:WearBili"
 val APP_VERSION_NAME = Application.getVersionName()
 val APP_VERSION_CODE = Application.getReleaseNumber()
 
-var Context.isAudioServiceUp by mutableStateOf(false)
+var isAudioServiceUp by mutableStateOf(false)
 
 @HiltAndroidApp
 class Application : android.app.Application(), Configuration.Provider {
@@ -100,6 +101,9 @@ class Application : android.app.Application(), Configuration.Provider {
             exitProcess(2)
             //throw throwable
         }
+
+        IjkMediaPlayer.loadLibrariesOnce(null)
+        IjkMediaPlayer.native_profileBegin("libijkplayer.so")
         LeanCloud.initialize(
             this,
             LEANCLOUD_APP_ID,
@@ -138,7 +142,7 @@ class Application : android.app.Application(), Configuration.Provider {
     private fun checkIfAudioServiceIsUp() {
         CoroutineScope(Dispatchers.IO).launch {
             while (true) {
-                this@Application.isAudioServiceUp = AudioPlayerManager.isAudioPlayerOn()
+                isAudioServiceUp = AudioPlayerManager.isAudioPlayerOn()
                     //isForegroundServiceRunning(this@Application, AudioPlayerService::class.java)
                 delay(800)
             }

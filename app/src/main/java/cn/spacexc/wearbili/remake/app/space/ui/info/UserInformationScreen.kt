@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.space.ui.info
 
-import android.app.Activity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
@@ -11,12 +10,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.app.space.ui.UserSpaceViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun Activity.UserInformationScreen(
-    viewModel: UserSpaceViewModel
+fun UserInformationScreen(
+    navController: NavController,
+    viewModel: UserSpaceViewModel = hiltViewModel()
 ) {
     var isShowingDetail by remember {
         mutableStateOf(false)
@@ -31,7 +33,8 @@ fun Activity.UserInformationScreen(
                 DetailInformationScreen(
                     viewModel = viewModel,
                     animatedContentScope = this,
-                    sharedTransitionScope = this@SharedTransitionLayout
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    navController = navController
                 ) {
                     isShowingDetail = false
                 }

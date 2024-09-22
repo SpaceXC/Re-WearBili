@@ -1,9 +1,5 @@
 package cn.spacexc.wearbili.remake.app.video.info.info.ui
 
-import android.app.Activity
-import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -56,39 +52,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import cn.spacexc.bilibilisdk.sdk.video.info.remote.info.web.detailed.Data
 import cn.spacexc.wearbili.common.copyToClipboard
-import cn.spacexc.wearbili.common.domain.log.logd
 import cn.spacexc.wearbili.common.domain.time.secondToTime
 import cn.spacexc.wearbili.common.domain.time.toDateStr
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.cache.create.ui.CreateNewCacheActivity
-import cn.spacexc.wearbili.remake.app.cache.create.ui.PARAM_VIDEO_BVID
-import cn.spacexc.wearbili.remake.app.link.qrcode.PARAM_QRCODE_CONTENT
-import cn.spacexc.wearbili.remake.app.link.qrcode.PARAM_QRCODE_MESSAGE
-import cn.spacexc.wearbili.remake.app.link.qrcode.QrCodeActivity
-import cn.spacexc.wearbili.remake.app.player.audio.AudioPlayerActivity
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
-import cn.spacexc.wearbili.remake.app.season.ui.PARAM_AMBIENT_IMAGE
-import cn.spacexc.wearbili.remake.app.season.ui.PARAM_MID
-import cn.spacexc.wearbili.remake.app.season.ui.PARAM_SEASON_ID
-import cn.spacexc.wearbili.remake.app.season.ui.PARAM_SEASON_NAME
-import cn.spacexc.wearbili.remake.app.season.ui.PARAM_UPLOADER_NAME
-import cn.spacexc.wearbili.remake.app.season.ui.SeasonActivity
+import cn.spacexc.wearbili.remake.app.link.qrcode.QrCodeScreen
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerScreen
+import cn.spacexc.wearbili.remake.app.season.ui.SeasonScreen
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
-import cn.spacexc.wearbili.remake.app.video.action.coin.ui.CoinActivity
-import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.PARAM_VIDEO_AID
-import cn.spacexc.wearbili.remake.app.video.action.favourite.ui.VideoFavouriteFoldersActivity
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.UIState
@@ -132,13 +113,15 @@ data class VideoInformationScreenState(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun Activity.VideoInformationScreen(
+fun VideoBasicInformationScreen(
     state: VideoInformationScreenState,
-    context: Activity,
+    navController: NavController,
     videoInformationViewModel: VideoInformationViewModel,
     videoIdType: String,
-    videoId: String
+    videoId: String,
+    onRetry: () -> Unit
 ) {
+    val localContext = LocalContext.current
     val localDensity = LocalDensity.current
     val scope = rememberCoroutineScope()
 
@@ -225,38 +208,9 @@ fun Activity.VideoInformationScreen(
     val currentPlayer =
         LocalConfiguration.current.defaultPlayer //by SettingsManager.currentPlayer.collectAsState(initial = "videoPlayer")
 
-    val favouriteRequestActivityLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-        onResult = { result ->
-            logd("back from favourite activity!")
-            val isStillFavourite = result.data?.getBooleanExtra("isStillFavourite", true)
-            if (isStillFavourite != null) {
-                videoInformationViewModel.isFav = isStillFavourite
-            }
-            if (isStillFavourite == true) {
-                ToastUtils.showText("别让我在收藏夹吃灰哦")
-            }
-        }
-    )
-    val coinRequestActivityLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-        onResult = { result ->
-            logd("back from favourite activity!")
-            val isCoined = result.data?.getBooleanExtra("isCoined", true)
-            if (isCoined != null) {
-                videoInformationViewModel.isCoined = isCoined
-                val count = result.data?.getIntExtra("coinCount", 0) ?: 0
-                videoInformationViewModel.hasCoinedCount = count
-            }
-            if (isCoined == true) {
-                ToastUtils.showText("投币成功！")
-            }
-        }
-    )
 
-    LoadableBox(uiState = state.uiState, onRetry = {
-        videoInformationViewModel.getVideoInfo(videoIdType, videoId, context)
-    }) {
+
+    LoadableBox(uiState = state.uiState, onRetry = onRetry) {
         Column(
             modifier = Modifier
                 .verticalScroll(state.scrollState)
@@ -353,7 +307,7 @@ fun Activity.VideoInformationScreen(
                         modifier = Modifier
                             .alpha(0.7f)
                             .clickVfx(onLongClick = {
-                                video.bvid.copyToClipboard(context = context)
+                                video.bvid.copyToClipboard(context = localContext)
                                 ToastUtils.showText(content = "已复制BV号")
                             }),
                         fontSize = 11.sp,
@@ -377,7 +331,8 @@ fun Activity.VideoInformationScreen(
                                 mid = user.mid,
                                 officialVerify = (user.officialVerify?.type).toOfficialVerify(),
                                 usernameColor = user.vip?.nicknameColor ?: "#FFFFFF",
-                                userInfo = "${user.fans.toShortChinese()}粉丝"
+                                userInfo = "${user.fans.toShortChinese()}粉丝",
+                                navController = navController
                             )
                         }
                     } else {
@@ -395,7 +350,8 @@ fun Activity.VideoInformationScreen(
                                     officialVerify = it.official?.type.toOfficialVerify(),
                                     usernameColor = it.vip?.nicknameColor ?: "#FFFFFF",
                                     userInfo = it.title,
-                                    isFillMaxWidth = false
+                                    isFillMaxWidth = false,
+                                    navController = navController
                                 )
                             }
                         }
@@ -409,7 +365,7 @@ fun Activity.VideoInformationScreen(
                                 vertical = 12.dp
                             ),
                             onClick = {
-                                context.startActivity(
+                                /*context.startActivity(
                                     Intent(
                                         context,
                                         SeasonActivity::class.java
@@ -422,7 +378,17 @@ fun Activity.VideoInformationScreen(
                                             PARAM_AMBIENT_IMAGE,
                                             video.pic.replace("http://", "https://")
                                         )
-                                    })
+                                    }
+                                )*/
+                                navController.navigate(
+                                    SeasonScreen(
+                                        season.title,
+                                        season.id,
+                                        video.owner.name,
+                                        season.mid,
+                                        video.pic.replace("http://", "https://")
+                                    )
+                                )
                             }
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -486,7 +452,7 @@ fun Activity.VideoInformationScreen(
                                     modifier = Modifier.clickVfx(onClick = {
                                         when (currentPlayer) {
                                             Player.VideoPlayer -> {
-                                                Intent(
+                                                /*Intent(
                                                     context,
                                                     Media3PlayerActivity::class.java
                                                 ).apply {
@@ -500,11 +466,20 @@ fun Activity.VideoInformationScreen(
                                                         page.cid.logd("cid")
                                                     )
                                                     context.startActivity(this)
-                                                }
+                                                }*/
+                                                navController.navigate(
+                                                    IjkVideoPlayerScreen(
+                                                        isCacheVideo = false,
+                                                        videoIdType = VIDEO_TYPE_BVID,
+                                                        videoId = video.bvid,
+                                                        videoCid = video.cid,
+                                                        isBangumi = false
+                                                    )
+                                                )
                                             }
 
                                             Player.AudioPlayer -> {
-                                                Intent(
+                                                /*Intent(
                                                     context,
                                                     AudioPlayerActivity::class.java
                                                 ).apply {
@@ -518,7 +493,8 @@ fun Activity.VideoInformationScreen(
                                                         page.cid.logd("cid")
                                                     )
                                                     context.startActivity(this)
-                                                }
+                                                }*/
+                                                //TODO 打开播放器
                                             }
 
                                             else -> {
@@ -528,12 +504,12 @@ fun Activity.VideoInformationScreen(
 
                                     },
                                         onLongClick = {
-                                            Intent(context, AudioPlayerActivity::class.java).apply {
+                                            /*Intent(context, AudioPlayerActivity::class.java).apply {
                                                 putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
                                                 putExtra(PARAM_VIDEO_ID, video.bvid)
                                                 putExtra(PARAM_VIDEO_CID, page.cid)
                                                 context.startActivity(this)
-                                            }
+                                            }*/
                                             //TODO 跳转到播放器设置
                                         })
                                 ) {
@@ -599,7 +575,7 @@ fun Activity.VideoInformationScreen(
                             onClick = {
                                 when (currentPlayer) {
                                     Player.VideoPlayer -> {
-                                        Intent(
+                                        /*Intent(
                                             context,
                                             Media3PlayerActivity::class.java
                                         ).apply {
@@ -607,16 +583,25 @@ fun Activity.VideoInformationScreen(
                                             putExtra(PARAM_VIDEO_ID, video.bvid)
                                             putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
                                             context.startActivity(this)
-                                        }
+                                        }*/
+                                        navController.navigate(
+                                            IjkVideoPlayerScreen(
+                                                isCacheVideo = false,
+                                                videoIdType = VIDEO_TYPE_BVID,
+                                                videoId = video.bvid,
+                                                videoCid = video.cid,
+                                                isBangumi = false
+                                            )
+                                        )
                                     }
 
                                     Player.AudioPlayer -> {
-                                        Intent(context, AudioPlayerActivity::class.java).apply {
+                                        /*Intent(context, AudioPlayerActivity::class.java).apply {
                                             putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
                                             putExtra(PARAM_VIDEO_ID, video.bvid)
                                             putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
                                             context.startActivity(this)
-                                        }
+                                        }*/
                                     }
 
                                     else -> {
@@ -626,12 +611,12 @@ fun Activity.VideoInformationScreen(
 
                             },
                             onLongClick = {
-                                Intent(context, AudioPlayerActivity::class.java).apply {
+                                /*Intent(context, AudioPlayerActivity::class.java).apply {
                                     putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
                                     putExtra(PARAM_VIDEO_ID, video.bvid)
                                     putExtra(PARAM_VIDEO_CID, video.cid.logd("cid"))
                                     context.startActivity(this)
-                                }
+                                }*/
                                 //TODO 跳转到播放器设置
                             })
                         OutlinedRoundButton(
@@ -647,7 +632,7 @@ fun Activity.VideoInformationScreen(
                             modifier = Modifier.weight(1f),
                             buttonModifier = Modifier.aspectRatio(1f),
                             onClick = {
-                                startActivity(
+                                /*startActivity(
                                     Intent(
                                         this@VideoInformationScreen,
                                         QrCodeActivity::class.java
@@ -657,7 +642,14 @@ fun Activity.VideoInformationScreen(
                                             PARAM_QRCODE_CONTENT,
                                             "https://www.bilibili.com/video/${video.bvid}"
                                         )
-                                    })
+                                    })*/
+                                navController.navigate(
+                                    QrCodeScreen(
+                                        "https://www.bilibili.com/video/${video.bvid}",
+                                        "扫码在手机上观看"
+                                    )
+                                )
+                                //TODO Goto url
                             }
                         )
                     }
@@ -694,7 +686,7 @@ fun Activity.VideoInformationScreen(
                             buttonModifier = Modifier.aspectRatio(1f),
                             onClick = {
                                 videoInformationViewModel.likeVideo(
-                                    cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.VIDEO_TYPE_BVID,
+                                    VIDEO_TYPE_BVID,
                                     video.bvid
                                 )
                                 false
@@ -716,12 +708,12 @@ fun Activity.VideoInformationScreen(
                             modifier = Modifier.weight(1f),
                             buttonModifier = Modifier.aspectRatio(1f),
                             onClick = {
-                                favouriteRequestActivityLauncher.launch(Intent(
+                                /*favouriteRequestActivityLauncher.launch(Intent(
                                     context,
                                     VideoFavouriteFoldersActivity::class.java
                                 ).apply {
                                     putExtra(PARAM_VIDEO_AID, video.aid)
-                                })
+                                })*/
                                 false
                             },
                             outlineProgress = sanlianHitProgress / -360f,
@@ -741,7 +733,7 @@ fun Activity.VideoInformationScreen(
                             modifier = Modifier.weight(1f),
                             buttonModifier = Modifier.aspectRatio(1f),
                             onClick = {
-                                coinRequestActivityLauncher.launch(
+                                /*coinRequestActivityLauncher.launch(
                                     Intent(
                                         context,
                                         CoinActivity::class.java
@@ -749,7 +741,7 @@ fun Activity.VideoInformationScreen(
                                         putExtra(PARAM_VIDEO_ID_TYPE, videoIdType)
                                         putExtra(PARAM_VIDEO_ID, videoId)
                                     }
-                                )
+                                )*/
                                 false
                             },
                             outlineProgress = sanlianHitProgress / -360f,
@@ -796,13 +788,13 @@ fun Activity.VideoInformationScreen(
                             modifier = Modifier.weight(1f),
                             buttonModifier = Modifier.aspectRatio(1f),
                             onClick = {
-                                context.startActivity(
-                                    Intent(
-                                        context,
-                                        CreateNewCacheActivity::class.java
-                                    ).apply {
-                                        putExtra(PARAM_VIDEO_BVID, video.bvid)
-                                    })
+                                /* context.startActivity(
+                                     Intent(
+                                         context,
+                                         CreateNewCacheActivity::class.java
+                                     ).apply {
+                                         putExtra(PARAM_VIDEO_BVID, video.bvid)
+                                     })*/
                             }
 
                         )

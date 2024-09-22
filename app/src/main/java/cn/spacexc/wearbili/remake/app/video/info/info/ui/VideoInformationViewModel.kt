@@ -1,8 +1,6 @@
 package cn.spacexc.wearbili.remake.app.video.info.info.ui
 
-import android.app.Activity
 import android.app.Application
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -12,17 +10,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import cn.spacexc.bilibilisdk.sdk.video.action.VideoAction
 import cn.spacexc.bilibilisdk.sdk.video.info.VideoInfo
 import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.domain.log.logd
-import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BANGUMI_ID_TYPE_EPID
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiActivity
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID
-import cn.spacexc.wearbili.remake.app.bangumi.info.ui.PARAM_BANGUMI_ID_TYPE
+import cn.spacexc.wearbili.remake.app.bangumi.info.ui.BangumiScreen
 import cn.spacexc.wearbili.remake.common.ToastUtils
 import cn.spacexc.wearbili.remake.common.UIState
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -58,7 +55,8 @@ class VideoInformationViewModel @Inject constructor(
     fun getVideoInfo(
         videoIdType: String,
         videoId: String?,
-        activity: Activity
+        navController: NavController,
+        onPreload: (Long) -> Unit
     ) {
         state = state.copy(uiState = UIState.Loading)
         viewModelScope.launch {
@@ -77,15 +75,18 @@ class VideoInformationViewModel @Inject constructor(
                 val epid = uri.path?.replace("/bangumi/play/", "")
                 if (epid?.startsWith("ep") == true) {
                     val epidLong = epid.replace("ep", "").toLong()
-                    activity.startActivity(Intent(activity, BangumiActivity::class.java).apply {
+                    /*activity.startActivity(Intent(activity, BangumiActivity::class.java).apply {
                         putExtra(PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_EPID)
                         putExtra(PARAM_BANGUMI_ID, epidLong)
                     })
-                    activity.finish()
+                    activity.finish()*/
+                    navController.navigateUp()
+                    navController.navigate(BangumiScreen(BANGUMI_ID_TYPE_EPID, epidLong))
                 }
             }
             getVideoSanLianState(videoIdType, videoId)
             state = state.copy(uiState = UIState.Success, videoData = response.data?.data)
+            state.videoData?.view?.cid?.let { onPreload(it) }
         }
     }
 

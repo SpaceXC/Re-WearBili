@@ -1,12 +1,15 @@
 package cn.spacexc.wearbili.remake.app.video.info.comment.ui
 
+import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import cn.spacexc.wearbili.remake.app.TAG
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.paging.CommentPagingSource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,8 +28,10 @@ import javax.inject.Inject
 class CommentViewModel @Inject constructor(
     private val networkUtils: cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils,
 ) : ViewModel() {
-    private val commentPagingSources = HashMap<String, Pager<Int, CommentContentData>>()
+    val commentPagingSources = HashMap<String, Flow<PagingData<CommentContentData>>>()
     private val commentLazyColumnScrollState = HashMap<String, LazyListState>()
+
+    @Composable
     fun commentListFlow(oid: String?): Flow<PagingData<CommentContentData>>? {
         if (oid.isNullOrEmpty()) return null
         if (commentPagingSources[oid] != null) commentPagingSources[oid]
@@ -36,9 +41,11 @@ class CommentViewModel @Inject constructor(
                     networkUtils = networkUtils,
                     oid = oid
                 )
-            }
+            }.flow.cachedIn(viewModelScope)
 
-        return commentPagingSources[oid]?.flow?.cachedIn(viewModelScope)
+        val currentPagingSource = commentPagingSources[oid]
+        Log.d(TAG, "commentListFlow: $currentPagingSource")
+        return currentPagingSource
     }
 
     fun getScrollState(oid: String?): LazyListState? {

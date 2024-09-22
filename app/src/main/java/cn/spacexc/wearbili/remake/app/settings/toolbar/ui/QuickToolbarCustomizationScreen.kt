@@ -1,8 +1,6 @@
 package cn.spacexc.wearbili.remake.app.settings.toolbar.ui
 
 import BiliTextIcon
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,11 +39,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cn.spacexc.wearbili.remake.app.cache.list.CacheListActivity
-import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.folders.ui.FavoriteFolderActivity
-import cn.spacexc.wearbili.remake.app.main.profile.detail.history.ui.HistoryActivity
-import cn.spacexc.wearbili.remake.app.message.MessageActivity
-import cn.spacexc.wearbili.remake.app.search.ui.SearchActivity
+import androidx.navigation.NavController
+import cn.spacexc.wearbili.remake.app.main.profile.detail.favorite.folders.ui.FavoriteFoldersScreen
+import cn.spacexc.wearbili.remake.app.main.profile.detail.history.ui.HistoryScreen
+import cn.spacexc.wearbili.remake.app.search.ui.SearchScreen
 import cn.spacexc.wearbili.remake.app.settings.LocalConfiguration
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
 import cn.spacexc.wearbili.remake.common.ui.Card
@@ -75,7 +72,7 @@ data class QuickToolbarFunctionDetail(
     val name: String,
     val icon: @Composable () -> Unit,
     val type: QuickToolBarFunction,
-    val action: (Activity) -> Unit
+    val action: (NavController) -> Unit
 )
 
 val functionList = listOf(QuickToolbarFunctionDetail(name = "历史", icon = {
@@ -87,7 +84,7 @@ val functionList = listOf(QuickToolbarFunctionDetail(name = "历史", icon = {
         tint = Color.White
     )*/
 }, type = QuickToolBarFunction.History, action = {
-    it.startActivity(Intent(it, HistoryActivity::class.java))
+    it.navigate(HistoryScreen)
 }), QuickToolbarFunctionDetail(name = "搜索", icon = {
     /*Icon(
         imageVector = Icons.Default.Search,
@@ -97,7 +94,7 @@ val functionList = listOf(QuickToolbarFunctionDetail(name = "历史", icon = {
     )*/
     BiliTextIcon(icon = "eacb", size = 20.sp, modifier = Modifier.offset(y = (-0.5).dp))
 }, type = QuickToolBarFunction.Search, action = {
-    it.startActivity(Intent(it, SearchActivity::class.java))
+    it.navigate(SearchScreen())
 }), QuickToolbarFunctionDetail(name = "缓存", icon = {
     /*Icon(
         imageVector = Icons.Outlined.FileDownload,
@@ -107,7 +104,7 @@ val functionList = listOf(QuickToolbarFunctionDetail(name = "历史", icon = {
     )*/
     BiliTextIcon(icon = "eaa2", size = 20.sp, modifier = Modifier.offset(y = (-0.5).dp))
 }, type = QuickToolBarFunction.Cache, action = {
-    it.startActivity(Intent(it, CacheListActivity::class.java))
+    //it.startActivity(Intent(it, CacheListActivity::class.java))
 }), QuickToolbarFunctionDetail(name = "消息", icon = {
     /*Icon(
         imageVector = Icons.Outlined.FileDownload,
@@ -117,7 +114,7 @@ val functionList = listOf(QuickToolbarFunctionDetail(name = "历史", icon = {
     )*/
     BiliTextIcon(icon = "ea94", size = 20.sp, modifier = Modifier.offset(y = (-0.5).dp))
 }, type = QuickToolBarFunction.Message, action = {
-    it.startActivity(Intent(it, MessageActivity::class.java))
+    //it.startActivity(Intent(it, MessageActivity::class.java))
 }), QuickToolbarFunctionDetail(name = "收藏", icon = {
     Icon(
         painter = painterResource(id = cn.spacexc.wearbili.remake.R.drawable.icon_favourite),
@@ -128,7 +125,7 @@ val functionList = listOf(QuickToolbarFunctionDetail(name = "历史", icon = {
         tint = Color.White
     )
 }, type = QuickToolBarFunction.Favourite, action = {
-    it.startActivity(Intent(it, FavoriteFolderActivity::class.java))
+    it.navigate(FavoriteFoldersScreen)
 }), QuickToolbarFunctionDetail(name = "无", icon = {
     Icon(
         imageVector = Icons.Outlined.NotInterested,
@@ -142,11 +139,17 @@ val functionList = listOf(QuickToolbarFunctionDetail(name = "历史", icon = {
 val QuickToolBarFunction.toFunctionDetail: QuickToolbarFunctionDetail?
     get() = functionList.find { it.type == this }
 
-@Composable
-fun Activity.QuickToolbarCustomizationScreen() {
-    TitleBackground(title = "编辑功能区", onBack = ::finish, onRetry = {}) {
-        val configuration = LocalConfiguration.current
+@kotlinx.serialization.Serializable
+object QuickToolbarCustomizationScreen
 
+@Composable
+fun QuickToolbarCustomizationScreen(navController: NavController) {
+    TitleBackground(
+        navController = navController,
+        title = "编辑功能区",
+        onBack = navController::navigateUp,
+        onRetry = {}) {
+        val configuration = LocalConfiguration.current
         var firstFunction by remember {
             mutableStateOf(
                 configuration.toolBarConfiguration.functionOne.toFunctionDetail
@@ -161,6 +164,14 @@ fun Activity.QuickToolbarCustomizationScreen() {
         }
         var currentEditingSlot by remember {
             mutableStateOf(QuickToolbarCustomizationScreenSlots.SLOT_ONE)
+        }
+
+        LaunchedEffect(key1 = Unit) {
+            SettingsManager.updateConfiguration {
+                copy {
+                    haveToolBarTipDisplayed = true
+                }
+            }
         }
 
         LaunchedEffect(key1 = firstFunction) {

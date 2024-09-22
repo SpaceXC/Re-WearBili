@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.message.system.ui
 
-import android.app.Activity
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +20,8 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import appendBiliIcon
 import cn.spacexc.bilibilisdk.sdk.message.data.system.SystemNotify
@@ -105,15 +106,20 @@ fun NotificationRichText(
     )
 }
 
+@kotlinx.serialization.Serializable
+object SystemNotificationsListScreen
+
 @Composable
-fun Activity.SystemNotificationScreen(
-    viewModel: SystemNotificationViewModel
+fun SystemNotificationScreen(
+    viewModel: SystemNotificationViewModel = viewModel(),
+    navController: NavController
 ) {
     val lazyListData = viewModel.flow.collectAsLazyPagingItems()
     TitleBackground(
+        navController = navController,
         title = "系统通知",
         onRetry = lazyListData::retry,
-        onBack = ::finish,
+        onBack = navController::navigateUp,
         uiState = lazyListData.loadState.refresh.toUIState()
     ) {
         LazyColumn(

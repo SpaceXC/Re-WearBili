@@ -1,10 +1,6 @@
 package cn.spacexc.wearbili.remake.app.bangumi.info.ui
 
 import BiliTextIcon
-import android.app.Activity
-import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -50,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -61,19 +58,12 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.common.domain.color.parseColor
 import cn.spacexc.wearbili.common.domain.video.toShortChinese
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.bangumi.info.episodes.BangumiEpisodeListActivity
-import cn.spacexc.wearbili.remake.app.bangumi.info.episodes.PARAM_BANGUMI_EPISODE_SECTION_INDEX
-import cn.spacexc.wearbili.remake.app.link.qrcode.PARAM_QRCODE_CONTENT
-import cn.spacexc.wearbili.remake.app.link.qrcode.PARAM_QRCODE_MESSAGE
-import cn.spacexc.wearbili.remake.app.link.qrcode.QrCodeActivity
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.Media3PlayerActivity
-import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.PARAM_IS_BANGUMI
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_CID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID
-import cn.spacexc.wearbili.remake.app.video.info.ui.PARAM_VIDEO_ID_TYPE
+import cn.spacexc.wearbili.remake.app.isRotated
+import cn.spacexc.wearbili.remake.app.player.videoplayer.defaultplayer.IjkVideoPlayerScreen
 import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ui.BiliImage
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
@@ -103,17 +93,19 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
         /*@UnstableApi*/
-fun Activity.BangumiInfoScreen(
+fun BangumiInfoScreen(
     viewModel: BangumiViewModel,
     bangumiIdType: String,
-    bangumiId: Long
+    bangumiId: Long,
+    navController: NavController
 ) {
+    val context = LocalContext.current
     val localDensity = LocalDensity.current
-    val episodeDetailLauncher =
+    /*val episodeDetailLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
             val epid = result.data?.getLongExtra(PARAM_BANGUMI_ID, 0L)
             viewModel.currentSelectedEpid = epid ?: viewModel.currentSelectedEpid
-        }
+        }*/
     LoadableBox(uiState = viewModel.uiState, onRetry = {
         viewModel.getBangumiInfo(bangumiIdType, bangumiId)
     }) {
@@ -343,7 +335,7 @@ fun Activity.BangumiInfoScreen(
                         modifier = Modifier
                             .padding(horizontal = titleBackgroundHorizontalPadding() - 2.dp)
                             .clickAlpha {
-                                episodeDetailLauncher.launch(
+                                /*episodeDetailLauncher.launch(
                                     Intent(
                                         this@BangumiInfoScreen,
                                         BangumiEpisodeListActivity::class.java
@@ -352,7 +344,7 @@ fun Activity.BangumiInfoScreen(
                                         putExtra(PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_SSID)
                                         putExtra(PARAM_BANGUMI_ID, bangumi.season_id)
                                     }
-                                )
+                                )*/
                             }
                     ) {
                         Text(
@@ -433,7 +425,7 @@ fun Activity.BangumiInfoScreen(
                             modifier = Modifier
                                 .padding(horizontal = titleBackgroundHorizontalPadding() - 2.dp)
                                 .clickAlpha {
-                                    episodeDetailLauncher.launch(
+                                    /*episodeDetailLauncher.launch(
                                         Intent(
                                             this@BangumiInfoScreen,
                                             BangumiEpisodeListActivity::class.java
@@ -442,7 +434,7 @@ fun Activity.BangumiInfoScreen(
                                             putExtra(PARAM_BANGUMI_ID_TYPE, BANGUMI_ID_TYPE_SSID)
                                             putExtra(PARAM_BANGUMI_ID, bangumi.season_id)
                                         }
-                                    )
+                                    )*/
                                 }
                         ) {
                             Text(
@@ -548,16 +540,16 @@ fun Activity.BangumiInfoScreen(
                                             section?.episodes?.find { it.ep_id == viewModel.currentSelectedEpid }
                                     }
                                     if (episode != null) {
-                                        Intent(
-                                            this@BangumiInfoScreen,
-                                            Media3PlayerActivity::class.java
-                                        ).apply {
-                                            putExtra(PARAM_VIDEO_ID_TYPE, VIDEO_TYPE_BVID)
-                                            putExtra(PARAM_IS_BANGUMI, true)
-                                            putExtra(PARAM_VIDEO_ID, episode.bvid)
-                                            putExtra(PARAM_VIDEO_CID, episode.cid)
-                                            startActivity(this)
-                                        }
+                                        isRotated = true
+                                        navController.navigate(
+                                            IjkVideoPlayerScreen(
+                                                false,
+                                                VIDEO_TYPE_BVID,
+                                                episode.bvid,
+                                                episode.cid,
+                                                true
+                                            )
+                                        )
                                     }
                                 }
                             )
@@ -574,7 +566,7 @@ fun Activity.BangumiInfoScreen(
                                 modifier = Modifier.weight(1f),
                                 buttonModifier = Modifier.aspectRatio(1f),
                                 onClick = {
-                                    startActivity(
+                                    /*startActivity(
                                         Intent(
                                             this@BangumiInfoScreen,
                                             QrCodeActivity::class.java
@@ -592,7 +584,7 @@ fun Activity.BangumiInfoScreen(
                                                 )
 
                                             }
-                                        })
+                                        })*/
                                 }
                             )
                         }
@@ -633,11 +625,7 @@ fun Activity.BangumiInfoScreen(
                                 onClick = {
                                     if (viewModel.currentSelectedEpid != 0L) {
                                         viewModel.viewModelScope.launch {
-                                            with(this@BangumiInfoScreen) {
-                                                with(viewModel) {
-                                                    cacheBangumi()
-                                                }
-                                            }
+                                            viewModel.cacheBangumi(navController)
                                         }
                                     }
                                 }

@@ -1,6 +1,8 @@
 package cn.spacexc.wearbili.remake.app.video.info.comment.ui
 
-import android.app.Activity
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,19 +30,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.paging.LoadState
-import androidx.paging.PagingData
-import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.LazyPagingItems
 import cn.spacexc.wearbili.common.ifNullOrEmpty
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.app.video.info.comment.domain.CommentContentData
 import cn.spacexc.wearbili.remake.common.toUIState
 import cn.spacexc.wearbili.remake.common.ui.LoadableBox
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
-import cn.spacexc.wearbili.remake.common.ui.isRound
-import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Created by XC-Qan on 2023/4/28.
@@ -50,17 +49,17 @@ import kotlinx.coroutines.flow.Flow
  * 给！爷！写！注！释！
  */
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun CommentScreen(
+fun SharedTransitionScope.CommentScreen(
     viewModel: CommentViewModel,
-    commentDataFlow: Flow<PagingData<CommentContentData>>?,
+    commentsData: LazyPagingItems<CommentContentData>?,
     oid: Long,
     uploaderMid: Long,
-    context: Activity
+    navController: NavController,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
-    if (commentDataFlow != null) {
-        val commentsData = commentDataFlow.collectAsLazyPagingItems()
+    if (commentsData != null) {
         LoadableBox(
             uiState = commentsData.loadState.refresh.toUIState(),
             modifier = Modifier.fillMaxSize(),
@@ -114,7 +113,6 @@ fun CommentScreen(
                             )
                             .background(Color(38, 38, 38, 77)),
                         contentPadding = PaddingValues(
-                            horizontal = if (isRound()) titleBackgroundHorizontalPadding() else 4.dp,
                             vertical = 4.dp
                         ),
                         state = viewModel.getScrollState(oid.toString()) ?: rememberLazyListState()
@@ -151,10 +149,11 @@ fun CommentScreen(
                                     uploaderMid = uploaderMid,
                                     isTopComment = comment.is_top,
                                     isUpLiked = comment.up_action.like,
-                                    context = context,
+                                    navController = navController,
                                     isClickable = true,
                                     oid = oid,
-                                    noteCvid = comment.note_cvid
+                                    noteCvid = comment.note_cvid,
+                                    animatedVisibilityScope = animatedVisibilityScope
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Divider(

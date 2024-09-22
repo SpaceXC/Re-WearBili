@@ -24,13 +24,14 @@ import cn.spacexc.bilibilisdk.sdk.video.info.remote.subtitle.SubtitleFile
 import cn.spacexc.bilibilisdk.utils.UserUtils
 import cn.spacexc.wearbili.common.domain.log.TAG
 import cn.spacexc.wearbili.common.domain.log.logd
-import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheFileInfo
 import cn.spacexc.wearbili.remake.app.cache.domain.database.VideoCacheRepository
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.DanmakuGetter
 import cn.spacexc.wearbili.remake.app.player.videoplayer.danmaku.compose.data.DanmakuSegment
 import cn.spacexc.wearbili.remake.app.settings.SettingsManager
+import cn.spacexc.wearbili.remake.app.video.info.ui.VIDEO_TYPE_BVID
 import cn.spacexc.wearbili.remake.common.ToastUtils
+import cn.spacexc.wearbili.remake.common.networking.KtorNetworkUtils
 import cn.spacexc.wearbili.remake.proto.settings.VideoDecoder
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -58,12 +59,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 @SuppressLint("UnsafeOptInUsageError")
-class Media3VideoPlayerViewModel @Inject constructor(
+class IjkVideoPlayerViewModel @Inject constructor(
     private val application: Application,
-    private val repository: VideoCacheRepository,
+    val repository: VideoCacheRepository,
     private val networkUtils: KtorNetworkUtils,
     private val danmakuGetter: DanmakuGetter
 ) : ViewModel() {
+    var currentVideoCid: Long = 0L
+
     var httpPlayer: IjkMediaPlayer = IjkMediaPlayer().apply {
         setLogEnabled(true)
         IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_VERBOSE)
@@ -97,6 +100,8 @@ class Media3VideoPlayerViewModel @Inject constructor(
             setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-fps", 24)  //最大fps
         }
     }
+
+
     var cachePlayer: IjkMediaPlayer = IjkMediaPlayer().apply {
         setLogEnabled(true)
         IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_INFO)
@@ -114,7 +119,6 @@ class Media3VideoPlayerViewModel @Inject constructor(
     var cacheVideoInfo: VideoCacheFileInfo? by mutableStateOf(
         null
     )
-    private var currentVideoCid: Long = 0L
 
     private var videoHistoryPlayProgress = 0L //历史播放进度
 
@@ -151,7 +155,9 @@ class Media3VideoPlayerViewModel @Inject constructor(
         }
     }
 
-    var secondarySubtitleLanguage: String? by mutableStateOf(/*subtitleList.entries.lastOrNull() { !it.value.isAIGenerated }?.key*/null)
+    var secondarySubtitleLanguage: String? by mutableStateOf(/*subtitleList.entries.lastOrNull() { !it.value.isAIGenerated }?.key*/
+        null
+    )
     var secondarySubtitleText = flow {
         var index = 0
         while (true) {
@@ -186,10 +192,14 @@ class Media3VideoPlayerViewModel @Inject constructor(
 
     var videoCastUrl = ""
 
+    var isPaused = false
+
     init {
         httpPlayer.apply {
             setOnPreparedListener {
-                it.start()
+                if (isPaused) {
+                    it.start()
+                }
                 it.seekTo(videoHistoryPlayProgress)
                 startContinuouslyUpdatingSubtitle()
                 videoPlayerAspectRatio = it.videoWidth.toFloat() / it.videoHeight.toFloat()
@@ -255,9 +265,9 @@ class Media3VideoPlayerViewModel @Inject constructor(
         videoIdType: String,
         videoId: String,
         videoCid: Long,
-        isBangumi: Boolean = false,
-        isLowResolution: Boolean = true
+        isBangumi: Boolean = false
     ) {
+        if (videoCid == currentVideoCid) return
         appendLoadMessage("初始化播放器...")
         currentVideoCid = videoCid
         if (isBangumi) {
@@ -267,7 +277,8 @@ class Media3VideoPlayerViewModel @Inject constructor(
                 appendLoadMessage("加载视频url...")
             }
             viewModelScope.launch {
-                val urlResponse = BangumiInfo.getBangumiPlaybackUrl(BANGUMI_ID_TYPE_CID, videoCid)
+                val urlResponse =
+                    BangumiInfo.getBangumiPlaybackUrl(BANGUMI_ID_TYPE_CID, videoCid)
                 val urlData = urlResponse.data?.result
                 if (urlData == null) {
                     appendLoadMessage(
@@ -320,6 +331,7 @@ class Media3VideoPlayerViewModel @Inject constructor(
                 startContinuouslyUpdatingSubtitle()
             }
         }
+
         startContinuouslyUploadingPlayingProgress()
 
     }
@@ -633,6 +645,11 @@ class Media3VideoPlayerViewModel @Inject constructor(
         Log.d(TAG, "appendLoadMessage: $message")
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        httpPlayer.release()
+        cachePlayer.release()
+    }
 }
 
 data class SubtitleConfig(

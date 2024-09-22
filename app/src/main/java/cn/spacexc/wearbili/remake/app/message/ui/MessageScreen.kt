@@ -1,7 +1,5 @@
 package cn.spacexc.wearbili.remake.app.message.ui
 
-import android.app.Activity
-import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -37,19 +35,19 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import appendBiliIcon
 import cn.spacexc.bilibilisdk.sdk.message.data.direct.list.Session
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.message.at.ui.AtMessageActivity
-import cn.spacexc.wearbili.remake.app.message.direct.history.ui.DirectMessageActivity
-import cn.spacexc.wearbili.remake.app.message.direct.history.ui.PARAM_TALKER_MID
-import cn.spacexc.wearbili.remake.app.message.direct.history.ui.PARAM_TALKER_NAME
+import cn.spacexc.wearbili.remake.app.message.at.ui.AtMessageScreen
+import cn.spacexc.wearbili.remake.app.message.direct.history.ui.DirectMessageScreen
 import cn.spacexc.wearbili.remake.app.message.direct.sessions.DirectMessagesListViewModel
 import cn.spacexc.wearbili.remake.app.message.direct.sessions.getMessageContentByString
-import cn.spacexc.wearbili.remake.app.message.like.ui.LikeMessagesActivity
-import cn.spacexc.wearbili.remake.app.message.reply.ui.ReplyMessageActivity
-import cn.spacexc.wearbili.remake.app.message.system.SystemMessageActivity
+import cn.spacexc.wearbili.remake.app.message.like.ui.LikeMessagesScreen
+import cn.spacexc.wearbili.remake.app.message.reply.ui.ReplyMessageScreen
+import cn.spacexc.wearbili.remake.app.message.system.ui.SystemNotificationsListScreen
 import cn.spacexc.wearbili.remake.common.ui.BilibiliPink
 import cn.spacexc.wearbili.remake.common.ui.Card
 import cn.spacexc.wearbili.remake.common.ui.LoadingTip
@@ -60,12 +58,21 @@ import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.toLoadingState
 import cn.spacexc.wearbili.remake.common.ui.toOfficialVerify
 
+@kotlinx.serialization.Serializable
+object MessageScreen
+
 @Composable
-fun Activity.MessageScreen(
-    directMessagesSessionsViewModel: DirectMessagesListViewModel
+fun MessageScreen(
+    navController: NavController,
+    directMessagesSessionsViewModel: DirectMessagesListViewModel = viewModel()
 ) {
     val lazyListData = directMessagesSessionsViewModel.flow.collectAsLazyPagingItems()
-    TitleBackground(title = "消息中心", onRetry = { /*TODO*/ }, onBack = ::finish) {
+    TitleBackground(
+        navController = navController,
+        title = "消息中心",
+        onRetry = { /*TODO*/ },
+        onBack = navController::navigateUp
+    ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(horizontal = 8.dp)
         ) {
@@ -74,7 +81,7 @@ fun Activity.MessageScreen(
                     ic0n = R.drawable.icon_message_system,
                     name = "系统通知",
                 ) {
-                    startActivity(Intent(this@MessageScreen, SystemMessageActivity::class.java))
+                    navController.navigate(SystemNotificationsListScreen)
                 }
             }
             item {
@@ -82,7 +89,7 @@ fun Activity.MessageScreen(
                     ic0n = R.drawable.icon_message_at_me,
                     name = "@我的",
                 ) {
-                    startActivity(Intent(this@MessageScreen, AtMessageActivity::class.java))
+                    navController.navigate(AtMessageScreen)
                 }
             }
             item {
@@ -90,7 +97,7 @@ fun Activity.MessageScreen(
                     ic0n = R.drawable.icon_message_reply_me,
                     name = "回复我的",
                 ) {
-                    startActivity(Intent(this@MessageScreen, ReplyMessageActivity::class.java))
+                    navController.navigate(ReplyMessageScreen)
                 }
             }
             item {
@@ -98,14 +105,15 @@ fun Activity.MessageScreen(
                     ic0n = R.drawable.icon_message_liked_me,
                     name = "收到的赞",
                 ) {
-                    startActivity(Intent(this@MessageScreen, LikeMessagesActivity::class.java))
+                    navController.navigate(LikeMessagesScreen)
                 }
             }
             items(lazyListData.itemCount) { index ->
                 lazyListData[index]?.let {
                     if (it.userCard != null) {
                         DirectMessageSessionCard(
-                            session = it
+                            session = it,
+                            navController = navController
                         )
                     }
                 }
@@ -143,16 +151,21 @@ fun MessageTypeCard(
 }
 
 @Composable
-fun Activity.DirectMessageSessionCard(
-    session: Session
+fun DirectMessageSessionCard(
+    session: Session,
+    navController: NavController
 ) {
     val localDensity = LocalDensity.current
     val userInfo = session.userCard
     Card(shape = RoundedCornerShape(16.dp), innerPaddingValues = PaddingValues(10.dp), onClick = {
-        startActivity(Intent(this, DirectMessageActivity::class.java).apply {
-            putExtra(PARAM_TALKER_NAME, userInfo?.name)
-            putExtra(PARAM_TALKER_MID, userInfo?.mid?.toLongOrNull())
-        })
+        userInfo?.let {
+            navController.navigate(
+                DirectMessageScreen(
+                    talkerName = userInfo.name,
+                    talkerMid = userInfo.mid.toLong()
+                )
+            )
+        }
     }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             var textHeight by remember {

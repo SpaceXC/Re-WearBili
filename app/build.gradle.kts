@@ -40,6 +40,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
         debug {
             buildConfigField("Integer", "releaseNumber", "$releaseNumber")
@@ -142,6 +143,7 @@ dependencies {
     "baselineProfile"(project(":baselineprofile"))
     kapt(libs.hilt.compiler)
     kapt(libs.hilt.work.compiler)
+    implementation(libs.hilt.navigation.compose)
 
 
     implementation(libs.coil.compose)

@@ -1,8 +1,6 @@
 package cn.spacexc.wearbili.remake.app.update.ui
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,8 +39,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.R
-import cn.spacexc.wearbili.remake.app.main.ui.MainActivity
+import cn.spacexc.wearbili.remake.app.main.ui.HomeScreen
 import cn.spacexc.wearbili.remake.app.splash.remote.Version
 import cn.spacexc.wearbili.remake.app.welcome.screens.ReWearBiliText
 import cn.spacexc.wearbili.remake.common.ui.BilibiliBlue
@@ -54,6 +54,8 @@ import cn.spacexc.wearbili.remake.common.ui.clickVfx
 import cn.spacexc.wearbili.remake.common.ui.isRound
 import cn.spacexc.wearbili.remake.common.ui.theme.wearbiliFontFamily
 import cn.spacexc.wearbili.remake.common.ui.titleBackgroundHorizontalPadding
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -67,13 +69,21 @@ import java.util.Locale
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+data class UpdateScreen(val versionInfo: String)
+
 @SuppressLint("SimpleDateFormat")
 @Composable
-fun Activity.UpdateActivityScreen(
+fun UpdateScreen(
     versionInfo: Version?,
-    viewModel: UpdateViewModel
+    viewModel: UpdateViewModel = viewModel(),
+    navController: NavController
 ) {
-    TitleBackground(title = "更新", onBack = ::finish, onRetry = {}) {
+    TitleBackground(
+        navController = navController,
+        title = "更新",
+        onBack = navController::navigateUp,
+        onRetry = {}) {
         versionInfo?.let {
             Column(
                 modifier = Modifier
@@ -81,7 +91,7 @@ fun Activity.UpdateActivityScreen(
                     .padding(horizontal = titleBackgroundHorizontalPadding())
                     .verticalScroll(rememberScrollState()),
             ) {
-                UpdateCard(updateInfo = it)
+                UpdateCard(updateInfo = it, navController = navController)
                 Spacer(modifier = Modifier.height(3.dp))
                 Column(
                     modifier = Modifier
@@ -135,17 +145,12 @@ fun Activity.UpdateActivityScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickVfx {
-                                    startActivity(
-                                        Intent(
-                                            this@UpdateActivityScreen,
-                                            MainActivity::class.java
-                                        ).apply {
-                                            putExtra("updateInfo", versionInfo)
-                                        })
-                                    finish()
-                                    overridePendingTransition(
-                                        R.anim.activity_fade_in,
-                                        R.anim.activity_fade_out
+                                    navController.navigate(
+                                        HomeScreen(
+                                            Json.encodeToString(
+                                                versionInfo
+                                            )
+                                        )
                                     )
                                 },
                             textAlign = if (isRound()) TextAlign.Center else TextAlign.Start
@@ -162,7 +167,7 @@ fun Activity.UpdateActivityScreen(
 fun UpdateCard(
     updateInfo: Version,
     clickable: Boolean = false,
-    context: Activity? = null
+    navController: NavController
 ) {
     val localDensity = LocalDensity.current
     var cardHeight by remember {
@@ -179,11 +184,7 @@ fun UpdateCard(
         fillMaxSize = false,
         isClickEnabled = clickable,
         onClick = {
-            context?.apply {
-                startActivity(Intent(this, UpdateActivity::class.java).apply {
-                    putExtra("updateInfo", updateInfo)
-                })
-            }
+            navController.navigate(UpdateScreen(Json.encodeToString(updateInfo)))
         }
     ) {
         Image(

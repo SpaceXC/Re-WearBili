@@ -1,6 +1,5 @@
 package cn.spacexc.wearbili.remake.app.cache.list
 
-import android.app.Activity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import cn.spacexc.wearbili.remake.R
 import cn.spacexc.wearbili.remake.common.ui.TitleBackground
 import cn.spacexc.wearbili.remake.common.ui.VideoCacheCard
@@ -38,14 +39,22 @@ import cn.spacexc.wearbili.remake.common.ui.wearBiliAnimateContentPlacement
  * 给！爷！写！注！释！
  */
 
+@kotlinx.serialization.Serializable
+object CacheListScreen
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Activity.CacheListScreen(
-    viewModel: CacheListViewModel
+fun CacheListScreen(
+    viewModel: CacheListViewModel = hiltViewModel(),
+    navController: NavController
 ) {
     val completedTasks by viewModel.completedTasks.collectAsState(initial = emptyList())
     val unCompletedTasks by viewModel.unCompletedTasks.collectAsState(initial = emptyList())
-    TitleBackground(title = "视频缓存", onBack = ::finish, onRetry = {}) {
+    TitleBackground(
+        navController = navController,
+        title = "视频缓存",
+        onBack = navController::navigateUp,
+        onRetry = {}) {
         var currentSelectedCache by remember {
             mutableLongStateOf(0L)
         }
@@ -86,7 +95,7 @@ fun Activity.CacheListScreen(
                             VideoCacheCard(
                                 cacheInfo = task,
                                 modifier = Modifier.wearBiliAnimateContentPlacement(this),
-                                context = this@CacheListScreen,
+                                navController = navController,
                                 onDelete = {
                                     viewModel.deleteCache(task)
                                 },
@@ -114,7 +123,7 @@ fun Activity.CacheListScreen(
                             VideoCacheCard(
                                 cacheInfo = task,
                                 modifier = Modifier.wearBiliAnimateContentPlacement(this),
-                                context = this@CacheListScreen,
+                                navController = navController,
                                 onDelete = {
                                     viewModel.deleteCache(task)
                                 },
